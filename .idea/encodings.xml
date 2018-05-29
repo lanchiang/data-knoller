@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataprep-error" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataprep-metadata" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataprep-model" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataprep-provenance" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataprep-tools" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dataprep-util" charset="UTF-8" />
+  </component>
+</project>
