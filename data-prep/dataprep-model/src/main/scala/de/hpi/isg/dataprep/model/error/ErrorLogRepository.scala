@@ -1,7 +1,6 @@
 package de.hpi.isg.dataprep.model.error
 
-import de.hpi.isg.dataprep.model.error.DataEntity.DataEntity
-import de.hpi.isg.dataprep.model.targets.{ErrorLog, Repository}
+import de.hpi.isg.dataprep.model.targets.{DataEntity, ErrorLog, Repository, Target}
 
 import scala.collection.mutable.ListBuffer
 
@@ -20,4 +19,12 @@ class ErrorLogRepository(de: DataEntity) extends Repository {
   def addNewError(errorLog: ErrorLog): Unit = {
     errorLogRepository += errorLog
   }
+
+  /**
+    * This method adds a piece of {@link Target} into the {@link Repository}.
+    *
+    * @param target
+    * @return
+    */
+  override def addIntoRepository(target: Target): Boolean = ???
 }

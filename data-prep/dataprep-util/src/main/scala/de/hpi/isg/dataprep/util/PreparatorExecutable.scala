@@ -6,5 +6,5 @@ package de.hpi.isg.dataprep.util
   */
 trait PreparatorExecutable {
 
-  def executePreparator() : Unit
+  def execute() : Unit
 }

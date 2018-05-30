@@ -1,10 +1,9 @@
 package de.hpi.isg.dataprep
 
-import de.hpi.isg.dataprep.exceptions.MetadataInvalidException
 import de.hpi.isg.dataprep.model.PreparatorExecutor
 import de.hpi.isg.dataprep.model.metadata.handler.{MetadataCoordinator, MetadataRepository, MetadataValidator}
 import de.hpi.isg.dataprep.model.provenance.ProvenanceRepository
-import de.hpi.isg.dataprep.model.targets.Preparator
+import de.hpi.isg.dataprep.model.targets.{Preparator, Target}
 import org.apache.spark.sql.DataFrame
 
 
@@ -21,7 +20,7 @@ class DataPreparationTask(df: DataFrame) {
   def applyPreparator(preparator: Preparator): Unit = {
     val invalidMetadata = MetadataCoordinator.validateMetadata(preparator)
     if (invalidMetadata.size > 0) {
-      throw new MetadataInvalidException("Metadata:" + invalidMetadata + " are invalid")
+      var extractedMetadata = MetadataCoordinator.extractMissingMetadata(invalidMetadata)
     }
     PreparatorExecutor.execute(preparator)
   }

@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model
 
-import de.hpi.isg.dataprep.model.targets.Preparator
+import de.hpi.isg.dataprep.model.targets.{Preparator, Provenance}
 
 /**
   * @author Lan Jiang
@@ -9,6 +9,9 @@ import de.hpi.isg.dataprep.model.targets.Preparator
 object PreparatorExecutor {
 
   def execute(preparator: Preparator): Unit = {
-    preparator.executePreparator()
+    preparator.execute()
   }
+
+//  def createProvenance(): Provenance = {
+//  }
 }

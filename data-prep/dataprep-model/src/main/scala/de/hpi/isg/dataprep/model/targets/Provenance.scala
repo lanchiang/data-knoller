@@ -1,20 +1,30 @@
 package de.hpi.isg.dataprep.model.targets
 
-import de.hpi.isg.dataprep.util.{Describable, Nameable}
+import java.util.Calendar
 
 /**
   * @author Lan Jiang
   * @since 2018/4/27
   */
-abstract class Provenance
-  extends Target
-    with Nameable
-    with Describable {
+class Provenance(_name: String, _inputData : DataEntity, _outputData : DataEntity)
+  extends Target {
 
-  var preparator: String
-  var time: String
-  var externalResourse: String
-  var inputData: String
-  var outputData: String
-  var description: String
+  override var name: String = _name
+  var time = Calendar.getInstance().getTime
+  var externalResource: String = _
+  var inputData = _inputData
+  var outputData = _outputData
+  override var description: String = _
+
+  override def getName(): String = {
+    name
+  }
+
+  override def getDescription(): String = {
+    description
+  }
+
+  override def setDescription(description: String): Unit = {
+    this.description = description
+  }
 }

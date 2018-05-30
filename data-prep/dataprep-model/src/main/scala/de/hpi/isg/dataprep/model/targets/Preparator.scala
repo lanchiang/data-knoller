@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.targets
 
-import de.hpi.isg.dataprep.util.{Describable, Nameable, PreparatorExecutable}
+import de.hpi.isg.dataprep.util.PreparatorExecutable
 
 /**
   * @author Lan Jiang
@@ -8,9 +8,13 @@ import de.hpi.isg.dataprep.util.{Describable, Nameable, PreparatorExecutable}
   */
 abstract class Preparator
   extends Target
-    with Nameable
-    with Describable
     with PreparatorExecutable {
 
   var requiredMetadata : Set[Metadata]
+  var actionScope : DataEntity
+  var changedMetadata : Set[Metadata]
+}
+
+object Preparator {
+
 }
