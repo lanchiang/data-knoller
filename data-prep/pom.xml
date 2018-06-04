@@ -12,6 +12,7 @@
         <module>dataprep-util</module>
         <module>dataprep-model</module>
         <module>dataprep-tools</module>
+        <module>dataprep-io</module>
     </modules>
 
     <properties>
