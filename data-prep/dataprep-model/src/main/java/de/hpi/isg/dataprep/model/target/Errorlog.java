@@ -6,5 +6,20 @@ package de.hpi.isg.dataprep.model.target;
  */
 public class Errorlog extends Target {
 
+    private String errorType;
 
+    private String originalValue;
+
+    public Errorlog(String errorType, String originalValue) {
+        this.errorType = errorType;
+        this.originalValue = originalValue;
+    }
+
+    @Override
+    public String toString() {
+        return "Errorlog{" +
+                "errorType='" + errorType + '\'' +
+                ", originalValue='" + originalValue + '\'' +
+                '}';
+    }
 }

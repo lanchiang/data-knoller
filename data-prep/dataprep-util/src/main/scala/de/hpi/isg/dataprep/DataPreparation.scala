@@ -245,3 +245,10 @@ class DataPreparation(df: DataFrame) {
     dataFrame.select(reorderedColumnNames.map(column => col(column)): _*)
   }
 }
+
+object DataPreparation {
+
+  def main(args: Array[String]): Unit = {
+
+  }
+}

@@ -13,6 +13,7 @@
         <module>dataprep-model</module>
         <module>dataprep-tools</module>
         <module>dataprep-io</module>
+        <module>dataprep-app</module>
     </modules>
 
     <properties>
@@ -22,6 +23,19 @@
         <scala.major.version>2.11</scala.major.version>
         <hadoop.version>2.8.2</hadoop.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

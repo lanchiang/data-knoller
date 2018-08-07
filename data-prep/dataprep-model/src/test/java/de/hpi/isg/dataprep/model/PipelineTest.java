@@ -2,13 +2,9 @@ package de.hpi.isg.dataprep.model;
 
 import de.hpi.isg.dataprep.DatasetUtil;
 import de.hpi.isg.dataprep.model.target.Pipeline;
-import de.hpi.isg.dataprep.model.target.Preparator;
-import de.hpi.isg.dataprep.preparators.RenameColumn;
 import de.hpi.isg.dataprep.util.DatasetConfig;
-import org.apache.spark.SparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -32,10 +28,12 @@ public class PipelineTest {
         datasetConfig.setOptions(options);
         Dataset<Row> dataset = DatasetUtil.createDataset(datasetConfig);
         Pipeline pipeline = new Pipeline(dataset);
-        Map<String, String> parameters = new HashMap<>();
-        Preparator preparator = new RenameColumn(parameters);
-        pipeline.addPreparator(preparator);
-        pipeline.executePipeline();
+//        Preparator preparator = new RenameColumn("height","高度");
+//        pipeline.addPreparator(preparator);
+//        Preparator preparator1 = new ChangeColumnDataType("id",
+//                ChangeColumnDataType.ColumnDataType.Decimal);
+//        pipeline.addPreparator(preparator1);
+//        pipeline.executePipeline();
     }
 
 }
