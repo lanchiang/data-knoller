@@ -10,5 +10,5 @@ import java.util.List;
  */
 public class MetadataRepository {
 
-    List<Metadata> metadataRepository;
+    private List<Metadata> metadataRepository;
 }

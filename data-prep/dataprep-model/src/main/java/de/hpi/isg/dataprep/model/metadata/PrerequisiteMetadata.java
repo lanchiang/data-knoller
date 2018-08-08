@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.model.metadata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,6 +10,10 @@ import java.util.List;
 abstract public class PrerequisiteMetadata {
 
     protected List<String> prerequisites;
+
+    public PrerequisiteMetadata() {
+        this.prerequisites = new ArrayList<>();
+    }
 
     abstract protected void setMetadata();
 

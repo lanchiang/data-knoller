@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.model.target;
 
+import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import org.apache.spark.sql.Dataset;
@@ -17,16 +18,22 @@ public class Pipeline extends Target {
 
     private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;
-    private List<Errorlog> pipelineErrors;
+    private ErrorRepository errorRepository;
+
+    private List<ErrorLog> pipelineErrors;
 
     private List<Preparation> preparations;
-//    private RawData rawData;
 
+    /**
+     * The raw data contains a set of {@link Row} instances. Each instance represent a line in a tabular data without schema definition,
+     * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
+     */
     private Dataset<Row> rawData;
 
-    public Pipeline() {
+    private Pipeline() {
         this.metadataRepository = new MetadataRepository();
         this.provenanceRepository = new ProvenanceRepository();
+        this.errorRepository = new ErrorRepository();
         this.pipelineErrors = new ArrayList<>();
         this.preparations = new LinkedList<>();
     }
@@ -36,8 +43,9 @@ public class Pipeline extends Target {
         this.rawData = dataset;
     }
 
-    public void addPreparator(Preparation preparation) {
+    public void addPreparation(Preparation preparation) {
         this.preparations.add(preparation);
+        preparation.setPipeline(this);
     }
 
     private void checkPipelineErrors() {
@@ -47,9 +55,9 @@ public class Pipeline extends Target {
         }
     }
 
-    private List<Errorlog> detectPipelineErrors(List<Preparation> forepartPipeline) {
-        List<Errorlog> errorlogs = new ArrayList<Errorlog>();
-        return errorlogs;
+    private List<ErrorLog> detectPipelineErrors(List<Preparation> forepartPipeline) {
+        List<ErrorLog> errorLogs = new ArrayList<ErrorLog>();
+        return errorLogs;
     }
     public void executePipeline() throws Exception {
         checkPipelineErrors();
@@ -59,7 +67,15 @@ public class Pipeline extends Target {
         }
     }
 
+    public ErrorRepository getErrorRepository() {
+        return errorRepository;
+    }
+
     public Dataset<Row> getRawData() {
         return rawData;
+    }
+
+    public void setRawData(Dataset<Row> rawData) {
+        this.rawData = rawData;
     }
 }

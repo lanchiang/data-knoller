@@ -1,6 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.DatasetUtil;
 import de.hpi.isg.dataprep.model.metadata.ChangeFileEncodingMetadata;
+import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -22,26 +24,32 @@ public class ChangeFileEncoding extends Preparator {
     }
 
     @Override
-    public boolean checkMetadata() {
+    protected boolean checkMetadata() {
         prerequisites = new ChangeFileEncodingMetadata();
         for (String metadata : prerequisites.getPrerequisites()) {
-
+            if (false) {
+                // this metadata is not satisfied, add it to the invalid metadata set.
+                this.getInvalid().add(new Metadata(metadata));
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     @Override
-    public void executePreparator() {
+    protected void executePreparator() throws Exception {
+        Dataset<Row> dataset = this.getPreparation().getPipeline().getRawData();
+
+        this.setUpdatedDataset(dataset);
+    }
+
+    @Override
+    protected void recordErrorLog() {
 
     }
 
     @Override
-    public void recordErrorLog() {
-
-    }
-
-    @Override
-    public void recordProvenance() {
+    protected void recordProvenance() {
 
     }
 }

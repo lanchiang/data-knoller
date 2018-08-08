@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.model.target;
 
+import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 
 /**
@@ -12,6 +13,8 @@ import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 public class Preparation {
 
     private Preparator preparator;
+    private Consequences consequences;
+
     private Pipeline pipeline;
 
     public Preparation(Preparator preparator) {
@@ -29,5 +32,13 @@ public class Preparation {
 
     public Preparator getPreparator() {
         return preparator;
+    }
+
+    public void setConsequences(Consequences consequences) {
+        this.consequences = consequences;
+    }
+
+    public Consequences getConsequences() {
+        return consequences;
     }
 }

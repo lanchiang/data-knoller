@@ -19,7 +19,7 @@ public class CreatePreparatorApp {
         Pipeline pipeline = new Pipeline(rawData);
         Preparator preparator = new ChangeFileEncoding("UTF-8");
         Preparation preparation = new Preparation(preparator);
-        pipeline.addPreparator(preparation);
+        pipeline.addPreparation(preparation);
         pipeline.executePipeline();
     }
 }

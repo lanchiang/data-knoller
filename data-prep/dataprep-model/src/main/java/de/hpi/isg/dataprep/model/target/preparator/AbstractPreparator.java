@@ -16,24 +16,29 @@ abstract public class AbstractPreparator extends Target implements Executable {
      *
      * @return true/false if all the prerequisites are/are not met.
      */
-    public abstract boolean checkMetadata();
+    protected abstract boolean checkMetadata();
 
     /**
      * The execution of the preparator.
      *
      */
-    public abstract void executePreparator();
+    protected abstract void executePreparator() throws Exception;
 
     /**
      * Call this method whenever an error occurs during the preparator execution in order to
      * record an error log.
      */
-    public abstract void recordErrorLog();
+    protected abstract void recordErrorLog();
 
     /**
-     * After the preparator execution succeeds, call this method to record the provenance.
+     * After the execution of this preparator succeeds, call this method to record the provenance.
      */
-    public abstract void recordProvenance();
+    protected abstract void recordProvenance();
+
+    /**
+     * After the execution of this preparator finishes, update the dataset to its intermediate state.
+     */
+    protected abstract void updateDataset();
 
     @Override
     public void execute() throws Exception {
@@ -46,5 +51,6 @@ abstract public class AbstractPreparator extends Target implements Executable {
             recordErrorLog();
         }
         recordProvenance();
+        updateDataset();
     }
 }

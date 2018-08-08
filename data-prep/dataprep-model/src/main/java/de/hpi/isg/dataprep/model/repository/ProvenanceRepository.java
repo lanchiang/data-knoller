@@ -10,5 +10,5 @@ import java.util.List;
  */
 public class ProvenanceRepository {
 
-    List<Provenance> provenances;
+    private List<Provenance> provenances;
 }

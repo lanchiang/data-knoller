@@ -6,5 +6,9 @@ package de.hpi.isg.dataprep.model.target;
  */
 public class Metadata extends Target {
 
-    public final static String FILE_ENCODING = "fileEncoding";
+    private String name;
+    
+    public Metadata(String name) {
+        this.name = name;
+    }
 }

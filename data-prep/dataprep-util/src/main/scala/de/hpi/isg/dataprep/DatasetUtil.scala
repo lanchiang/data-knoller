@@ -41,5 +41,4 @@ object DatasetUtil {
                 .mapValues(content => new String(content.toArray(), StandardCharsets.ISO_8859_1))
                 .toDF()
     }
-
 }

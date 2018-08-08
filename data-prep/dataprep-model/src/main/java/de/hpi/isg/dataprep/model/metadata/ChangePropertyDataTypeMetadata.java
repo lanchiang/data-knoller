@@ -1,24 +1,22 @@
 package de.hpi.isg.dataprep.model.metadata;
 
-import de.hpi.isg.dataprep.model.target.Metadata;
-
 import java.util.ArrayList;
 
 /**
  * @author Lan Jiang
- * @since 2018/8/6
+ * @since 2018/8/7
  */
-public class ChangeFileEncodingMetadata extends PrerequisiteMetadata {
+public class ChangePropertyDataTypeMetadata extends PrerequisiteMetadata {
 
-    public ChangeFileEncodingMetadata() {
+    public ChangePropertyDataTypeMetadata() {
         setMetadata();
     }
 
     @Override
     protected void setMetadata() {
-        prerequisites.add(MetadataUtil.FILE_ENCODING);
         prerequisites.add(MetadataUtil.QUOTE_CHARACTER);
         prerequisites.add(MetadataUtil.DELIMITER);
         prerequisites.add(MetadataUtil.ESCAPE_CHARACTERS);
+        prerequisites.add(MetadataUtil.PROPERTY_DATATYPE);
     }
 }
