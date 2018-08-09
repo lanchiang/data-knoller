@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.model.target.ErrorLog;
+import de.hpi.isg.dataprep.model.target.error.ErrorLog;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,6 @@ public class ErrorRepository {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(errorLogs);
     }
 }

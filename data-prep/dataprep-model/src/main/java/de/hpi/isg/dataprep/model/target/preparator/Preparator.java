@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.model.metadata.PrerequisiteMetadata;
-import de.hpi.isg.dataprep.model.target.ErrorLog;
+import de.hpi.isg.dataprep.model.target.error.ErrorLog;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.Preparation;
+import de.hpi.isg.dataprep.model.target.error.PreparationErrorLog;
 import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -37,12 +38,9 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
                 .map(pair -> {
                     String value = pair._1().toString();
                     Throwable exception = pair._2();
-                    ErrorLog errorLog = new ErrorLog(value, exception);
+                    ErrorLog errorLog = new PreparationErrorLog(this.getPreparation(), value, exception);
                     return errorLog;
                 }).collect(Collectors.toList());
-        errorLogs.stream()
-                .filter(errorLog -> errorLog.getPipelineComponent() == null)
-                .forEach(errorLog -> errorLog.setPipelineComponent(this.getPreparation()));
         this.getPreparation().getPipeline().getErrorRepository().addErrorLogs(errorLogs);
     }
 

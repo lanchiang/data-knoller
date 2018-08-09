@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep
 
-import de.hpi.isg.dataprep.model.target.ErrorLog
+import de.hpi.isg.dataprep.model.target.error.ErrorLog
 import org.apache.spark.util.CollectionAccumulator
 
 /**

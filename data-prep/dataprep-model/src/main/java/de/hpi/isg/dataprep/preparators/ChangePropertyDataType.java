@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.metadata.ChangePropertyDataTypeMetadata;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.spark.ChangePropertyDataTypeImpl;
+import de.hpi.isg.dataprep.preparators.impl.ChangePropertyDataTypeImpl;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -26,6 +26,9 @@ public class ChangePropertyDataType extends Preparator {
 
     private String propertyName;
     private PropertyType targetType;
+    private String datePattern;
+
+    private ChangePropertyDataTypeImpl impl;
 
     public ChangePropertyDataType(String propertyName, PropertyType targetType) {
         this.propertyName = propertyName;
@@ -34,6 +37,10 @@ public class ChangePropertyDataType extends Preparator {
 
     public ChangePropertyDataType(String propertyName, PropertyType sourceType, PropertyType targetType) {
         this(propertyName, targetType);
+    }
+
+    public ChangePropertyDataType(ChangePropertyDataTypeImpl impl) {
+        this.impl = impl;
     }
 
     @Override
@@ -51,19 +58,35 @@ public class ChangePropertyDataType extends Preparator {
 
     @Override
     protected void executePreparator() throws Exception {
-        Dataset<Row> dataset = this.getPreparation().getPipeline().getRawData();
-
-        Consequences consequences = ChangePropertyDataTypeImpl.changePropertyDataType(dataset, propertyName, targetType);
-        this.getPreparation().setConsequences(consequences);
-        if (consequences.hasError()) {
-            throw new PreparationHasErrorException("This preparation causes errors for some records.");
-        }
-
-        this.setUpdatedDataset(dataset);
+        impl.execute(this);
     }
 
     @Override
     protected void recordProvenance() {
 
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
+    }
+
+    public PropertyType getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(PropertyType targetType) {
+        this.targetType = targetType;
+    }
+
+    public String getDatePattern() {
+        return datePattern;
+    }
+
+    public void setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
     }
 }

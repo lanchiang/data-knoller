@@ -3,6 +3,8 @@ package de.hpi.isg.dataprep.model.target;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.error.ErrorLog;
+import de.hpi.isg.dataprep.model.target.error.PipelineErrorLog;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -20,7 +22,7 @@ public class Pipeline extends PipelineComponent {
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
 
-    private List<ErrorLog> pipelineErrors;
+    private List<PipelineErrorLog> pipelineErrors;
 
     private List<Preparation> preparations;
 
@@ -55,8 +57,8 @@ public class Pipeline extends PipelineComponent {
         }
     }
 
-    private List<ErrorLog> detectPipelineErrors(List<Preparation> forepartPipeline) {
-        List<ErrorLog> errorLogs = new ArrayList<ErrorLog>();
+    private List<PipelineErrorLog> detectPipelineErrors(List<Preparation> forepartPipeline) {
+        List<PipelineErrorLog> errorLogs = new ArrayList<>();
         return errorLogs;
     }
     public void executePipeline() throws Exception {
