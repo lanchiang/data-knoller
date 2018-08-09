@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.target;
 
-import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
+import java.util.Objects;
 
 /**
  * @author Lan Jiang
@@ -16,9 +16,11 @@ public class ErrorLog extends Target {
     }
 
     /**
-     * Indicates which {@link Preparation} causes this error.
+     * Indicates which {@link PipelineComponent} causes this error.
+     * The instance of {@link Pipeline} means it is a pipeline level error.
+     * The instance of {@link Preparation} means it is an error caused by a specific preparation.
      */
-    private Preparation preparation;
+    private PipelineComponent pipelineComponent;
 
     /**
      * Indicates the type of this error.
@@ -37,11 +39,26 @@ public class ErrorLog extends Target {
         }
     }
 
-    public Preparation getPreparation() {
-        return preparation;
+    public PipelineComponent getPipelineComponent() {
+        return pipelineComponent;
     }
 
-    public void setPreparation(Preparation preparation) {
-        this.preparation = preparation;
+    public void setPipelineComponent(Preparation pipelineComponent) {
+        this.pipelineComponent = pipelineComponent;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ErrorLog errorLog = (ErrorLog) o;
+        return Objects.equals(pipelineComponent, errorLog.pipelineComponent) &&
+                errorType == errorLog.errorType &&
+                Objects.equals(value, errorLog.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pipelineComponent, errorType, value);
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/6/4
  */
-public class Pipeline extends Target {
+public class Pipeline extends PipelineComponent {
 
     private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;

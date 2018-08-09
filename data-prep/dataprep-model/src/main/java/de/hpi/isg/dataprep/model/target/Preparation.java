@@ -10,7 +10,7 @@ import de.hpi.isg.dataprep.model.target.preparator.Preparator;
  * @author Lan Jiang
  * @since 2018/8/3
  */
-public class Preparation {
+public class Preparation extends PipelineComponent {
 
     private Preparator preparator;
     private Consequences consequences;

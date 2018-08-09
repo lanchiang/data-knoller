@@ -33,7 +33,7 @@ public class PipelineTest {
     @Test
     public void testCreatePipeline() throws Exception {
         Pipeline pipeline = new Pipeline(dataset);
-        Preparator preparator = new ChangePropertyDataType("id", ChangePropertyDataType.PropertyType.Integer);
+        Preparator preparator = new ChangePropertyDataType("id", ChangePropertyDataType.PropertyType.INTEGER);
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();

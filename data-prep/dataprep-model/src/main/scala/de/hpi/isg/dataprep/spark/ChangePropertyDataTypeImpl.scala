@@ -28,7 +28,8 @@ object ChangePropertyDataTypeImpl {
         val transformed = dataFrame.rdd.flatMap(row => {
             val fe = Try {
                 targetDataType match {
-                    case PropertyType.Integer => row.getAs[String](fieldName).toInt
+                    case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
+                    case PropertyType.STRING => row.getAs[String](fieldName).toString
                 }
             }
             val trial = fe match {
@@ -45,11 +46,5 @@ object ChangePropertyDataTypeImpl {
         System.out.println(errorsAccumulator.value)
 
         new Consequences(errorsAccumulator)
-    }
-
-    def main(args: Array[String]): Unit = {
-        var dataset = spark.read.option("header", "true").csv("/Users/Fuga/Documents/HPI/data/testdata/pokemon.csv")
-        changePropertyDataType(dataset, "id", PropertyType.Integer)
-        //        System.out.println(dataset.schema)
     }
 }
