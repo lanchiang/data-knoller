@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.preparators.impl;
+package de.hpi.isg.dataprep.implementation.abstracts;
 
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType;
 

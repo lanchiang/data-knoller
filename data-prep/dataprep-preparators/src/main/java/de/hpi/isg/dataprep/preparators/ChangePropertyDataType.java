@@ -1,13 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.Consequences;
-import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
+import de.hpi.isg.dataprep.implementation.abstracts.ChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.metadata.ChangePropertyDataTypeMetadata;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.preparators.impl.ChangePropertyDataTypeImpl;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Lan Jiang
@@ -45,14 +44,22 @@ public class ChangePropertyDataType extends Preparator {
 
     @Override
     protected boolean checkMetadata() {
+        /**
+         * check for each metadata whether valid.
+         * Stores invalid ones.
+         * If all prerequisites are met, read and store all these metadata, used in preparator execution.
+         */
         prerequisites = new ChangePropertyDataTypeMetadata();
+        Map<String, String> validMetadata = new HashMap<>();
         for (String metadata : prerequisites.getPrerequisites()) {
             if (false) {
                 // this metadata is not satisfied, add it to the invalid metadata set.
                 this.getInvalid().add(new Metadata(metadata));
                 return false;
             }
+            validMetadata.putIfAbsent(metadata, null);
         }
+        this.metadataValue = validMetadata;
         return true;
     }
 

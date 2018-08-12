@@ -1,12 +1,15 @@
 package de.hpi.isg.dataprep.spark
 
-import de.hpi.isg.dataprep.Consequences
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
 import de.hpi.isg.dataprep.SparkPreparators.spark
+import de.hpi.isg.dataprep.model.metadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType.PropertyType
-import org.apache.spark.sql.types.DateType
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.{Failure, Success, Try}
@@ -56,6 +59,8 @@ object ChangePropertyDataTypeScala {
         val preparator = _preparator.asInstanceOf[ChangePropertyDataType]
         val targetDataType = preparator.getTargetType
         val fieldName = preparator.getPropertyName
+        val datePattern = preparator.getDatePattern
+        val metadata = preparator.getMetadataValue
         /**
           * Here need to check the existence of these fields.
           */
@@ -65,7 +70,10 @@ object ChangePropertyDataTypeScala {
                 targetDataType match {
                     case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
                     case PropertyType.STRING => row.getAs[String](fieldName).toString
-                    case PropertyType.DATE =>
+                    case PropertyType.DATE => {
+                        val originDatePattern = metadata.get(MetadataUtil.PROPERTY_DATATYPE)
+                        ConversionHelper.toDate(row.getAs[String](fieldName), datePattern)
+                    }
                 }
             }
             val trial = tryConvert match {
@@ -76,13 +84,11 @@ object ChangePropertyDataTypeScala {
                 case valid : Success[content] => valid
             }
             trial.toOption
-        }).count()
+        })
+        // executes an action to refresh the accumulator.
+//        transformed.foreach(any => println(any))
+        transformed.count()
 
         new Consequences(errorAccumulator)
-    }
-
-    @throws(classOf[Exception])
-    def toDate(value: String, datePattern: String): DateType = {
-        
     }
 }

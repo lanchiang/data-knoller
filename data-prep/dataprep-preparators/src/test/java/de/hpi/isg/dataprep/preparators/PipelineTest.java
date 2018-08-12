@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.model;
+package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;

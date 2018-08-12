@@ -23,6 +23,7 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
     private Preparation preparation;
 
     protected List<Metadata> invalid;
+    protected Map<String, String> metadataValue;
 
     protected Dataset<Row> updatedDataset;
 
@@ -67,5 +68,13 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
 
     public Dataset<Row> getUpdatedDataset() {
         return updatedDataset;
+    }
+
+    public PrerequisiteMetadata getPrerequisites() {
+        return prerequisites;
+    }
+
+    public Map<String, String> getMetadataValue() {
+        return metadataValue;
     }
 }

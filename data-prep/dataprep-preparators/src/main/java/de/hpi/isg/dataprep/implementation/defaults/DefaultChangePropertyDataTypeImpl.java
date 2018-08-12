@@ -1,7 +1,8 @@
-package de.hpi.isg.dataprep.preparators.impl;
+package de.hpi.isg.dataprep.implementation.defaults;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
+import de.hpi.isg.dataprep.implementation.abstracts.ChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType;
 import de.hpi.isg.dataprep.spark.ChangePropertyDataTypeScala;
 import org.apache.spark.sql.Dataset;
@@ -16,6 +17,8 @@ public class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImp
     @Override
     public void execute(ChangePropertyDataType preparator) throws Exception {
         Dataset<Row> dataset = preparator.getPreparation().getPipeline().getRawData();
+
+        // Reaching here means the metadata are already verified.
 
         Consequences consequences = ChangePropertyDataTypeScala.changePropertyDataType(dataset, preparator);
         preparator.getPreparation().setConsequences(consequences);

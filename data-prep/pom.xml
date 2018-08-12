@@ -14,6 +14,7 @@
         <module>dataprep-tools</module>
         <module>dataprep-io</module>
         <module>dataprep-app</module>
+        <module>dataprep-preparators</module>
     </modules>
 
     <properties>

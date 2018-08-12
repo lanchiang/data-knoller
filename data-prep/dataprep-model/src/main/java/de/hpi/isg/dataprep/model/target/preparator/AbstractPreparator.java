@@ -48,6 +48,7 @@ abstract public class AbstractPreparator extends Target implements Executable {
         try {
             executePreparator();
         } catch (Exception e) {
+//            e.printStackTrace();
             recordErrorLog();
         }
         recordProvenance();
