@@ -1,7 +1,12 @@
 package de.hpi.isg.dataprep
 
-import java.text.SimpleDateFormat
+import java.text.{ParseException, SimpleDateFormat}
+import java.util
 import java.util.Date
+
+import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+
+import scala.util.{Failure, Success, Try}
 
 /**
   * @author Lan Jiang
@@ -10,20 +15,34 @@ import java.util.Date
 @SerialVersionUID(1000L)
 object ConversionHelper extends Serializable {
 
-    def toDate(value: String, datePattern: String): Date = {
-        val dateFormatter = new SimpleDateFormat(datePattern)
-        dateFormatter.parse(value)
-    }
-
     /**
       * Converts the pattern of the date value into the desired pattern.
       *
-      * @param value the value to be converted
-      * @param origin the origin date pattern specific by metadata
+      * @param value  the value to be converted
+      * @param source the origin date pattern specific by metadata
       * @param target the target date pattern.
       * @return the converted [[Date]]
       */
-    def toDate(value: String, origin: String, target: String): Date = {
-        new Date()
+    @throws(classOf[Exception])
+    def toDate(value: String, source: DatePatternEnum, target: DatePatternEnum): String = {
+        /**
+          * Succeeds to convert the date values in the correct origin format.
+          * Cannot detect the incorrect order of y,m,d.
+          */
+        val sourceDatePattern = source.getPattern
+        val sourceFormatter = new SimpleDateFormat(sourceDatePattern)
+        sourceFormatter.setLenient(false)
+        var sourceDateParse = Try{
+            sourceFormatter.parse(value)
+        }
+        sourceDateParse match {
+            case Failure(content) => {
+                throw content
+            }
+            case date : Success[content] => {
+                val targetDate = new SimpleDateFormat(target.getPattern).format(date.toOption.get)
+                targetDate
+            }
+        }
     }
 }

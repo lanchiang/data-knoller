@@ -17,6 +17,11 @@
             <artifactId>dataprep-model</artifactId>
             <version>0.01-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>de.hpi.isg</groupId>
+            <artifactId>dataprep-util</artifactId>
+            <version>0.01-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

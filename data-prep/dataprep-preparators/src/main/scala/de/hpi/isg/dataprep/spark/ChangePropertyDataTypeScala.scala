@@ -9,6 +9,7 @@ import de.hpi.isg.dataprep.model.metadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType.PropertyType
+import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.util.CollectionAccumulator
 
@@ -59,7 +60,8 @@ object ChangePropertyDataTypeScala {
         val preparator = _preparator.asInstanceOf[ChangePropertyDataType]
         val targetDataType = preparator.getTargetType
         val fieldName = preparator.getPropertyName
-        val datePattern = preparator.getDatePattern
+        val sourceDatePattern = preparator.getSourceDatePattern
+        val targetDatePattern = preparator.getTargetDatePattern
         val metadata = preparator.getMetadataValue
         /**
           * Here need to check the existence of these fields.
@@ -72,7 +74,8 @@ object ChangePropertyDataTypeScala {
                     case PropertyType.STRING => row.getAs[String](fieldName).toString
                     case PropertyType.DATE => {
                         val originDatePattern = metadata.get(MetadataUtil.PROPERTY_DATATYPE)
-                        ConversionHelper.toDate(row.getAs[String](fieldName), datePattern)
+                        ConversionHelper.toDate(row.getAs[String](fieldName),
+                            sourceDatePattern, targetDatePattern)
                     }
                 }
             }
@@ -86,8 +89,8 @@ object ChangePropertyDataTypeScala {
             trial.toOption
         })
         // executes an action to refresh the accumulator.
-//        transformed.foreach(any => println(any))
-        transformed.count()
+        transformed.foreach(any => println(any))
+//        transformed.count()
 
         new Consequences(errorAccumulator)
     }

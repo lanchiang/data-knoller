@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.implementation.abstracts.ChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.metadata.ChangePropertyDataTypeMetadata;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.util.DatePattern;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,8 @@ public class ChangePropertyDataType extends Preparator {
 
     private String propertyName;
     private PropertyType targetType;
-    private String datePattern;
+    private DatePattern.DatePatternEnum sourceDatePattern;
+    private DatePattern.DatePatternEnum targetDatePattern;
 
     private ChangePropertyDataTypeImpl impl;
 
@@ -89,11 +91,19 @@ public class ChangePropertyDataType extends Preparator {
         this.targetType = targetType;
     }
 
-    public String getDatePattern() {
-        return datePattern;
+    public DatePattern.DatePatternEnum getTargetDatePattern() {
+        return targetDatePattern;
     }
 
-    public void setDatePattern(String datePattern) {
-        this.datePattern = datePattern;
+    public void setTargetDatePattern(DatePattern.DatePatternEnum targetDatePattern) {
+        this.targetDatePattern = targetDatePattern;
+    }
+
+    public DatePattern.DatePatternEnum getSourceDatePattern() {
+        return sourceDatePattern;
+    }
+
+    public void setSourceDatePattern(DatePattern.DatePatternEnum sourceDatePattern) {
+        this.sourceDatePattern = sourceDatePattern;
     }
 }
