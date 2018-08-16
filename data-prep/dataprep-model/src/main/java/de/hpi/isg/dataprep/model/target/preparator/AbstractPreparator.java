@@ -43,7 +43,7 @@ abstract public class AbstractPreparator extends Target implements Executable {
     @Override
     public void execute() throws Exception {
         if (!checkMetadata()) {
-            throw new Exception("The prerequisite metadata are not met, check first.");
+            throw new Exception("Some prerequisite metadata are not met, check first.");
         }
         try {
             executePreparator();

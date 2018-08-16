@@ -1,15 +1,11 @@
 package de.hpi.isg.dataprep.spark
 
-import java.text.SimpleDateFormat
-import java.util.Date
-
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
 import de.hpi.isg.dataprep.SparkPreparators.spark
 import de.hpi.isg.dataprep.model.metadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType.PropertyType
-import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.util.CollectionAccumulator
 
@@ -22,56 +18,24 @@ import spark.implicits._
   */
 object ChangePropertyDataTypeScala {
 
-    def changePropertyDataType(dataFrame: DataFrame, fieldName: String, sourceDataType: PropertyType, targetDataType: PropertyType): Consequences = {
-        new Consequences(new CollectionAccumulator[(Any, Throwable)])
-    }
-
-    def changePropertyDataType(dataFrame: DataFrame, fieldName: String, targetDataType: PropertyType): Consequences = {
-        val errorsAccumulator = new CollectionAccumulator[(Any, Throwable)]
-        dataFrame.sparkSession.sparkContext.register(errorsAccumulator, "test")
-
-        val transformed = dataFrame.rdd.flatMap(row => {
-            val fe = Try {
-                targetDataType match {
-                    case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
-                    case PropertyType.STRING => row.getAs[String](fieldName).toString
-                }
-            }
-            val trial = fe match {
-                case Failure(t) => {
-                    errorsAccumulator.add(row.getAs[String](fieldName), t)
-                    fe
-                }
-                case valid: Success[t] => {
-                    valid
-                }
-            }
-            trial.toOption
-        }).count() // count to update the accumulator
-        System.out.println(errorsAccumulator.value)
-
-        new Consequences(errorsAccumulator)
-    }
-
-    def changePropertyDataType(dataFrame: DataFrame, _preparator: Preparator): Consequences = {
+    def changePropertyDataType(dataFrame: DataFrame, preparator: Preparator): Consequences = {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
         dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparator: Change property data type.")
 
-        val preparator = _preparator.asInstanceOf[ChangePropertyDataType]
-        val targetDataType = preparator.getTargetType
-        val fieldName = preparator.getPropertyName
-        val sourceDatePattern = preparator.getSourceDatePattern
-        val targetDatePattern = preparator.getTargetDatePattern
-        val metadata = preparator.getMetadataValue
-        /**
-          * Here need to check the existence of these fields.
-          */
+        val preparator_ = preparator.asInstanceOf[ChangePropertyDataType]
+        val targetDataType = preparator_.getTargetType
+        val fieldName = preparator_.getPropertyName
+        val sourceDatePattern = preparator_.getSourceDatePattern
+        val targetDatePattern = preparator_.getTargetDatePattern
+        val metadata = preparator_.getMetadataValue
+        // Here the program needs to check the existence of these fields.
 
-        val transformed = dataFrame.rdd.flatMap(row => {
-            val tryConvert = Try{
+        val createdRDD = dataFrame.rdd.filter(row => {
+            val tryConvert = Try {
                 targetDataType match {
                     case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
                     case PropertyType.STRING => row.getAs[String](fieldName).toString
+                    case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
                     case PropertyType.DATE => {
                         val originDatePattern = metadata.get(MetadataUtil.PROPERTY_DATATYPE)
                         ConversionHelper.toDate(row.getAs[String](fieldName),
@@ -82,16 +46,21 @@ object ChangePropertyDataTypeScala {
             val trial = tryConvert match {
                 case Failure(content) => {
                     errorAccumulator.add(row.getAs[String](fieldName), content)
-                    tryConvert
+                    false
                 }
-                case valid : Success[content] => valid
+                case valid: Success[content] => {
+                    true
+                }
             }
-            trial.toOption
+            trial
         })
-        // executes an action to refresh the accumulator.
-        transformed.foreach(any => println(any))
-//        transformed.count()
+        createdRDD.count()
+        val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
 
-        new Consequences(errorAccumulator)
+        new Consequences(resultDataFrame, errorAccumulator)
+    }
+
+    def rowSelection(dataFrame: DataFrame): Boolean = {
+        true
     }
 }

@@ -47,43 +47,66 @@ public class ChangePropertyDataTypeTest {
         pipeline = new Pipeline(dataset);
     }
 
-//    @Test
-//    public void testChangeToIntegerErrorLog() throws Exception {
-//        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-//        ((ChangePropertyDataType) preparator).setPropertyName("id");
-//        ((ChangePropertyDataType) preparator).setTargetType(ChangePropertyDataType.PropertyType.INTEGER);
-//
-//        Preparation preparation = new Preparation(preparator);
-//        pipeline.addPreparation(preparation);
-//        pipeline.executePipeline();
-//
-//        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", NumberFormatException.class);
-//        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", NumberFormatException.class);
-//        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", NumberFormatException.class);
-//
-//        trueErrorlogs.add(errorLog1);
-//        trueErrorlogs.add(errorLog2);
-//        trueErrorlogs.add(errorLog3);
-//        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-//
-//        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-//    }
-//
-//    @Test
-//    public void testChangeToStringErrorLog() throws Exception {
-//        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-//        ((ChangePropertyDataType) preparator).setPropertyName("identifier");
-//        ((ChangePropertyDataType) preparator).setTargetType(ChangePropertyDataType.PropertyType.STRING);
-//        Preparation preparation = new Preparation(preparator);
-//        pipeline.addPreparation(preparation);
-//        pipeline.executePipeline();
-//
-//        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-//
-//        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-//    }
+    @Test
+    public void testChangeToIntegerErrorLog() throws Exception {
+        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        ((ChangePropertyDataType) preparator).setPropertyName("id");
+        ((ChangePropertyDataType) preparator).setTargetType(ChangePropertyDataType.PropertyType.INTEGER);
+
+        Preparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", NumberFormatException.class);
+        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", NumberFormatException.class);
+        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", NumberFormatException.class);
+
+        trueErrorlogs.add(errorLog1);
+        trueErrorlogs.add(errorLog2);
+        trueErrorlogs.add(errorLog3);
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+    }
+
+    @Test
+    public void testChangeToStringErrorLog() throws Exception {
+        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        ((ChangePropertyDataType) preparator).setPropertyName("identifier");
+        ((ChangePropertyDataType) preparator).setTargetType(ChangePropertyDataType.PropertyType.STRING);
+        Preparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+    }
+
+    @Test
+    public void testChangeToDoubleErrorLog() throws Exception {
+        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        ((ChangePropertyDataType) preparator).setPropertyName("id");
+        ((ChangePropertyDataType) preparator).setTargetType(ChangePropertyDataType.PropertyType.DOUBLE);
+
+        Preparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", NumberFormatException.class);
+        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", NumberFormatException.class);
+        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", NumberFormatException.class);
+
+        trueErrorlogs.add(errorLog1);
+        trueErrorlogs.add(errorLog2);
+        trueErrorlogs.add(errorLog3);
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+    }
 
     @Test
     public void testChangeToDateErrorLog() throws Exception {

@@ -22,6 +22,7 @@ public class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImp
 
         Consequences consequences = ChangePropertyDataTypeScala.changePropertyDataType(dataset, preparator);
         preparator.getPreparation().setConsequences(consequences);
+        preparator.setUpdatedDataset(consequences.newDataFrame_());
         if (consequences.hasError()) {
             throw new PreparationHasErrorException("This preparation causes errors for some records.");
         }

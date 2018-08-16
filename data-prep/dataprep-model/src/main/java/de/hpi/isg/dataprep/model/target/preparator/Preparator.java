@@ -35,7 +35,7 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
     protected void recordErrorLog() {
         Consequences consequences = this.getPreparation().getConsequences();
 
-        List<ErrorLog> errorLogs = consequences.errorsAccumulator().value().stream()
+        List<ErrorLog> errorLogs = consequences.errorsAccumulator_().value().stream()
                 .map(pair -> {
                     String value = pair._1().toString();
                     Throwable exception = pair._2();

@@ -20,8 +20,7 @@ public class ChangePropertyDataType extends Preparator {
         INTEGER,
         DOUBLE,
         DATE,
-        DATETIME,
-        DATETIMESTAMP
+        DATETIME
     }
 
     private String propertyName;
