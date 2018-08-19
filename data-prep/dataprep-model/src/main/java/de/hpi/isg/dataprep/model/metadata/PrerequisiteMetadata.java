@@ -13,6 +13,7 @@ abstract public class PrerequisiteMetadata {
 
     public PrerequisiteMetadata() {
         this.prerequisites = new ArrayList<>();
+        setMetadata();
     }
 
     abstract protected void setMetadata();

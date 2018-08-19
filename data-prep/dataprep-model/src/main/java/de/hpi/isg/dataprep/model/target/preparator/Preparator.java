@@ -27,8 +27,15 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
 
     protected Dataset<Row> updatedDataset;
 
+    protected PreparatorImpl impl;
+
     public Preparator() {
         invalid = new ArrayList<>();
+    }
+
+    @Override
+    protected void executePreparator() throws Exception {
+        impl.execute(this);
     }
 
     @Override
@@ -43,6 +50,26 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
                     return errorLog;
                 }).collect(Collectors.toList());
         this.getPreparation().getPipeline().getErrorRepository().addErrorLogs(errorLogs);
+    }
+
+    @Override
+    protected boolean checkMetadata() {
+        /**
+         * check for each metadata whether valid.
+         * Stores invalid ones.
+         * If all prerequisites are met, read and store all these metadata, used in preparator execution.
+         */
+        Map<String, String> validMetadata = new HashMap<>();
+        for (String metadata : prerequisites.getPrerequisites()) {
+            if (false) {
+                // this metadata is not satisfied, add it to the invalid metadata set.
+                this.getInvalid().add(new Metadata(metadata));
+                return false;
+            }
+            validMetadata.putIfAbsent(metadata, null);
+        }
+        this.metadataValue = validMetadata;
+        return true;
     }
 
     @Override

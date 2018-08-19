@@ -10,10 +10,6 @@ import java.util.ArrayList;
  */
 public class ChangeFileEncodingMetadata extends PrerequisiteMetadata {
 
-    public ChangeFileEncodingMetadata() {
-        setMetadata();
-    }
-
     @Override
     protected void setMetadata() {
         prerequisites.add(MetadataUtil.FILE_ENCODING);

@@ -10,6 +10,8 @@ import java.io.Serializable;
  */
 public class DatePattern implements Serializable {
 
+    private static final long serialVersionUID = 460851861292218442L;
+
     public final static DatePatternEnum[] SUPPORTED_DATE_PATTERN = {
             DatePatternEnum.DayMonthYear,
             DatePatternEnum.MonthDayYear,

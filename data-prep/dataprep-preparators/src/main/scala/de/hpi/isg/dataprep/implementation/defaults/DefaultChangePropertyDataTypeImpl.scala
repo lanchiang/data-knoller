@@ -1,28 +1,40 @@
-package de.hpi.isg.dataprep.spark
+package de.hpi.isg.dataprep.implementation.defaults
 
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
 import de.hpi.isg.dataprep.SparkPreparators.spark
+import de.hpi.isg.dataprep.implementation.abstracts.ChangePropertyDataTypeImpl
 import de.hpi.isg.dataprep.model.metadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType.PropertyType
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.{Failure, Success, Try}
-import spark.implicits._
 
 /**
   * @author Lan Jiang
-  * @since 2018/8/7
+  * @since 2018/8/19
   */
-object ChangePropertyDataTypeScala {
-
-    def changePropertyDataType(dataFrame: DataFrame, preparator: Preparator): Consequences = {
+class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
+    /**
+      * The subclass decides which specific scala code snippet to invoke.
+      *
+      * @param preparator the specific [[Preparator]] invoked.
+      * @param dataFrame the operated [[Dataset<Row>]] instance.
+      * @return an instance of [[Consequences]] that stores all the execution information.
+      */
+    override def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
         dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparator: Change property data type.")
 
-        val preparator_ = preparator.asInstanceOf[ChangePropertyDataType]
+//        if (!preparator.isInstanceOf[ChangePropertyDataType]) {
+//            throw new ClassCastException("Class is not the required type.")
+//        }
+//        val preparator_ = preparator.asInstanceOf[ChangePropertyDataType]
+
+        val preparator_ = super.getPreparatorInstance(preparator)
+
         val targetDataType = preparator_.getTargetType
         val fieldName = preparator_.getPropertyName
         val sourceDatePattern = preparator_.getSourceDatePattern
@@ -55,12 +67,9 @@ object ChangePropertyDataTypeScala {
             trial
         })
         createdRDD.count()
+
         val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
 
         new Consequences(resultDataFrame, errorAccumulator)
-    }
-
-    def rowSelection(dataFrame: DataFrame): Boolean = {
-        true
     }
 }

@@ -26,6 +26,7 @@ public class Preparation extends PipelineComponent {
         return pipeline;
     }
 
+    @Deprecated
     public void setPipeline(Pipeline pipeline) {
         this.pipeline = pipeline;
     }

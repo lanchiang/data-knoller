@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.model.target.preparator;
 
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.util.Executable;
 
@@ -47,8 +48,7 @@ abstract public class AbstractPreparator extends Target implements Executable {
         }
         try {
             executePreparator();
-        } catch (Exception e) {
-//            e.printStackTrace();
+        } catch (PreparationHasErrorException e) {
             recordErrorLog();
         }
         recordProvenance();

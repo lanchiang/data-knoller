@@ -64,7 +64,6 @@ public class Pipeline extends PipelineComponent {
     public void executePipeline() throws Exception {
         checkPipelineErrors();
         for (Preparation preparation : preparations) {
-            // do the real execution for each step in the pipeline.
             preparation.getPreparator().execute();
         }
     }

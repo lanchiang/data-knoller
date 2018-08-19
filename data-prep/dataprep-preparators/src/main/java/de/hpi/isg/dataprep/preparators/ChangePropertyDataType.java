@@ -28,8 +28,6 @@ public class ChangePropertyDataType extends Preparator {
     private DatePattern.DatePatternEnum sourceDatePattern;
     private DatePattern.DatePatternEnum targetDatePattern;
 
-    private ChangePropertyDataTypeImpl impl;
-
     public ChangePropertyDataType(String propertyName, PropertyType targetType) {
         this.propertyName = propertyName;
         this.targetType = targetType;
@@ -39,34 +37,10 @@ public class ChangePropertyDataType extends Preparator {
         this(propertyName, targetType);
     }
 
+
     public ChangePropertyDataType(ChangePropertyDataTypeImpl impl) {
         this.impl = impl;
-    }
-
-    @Override
-    protected boolean checkMetadata() {
-        /**
-         * check for each metadata whether valid.
-         * Stores invalid ones.
-         * If all prerequisites are met, read and store all these metadata, used in preparator execution.
-         */
         prerequisites = new ChangePropertyDataTypeMetadata();
-        Map<String, String> validMetadata = new HashMap<>();
-        for (String metadata : prerequisites.getPrerequisites()) {
-            if (false) {
-                // this metadata is not satisfied, add it to the invalid metadata set.
-                this.getInvalid().add(new Metadata(metadata));
-                return false;
-            }
-            validMetadata.putIfAbsent(metadata, null);
-        }
-        this.metadataValue = validMetadata;
-        return true;
-    }
-
-    @Override
-    protected void executePreparator() throws Exception {
-        impl.execute(this);
     }
 
     @Override

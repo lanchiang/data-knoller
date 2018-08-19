@@ -32,7 +32,7 @@ public class ChangePropertyDataTypeTest {
     @BeforeClass
     public static void setUp() {
         dataset = SparkSession.builder()
-                .appName("Pipeline test")
+                .appName("Change property data type unit tests.")
                 .master("local")
                 .getOrCreate()
                 .read()
@@ -45,6 +45,11 @@ public class ChangePropertyDataTypeTest {
     @Before
     public void cleanUpPipeline() throws Exception {
         pipeline = new Pipeline(dataset);
+    }
+
+    @Test
+    public void printSchema() throws Exception {
+        dataset.printSchema();
     }
 
     @Test

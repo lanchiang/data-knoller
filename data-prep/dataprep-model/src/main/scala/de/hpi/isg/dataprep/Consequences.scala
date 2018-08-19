@@ -10,10 +10,6 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class Consequences(newDataFrame: DataFrame, errorsAccumulator: CollectionAccumulator[(Any, Throwable)]) {
 
-    def this(errorsAccumulator: CollectionAccumulator[(Any, Throwable)]) {
-        this(_, errorsAccumulator)
-    }
-
     var errorsAccumulator_ = errorsAccumulator
     var newDataFrame_ = newDataFrame
 

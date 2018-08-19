@@ -7,11 +7,7 @@ import java.util.ArrayList;
  * @since 2018/8/7
  */
 public class ChangePropertyDataTypeMetadata extends PrerequisiteMetadata {
-
-    public ChangePropertyDataTypeMetadata() {
-        setMetadata();
-    }
-
+    
     @Override
     protected void setMetadata() {
         prerequisites.add(MetadataUtil.QUOTE_CHARACTER);
