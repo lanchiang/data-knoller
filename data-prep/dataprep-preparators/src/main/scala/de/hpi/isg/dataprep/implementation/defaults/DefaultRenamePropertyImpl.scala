@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.implementation.defaults
 
 import de.hpi.isg.dataprep.Consequences
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.implementation.abstracts.RenamePropertyImpl
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import org.apache.spark.sql.{Dataset, Row}
@@ -18,10 +19,23 @@ class DefaultRenamePropertyImpl extends RenamePropertyImpl {
 
         val preparator_ = super.getPreparatorInstance(preparator)
 
-        val newPropertyName = preparator_.getNewPropertyName
+        val targetPropertyName = preparator_.getNewPropertyName
         val currentPropertyName = preparator_.getPropertyName
+        val columns = dataFrame.columns
 
-        val resultDataFrame = dataFrame.withColumnRenamed(currentPropertyName, newPropertyName)
+        var resultDataFrame = dataFrame
+
+        // needs to check whether the new name string is valid.
+        if (!columns.contains(currentPropertyName)) {
+            errorAccumulator.add(currentPropertyName, new PreparationHasErrorException("Property name does not exist."))
+        } else {
+            if (columns.contains(targetPropertyName)) {
+                errorAccumulator.add(targetPropertyName, new PreparationHasErrorException("New name already exists."))
+            } else {
+                resultDataFrame = dataFrame.withColumnRenamed(currentPropertyName, targetPropertyName)
+            }
+        }
+
         new Consequences(resultDataFrame, errorAccumulator)
     }
 }

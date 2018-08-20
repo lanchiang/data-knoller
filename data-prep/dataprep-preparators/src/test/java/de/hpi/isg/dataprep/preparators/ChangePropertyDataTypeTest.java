@@ -48,11 +48,6 @@ public class ChangePropertyDataTypeTest {
     }
 
     @Test
-    public void printSchema() throws Exception {
-        dataset.printSchema();
-    }
-
-    @Test
     public void testChangeToIntegerErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("id");
@@ -63,9 +58,9 @@ public class ChangePropertyDataTypeTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", NumberFormatException.class);
-        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", NumberFormatException.class);
-        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", NumberFormatException.class);
+        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", new NumberFormatException("For input string: \"three\""));
+        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", new NumberFormatException("For input string: \"six\""));
+        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", new NumberFormatException("For input string: \"ten\""));
 
         trueErrorlogs.add(errorLog1);
         trueErrorlogs.add(errorLog2);
@@ -101,9 +96,9 @@ public class ChangePropertyDataTypeTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", NumberFormatException.class);
-        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", NumberFormatException.class);
-        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", NumberFormatException.class);
+        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", new NumberFormatException("For input string: \"three\""));
+        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", new NumberFormatException("For input string: \"six\""));
+        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", new NumberFormatException("For input string: \"ten\""));
 
         trueErrorlogs.add(errorLog1);
         trueErrorlogs.add(errorLog2);
@@ -125,10 +120,10 @@ public class ChangePropertyDataTypeTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "thisIsDate", ParseException.class);
-        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "12-11-1989", ParseException.class);
-        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "2014-13-31", ParseException.class);
-        ErrorLog errorLog4 = new PreparationErrorLog(preparation, "2000-01-32", ParseException.class);
+        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "thisIsDate", new ParseException("Unparseable date: \"thisIsDate\"", 0));
+        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "12-11-1989", new ParseException("Unparseable date: \"12-11-1989\"", 10));
+        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "2014-13-31", new ParseException("Unparseable date: \"2014-13-31\"", 10));
+        ErrorLog errorLog4 = new PreparationErrorLog(preparation, "2000-01-32", new ParseException("Unparseable date: \"2000-01-32\"", 10));
 
         trueErrorlogs.add(errorLog1);
         trueErrorlogs.add(errorLog2);

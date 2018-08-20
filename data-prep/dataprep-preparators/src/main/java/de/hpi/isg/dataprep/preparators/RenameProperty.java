@@ -1,8 +1,14 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.implementation.abstracts.RenamePropertyImpl;
 import de.hpi.isg.dataprep.model.metadata.RenamePropertyMetadata;
+import de.hpi.isg.dataprep.model.target.error.ErrorLog;
+import de.hpi.isg.dataprep.model.target.error.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Lan Jiang

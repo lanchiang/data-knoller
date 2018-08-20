@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @author Lan Jiang
  * @since 2018/6/4
  */
-abstract public class Preparator extends AbstractPreparator implements Executable {
+abstract public class Preparator extends AbstractPreparator {
 
     protected PrerequisiteMetadata prerequisites;
     private Preparation preparation;
@@ -46,7 +46,7 @@ abstract public class Preparator extends AbstractPreparator implements Executabl
                 .map(pair -> {
                     String value = pair._1().toString();
                     Throwable exception = pair._2();
-                    ErrorLog errorLog = new PreparationErrorLog(this.getPreparation(), value, exception.getClass());
+                    ErrorLog errorLog = new PreparationErrorLog(this.getPreparation(), value, exception);
                     return errorLog;
                 }).collect(Collectors.toList());
         this.getPreparation().getPipeline().getErrorRepository().addErrorLogs(errorLogs);
