@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.{Consequences, ConversionHelper, SchemaUtils}
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.implementation.AddPropertyImpl
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
+import de.hpi.isg.dataprep.preparators.AddProperty
 import de.hpi.isg.dataprep.util.PropertyDataType.PropertyType
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -23,7 +24,7 @@ class DefaultAddPropertyImpl extends AddPropertyImpl {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
         dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparartor, Add Property.")
 
-        val preparator_ = super.getPreparatorInstance(preparator)
+        val preparator_ = super.getPreparatorInstance(preparator, classOf[AddProperty])
 
         val targetPropertyName = preparator_.getTargetPropertyName
         val targetPropertyDataType = preparator_.getTargetPropertyDataType
@@ -60,7 +61,7 @@ class DefaultAddPropertyImpl extends AddPropertyImpl {
                 SchemaUtils.lastToNewPosition(dataFrame.withColumn(targetPropertyName, col.cast(DateType)), positionInSchema)
             }
         }
-        resultDataFrame.show()
+//        resultDataFrame.show()
 
         new Consequences(resultDataFrame, errorAccumulator)
     }

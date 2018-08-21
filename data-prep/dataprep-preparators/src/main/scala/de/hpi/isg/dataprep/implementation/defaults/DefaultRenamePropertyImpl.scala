@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.Consequences
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.implementation.RenamePropertyImpl
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
+import de.hpi.isg.dataprep.preparators.RenameProperty
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
@@ -17,7 +18,7 @@ class DefaultRenamePropertyImpl extends RenamePropertyImpl {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
         dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparator: Rename property.")
 
-        val preparator_ = super.getPreparatorInstance(preparator)
+        val preparator_ = super.getPreparatorInstance(preparator, classOf[RenameProperty])
 
         val targetPropertyName = preparator_.getNewPropertyName
         val currentPropertyName = preparator_.getPropertyName

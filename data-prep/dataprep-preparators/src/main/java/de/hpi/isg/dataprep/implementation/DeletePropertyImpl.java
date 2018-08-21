@@ -13,11 +13,4 @@ import org.apache.spark.sql.Row;
  */
 abstract public class DeletePropertyImpl extends PreparatorImpl {
 
-    protected DeleteProperty getPreparatorInstance(Preparator preparator) throws ClassCastException {
-        if (!(preparator instanceof DeleteProperty)) {
-            throw new ClassCastException("Class is not the required type.");
-        }
-        DeleteProperty realPreparator = (DeleteProperty) preparator;
-        return realPreparator;
-    }
 }

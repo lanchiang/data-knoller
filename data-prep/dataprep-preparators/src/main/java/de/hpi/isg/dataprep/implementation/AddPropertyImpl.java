@@ -10,11 +10,4 @@ import de.hpi.isg.dataprep.preparators.AddProperty;
  */
 abstract public class AddPropertyImpl extends PreparatorImpl {
 
-    protected AddProperty getPreparatorInstance(Preparator preparator) throws ClassCastException {
-        if (!(preparator instanceof AddProperty)) {
-            throw new ClassCastException("Class is not the required type.");
-        }
-        AddProperty realPreparator = (AddProperty) preparator;
-        return realPreparator;
-    }
 }

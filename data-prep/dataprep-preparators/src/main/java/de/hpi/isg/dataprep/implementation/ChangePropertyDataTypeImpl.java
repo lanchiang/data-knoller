@@ -12,11 +12,4 @@ import de.hpi.isg.dataprep.preparators.ChangePropertyDataType;
  */
 abstract public class ChangePropertyDataTypeImpl extends PreparatorImpl {
 
-    protected ChangePropertyDataType getPreparatorInstance(Preparator preparator) throws ClassCastException {
-        if (!(preparator instanceof ChangePropertyDataType)) {
-            throw new ClassCastException("Class is not the required type.");
-        }
-        ChangePropertyDataType realPreparator = (ChangePropertyDataType) preparator;
-        return realPreparator;
-    }
 }

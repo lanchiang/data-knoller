@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.SparkPreparators.spark
 import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl
 import de.hpi.isg.dataprep.model.metadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
+import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
 import de.hpi.isg.dataprep.util.PropertyDataType.PropertyType
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -27,12 +28,7 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
         dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparator: Change property data type.")
 
-//        if (!preparator.isInstanceOf[ChangePropertyDataType]) {
-//            throw new ClassCastException("Class is not the required type.")
-//        }
-//        val preparator_ = preparator.asInstanceOf[ChangePropertyDataType]
-
-        val preparator_ = super.getPreparatorInstance(preparator)
+        val preparator_ = super.getPreparatorInstance(preparator, classOf[ChangePropertyDataType])
 
         val targetDataType = preparator_.getTargetType
         val fieldName = preparator_.getPropertyName

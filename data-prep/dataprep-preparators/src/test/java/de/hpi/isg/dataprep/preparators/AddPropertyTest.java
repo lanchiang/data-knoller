@@ -192,7 +192,7 @@ public class AddPropertyTest {
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("ship", DataTypes.DateType, false, Metadata.empty()),
+                new StructField("ship", DataTypes.DateType, true, Metadata.empty()),
                 new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),

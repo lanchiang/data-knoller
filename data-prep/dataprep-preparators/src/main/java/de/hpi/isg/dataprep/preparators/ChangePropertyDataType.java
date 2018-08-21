@@ -16,14 +16,6 @@ import java.util.Map;
  */
 public class ChangePropertyDataType extends Preparator {
 
-//    public enum PropertyType {
-//        STRING,
-//        INTEGER,
-//        DOUBLE,
-//        DATE,
-//        DATETIME
-//    }
-
     private String propertyName;
     private PropertyDataType.PropertyType targetType;
     private DatePattern.DatePatternEnum sourceDatePattern;
