@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.implementation.abstracts;
+package de.hpi.isg.dataprep.implementation;
 
 import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.preparators.ChangeFileEncoding;

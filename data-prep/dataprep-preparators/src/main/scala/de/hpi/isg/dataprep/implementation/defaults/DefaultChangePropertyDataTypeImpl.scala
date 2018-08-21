@@ -2,11 +2,10 @@ package de.hpi.isg.dataprep.implementation.defaults
 
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
 import de.hpi.isg.dataprep.SparkPreparators.spark
-import de.hpi.isg.dataprep.implementation.abstracts.ChangePropertyDataTypeImpl
+import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl
 import de.hpi.isg.dataprep.model.metadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
-import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
-import de.hpi.isg.dataprep.preparators.ChangePropertyDataType.PropertyType
+import de.hpi.isg.dataprep.util.PropertyDataType.PropertyType
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 

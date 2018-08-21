@@ -15,6 +15,8 @@ import scala.util.{Failure, Success, Try}
 @SerialVersionUID(1000L)
 object ConversionHelper extends Serializable {
 
+    private val defaultDateFormat = DatePatternEnum.YearMonthDay
+
     /**
       * Converts the pattern of the date value into the desired pattern.
       *
@@ -44,5 +46,28 @@ object ConversionHelper extends Serializable {
                 targetDate
             }
         }
+    }
+
+    def getDefaultDate(): String = {
+        val defaultDate = new Date(0)
+        val defaultFormatter = new SimpleDateFormat(defaultDateFormat.getPattern)
+        defaultFormatter.format(defaultDate)
+    }
+
+//    @throws(classOf[NumberFormatException])
+//    def getDateInDefaultFormatByString(value: String): String = {
+//        val tryToLong = Try{value.toLong}
+//        tryToLong match {
+//            case Failure(content) => throw content
+//            case Success(content) => {
+//                val date = new Date(content)
+//                val defaultFormatter = new SimpleDateFormat(defaultDateFormat.getPattern)
+//                defaultFormatter.setLenient(false)
+//            }
+//        }
+//    }
+
+    def getDefaultDateFormat(): String = {
+        this.defaultDateFormat.getPattern
     }
 }

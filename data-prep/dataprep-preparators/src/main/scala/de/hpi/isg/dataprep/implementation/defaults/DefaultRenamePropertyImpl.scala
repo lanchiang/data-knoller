@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.implementation.defaults
 
 import de.hpi.isg.dataprep.Consequences
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
-import de.hpi.isg.dataprep.implementation.abstracts.RenamePropertyImpl
+import de.hpi.isg.dataprep.implementation.RenamePropertyImpl
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator

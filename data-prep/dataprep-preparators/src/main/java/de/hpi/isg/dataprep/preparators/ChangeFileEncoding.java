@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DatasetUtil;
-import de.hpi.isg.dataprep.implementation.abstracts.ChangeFileEncodingImpl;
+import de.hpi.isg.dataprep.implementation.ChangeFileEncodingImpl;
 import de.hpi.isg.dataprep.model.metadata.ChangeFileEncodingMetadata;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;

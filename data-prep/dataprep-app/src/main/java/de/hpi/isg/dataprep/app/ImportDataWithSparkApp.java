@@ -22,7 +22,6 @@ public class ImportDataWithSparkApp {
         Map<String, String> options = new HashMap<>();
         options.put("header", "true");
         datasetConfig.setOptions(options);
-//        Dataset<Row> dataset = DatasetUtil.createDataset(datasetConfig);
         Dataset<Row> dataset = DatasetUtil.changeFileEncoding(datasetConfig);
         dataset.rdd().saveAsTextFile("/Users/Fuga/Documents/HPI/data/testdata/pokemon_output.csv");
         return;

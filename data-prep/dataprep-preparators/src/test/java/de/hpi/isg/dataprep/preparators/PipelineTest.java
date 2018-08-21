@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType;
+import de.hpi.isg.dataprep.util.PropertyDataType;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -33,7 +34,7 @@ public class PipelineTest {
     @Test
     public void testCreatePipeline() throws Exception {
         Pipeline pipeline = new Pipeline(dataset);
-        Preparator preparator = new ChangePropertyDataType("id", ChangePropertyDataType.PropertyType.INTEGER);
+        Preparator preparator = new ChangePropertyDataType("id", PropertyDataType.PropertyType.INTEGER);
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();

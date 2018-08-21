@@ -1,10 +1,11 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.implementation.abstracts.ChangePropertyDataTypeImpl;
+import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.metadata.ChangePropertyDataTypeMetadata;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.DatePattern;
+import de.hpi.isg.dataprep.util.PropertyDataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,25 +16,25 @@ import java.util.Map;
  */
 public class ChangePropertyDataType extends Preparator {
 
-    public enum PropertyType {
-        STRING,
-        INTEGER,
-        DOUBLE,
-        DATE,
-        DATETIME
-    }
+//    public enum PropertyType {
+//        STRING,
+//        INTEGER,
+//        DOUBLE,
+//        DATE,
+//        DATETIME
+//    }
 
     private String propertyName;
-    private PropertyType targetType;
+    private PropertyDataType.PropertyType targetType;
     private DatePattern.DatePatternEnum sourceDatePattern;
     private DatePattern.DatePatternEnum targetDatePattern;
 
-    public ChangePropertyDataType(String propertyName, PropertyType targetType) {
+    public ChangePropertyDataType(String propertyName, PropertyDataType.PropertyType targetType) {
         this.propertyName = propertyName;
         this.targetType = targetType;
     }
 
-    public ChangePropertyDataType(String propertyName, PropertyType sourceType, PropertyType targetType) {
+    public ChangePropertyDataType(String propertyName, PropertyDataType.PropertyType sourceType, PropertyDataType.PropertyType targetType) {
         this(propertyName, targetType);
     }
 
@@ -56,11 +57,11 @@ public class ChangePropertyDataType extends Preparator {
         this.propertyName = propertyName;
     }
 
-    public PropertyType getTargetType() {
+    public PropertyDataType.PropertyType getTargetType() {
         return targetType;
     }
 
-    public void setTargetType(PropertyType targetType) {
+    public void setTargetType(PropertyDataType.PropertyType targetType) {
         this.targetType = targetType;
     }
 
