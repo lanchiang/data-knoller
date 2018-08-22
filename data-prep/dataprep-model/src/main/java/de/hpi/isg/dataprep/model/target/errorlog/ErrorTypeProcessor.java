@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.model.target.error;
+package de.hpi.isg.dataprep.model.target.errorlog;
 
 /**
  * @author Lan Jiang

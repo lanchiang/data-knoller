@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.model.target.error.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 
 import java.util.ArrayList;
 import java.util.Collection;

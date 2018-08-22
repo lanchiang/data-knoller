@@ -33,6 +33,7 @@ class DefaultChangeFileEncodingImpl extends ChangeFileEncodingImpl {
 
         val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
 
-        new Consequences(resultDataFrame, errorAccumulator)
+//        new Consequences(resultDataFrame, errorAccumulator)
+        new Consequences(resultDataFrame, null)
     }
 }

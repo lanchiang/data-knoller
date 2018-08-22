@@ -1,10 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.implementation.defaults.DefaultAddPropertyImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
-import de.hpi.isg.dataprep.model.target.error.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.PropertyDataType;
 import org.apache.log4j.Level;
@@ -193,6 +195,45 @@ public class AddPropertyTest {
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("ship", DataTypes.DateType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+        });
+
+        // Second test whether the schema is correctly updated.
+        Assert.assertEquals(trueSchema, updatedSchema);
+    }
+
+    @Test
+    public void testAddColumnOutOfBound() throws Exception {
+        Preparator preparator = new AddProperty(new DefaultAddPropertyImpl());
+        ((AddProperty) preparator).setTargetPropertyName("ship");
+        ((AddProperty) preparator).setTargetPropertyDataType(PropertyDataType.PropertyType.DATE);
+        ((AddProperty) preparator).setPositionInSchema(20);
+
+        Preparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorLog = new ArrayList<>();
+        ErrorLog errorLog = new PreparationErrorLog(preparation, "ship",
+                new PreparationHasErrorException(String.format("Position %d is out of bound.", 20)));
+        trueErrorLog.add(errorLog);
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorLog);
+
+        // First test error log repository
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+
+        Dataset<Row> updated = pipeline.getRawData();
+        StructType updatedSchema = updated.schema();
+
+        StructType trueSchema = new StructType(new StructField[] {
+                new StructField("id", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),

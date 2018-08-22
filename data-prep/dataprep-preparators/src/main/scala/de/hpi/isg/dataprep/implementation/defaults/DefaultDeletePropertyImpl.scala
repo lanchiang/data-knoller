@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.implementation.defaults
 import de.hpi.isg.dataprep.Consequences
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.implementation.DeletePropertyImpl
+import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.DeleteProperty
 import org.apache.spark.sql.{Dataset, Row}
@@ -15,13 +16,8 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class DefaultDeletePropertyImpl extends DeletePropertyImpl {
 
-    override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
-        val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
-        dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparator: Delete property")
-
-        val preparator_ = super.getPreparatorInstance(preparator, classOf[DeleteProperty])
-
-        val targetPropertyName = preparator_.getPropertyName
+    override protected def executeLogic(preparator: DeleteProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
+        val targetPropertyName = preparator.getPropertyName
 
         val columns = dataFrame.columns
 
@@ -31,7 +27,7 @@ class DefaultDeletePropertyImpl extends DeletePropertyImpl {
                 dataFrame.drop(dataFrame.col(targetPropertyName))
             }
             case None => {
-                errorAccumulator.add(targetPropertyName, new PreparationHasErrorException("The property to be deleted does not exist."))
+                errorAccumulator.add(new PropertyError(targetPropertyName, new PreparationHasErrorException("The property to be deleted does not exist.")))
                 dataFrame
             }
         }

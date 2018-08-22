@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.model.target.error;
+package de.hpi.isg.dataprep.model.target.errorlog;
 
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;

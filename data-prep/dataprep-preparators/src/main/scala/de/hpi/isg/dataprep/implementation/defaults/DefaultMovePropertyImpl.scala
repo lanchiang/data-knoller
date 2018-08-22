@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.implementation.defaults
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.{Consequences, SchemaUtils}
 import de.hpi.isg.dataprep.implementation.MovePropertyImpl
+import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.MoveProperty
 import org.apache.spark.sql.{Dataset, Row}
@@ -15,19 +16,15 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class DefaultMovePropertyImpl extends MovePropertyImpl {
 
-    override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
-        val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
-        dataFrame.sparkSession.sparkContext.register(errorAccumulator, "The error accumulator for preparator, Add Property.")
-
-        val preparator_ = super.getPreparatorInstance(preparator, classOf[MoveProperty])
-
-        val propertyName = preparator_.getTargetPropertyName
-        val newPosition = preparator_.getNewPosition
+    override protected def executeLogic(preparator: MoveProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
+        val propertyName = preparator.getTargetPropertyName
+        val newPosition = preparator.getNewPosition
 
         val schema = dataFrame.columns
 
         if (!SchemaUtils.positionValidation(newPosition, schema)) {
-            errorAccumulator.add(newPosition, new PreparationHasErrorException("Position of the new property in the schema is out of bound."))
+            errorAccumulator.add(new PropertyError(propertyName,
+                new PreparationHasErrorException(String.format("New position %d in the schema is out of bound.", newPosition : Integer))))
         }
 
         val currentPosition = dataFrame.schema.fieldIndex(propertyName)

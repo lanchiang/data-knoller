@@ -4,7 +4,7 @@ import de.hpi.isg.dataprep.implementation.defaults.DefaultMovePropertyImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
-import de.hpi.isg.dataprep.model.target.error.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

@@ -1,12 +1,14 @@
 package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.model.error.PreparationError;
+import de.hpi.isg.dataprep.model.error.PropertyError;
+import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.metadata.PrerequisiteMetadata;
-import de.hpi.isg.dataprep.model.target.error.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.Preparation;
-import de.hpi.isg.dataprep.model.target.error.PreparationErrorLog;
-import de.hpi.isg.dataprep.util.Executable;
+import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -43,10 +45,30 @@ abstract public class Preparator extends AbstractPreparator {
         Consequences consequences = this.getPreparation().getConsequences();
 
         List<ErrorLog> errorLogs = consequences.errorsAccumulator_().value().stream()
-                .map(pair -> {
-                    String value = pair._1().toString();
-                    Throwable exception = pair._2();
-                    ErrorLog errorLog = new PreparationErrorLog(this.getPreparation(), value, exception);
+                .map(error -> {
+                    ErrorLog errorLog = null;
+                    switch (error.getErrorLevel()) {
+                        case RECORD: {
+                            RecordError pair = (RecordError) error;
+                            String value = pair.getErrRecord();
+                            Throwable exception = pair.getError();
+                            errorLog = new PreparationErrorLog(this.getPreparation(), value, exception);
+                            break;
+                        }
+                        case PROPERTY: {
+                            PropertyError pair = (PropertyError) error;
+                            String value = pair.getProperty();
+                            Throwable throwable = pair.getThrowable();
+                            errorLog = new PreparationErrorLog(this.getPreparation(), value, throwable);
+                            break;
+                        }
+                        case DATASET: {
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
                     return errorLog;
                 }).collect(Collectors.toList());
         this.getPreparation().getPipeline().getErrorRepository().addErrorLogs(errorLogs);

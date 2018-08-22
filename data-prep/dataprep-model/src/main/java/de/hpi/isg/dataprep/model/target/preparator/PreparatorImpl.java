@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.error.PreparationError;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.util.CollectionAccumulator;
 
 /**
  * @author Lan Jiang
@@ -14,8 +15,15 @@ abstract public class PreparatorImpl {
 
     abstract protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception;
 
-    public void execute(Preparator preparator) throws Exception {
-        Dataset<Row> dataset = preparator.getPreparation().getPipeline().getRawData();
+    abstract protected CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame);
+
+    private final Dataset<Row> getDataSet(Preparator preparator) {
+        return preparator.getPreparation().getPipeline().getRawData();
+    }
+
+    public final void execute(Preparator preparator) throws Exception {
+        // getDataset
+        Dataset<Row> dataset = this.getDataSet(preparator);
 
         Consequences consequences = executePreparator(preparator, dataset);
 
@@ -27,7 +35,9 @@ abstract public class PreparatorImpl {
         }
     }
 
-    public <T> T getPreparatorInstance(Preparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
+
+
+    public final  <T> T getPreparatorInstance(Preparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
         if (!(preparator.getClass().isAssignableFrom(concretePreparatorClass))) {
             throw new ClassCastException("Class is not required type.");
         }

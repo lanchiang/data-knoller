@@ -1,8 +1,6 @@
-package de.hpi.isg.dataprep.model.target.error;
+package de.hpi.isg.dataprep.model.target.errorlog;
 
 import de.hpi.isg.dataprep.model.target.Target;
-
-import java.util.Objects;
 
 /**
  * @author Lan Jiang

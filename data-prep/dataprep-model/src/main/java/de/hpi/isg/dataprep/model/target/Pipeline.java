@@ -3,8 +3,7 @@ package de.hpi.isg.dataprep.model.target;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.error.ErrorLog;
-import de.hpi.isg.dataprep.model.target.error.PipelineErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
