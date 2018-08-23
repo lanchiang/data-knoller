@@ -5,8 +5,6 @@ import de.hpi.isg.dataprep.model.metadata.AddPropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.PropertyDataType;
 
-import java.util.Objects;
-
 /**
  * @author Lan Jiang
  * @since 2018/8/20

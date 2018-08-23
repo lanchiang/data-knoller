@@ -15,7 +15,6 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class DefaultRenamePropertyImpl extends RenamePropertyImpl {
 
-
     override protected def executeLogic(preparator: RenameProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val targetPropertyName = preparator.getNewPropertyName
         val currentPropertyName = preparator.getPropertyName

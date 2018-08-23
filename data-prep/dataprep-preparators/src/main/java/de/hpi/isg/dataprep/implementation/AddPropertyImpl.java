@@ -21,14 +21,14 @@ abstract public class AddPropertyImpl extends PreparatorImpl {
                                                  CollectionAccumulator<PreparationError> errorAccumulator);
 
     @Override
-    protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
+    protected final Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         AddProperty preparator_ = this.getPreparatorInstance(preparator, AddProperty.class);
         CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator, dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
 
     @Override
-    protected CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
+    protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
         CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator<>();
         dataFrame.sparkSession().sparkContext().register(errorAccumulator,
                 String.format("%s error accumulator.", ((AddProperty)preparator)).getClass().getSimpleName());
