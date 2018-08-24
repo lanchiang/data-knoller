@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.preparators;
 import de.hpi.isg.dataprep.DatasetUtil;
 import de.hpi.isg.dataprep.implementation.ChangeFileEncodingImpl;
 import de.hpi.isg.dataprep.model.metadata.ChangeFileEncodingMetadata;
-import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -20,8 +19,6 @@ public class ChangeFileEncoding extends Preparator {
     private String sourceEncoding;
     private String targetEncoding;
 
-    private ChangeFileEncodingImpl impl;
-
     public ChangeFileEncoding(String targetEncoding) {
         this.targetEncoding = targetEncoding;
     }
@@ -33,12 +30,9 @@ public class ChangeFileEncoding extends Preparator {
 
     public ChangeFileEncoding(ChangeFileEncodingImpl impl) {
         this.impl = impl;
-        prerequisites = new ChangeFileEncodingMetadata();
-    }
 
-    @Override
-    protected void executePreparator() throws Exception {
-        impl.execute(this);
+        prerequisites = ChangeFileEncodingMetadata.getInstance().getPrerequisites();
+        toChange = ChangeFileEncodingMetadata.getInstance().getToChange();
     }
 
     @Override

@@ -18,7 +18,9 @@ public class AddProperty extends Preparator {
 
     public AddProperty(AddPropertyImpl impl) {
         this.impl = impl;
-        prerequisites = AddPropertyMetadata.getInstance();
+
+        prerequisites = AddPropertyMetadata.getInstance().getPrerequisites();
+        toChange = AddPropertyMetadata.getInstance().getToChange();
     }
 
     @Override

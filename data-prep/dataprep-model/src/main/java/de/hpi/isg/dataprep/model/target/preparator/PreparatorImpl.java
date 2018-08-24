@@ -35,8 +35,6 @@ abstract public class PreparatorImpl {
         }
     }
 
-
-
     public final  <T> T getPreparatorInstance(Preparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
         if (!(preparator.getClass().isAssignableFrom(concretePreparatorClass))) {
             throw new ClassCastException("Class is not required type.");

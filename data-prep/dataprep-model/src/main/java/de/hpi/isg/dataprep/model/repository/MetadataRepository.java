@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.model.target.Metadata;
+import de.hpi.isg.dataprep.util.Metadata;
 
 import java.util.List;
 

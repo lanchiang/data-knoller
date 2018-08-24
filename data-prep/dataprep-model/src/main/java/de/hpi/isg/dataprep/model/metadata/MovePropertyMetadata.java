@@ -4,7 +4,7 @@ package de.hpi.isg.dataprep.model.metadata;
  * @author Lan Jiang
  * @since 2018/8/21
  */
-public class MovePropertyMetadata extends PrerequisiteMetadata {
+public class MovePropertyMetadata extends PreparatorMetadata {
 
     private static MovePropertyMetadata instance = new MovePropertyMetadata();
 
@@ -15,7 +15,12 @@ public class MovePropertyMetadata extends PrerequisiteMetadata {
     }
 
     @Override
-    protected void setMetadata() {
+    protected void setPrerequisiteMetadata() {
+
+    }
+
+    @Override
+    protected void setToChangeMetadata() {
 
     }
 }

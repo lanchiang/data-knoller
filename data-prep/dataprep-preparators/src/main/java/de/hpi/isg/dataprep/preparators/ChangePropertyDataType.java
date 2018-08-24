@@ -2,11 +2,11 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.metadata.ChangePropertyDataTypeMetadata;
-import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.DatePattern;
 import de.hpi.isg.dataprep.util.PropertyDataType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +33,9 @@ public class ChangePropertyDataType extends Preparator {
 
     public ChangePropertyDataType(ChangePropertyDataTypeImpl impl) {
         this.impl = impl;
-        prerequisites = new ChangePropertyDataTypeMetadata();
+
+        prerequisites = ChangePropertyDataTypeMetadata.getInstance().getPrerequisites();
+        toChange = ChangePropertyDataTypeMetadata.getInstance().getToChange();
     }
 
     @Override

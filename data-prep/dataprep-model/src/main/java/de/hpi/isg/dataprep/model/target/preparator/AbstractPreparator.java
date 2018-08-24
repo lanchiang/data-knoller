@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.model.target.preparator;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.util.Executable;
-import de.hpi.isg.dataprep.util.Nameable;
 
 /**
  * The template class for the execution of a preparator.

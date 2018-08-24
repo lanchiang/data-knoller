@@ -4,7 +4,7 @@ package de.hpi.isg.dataprep.model.metadata;
  * @author Lan Jiang
  * @since 2018/8/20
  */
-public class DeletePropertyMetadata extends PrerequisiteMetadata {
+public class DeletePropertyMetadata extends PreparatorMetadata {
 
     private static DeletePropertyMetadata instance = new DeletePropertyMetadata();
 
@@ -15,7 +15,12 @@ public class DeletePropertyMetadata extends PrerequisiteMetadata {
     }
 
     @Override
-    protected void setMetadata() {
+    protected void setPrerequisiteMetadata() {
+
+    }
+
+    @Override
+    protected void setToChangeMetadata() {
 
     }
 }

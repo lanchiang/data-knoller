@@ -1,14 +1,12 @@
 package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
-import de.hpi.isg.dataprep.model.error.PreparationError;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
-import de.hpi.isg.dataprep.model.metadata.PrerequisiteMetadata;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
+import de.hpi.isg.dataprep.util.Metadata;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -21,7 +19,9 @@ import java.util.stream.Collectors;
  */
 abstract public class Preparator extends AbstractPreparator {
 
-    protected PrerequisiteMetadata prerequisites;
+    protected List<Metadata> prerequisites;
+    protected List<Metadata> toChange;
+
     private Preparation preparation;
 
     protected List<Metadata> invalid;
@@ -82,13 +82,13 @@ abstract public class Preparator extends AbstractPreparator {
          * If all prerequisites are met, read and store all these metadata, used in preparator execution.
          */
         Map<String, String> validMetadata = new HashMap<>();
-        for (String metadata : prerequisites.getPrerequisites()) {
+        for (Metadata metadata : prerequisites) {
             if (false) {
                 // this metadata is not satisfied, add it to the invalid metadata set.
-                this.getInvalid().add(new Metadata(metadata));
+                this.getInvalid().add(metadata);
                 return false;
             }
-            validMetadata.putIfAbsent(metadata, null);
+            validMetadata.putIfAbsent(metadata.getMetadata(), null);
         }
         this.metadataValue = validMetadata;
         return true;
@@ -119,11 +119,15 @@ abstract public class Preparator extends AbstractPreparator {
         return updatedDataset;
     }
 
-    public PrerequisiteMetadata getPrerequisites() {
+    public Map<String, String> getMetadataValue() {
+        return metadataValue;
+    }
+
+    public List<Metadata> getPrerequisites() {
         return prerequisites;
     }
 
-    public Map<String, String> getMetadataValue() {
-        return metadataValue;
+    public List<Metadata> getToChange() {
+        return toChange;
     }
 }

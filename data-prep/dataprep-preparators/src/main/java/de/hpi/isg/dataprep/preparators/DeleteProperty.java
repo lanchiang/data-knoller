@@ -14,7 +14,9 @@ public class DeleteProperty extends Preparator {
 
     public DeleteProperty(DeletePropertyImpl impl) {
         this.impl = impl;
-        prerequisites = DeletePropertyMetadata.getInstance();
+
+        prerequisites = DeletePropertyMetadata.getInstance().getPrerequisites();
+        toChange = DeletePropertyMetadata.getInstance().getToChange();
     }
 
     @Override

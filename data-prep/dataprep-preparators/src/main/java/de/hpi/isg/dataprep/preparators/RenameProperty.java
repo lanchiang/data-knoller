@@ -15,7 +15,9 @@ public class RenameProperty extends Preparator {
 
     public RenameProperty(RenamePropertyImpl impl) {
         this.impl = impl;
-        prerequisites = new RenamePropertyMetadata();
+
+        prerequisites = RenamePropertyMetadata.getInstance().getPrerequisites();
+        toChange = RenamePropertyMetadata.getInstance().getToChange();
     }
 
     @Override

@@ -4,7 +4,7 @@ package de.hpi.isg.dataprep.model.metadata;
  * @author Lan Jiang
  * @since 2018/8/20
  */
-public class AddPropertyMetadata extends PrerequisiteMetadata {
+public class AddPropertyMetadata extends PreparatorMetadata {
 
     private static AddPropertyMetadata instance = new AddPropertyMetadata();
 
@@ -15,7 +15,12 @@ public class AddPropertyMetadata extends PrerequisiteMetadata {
     }
 
     @Override
-    protected void setMetadata() {
+    protected void setPrerequisiteMetadata() {
+
+    }
+
+    @Override
+    protected void setToChangeMetadata() {
 
     }
 }

@@ -45,23 +45,22 @@ public class Pipeline extends PipelineComponent {
     }
 
     public void addPreparation(Preparation preparation) {
-        this.preparations.add(preparation);
         preparation.setPipeline(this);
+        this.preparations.add(preparation);
     }
 
-    private void checkPipelineErrors() {
+    private void checkPipelineErrors() throws Exception {
         for (Preparation preparation : preparations) {
-            // detect all the pipeline errors for the pipeline from the begin to the current step.
-            detectPipelineErrors(preparations.subList(0, preparations.indexOf(preparation)));
+
         }
     }
 
-    private List<PipelineErrorLog> detectPipelineErrors(List<Preparation> forepartPipeline) {
-        List<PipelineErrorLog> errorLogs = new ArrayList<>();
-        return errorLogs;
-    }
     public void executePipeline() throws Exception {
-        checkPipelineErrors();
+        try {
+            checkPipelineErrors();
+        } catch (Exception e) {
+            // do something
+        }
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();
         }

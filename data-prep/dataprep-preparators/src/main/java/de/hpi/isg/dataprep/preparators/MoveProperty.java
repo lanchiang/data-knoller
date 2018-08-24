@@ -15,7 +15,9 @@ public class MoveProperty extends Preparator {
 
     public MoveProperty(MovePropertyImpl impl) {
         this.impl = impl;
-        prerequisites = MovePropertyMetadata.getInstance();
+
+        prerequisites = MovePropertyMetadata.getInstance().getPrerequisites();
+        toChange = MovePropertyMetadata.getInstance().getToChange();
     }
 
     @Override
