@@ -9,17 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dataprep-preparators</artifactId>
+    <artifactId>dataprep-metadata</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>de.hpi.isg</groupId>
             <artifactId>dataprep-model</artifactId>
-            <version>0.01-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.hpi.isg</groupId>
-            <artifactId>dataprep-metadata</artifactId>
             <version>0.01-SNAPSHOT</version>
         </dependency>
         <dependency>

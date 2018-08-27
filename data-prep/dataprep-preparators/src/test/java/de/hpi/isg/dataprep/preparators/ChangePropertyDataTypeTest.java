@@ -8,7 +8,9 @@ import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.DatePattern;
-import de.hpi.isg.dataprep.util.PropertyDataType;
+import de.hpi.isg.dataprep.util.DataType;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -32,6 +34,9 @@ public class ChangePropertyDataTypeTest {
 
     @BeforeClass
     public static void setUp() {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
         dataset = SparkSession.builder()
                 .appName("Change property data type unit tests.")
                 .master("local")
@@ -52,7 +57,7 @@ public class ChangePropertyDataTypeTest {
     public void testChangeToIntegerErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("id");
-        ((ChangePropertyDataType) preparator).setTargetType(PropertyDataType.PropertyType.INTEGER);
+        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.INTEGER);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -75,7 +80,7 @@ public class ChangePropertyDataTypeTest {
     public void testChangeToStringErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("identifier");
-        ((ChangePropertyDataType) preparator).setTargetType(PropertyDataType.PropertyType.STRING);
+        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.STRING);
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
@@ -90,7 +95,7 @@ public class ChangePropertyDataTypeTest {
     public void testChangeToDoubleErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("id");
-        ((ChangePropertyDataType) preparator).setTargetType(PropertyDataType.PropertyType.DOUBLE);
+        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.DOUBLE);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -113,7 +118,7 @@ public class ChangePropertyDataTypeTest {
     public void testChangeToDateErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("date");
-        ((ChangePropertyDataType) preparator).setTargetType(PropertyDataType.PropertyType.DATE);
+        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.DATE);
         ((ChangePropertyDataType) preparator).setSourceDatePattern(DatePattern.DatePatternEnum.YearMonthDay);
         ((ChangePropertyDataType) preparator).setTargetDatePattern(DatePattern.DatePatternEnum.MonthDayYear);
         Preparation preparation = new Preparation(preparator);

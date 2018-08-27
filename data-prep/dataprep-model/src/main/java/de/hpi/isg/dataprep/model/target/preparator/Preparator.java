@@ -1,16 +1,19 @@
 package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
+import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
-import de.hpi.isg.dataprep.util.Metadata;
+import de.hpi.isg.dataprep.util.MetadataEnum;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -19,12 +22,12 @@ import java.util.stream.Collectors;
  */
 abstract public class Preparator extends AbstractPreparator {
 
-    protected List<Metadata> prerequisites;
+    protected List<Metadata> prerequisiteMetadata;
     protected List<Metadata> toChange;
 
     private Preparation preparation;
 
-    protected List<Metadata> invalid;
+    protected List<MetadataEnum> invalid;
     protected Map<String, String> metadataValue;
 
     protected Dataset<Row> updatedDataset;
@@ -33,6 +36,8 @@ abstract public class Preparator extends AbstractPreparator {
 
     public Preparator() {
         invalid = new ArrayList<>();
+        prerequisiteMetadata = new CopyOnWriteArrayList<>();
+        toChange = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -74,24 +79,37 @@ abstract public class Preparator extends AbstractPreparator {
         this.getPreparation().getPipeline().getErrorRepository().addErrorLogs(errorLogs);
     }
 
+    /**
+     * This method validates the input parameters of a {@link Preparator}. If succeeds, setup the values of metadata into both
+     * prerequisite and toChange set.
+     *
+     * @throws Exception
+     */
+    abstract public void buildMetadataSetup() throws ParameterNotSpecifiedException;
+
     @Override
     protected boolean checkMetadata() {
         /**
          * check for each metadata whether valid.
          * Stores invalid ones.
-         * If all prerequisites are met, read and store all these metadata, used in preparator execution.
+         * If all prerequisiteName are met, read and store all these metadata, used in preparator execution.
          */
-        Map<String, String> validMetadata = new HashMap<>();
-        for (Metadata metadata : prerequisites) {
-            if (false) {
-                // this metadata is not satisfied, add it to the invalid metadata set.
-                this.getInvalid().add(metadata);
-                return false;
-            }
-            validMetadata.putIfAbsent(metadata.getMetadata(), null);
-        }
-        this.metadataValue = validMetadata;
+//        Map<String, String> validMetadata = new HashMap<>();
+//        for (MetadataEnum metadata : prerequisiteName) {
+//            if (false) {
+//                // this metadata is not satisfied, add it to the invalid metadata set.
+//                this.getInvalid().add(metadata);
+//                return false;
+//            }
+//            validMetadata.putIfAbsent(metadata.getMetadata(), null);
+//        }
+//        this.metadataValue = validMetadata;
         return true;
+    }
+
+    @Override
+    protected void recordProvenance() {
+
     }
 
     @Override
@@ -107,7 +125,7 @@ abstract public class Preparator extends AbstractPreparator {
         this.preparation = preparation;
     }
 
-    public List<Metadata> getInvalid() {
+    public List<MetadataEnum> getInvalid() {
         return invalid;
     }
 
@@ -121,13 +139,5 @@ abstract public class Preparator extends AbstractPreparator {
 
     public Map<String, String> getMetadataValue() {
         return metadataValue;
-    }
-
-    public List<Metadata> getPrerequisites() {
-        return prerequisites;
-    }
-
-    public List<Metadata> getToChange() {
-        return toChange;
     }
 }

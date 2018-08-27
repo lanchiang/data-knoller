@@ -15,7 +15,7 @@ abstract public class AbstractPreparator extends Target implements Executable {
     /**
      * Checks whether the prerequisite metadata are met.
      *
-     * @return true/false if all the prerequisites are/are not met.
+     * @return true/false if all the prerequisiteName are/are not met.
      */
     protected abstract boolean checkMetadata();
 

@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.implementation.AddPropertyImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.AddProperty
-import de.hpi.isg.dataprep.util.PropertyDataType.PropertyType
+import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.sql.functions.{col, lit, to_date, unix_timestamp}

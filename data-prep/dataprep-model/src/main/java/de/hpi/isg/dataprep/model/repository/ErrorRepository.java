@@ -24,14 +24,12 @@ public class ErrorRepository {
         this.errorLogs = errorLogs;
     }
 
-    public boolean addErrorLog(ErrorLog errorLog) {
+    public void addErrorLog(ErrorLog errorLog) {
         this.errorLogs.add(errorLog);
-        return true;
     }
 
-    public boolean addErrorLogs(Collection<ErrorLog> errorLogs) {
+    public void addErrorLogs(Collection<ErrorLog> errorLogs) {
         this.errorLogs.addAll(errorLogs);
-        return true;
     }
 
     public List<ErrorLog> getErrorLogs() {

@@ -4,10 +4,10 @@ import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
 import de.hpi.isg.dataprep.SparkPreparators.spark
 import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
-import de.hpi.isg.dataprep.model.metadata.MetadataUtil
+import de.hpi.isg.dataprep.model.prepmetadata.MetadataUtil
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
-import de.hpi.isg.dataprep.util.PropertyDataType.PropertyType
+import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
@@ -32,7 +32,6 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
         val fieldName = preparator.getPropertyName
         val sourceDatePattern = preparator.getSourceDatePattern
         val targetDatePattern = preparator.getTargetDatePattern
-        val metadata = preparator.getMetadataValue
         // Here the program needs to check the existence of these fields.
 
         val createdRDD = dataFrame.rdd.filter(row => {
@@ -42,7 +41,6 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
                     case PropertyType.STRING => row.getAs[String](fieldName).toString
                     case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
                     case PropertyType.DATE => {
-                        val originDatePattern = metadata.get(MetadataUtil.PROPERTY_DATATYPE)
                         ConversionHelper.toDate(row.getAs[String](fieldName),
                             sourceDatePattern, targetDatePattern)
                     }

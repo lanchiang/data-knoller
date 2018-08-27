@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.DeletePropertyImpl;
-import de.hpi.isg.dataprep.model.metadata.DeletePropertyMetadata;
+import de.hpi.isg.dataprep.model.prepmetadata.DeletePropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 
 /**
@@ -14,13 +15,10 @@ public class DeleteProperty extends Preparator {
 
     public DeleteProperty(DeletePropertyImpl impl) {
         this.impl = impl;
-
-        prerequisites = DeletePropertyMetadata.getInstance().getPrerequisites();
-        toChange = DeletePropertyMetadata.getInstance().getToChange();
     }
 
     @Override
-    protected void recordProvenance() {
+    public void buildMetadataSetup() throws ParameterNotSpecifiedException {
 
     }
 

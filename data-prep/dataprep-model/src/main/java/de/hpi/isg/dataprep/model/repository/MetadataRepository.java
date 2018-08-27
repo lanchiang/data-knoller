@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.util.Metadata;
+import de.hpi.isg.dataprep.util.MetadataEnum;
 
 import java.util.List;
 
@@ -10,5 +10,5 @@ import java.util.List;
  */
 public class MetadataRepository {
 
-    private List<Metadata> metadataRepository;
+    private List<MetadataEnum> metadataRepository;
 }

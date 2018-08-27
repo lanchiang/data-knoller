@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.util.PropertyDataType;
+import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -60,14 +60,14 @@ public class PipelineTest {
     public void testShortPipeline() throws Exception {
         Preparator preparator1 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator1).setPropertyName("id");
-        ((ChangePropertyDataType) preparator1).setTargetType(PropertyDataType.PropertyType.INTEGER);
+        ((ChangePropertyDataType) preparator1).setTargetType(DataType.PropertyType.INTEGER);
 
         Preparation preparation1 = new Preparation(preparator1);
         pipeline.addPreparation(preparation1);
 
         Preparator preparator2 = new AddProperty(new DefaultAddPropertyImpl());
         ((AddProperty) preparator2).setTargetPropertyName("ship");
-        ((AddProperty) preparator2).setTargetPropertyDataType(PropertyDataType.PropertyType.DATE);
+        ((AddProperty) preparator2).setTargetPropertyDataType(DataType.PropertyType.DATE);
         ((AddProperty) preparator2).setPositionInSchema(5);
 
         Preparation preparation2 = new Preparation(preparator2);

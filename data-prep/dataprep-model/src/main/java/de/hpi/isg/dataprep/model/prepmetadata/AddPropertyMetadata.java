@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.model.metadata;
+package de.hpi.isg.dataprep.model.prepmetadata;
 
 /**
  * @author Lan Jiang

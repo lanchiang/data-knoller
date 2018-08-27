@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.MovePropertyImpl;
-import de.hpi.isg.dataprep.model.metadata.MovePropertyMetadata;
+import de.hpi.isg.dataprep.model.prepmetadata.MovePropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 
 /**
@@ -15,13 +16,10 @@ public class MoveProperty extends Preparator {
 
     public MoveProperty(MovePropertyImpl impl) {
         this.impl = impl;
-
-        prerequisites = MovePropertyMetadata.getInstance().getPrerequisites();
-        toChange = MovePropertyMetadata.getInstance().getToChange();
     }
 
     @Override
-    protected void recordProvenance() {
+    public void buildMetadataSetup() throws ParameterNotSpecifiedException {
 
     }
 

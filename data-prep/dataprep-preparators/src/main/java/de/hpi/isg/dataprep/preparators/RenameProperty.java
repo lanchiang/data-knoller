@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.RenamePropertyImpl;
-import de.hpi.isg.dataprep.model.metadata.RenamePropertyMetadata;
+import de.hpi.isg.dataprep.model.prepmetadata.RenamePropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 
 /**
@@ -15,13 +16,10 @@ public class RenameProperty extends Preparator {
 
     public RenameProperty(RenamePropertyImpl impl) {
         this.impl = impl;
-
-        prerequisites = RenamePropertyMetadata.getInstance().getPrerequisites();
-        toChange = RenamePropertyMetadata.getInstance().getToChange();
     }
 
     @Override
-    protected void recordProvenance() {
+    public void buildMetadataSetup() throws ParameterNotSpecifiedException {
 
     }
 

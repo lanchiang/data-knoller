@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.util.PropertyDataType;
+import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -60,7 +60,7 @@ public class AddPropertyTest {
     public void testAddIntegerColumn() throws Exception {
         Preparator preparator = new AddProperty(new DefaultAddPropertyImpl());
         ((AddProperty) preparator).setTargetPropertyName("classic");
-        ((AddProperty) preparator).setTargetPropertyDataType(PropertyDataType.PropertyType.INTEGER);
+        ((AddProperty) preparator).setTargetPropertyDataType(DataType.PropertyType.INTEGER);
         ((AddProperty) preparator).setPositionInSchema(4);
         ((AddProperty) preparator).setDefaultValue(8);
 
@@ -98,7 +98,7 @@ public class AddPropertyTest {
     public void testAddDoubleColumn() throws Exception {
         Preparator preparator = new AddProperty(new DefaultAddPropertyImpl());
         ((AddProperty) preparator).setTargetPropertyName("price");
-        ((AddProperty) preparator).setTargetPropertyDataType(PropertyDataType.PropertyType.DOUBLE);
+        ((AddProperty) preparator).setTargetPropertyDataType(DataType.PropertyType.DOUBLE);
         ((AddProperty) preparator).setPositionInSchema(2);
 
         Preparation preparation = new Preparation(preparator);
@@ -135,7 +135,7 @@ public class AddPropertyTest {
     public void testAddStringColumn() throws Exception {
         Preparator preparator = new AddProperty(new DefaultAddPropertyImpl());
         ((AddProperty) preparator).setTargetPropertyName("name");
-        ((AddProperty) preparator).setTargetPropertyDataType(PropertyDataType.PropertyType.STRING);
+        ((AddProperty) preparator).setTargetPropertyDataType(DataType.PropertyType.STRING);
         ((AddProperty) preparator).setPositionInSchema(7);
 
         Preparation preparation = new Preparation(preparator);
@@ -172,7 +172,7 @@ public class AddPropertyTest {
     public void testAddDateColumn() throws Exception {
         Preparator preparator = new AddProperty(new DefaultAddPropertyImpl());
         ((AddProperty) preparator).setTargetPropertyName("ship");
-        ((AddProperty) preparator).setTargetPropertyDataType(PropertyDataType.PropertyType.DATE);
+        ((AddProperty) preparator).setTargetPropertyDataType(DataType.PropertyType.DATE);
         ((AddProperty) preparator).setPositionInSchema(5);
 
         Preparation preparation = new Preparation(preparator);
@@ -209,7 +209,7 @@ public class AddPropertyTest {
     public void testAddColumnOutOfBound() throws Exception {
         Preparator preparator = new AddProperty(new DefaultAddPropertyImpl());
         ((AddProperty) preparator).setTargetPropertyName("ship");
-        ((AddProperty) preparator).setTargetPropertyDataType(PropertyDataType.PropertyType.DATE);
+        ((AddProperty) preparator).setTargetPropertyDataType(DataType.PropertyType.DATE);
         ((AddProperty) preparator).setPositionInSchema(20);
 
         Preparation preparation = new Preparation(preparator);

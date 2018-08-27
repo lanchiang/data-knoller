@@ -1,7 +1,7 @@
-package de.hpi.isg.dataprep.model.metadata;
+package de.hpi.isg.dataprep.model.prepmetadata;
 
 
-import de.hpi.isg.dataprep.util.Metadata;
+import de.hpi.isg.dataprep.util.MetadataEnum;
 
 /**
  * @author Lan Jiang
@@ -20,10 +20,10 @@ public class ChangeFileEncodingMetadata extends PreparatorMetadata {
 
     @Override
     protected void setPrerequisiteMetadata() {
-        prerequisites.add(Metadata.FILE_ENCODING);
-        prerequisites.add(Metadata.QUOTE_CHARACTER);
-        prerequisites.add(Metadata.DELIMITER);
-        prerequisites.add(Metadata.ESCAPE_CHARACTERS);
+        prerequisites.add(MetadataEnum.FILE_ENCODING);
+        prerequisites.add(MetadataEnum.QUOTE_CHARACTER);
+        prerequisites.add(MetadataEnum.DELIMITER);
+        prerequisites.add(MetadataEnum.ESCAPE_CHARACTERS);
     }
 
     @Override

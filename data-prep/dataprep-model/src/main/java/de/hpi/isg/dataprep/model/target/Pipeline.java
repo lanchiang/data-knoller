@@ -1,13 +1,15 @@
 package de.hpi.isg.dataprep.model.target;
 
+import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
+import de.hpi.isg.dataprep.util.TerminationCode;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class Pipeline extends PipelineComponent {
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
 
-    private List<PipelineErrorLog> pipelineErrors;
+//    private List<PipelineErrorLog> pipelineErrors;
 
     private List<Preparation> preparations;
 
@@ -35,7 +37,7 @@ public class Pipeline extends PipelineComponent {
         this.metadataRepository = new MetadataRepository();
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
-        this.pipelineErrors = new ArrayList<>();
+//        this.pipelineErrors = new ArrayList<>();
         this.preparations = new LinkedList<>();
     }
 
@@ -44,22 +46,48 @@ public class Pipeline extends PipelineComponent {
         this.rawData = dataset;
     }
 
-    public void addPreparation(Preparation preparation) {
+    public void addPreparation(Preparation preparation) throws Exception {
         preparation.setPipeline(this);
+
+        // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
+        preparation.getPreparator().buildMetadataSetup();
+
         this.preparations.add(preparation);
     }
 
-    private void checkPipelineErrors() throws Exception {
+    private void checkPipelineErrors() throws PipelineSyntaxErrorException {
+        Preparation previous = null;
         for (Preparation preparation : preparations) {
+            if (previous == null) {
+                // do something.
+            } else {
+                try {
+                    preparation.checkPipelineErrorWithPrevious(previous);
+                } catch (PipelineSyntaxErrorException e) {
+                    System.out.println(e.getMessage());
+                    ErrorLog errorLog = new PipelineErrorLog(this, preparation, previous,
+                            new PipelineSyntaxErrorException("The pipeline contains a syntax error."));
+                    errorRepository.addErrorLog(errorLog);
+                }
+            }
+            previous = preparation;
+        }
 
+        long numberOfPipelineError = errorRepository.getErrorLogs().stream()
+                .filter(errorLog -> errorLog instanceof PipelineErrorLog)
+                .map(errorLog -> (PipelineErrorLog) errorLog)
+                .count();
+        if (numberOfPipelineError > 0) {
+            throw new PipelineSyntaxErrorException("The pipeline contains syntax errors.");
         }
     }
 
     public void executePipeline() throws Exception {
         try {
             checkPipelineErrors();
-        } catch (Exception e) {
-            // do something
+        } catch (PipelineSyntaxErrorException e) {
+            // write the errorlog to disc.
+            System.exit(TerminationCode.PIPELINE_HAS_ERROR);
         }
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();

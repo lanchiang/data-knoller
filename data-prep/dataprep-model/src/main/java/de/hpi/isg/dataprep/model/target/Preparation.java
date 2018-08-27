@@ -1,8 +1,9 @@
 package de.hpi.isg.dataprep.model.target;
 
 import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.util.Metadata;
+import de.hpi.isg.dataprep.util.MetadataEnum;
 
 /**
  * A preparation is a transformation step within a data preparation pipeline.
@@ -29,17 +30,25 @@ public class Preparation extends PipelineComponent {
      * @param that is instance of the previous {@link Preparator} in the {@link de.hpi.isg.dataprep.model.target.Pipeline}.
      * @return true if there is at least one pipeline-level error.
      */
-    public final boolean checkPipelineErrorWithPrevious(Preparation that) throws Exception {
+    public final void checkPipelineErrorWithPrevious(Preparation that) throws PipelineSyntaxErrorException {
         Preparator preparator = this.preparator;
-        for (Metadata metadata : preparator.getPrerequisites()) {
-            String metadataVal = preparator.getMetadataValue().get(metadata);
-            if (metadataVal == null) {
-                throw new Exception(String.format("Metadata %s not found.", metadata));
-            }
+        // preparator has its specific implementation of metadata checking method.
 
-            // check for this metadata whether preparator has it too, and whether the value fulfills.
-        }
-        return false;
+//        for (MetadataEnum metadata : preparator.getPrerequisiteName().keySet()) {
+//            // get the prerequisite metadata value of this preparator
+//            String metadataVal = preparator.getPrerequisiteName().get(metadata);
+//
+//            // this metadata does not have a value
+//            if (metadataVal == null) {
+//                throw new PipelineSyntaxErrorException(String.format("MetadataEnum %s not found.", metadata));
+//            }
+//
+//            // check for this metadata whether preparator has it too, and whether the value fulfills.
+//            String outputOfPrevious = that.getPreparator().getToChangeName().get(metadata);
+//            if (!outputOfPrevious.equals(metadataVal)) {
+//                throw new PipelineSyntaxErrorException(String.format("MetadataEnum: (%s) is not consistent with the previous updated.", metadata.getMetadata()));
+//            }
+//        }
     }
 
     public Pipeline getPipeline() {

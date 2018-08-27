@@ -9,9 +9,10 @@ import de.hpi.isg.dataprep.model.target.Preparation;
  */
 public class PipelineErrorLog extends ErrorLog {
 
-    public Pipeline pipeline;
+    private Pipeline pipeline;
 
-    public Preparation preparation;
+    private Preparation current;
+    private Preparation previous;
 
     public PipelineErrorLog(Pipeline pipeline, Throwable throwable) {
         super(throwable);
@@ -19,8 +20,15 @@ public class PipelineErrorLog extends ErrorLog {
         this.error = throwable;
     }
 
-    public PipelineErrorLog(Pipeline pipeline, Preparation preparation, Throwable throwable) {
+    public PipelineErrorLog(Pipeline pipeline, Preparation current, Throwable throwable) {
         this(pipeline, throwable);
-        this.preparation = preparation;
+        this.current = current;
+    }
+
+    public PipelineErrorLog(Pipeline pipeline, Preparation current, Preparation previous, Throwable error) {
+        this(pipeline, current, error);
+        this.pipeline = pipeline;
+        this.current = current;
+        this.previous = previous;
     }
 }
