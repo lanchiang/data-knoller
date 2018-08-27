@@ -5,6 +5,8 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.util.Nameable;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The super class of all {@link Metadata}.
@@ -22,4 +24,12 @@ abstract public class Metadata implements Serializable, Nameable {
      * @throws Exception
      */
     abstract public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException;
+
+//    protected <T extends Metadata> List<T> getMatchedMetadata(MetadataRepository metadataRepository, Class<T> clazz) {
+//        List<T> matchedInRepo = metadataRepository.getMetadataPool().stream()
+//                .filter(metadata -> metadata.getClass().isAssignableFrom(clazz))
+//                .map(metadata -> (T) metadata)
+//                .collect(Collectors.toList());
+//        return matchedInRepo;
+//    }
 }

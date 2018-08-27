@@ -65,7 +65,7 @@ public class ChangePropertyDataType extends Preparator {
             }
         }
 
-        this.prerequisiteMetadata.addAll(prerequistes);
+        this.prerequisite.addAll(prerequistes);
         this.toChange.addAll(tochanges);
     }
 

@@ -1,12 +1,10 @@
 package de.hpi.isg.dataprep.model.target;
 
 import de.hpi.isg.dataprep.Consequences;
-import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.util.MetadataEnum;
 
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class Preparation extends PipelineComponent {
         Preparator preparator = this.preparator;
 
         // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
-        for (Metadata metadata : preparator.getPrerequisiteMetadata()) {
+        for (Metadata metadata : preparator.getPrerequisite()) {
             try {
                 metadata.checkMetadata(metadataRepository);
             } catch (RuntimeMetadataException e) {
@@ -48,6 +46,7 @@ public class Preparation extends PipelineComponent {
             }
         }
         List<Metadata> toChangeMetadata = preparator.getToChange();
+
         // update metadata repository. This shall be done even if the metadata fail to agree, because the following preparations need to
         // check the pipeline error with this presumably correct metadata.
         // actually we need to update the metadata repository with the toChange list.

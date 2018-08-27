@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
  */
 abstract public class Preparator extends AbstractPreparator {
 
-    protected List<Metadata> prerequisiteMetadata;
-    protected List<Metadata> toChange;
+    protected List<Metadata> prerequisite; // the prerequisite metadata needed for check before executing the preparator
+    protected List<Metadata> toChange; // the metadata that will be changed after executing the preparator
 
     private Preparation preparation;
 
@@ -36,7 +36,7 @@ abstract public class Preparator extends AbstractPreparator {
 
     public Preparator() {
         invalid = new ArrayList<>();
-        prerequisiteMetadata = new CopyOnWriteArrayList<>();
+        prerequisite = new CopyOnWriteArrayList<>();
         toChange = new CopyOnWriteArrayList<>();
     }
 
@@ -141,8 +141,8 @@ abstract public class Preparator extends AbstractPreparator {
         return metadataValue;
     }
 
-    public List<Metadata> getPrerequisiteMetadata() {
-        return prerequisiteMetadata;
+    public List<Metadata> getPrerequisite() {
+        return prerequisite;
     }
 
     public List<Metadata> getToChange() {

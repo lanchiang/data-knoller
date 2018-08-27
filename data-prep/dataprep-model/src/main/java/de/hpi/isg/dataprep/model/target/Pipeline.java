@@ -37,7 +37,6 @@ public class Pipeline extends PipelineComponent {
         this.metadataRepository = new MetadataRepository();
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
-//        this.pipelineErrors = new ArrayList<>();
         this.preparations = new LinkedList<>();
     }
 
@@ -56,7 +55,7 @@ public class Pipeline extends PipelineComponent {
     }
 
     private void checkPipelineErrors() throws PipelineSyntaxErrorException {
-        MetadataRepository metadataRepository = this.getMetadataRepository();
+        MetadataRepository metadataRepository = this.metadataRepository;
         preparations.stream().forEachOrdered(preparation -> preparation.checkPipelineErrorWithPrevious(metadataRepository));
 
         long numberOfPipelineError = errorRepository.getErrorLogs().stream()

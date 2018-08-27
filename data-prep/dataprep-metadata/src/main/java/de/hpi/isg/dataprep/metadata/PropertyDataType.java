@@ -72,7 +72,6 @@ public class PropertyDataType extends Metadata {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(propertyName);
     }
 
