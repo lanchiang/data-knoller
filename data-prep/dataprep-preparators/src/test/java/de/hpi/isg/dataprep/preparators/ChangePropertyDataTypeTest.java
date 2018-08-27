@@ -57,6 +57,7 @@ public class ChangePropertyDataTypeTest {
     public void testChangeToIntegerErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("id");
+        ((ChangePropertyDataType) preparator).setSourceType(DataType.PropertyType.STRING);
         ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.INTEGER);
 
         Preparation preparation = new Preparation(preparator);

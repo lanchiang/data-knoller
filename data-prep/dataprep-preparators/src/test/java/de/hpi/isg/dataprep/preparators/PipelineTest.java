@@ -60,18 +60,27 @@ public class PipelineTest {
     public void testShortPipeline() throws Exception {
         Preparator preparator1 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator1).setPropertyName("id");
+        ((ChangePropertyDataType) preparator1).setSourceType(DataType.PropertyType.STRING);
         ((ChangePropertyDataType) preparator1).setTargetType(DataType.PropertyType.INTEGER);
 
         Preparation preparation1 = new Preparation(preparator1);
         pipeline.addPreparation(preparation1);
 
-        Preparator preparator2 = new AddProperty(new DefaultAddPropertyImpl());
-        ((AddProperty) preparator2).setTargetPropertyName("ship");
-        ((AddProperty) preparator2).setTargetPropertyDataType(DataType.PropertyType.DATE);
-        ((AddProperty) preparator2).setPositionInSchema(5);
+        Preparator preparator2 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        ((ChangePropertyDataType) preparator2).setPropertyName("id");
+        ((ChangePropertyDataType) preparator2).setSourceType(DataType.PropertyType.INTEGER);
+        ((ChangePropertyDataType) preparator2).setTargetType(DataType.PropertyType.STRING);
 
         Preparation preparation2 = new Preparation(preparator2);
         pipeline.addPreparation(preparation2);
+
+        Preparator preparator3 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        ((ChangePropertyDataType) preparator3).setPropertyName("id");
+        ((ChangePropertyDataType) preparator3).setSourceType(DataType.PropertyType.INTEGER);
+        ((ChangePropertyDataType) preparator3).setTargetType(DataType.PropertyType.DOUBLE);
+
+        Preparation preparation3 = new Preparation(preparator3);
+        pipeline.addPreparation(preparation3);
 
         pipeline.executePipeline();
 
@@ -96,7 +105,6 @@ public class PipelineTest {
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("ship", DataTypes.DateType, true, Metadata.empty()),
                 new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),

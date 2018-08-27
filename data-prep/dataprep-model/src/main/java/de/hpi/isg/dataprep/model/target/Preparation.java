@@ -2,8 +2,13 @@ package de.hpi.isg.dataprep.model.target;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
+import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
+import de.hpi.isg.dataprep.model.repository.MetadataRepository;
+import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.MetadataEnum;
+
+import java.util.List;
 
 /**
  * A preparation is a transformation step within a data preparation pipeline.
@@ -27,28 +32,26 @@ public class Preparation extends PipelineComponent {
     /**
      * Check whether this preparator along with the previous one cause pipeline-level errors.
      *
-     * @param that is instance of the previous {@link Preparator} in the {@link de.hpi.isg.dataprep.model.target.Pipeline}.
+     * @param metadataRepository is the instance of the metadata repository of this pipeline.
      * @return true if there is at least one pipeline-level error.
      */
-    public final void checkPipelineErrorWithPrevious(Preparation that) throws PipelineSyntaxErrorException {
+    public final void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
         Preparator preparator = this.preparator;
-        // preparator has its specific implementation of metadata checking method.
 
-//        for (MetadataEnum metadata : preparator.getPrerequisiteName().keySet()) {
-//            // get the prerequisite metadata value of this preparator
-//            String metadataVal = preparator.getPrerequisiteName().get(metadata);
-//
-//            // this metadata does not have a value
-//            if (metadataVal == null) {
-//                throw new PipelineSyntaxErrorException(String.format("MetadataEnum %s not found.", metadata));
-//            }
-//
-//            // check for this metadata whether preparator has it too, and whether the value fulfills.
-//            String outputOfPrevious = that.getPreparator().getToChangeName().get(metadata);
-//            if (!outputOfPrevious.equals(metadataVal)) {
-//                throw new PipelineSyntaxErrorException(String.format("MetadataEnum: (%s) is not consistent with the previous updated.", metadata.getMetadata()));
-//            }
-//        }
+        // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
+        for (Metadata metadata : preparator.getPrerequisiteMetadata()) {
+            try {
+                metadata.checkMetadata(metadataRepository);
+            } catch (RuntimeMetadataException e) {
+                // if the check fails... push a pipeline syntax error exception to a set.
+                this.getPipeline().getErrorRepository().addErrorLog(new PipelineErrorLog(this.getPipeline(), e));
+            }
+        }
+        List<Metadata> toChangeMetadata = preparator.getToChange();
+        // update metadata repository. This shall be done even if the metadata fail to agree, because the following preparations need to
+        // check the pipeline error with this presumably correct metadata.
+        // actually we need to update the metadata repository with the toChange list.
+        metadataRepository.updateMetadata(toChangeMetadata);
     }
 
     public Pipeline getPipeline() {

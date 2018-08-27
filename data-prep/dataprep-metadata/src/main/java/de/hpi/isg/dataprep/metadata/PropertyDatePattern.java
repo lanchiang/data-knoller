@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep.metadata;
 
+import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
+import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.util.DatePattern;
 
@@ -22,5 +24,10 @@ public class PropertyDatePattern extends Metadata {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
+
     }
 }

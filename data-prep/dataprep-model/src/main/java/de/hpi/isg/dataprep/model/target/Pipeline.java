@@ -56,22 +56,8 @@ public class Pipeline extends PipelineComponent {
     }
 
     private void checkPipelineErrors() throws PipelineSyntaxErrorException {
-        Preparation previous = null;
-        for (Preparation preparation : preparations) {
-            if (previous == null) {
-                // do something.
-            } else {
-                try {
-                    preparation.checkPipelineErrorWithPrevious(previous);
-                } catch (PipelineSyntaxErrorException e) {
-                    System.out.println(e.getMessage());
-                    ErrorLog errorLog = new PipelineErrorLog(this, preparation, previous,
-                            new PipelineSyntaxErrorException("The pipeline contains a syntax error."));
-                    errorRepository.addErrorLog(errorLog);
-                }
-            }
-            previous = preparation;
-        }
+        MetadataRepository metadataRepository = this.getMetadataRepository();
+        preparations.stream().forEachOrdered(preparation -> preparation.checkPipelineErrorWithPrevious(metadataRepository));
 
         long numberOfPipelineError = errorRepository.getErrorLogs().stream()
                 .filter(errorLog -> errorLog instanceof PipelineErrorLog)
@@ -96,6 +82,14 @@ public class Pipeline extends PipelineComponent {
 
     public ErrorRepository getErrorRepository() {
         return errorRepository;
+    }
+
+    public MetadataRepository getMetadataRepository() {
+        return metadataRepository;
+    }
+
+    public ProvenanceRepository getProvenanceRepository() {
+        return provenanceRepository;
     }
 
     public Dataset<Row> getRawData() {

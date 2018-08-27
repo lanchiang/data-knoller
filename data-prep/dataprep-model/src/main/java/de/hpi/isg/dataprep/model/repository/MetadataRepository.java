@@ -1,8 +1,11 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.util.MetadataEnum;
+import de.hpi.isg.dataprep.model.target.Metadata;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author Lan Jiang
@@ -10,5 +13,28 @@ import java.util.List;
  */
 public class MetadataRepository {
 
-    private List<MetadataEnum> metadataRepository;
+    private Set<Metadata> metadataPool;
+
+    public MetadataRepository() {
+        metadataPool = new HashSet<>();
+    }
+
+    public Set<Metadata> getMetadataPool() {
+        return metadataPool;
+    }
+
+    public void updateMetadata(Metadata metadata) {
+        if (!metadataPool.contains(metadata)) {
+            metadataPool.add(metadata);
+        } else {
+            Set<Metadata> tmpMetadataPool = new HashSet<>();
+            tmpMetadataPool.add(metadata);
+            tmpMetadataPool.addAll(metadataPool);
+            metadataPool = tmpMetadataPool;
+        }
+    }
+
+    public void updateMetadata(Collection<Metadata> metadataCollection) {
+        metadataCollection.stream().forEach(metadata -> updateMetadata(metadata));
+    }
 }

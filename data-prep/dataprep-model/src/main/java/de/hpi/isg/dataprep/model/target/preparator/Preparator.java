@@ -140,4 +140,12 @@ abstract public class Preparator extends AbstractPreparator {
     public Map<String, String> getMetadataValue() {
         return metadataValue;
     }
+
+    public List<Metadata> getPrerequisiteMetadata() {
+        return prerequisiteMetadata;
+    }
+
+    public List<Metadata> getToChange() {
+        return toChange;
+    }
 }
