@@ -26,7 +26,7 @@ public class EndRecordCharacters extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
         List<EndRecordCharacters> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof EndRecordCharacters)
                 .map(metadata -> (EndRecordCharacters) metadata)

@@ -33,9 +33,7 @@ public class PreparationErrorLog extends ErrorLog {
         if (o == null || getClass() != o.getClass()) return false;
         PreparationErrorLog that = (PreparationErrorLog) o;
         return Objects.equals(preparation, that.preparation) &&
-                Objects.equals(value, that.value) &&
-                Objects.equals(errorType, that.errorType) &&
-                Objects.equals(errorMessage, that.errorMessage);
+                Objects.equals(value, that.value) && super.equals(o);
     }
 
     @Override

@@ -1,11 +1,14 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
+import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.implementation.defaults.DefaultAddPropertyImpl;
 import de.hpi.isg.dataprep.implementation.defaults.DefaultChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.DataType;
@@ -24,6 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -85,6 +89,18 @@ public class PipelineTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
+
+        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
+                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+                "propertyName='" + "id" + '\'' +
+                ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+                '}')));
+        ErrorLog pipelineError2 = new PipelineErrorLog(pipeline,
+                new MetadataNotMatchException(String.format("Metadata value does not match that in the repository.")));
+
+        trueErrorlogs.add(pipelineError1);
+        trueErrorlogs.add(pipelineError2);
+
         ErrorLog errorLog1 = new PreparationErrorLog(preparation1, "three", new NumberFormatException("For input string: \"three\""));
         ErrorLog errorLog2 = new PreparationErrorLog(preparation1, "six", new NumberFormatException("For input string: \"six\""));
         ErrorLog errorLog3 = new PreparationErrorLog(preparation1, "ten", new NumberFormatException("For input string: \"ten\""));
@@ -114,6 +130,6 @@ public class PipelineTest {
         // Second test whether the schema is correctly updated.
         Assert.assertEquals(trueSchema, updatedSchema);
         Assert.assertEquals(updated.count(), 7L);
-        Assert.assertEquals(updatedSchema.size(), 10);
+        Assert.assertEquals(updatedSchema.size(), 9);
     }
 }

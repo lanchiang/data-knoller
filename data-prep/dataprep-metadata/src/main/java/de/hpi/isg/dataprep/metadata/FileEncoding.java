@@ -38,7 +38,7 @@ public class FileEncoding extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
         List<FileEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof FileEncoding)
                 .map(metadata -> (FileEncoding) metadata)

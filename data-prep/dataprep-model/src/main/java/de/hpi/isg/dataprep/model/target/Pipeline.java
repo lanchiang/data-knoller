@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class Pipeline extends PipelineComponent {
 
-    private MetadataRepository metadataRepository;
+    private MetadataRepository<?> metadataRepository;
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
 
@@ -34,7 +34,7 @@ public class Pipeline extends PipelineComponent {
     private Dataset<Row> rawData;
 
     private Pipeline() {
-        this.metadataRepository = new MetadataRepository();
+        this.metadataRepository = new MetadataRepository<>();
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
         this.preparations = new LinkedList<>();
@@ -72,7 +72,9 @@ public class Pipeline extends PipelineComponent {
             checkPipelineErrors();
         } catch (PipelineSyntaxErrorException e) {
             // write the errorlog to disc.
-            System.exit(TerminationCode.PIPELINE_HAS_ERROR);
+
+            // do not use System.exit()
+//            System.exit(TerminationCode.PIPELINE_HAS_ERROR);
         }
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();

@@ -23,13 +23,6 @@ abstract public class Metadata implements Serializable, Nameable {
      * @param metadataRepository represents the {@link MetadataRepository} of this {@link Pipeline}.
      * @throws Exception
      */
-    abstract public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException;
+    abstract public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException;
 
-//    protected <T extends Metadata> List<T> getMatchedMetadata(MetadataRepository metadataRepository, Class<T> clazz) {
-//        List<T> matchedInRepo = metadataRepository.getMetadataPool().stream()
-//                .filter(metadata -> metadata.getClass().isAssignableFrom(clazz))
-//                .map(metadata -> (T) metadata)
-//                .collect(Collectors.toList());
-//        return matchedInRepo;
-//    }
 }

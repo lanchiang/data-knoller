@@ -26,7 +26,7 @@ public class EndLineCharacters extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
 
     }
 

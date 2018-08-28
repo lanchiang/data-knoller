@@ -42,7 +42,7 @@ public class PropertyDataType extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
         List<PropertyDataType> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof PropertyDataType)
                 .map(metadata -> (PropertyDataType) metadata)

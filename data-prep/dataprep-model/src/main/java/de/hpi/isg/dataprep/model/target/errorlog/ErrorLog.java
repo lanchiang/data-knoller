@@ -2,6 +2,8 @@ package de.hpi.isg.dataprep.model.target.errorlog;
 
 import de.hpi.isg.dataprep.model.target.Target;
 
+import java.util.Objects;
+
 /**
  * @author Lan Jiang
  * @since 2018/6/4
@@ -27,5 +29,20 @@ abstract public class ErrorLog extends Target {
         this.error = error;
         this.errorType = error.getClass().getName();
         this.errorMessage = error.getMessage();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ErrorLog errorLog = (ErrorLog) o;
+        return Objects.equals(errorType, errorLog.errorType) &&
+                Objects.equals(errorMessage, errorLog.errorMessage);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(errorType, errorMessage);
     }
 }

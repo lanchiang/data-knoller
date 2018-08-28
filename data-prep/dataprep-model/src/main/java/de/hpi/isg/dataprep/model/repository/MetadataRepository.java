@@ -12,7 +12,7 @@ import java.util.Set;
  * @author Lan Jiang
  * @since 2018/6/4
  */
-public class MetadataRepository<T extends Metadata> {
+public class MetadataRepository<T> {
 
     private Set<T> metadataPool;
 
