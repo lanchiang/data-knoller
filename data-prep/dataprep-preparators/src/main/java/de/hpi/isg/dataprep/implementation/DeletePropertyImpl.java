@@ -27,12 +27,4 @@ abstract public class DeletePropertyImpl extends PreparatorImpl {
                 (CollectionAccumulator<PreparationError>) this.createErrorAccumulator(preparator_, dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
-
-    @Override
-    protected CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
-        CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator<>();
-        dataFrame.sparkSession().sparkContext().register(errorAccumulator,
-                String.format("%s error accumulator.", ((DeleteProperty)preparator).getClass().getSimpleName()));
-        return errorAccumulator;
-    }
 }

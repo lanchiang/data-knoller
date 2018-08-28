@@ -52,7 +52,8 @@ public class PropertyDataType extends Metadata {
         if (matchedInRepo.size() == 0) {
             throw new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", this.toString()));
         } else if (matchedInRepo.size() > 1) {
-            throw new DuplicateMetadataException(String.format("Metadata %s has multiple data type for property: %s", this.getClass().getSimpleName(), this.propertyName));
+            throw new DuplicateMetadataException(String.format("Metadata %s has multiple data type for property: %s",
+                    this.getClass().getSimpleName(), this.propertyName));
         } else {
             PropertyDataType metadataInRepo = matchedInRepo.get(0);
             if (!this.propertyDataType.equals(metadataInRepo.getPropertyDataType())) {

@@ -25,12 +25,4 @@ abstract public class RenamePropertyImpl extends PreparatorImpl {
         CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator_, dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
-
-    @Override
-    protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
-        CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator<>();
-        dataFrame.sparkSession().sparkContext().register(errorAccumulator,
-                String.format("%s error acumulator", RenameProperty.class.getSimpleName()));
-        return errorAccumulator;
-    }
 }

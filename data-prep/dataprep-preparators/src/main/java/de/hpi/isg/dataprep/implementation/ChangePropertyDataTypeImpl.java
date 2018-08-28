@@ -2,7 +2,6 @@ package de.hpi.isg.dataprep.implementation;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.model.error.PreparationError;
-import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.preparators.ChangePropertyDataType;
@@ -28,13 +27,5 @@ abstract public class ChangePropertyDataTypeImpl extends PreparatorImpl {
         CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator_, dataFrame);
 
         return executeLogic(preparator_, dataFrame, errorAccumulator);
-    }
-
-    @Override
-    protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
-        CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator();
-        dataFrame.sparkSession().sparkContext().register(errorAccumulator,
-                String.format("%s error accumulator.", ChangePropertyDataType.class.getSimpleName()));
-        return errorAccumulator;
     }
 }

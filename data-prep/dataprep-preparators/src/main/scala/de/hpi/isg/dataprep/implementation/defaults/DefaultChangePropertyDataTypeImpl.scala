@@ -34,9 +34,9 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
         val targetDatePattern = preparator.getTargetDatePattern
         // Here the program needs to check the existence of these fields.
 
-        val createdRDD = dataFrame.rdd.filter(row => {
-            val tryConvert = Try {
-                targetDataType match {
+        val createdRDD = dataFrame.rdd.flatMap(row => {
+            val tryRow = Try {
+                val tryConvert = targetDataType match {
                     case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
                     case PropertyType.STRING => row.getAs[String](fieldName).toString
                     case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
@@ -45,22 +45,47 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
                             sourceDatePattern, targetDatePattern)
                     }
                 }
+                row
             }
-            val trial = tryConvert match {
+            val trial = tryRow match {
                 case Failure(content) => {
                     errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
-                    false
+                    tryRow
                 }
-                case valid: Success[content] => {
-                    true
+                case Success(content) => {
+                    tryRow
                 }
             }
-            trial
+            trial.toOption
         })
+
+        //        val createdRDD = dataFrame.filter(row => {
+        //            val tryConvert = Try {
+        //                targetDataType match {
+        //                    case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
+        //                    case PropertyType.STRING => row.getAs[String](fieldName).toString
+        //                    case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
+        //                    case PropertyType.DATE => {
+        //                        ConversionHelper.toDate(row.getAs[String](fieldName),
+        //                            sourceDatePattern, targetDatePattern)
+        //                    }
+        //                }
+        //            }
+        //            val trial = tryConvert match {
+        //                case Failure(content) => {
+        //                    errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
+        //                    false
+        //                }
+        //                case valid: Success[content] => {
+        //                    true
+        //                }
+        //            }
+        //            trial
+        //        })
         createdRDD.count()
 
         val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
-
         new Consequences(resultDataFrame, errorAccumulator)
+        //        new Consequences(dataFrame, errorAccumulator)
     }
 }

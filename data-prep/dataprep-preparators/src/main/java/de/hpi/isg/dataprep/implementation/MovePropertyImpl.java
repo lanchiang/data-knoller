@@ -28,12 +28,4 @@ abstract public class MovePropertyImpl extends PreparatorImpl {
                 this.createErrorAccumulator(preparator_, dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
-
-    @Override
-    protected CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
-        CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator<>();
-        dataFrame.sparkSession().sparkContext().register(errorAccumulator,
-                String.format("%s error accumulator.", ((MoveProperty)preparator).getClass().getSimpleName()));
-        return errorAccumulator;
-    }
 }

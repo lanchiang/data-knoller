@@ -21,9 +21,4 @@ abstract public class ChangeFileEncodingImpl extends PreparatorImpl {
     protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         return null;
     }
-
-    @Override
-    protected CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
-        return null;
-    }
 }

@@ -1,7 +1,6 @@
 package de.hpi.isg.dataprep
 
 import java.text.{ParseException, SimpleDateFormat}
-import java.util
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
@@ -54,20 +53,12 @@ object ConversionHelper extends Serializable {
         defaultFormatter.format(defaultDate)
     }
 
-//    @throws(classOf[NumberFormatException])
-//    def getDateInDefaultFormatByString(value: String): String = {
-//        val tryToLong = Try{value.toLong}
-//        tryToLong match {
-//            case Failure(content) => throw content
-//            case Success(content) => {
-//                val date = new Date(content)
-//                val defaultFormatter = new SimpleDateFormat(defaultDateFormat.getPattern)
-//                defaultFormatter.setLenient(false)
-//            }
-//        }
-//    }
-
     def getDefaultDateFormat(): String = {
         this.defaultDateFormat.getPattern
+    }
+
+    def collapse(value: String): String = {
+        val newStr = value.replaceAll("\\s+", " ");
+        newStr
     }
 }

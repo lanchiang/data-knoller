@@ -15,7 +15,12 @@ abstract public class PreparatorImpl {
 
     abstract protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception;
 
-    abstract protected CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame);
+    protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
+        CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator();
+        dataFrame.sparkSession().sparkContext().register(errorAccumulator,
+                String.format("Error accumulator registered."));
+        return errorAccumulator;
+    }
 
     private final Dataset<Row> getDataSet(Preparator preparator) {
         return preparator.getPreparation().getPipeline().getRawData();

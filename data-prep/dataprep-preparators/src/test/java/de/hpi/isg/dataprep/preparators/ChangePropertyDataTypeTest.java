@@ -1,10 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.implementation.defaults.DefaultChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
+import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.DatePattern;
@@ -54,6 +56,22 @@ public class ChangePropertyDataTypeTest {
     }
 
     @Test
+    public void testChangeToStringErrorLog() throws Exception {
+        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        ((ChangePropertyDataType) preparator).setPropertyName("identifier");
+        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.STRING);
+        Preparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+        pipeline.getRawData().show();
+
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+    }
+
+    @Test
     public void testChangeToIntegerErrorLog() throws Exception {
         Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
         ((ChangePropertyDataType) preparator).setPropertyName("id");
@@ -65,6 +83,14 @@ public class ChangePropertyDataTypeTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
+
+        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
+                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+                        "propertyName='" + "id" + '\'' +
+                        ", propertyDataType=" + DataType.PropertyType.STRING +
+                        '}')));
+        trueErrorlogs.add(pipelineErrorLog);
+
         ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", new NumberFormatException("For input string: \"three\""));
         ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", new NumberFormatException("For input string: \"six\""));
         ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", new NumberFormatException("For input string: \"ten\""));
@@ -74,20 +100,7 @@ public class ChangePropertyDataTypeTest {
         trueErrorlogs.add(errorLog3);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-    }
-
-    @Test
-    public void testChangeToStringErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator).setPropertyName("identifier");
-        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.STRING);
-        Preparation preparation = new Preparation(preparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+        pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
@@ -111,6 +124,8 @@ public class ChangePropertyDataTypeTest {
         trueErrorlogs.add(errorLog2);
         trueErrorlogs.add(errorLog3);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
@@ -137,6 +152,8 @@ public class ChangePropertyDataTypeTest {
         trueErrorlogs.add(errorLog3);
         trueErrorlogs.add(errorLog4);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
