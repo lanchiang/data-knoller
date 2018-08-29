@@ -61,4 +61,9 @@ object ConversionHelper extends Serializable {
         val newStr = value.replaceAll("\\s+", " ");
         newStr
     }
+
+    def trim(value: String): String = {
+        val newStr = value.trim
+        newStr
+    }
 }

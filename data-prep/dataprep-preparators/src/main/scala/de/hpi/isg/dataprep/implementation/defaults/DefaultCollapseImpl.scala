@@ -27,7 +27,6 @@ class DefaultCollapseImpl extends CollapseImpl {
             val backpart = seq.takeRight(row.length - index - 1)
 
             val tryConvert = Try{
-                ConversionHelper.collapse(row.getAs[String](propertyName))
                 val newSeq = (forepart :+ ConversionHelper.collapse(row.getAs[String](propertyName))) ++ backpart
                 val newRow = Row.fromSeq(newSeq)
                 newRow

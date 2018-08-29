@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
-import de.hpi.isg.dataprep.implementation.CollapseImpl;
+import de.hpi.isg.dataprep.implementation.TrimImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
@@ -11,17 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This preparator remove all but keep one white space of all values in a target.
- *
  * @author Lan Jiang
- * @since 2018/8/28
+ * @since 2018/8/29
  */
-public class Collapse extends Preparator {
+public class Trim extends Preparator {
 
-    // but actually a target can be a property, or a dataset.
     private String propertyName;
 
-    public Collapse(CollapseImpl impl) {
+    public Trim(TrimImpl impl) {
         this.impl = impl;
     }
 
@@ -31,9 +28,9 @@ public class Collapse extends Preparator {
         List<Metadata> tochanges = new ArrayList<>();
 
         if (propertyName == null) {
-            throw new ParameterNotSpecifiedException(String.format("%s not specified", propertyName));
+            throw new ParameterNotSpecifiedException(String.format("%s not specified.", propertyName));
         }
-        // Collapse can only be applied on String data type
+        // Trim can only be applied on String data type. Later version can support trim on other data type
         prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING));
 
         this.prerequisite.addAll(prerequisites);

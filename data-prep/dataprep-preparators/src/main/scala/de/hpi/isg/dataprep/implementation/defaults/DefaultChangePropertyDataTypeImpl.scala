@@ -58,30 +58,6 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
             }
             trial.toOption
         })
-
-        //        val createdRDD = dataFrame.filter(row => {
-        //            val tryConvert = Try {
-        //                targetDataType match {
-        //                    case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
-        //                    case PropertyType.STRING => row.getAs[String](fieldName).toString
-        //                    case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
-        //                    case PropertyType.DATE => {
-        //                        ConversionHelper.toDate(row.getAs[String](fieldName),
-        //                            sourceDatePattern, targetDatePattern)
-        //                    }
-        //                }
-        //            }
-        //            val trial = tryConvert match {
-        //                case Failure(content) => {
-        //                    errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
-        //                    false
-        //                }
-        //                case valid: Success[content] => {
-        //                    true
-        //                }
-        //            }
-        //            trial
-        //        })
         createdRDD.count()
 
         val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)

@@ -17,8 +17,4 @@ import org.apache.spark.util.CollectionAccumulator;
  */
 abstract public class ChangeFileEncodingImpl extends PreparatorImpl {
 
-    @Override
-    protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
-        return null;
-    }
 }
