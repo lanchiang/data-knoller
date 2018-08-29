@@ -41,9 +41,6 @@ class DefaultCollapseImpl extends CollapseImpl {
                 }
             }
             trial.toOption
-//            val newSeq = (forepart :+ trial.toOption.get) ++ backpart
-//            val newRow = Row.fromSeq(newSeq)
-//            newRow
         })
         createdRDD.count()
 

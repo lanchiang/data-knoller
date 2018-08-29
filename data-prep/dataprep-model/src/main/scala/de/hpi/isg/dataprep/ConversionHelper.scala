@@ -66,4 +66,15 @@ object ConversionHelper extends Serializable {
         val newStr = value.trim
         newStr
     }
+
+    def padding(value: String, expectedLength: Int, padder: String): String = {
+        val len = value.length
+        if (len > expectedLength) {
+            throw new IllegalArgumentException(String.format("Value length is already larger than padded length."))
+        }
+        val paddingBitLen = expectedLength - len
+        val padding = padder * paddingBitLen
+        val newStr = padding + value
+        newStr
+    }
 }

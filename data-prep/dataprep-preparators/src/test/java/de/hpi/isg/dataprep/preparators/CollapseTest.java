@@ -26,31 +26,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/28
  */
-public class CollapseTest {
-
-    private static Dataset<Row> dataset;
-    private static Pipeline pipeline;
-
-    @BeforeClass
-    public static void setUp() {
-        Logger.getLogger("org").setLevel(Level.OFF);
-        Logger.getLogger("akka").setLevel(Level.OFF);
-
-        dataset = SparkSession.builder()
-                .appName("Change property data type unit tests.")
-                .master("local")
-                .getOrCreate()
-                .read()
-                .option("header", "true")
-                .option("inferSchema", "true")
-                .csv("./src/test/resources/pokemon.csv");
-        pipeline = new Pipeline(dataset);
-    }
-
-    @Before
-    public void cleanUpPipeline() throws Exception {
-        pipeline = new Pipeline(dataset);
-    }
+public class CollapseTest extends PreparatorTest {
 
     @Test
     public void testCollapse() throws Exception {
