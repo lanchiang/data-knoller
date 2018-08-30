@@ -77,4 +77,20 @@ object ConversionHelper extends Serializable {
         val newStr = padding + value
         newStr
     }
+
+    def replaceSubstring(value: String, regex: String, replacement: String, firstSome: Int): String = {
+        val processed = firstSome match {
+            case count if count > 0 => {
+                var newValue = new String(value)
+                1 to count foreach {
+                    _ => newValue = value.replaceFirst(regex, replacement)
+                }
+                newValue
+            }
+            case 0 => {
+                value.replaceAll(regex, replacement)
+            }
+        }
+        processed
+    }
 }

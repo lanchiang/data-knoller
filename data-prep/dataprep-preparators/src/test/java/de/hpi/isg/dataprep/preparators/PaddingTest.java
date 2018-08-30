@@ -73,5 +73,6 @@ public class PaddingTest extends PreparatorTest {
         pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+        Assert.assertEquals(pipeline.getRawData().count(), 9L);
     }
 }
