@@ -24,7 +24,7 @@ abstract public class DeletePropertyImpl extends PreparatorImpl {
     protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         DeleteProperty preparator_ = this.getPreparatorInstance(preparator, DeleteProperty.class);
         CollectionAccumulator<PreparationError> errorAccumulator =
-                (CollectionAccumulator<PreparationError>) this.createErrorAccumulator(preparator_, dataFrame);
+                (CollectionAccumulator<PreparationError>) this.createErrorAccumulator(dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
 }

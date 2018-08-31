@@ -1,13 +1,17 @@
 package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.target.Metadata;
+import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
+import de.hpi.isg.dataprep.util.Executable;
 import de.hpi.isg.dataprep.util.MetadataEnum;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -17,10 +21,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
+ * The abstract class for a {@link Preparator}.
+ *
  * @author Lan Jiang
  * @since 2018/6/4
  */
-abstract public class Preparator extends AbstractPreparator {
+abstract public class Preparator extends Target implements Executable {
 
     protected List<Metadata> prerequisite; // the prerequisite metadata needed for check before executing the preparator
     protected List<Metadata> toChange; // the metadata that will be changed after executing the preparator
@@ -32,6 +38,7 @@ abstract public class Preparator extends AbstractPreparator {
 
     protected Dataset<Row> updatedDataset;
 
+    // we do not need such a thing.
     protected PreparatorImpl impl;
 
     public Preparator() {
@@ -40,12 +47,18 @@ abstract public class Preparator extends AbstractPreparator {
         toChange = new CopyOnWriteArrayList<>();
     }
 
-    @Override
+    /**
+     * The execution of the preparator.
+     *
+     */
     protected void executePreparator() throws Exception {
         impl.execute(this);
     }
 
-    @Override
+    /**
+     * Call this method whenever an error occurs during the preparator execution in order to
+     * record an error log.
+     */
     protected void recordErrorLog() {
         Consequences consequences = this.getPreparation().getConsequences();
 
@@ -87,34 +100,46 @@ abstract public class Preparator extends AbstractPreparator {
      */
     abstract public void buildMetadataSetup() throws ParameterNotSpecifiedException;
 
-    @Override
+    /**
+     * Checks whether the prerequisite metadata are met.
+     *
+     * @return true/false if all the prerequisiteName are/are not met.
+     */
     protected boolean checkMetadata() {
         /**
          * check for each metadata whether valid.
          * Stores invalid ones.
          * If all prerequisiteName are met, read and store all these metadata, used in preparator execution.
          */
-//        Map<String, String> validMetadata = new HashMap<>();
-//        for (MetadataEnum metadata : prerequisiteName) {
-//            if (false) {
-//                // this metadata is not satisfied, add it to the invalid metadata set.
-//                this.getInvalid().add(metadata);
-//                return false;
-//            }
-//            validMetadata.putIfAbsent(metadata.getMetadata(), null);
-//        }
-//        this.metadataValue = validMetadata;
         return true;
     }
 
-    @Override
+    /**
+     * After the execution of this preparator succeeds, call this method to record the provenance.
+     */
     protected void recordProvenance() {
 
     }
 
-    @Override
+    /**
+     * After the execution of this preparator finishes, update the dataset to its intermediate state.
+     */
     protected void updateDataset() {
         this.getPreparation().getPipeline().setRawData(this.getUpdatedDataset());
+    }
+
+    @Override
+    public void execute() throws Exception {
+        if (!checkMetadata()) {
+            throw new MetadataNotMatchException("Some prerequisite metadata are not met.");
+        }
+        try {
+            executePreparator();
+        } catch (PreparationHasErrorException e) {
+            recordErrorLog();
+        }
+        recordProvenance();
+        updateDataset();
     }
 
     public Preparation getPreparation() {

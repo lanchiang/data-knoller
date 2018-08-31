@@ -8,6 +8,8 @@ import java.io.Serializable;
  */
 abstract public class PreparationError implements Serializable {
 
+    private static final long serialVersionUID = 672917503135516045L;
+
     public enum ErrorLevel {
         RECORD,
         PROPERTY,

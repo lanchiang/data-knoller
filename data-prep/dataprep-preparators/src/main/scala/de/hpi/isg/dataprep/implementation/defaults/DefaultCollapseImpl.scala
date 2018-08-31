@@ -1,8 +1,8 @@
 package de.hpi.isg.dataprep.implementation.defaults
 
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
-import de.hpi.isg.dataprep.implementation.CollapseImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
+import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.Collapse
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -14,9 +14,16 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2018/8/28
   */
-class DefaultCollapseImpl extends CollapseImpl {
+class DefaultCollapseImpl extends PreparatorImpl {
 
-    override protected def executeLogic(preparator: Collapse, dataFrame: Dataset[Row],
+    @throws(classOf[Exception])
+    override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
+        val preparator_ = this.getPreparatorInstance(preparator, classOf[Collapse])
+        val errorAccumulator = this.createErrorAccumulator(dataFrame)
+        executeLogic(preparator_, dataFrame, errorAccumulator)
+    }
+
+    protected def executeLogic(preparator: Collapse, dataFrame: Dataset[Row],
                                         errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val propertyName = preparator.getPropertyName
 

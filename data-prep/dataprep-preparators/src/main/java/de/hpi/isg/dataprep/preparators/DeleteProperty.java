@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.DeletePropertyImpl;
 import de.hpi.isg.dataprep.model.prepmetadata.DeletePropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 
 /**
  * @author Lan Jiang
@@ -13,7 +14,7 @@ public class DeleteProperty extends Preparator {
 
     private String propertyName;
 
-    public DeleteProperty(DeletePropertyImpl impl) {
+    public DeleteProperty(PreparatorImpl impl) {
         this.impl = impl;
     }
 

@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.MovePropertyImpl;
 import de.hpi.isg.dataprep.model.prepmetadata.MovePropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 
 /**
  * @author Lan Jiang
@@ -14,7 +15,7 @@ public class MoveProperty extends Preparator {
     private String targetPropertyName;
     private int newPosition;
 
-    public MoveProperty(MovePropertyImpl impl) {
+    public MoveProperty(PreparatorImpl impl) {
         this.impl = impl;
     }
 

@@ -25,7 +25,7 @@ abstract public class MovePropertyImpl extends PreparatorImpl {
     protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         MoveProperty preparator_ = this.getPreparatorInstance(preparator, MoveProperty.class);
         CollectionAccumulator<PreparationError> errorAccumulator =
-                this.createErrorAccumulator(preparator_, dataFrame);
+                this.createErrorAccumulator(dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
 }

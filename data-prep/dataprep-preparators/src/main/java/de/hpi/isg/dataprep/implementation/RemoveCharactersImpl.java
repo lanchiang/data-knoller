@@ -22,7 +22,7 @@ abstract public class RemoveCharactersImpl extends PreparatorImpl {
     @Override
     protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         RemoveCharacters preparator_ = this.getPreparatorInstance(preparator, RemoveCharacters.class);
-        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator_, dataFrame);
+        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
 }

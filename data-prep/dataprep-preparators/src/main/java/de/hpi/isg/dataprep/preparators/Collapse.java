@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.implementation.CollapseImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class Collapse extends Preparator {
     // but actually a target can be a property, or a dataset.
     private String propertyName;
 
-    public Collapse(CollapseImpl impl) {
+    public Collapse(PreparatorImpl impl) {
         this.impl = impl;
     }
 

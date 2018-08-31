@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.implementation.RemoveCharactersImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.util.DataType;
 import de.hpi.isg.dataprep.util.RemoveCharactersMode;
 
@@ -21,7 +22,7 @@ public class RemoveCharacters extends Preparator {
     private String userSpecifiedCharacters;
     private RemoveCharactersMode mode = null;
 
-    public RemoveCharacters(RemoveCharactersImpl impl) {
+    public RemoveCharacters(PreparatorImpl impl) {
         this.impl = impl;
     }
 

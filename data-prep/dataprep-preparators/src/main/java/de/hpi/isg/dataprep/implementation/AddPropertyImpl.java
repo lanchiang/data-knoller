@@ -23,7 +23,7 @@ abstract public class AddPropertyImpl extends PreparatorImpl {
     @Override
     protected final Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         AddProperty preparator_ = this.getPreparatorInstance(preparator, AddProperty.class);
-        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator, dataFrame);
+        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(dataFrame);
         return this.executeLogic(preparator_, dataFrame, errorAccumulator);
     }
 }

@@ -22,7 +22,7 @@ abstract public class CollapseImpl extends PreparatorImpl {
     @Override
     protected final Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         Collapse preparator_ = this.getPreparatorInstance(preparator, Collapse.class);
-        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator_, dataFrame);
+        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(dataFrame);
         return executeLogic(preparator_, dataFrame, errorAccumulator);
     }
 

@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.RenamePropertyImpl;
 import de.hpi.isg.dataprep.model.prepmetadata.RenamePropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 
 /**
  * @author Lan Jiang
@@ -14,7 +15,7 @@ public class RenameProperty extends Preparator {
     private String propertyName;
     private String newPropertyName;
 
-    public RenameProperty(RenamePropertyImpl impl) {
+    public RenameProperty(PreparatorImpl impl) {
         this.impl = impl;
     }
 

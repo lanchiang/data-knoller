@@ -15,7 +15,7 @@ abstract public class PreparatorImpl {
 
     abstract protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception;
 
-    protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Preparator preparator, Dataset<Row> dataFrame) {
+    protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Dataset<Row> dataFrame) {
         CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator();
         dataFrame.sparkSession().sparkContext().register(errorAccumulator,
                 String.format("Error accumulator registered."));
@@ -40,7 +40,7 @@ abstract public class PreparatorImpl {
         }
     }
 
-    public final  <T> T getPreparatorInstance(Preparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
+    public final <T> T getPreparatorInstance(Preparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
         if (!(preparator.getClass().isAssignableFrom(concretePreparatorClass))) {
             throw new ClassCastException("Class is not required type.");
         }

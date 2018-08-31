@@ -62,27 +62,15 @@ public class PipelineTest {
 
     @Test
     public void testShortPipeline() throws Exception {
-        Preparator preparator1 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator1).setPropertyName("id");
-        ((ChangePropertyDataType) preparator1).setSourceType(DataType.PropertyType.STRING);
-        ((ChangePropertyDataType) preparator1).setTargetType(DataType.PropertyType.INTEGER);
-
+        Preparator preparator1 = new ChangePropertyDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
         Preparation preparation1 = new Preparation(preparator1);
         pipeline.addPreparation(preparation1);
 
-        Preparator preparator2 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator2).setPropertyName("id");
-        ((ChangePropertyDataType) preparator2).setSourceType(DataType.PropertyType.INTEGER);
-        ((ChangePropertyDataType) preparator2).setTargetType(DataType.PropertyType.STRING);
-
+        Preparator preparator2 = new ChangePropertyDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
         Preparation preparation2 = new Preparation(preparator2);
         pipeline.addPreparation(preparation2);
 
-        Preparator preparator3 = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator3).setPropertyName("id");
-        ((ChangePropertyDataType) preparator3).setSourceType(DataType.PropertyType.INTEGER);
-        ((ChangePropertyDataType) preparator3).setTargetType(DataType.PropertyType.DOUBLE);
-
+        Preparator preparator3 = new ChangePropertyDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
         Preparation preparation3 = new Preparation(preparator3);
         pipeline.addPreparation(preparation3);
 

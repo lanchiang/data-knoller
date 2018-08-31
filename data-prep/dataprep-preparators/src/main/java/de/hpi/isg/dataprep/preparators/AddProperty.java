@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.AddPropertyImpl;
 import de.hpi.isg.dataprep.model.prepmetadata.AddPropertyMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.util.DataType;
 
 /**
@@ -17,7 +18,7 @@ public class AddProperty extends Preparator {
     private int positionInSchema;
     private Object defaultValue;
 
-    public AddProperty(AddPropertyImpl impl) {
+    public AddProperty(PreparatorImpl impl) {
         this.impl = impl;
     }
 

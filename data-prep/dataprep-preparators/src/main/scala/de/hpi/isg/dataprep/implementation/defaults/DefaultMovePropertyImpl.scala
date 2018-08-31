@@ -4,7 +4,7 @@ import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.{Consequences, SchemaUtils}
 import de.hpi.isg.dataprep.implementation.MovePropertyImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
-import de.hpi.isg.dataprep.model.target.preparator.Preparator
+import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.MoveProperty
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -14,9 +14,16 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2018/8/21
   */
-class DefaultMovePropertyImpl extends MovePropertyImpl {
+class DefaultMovePropertyImpl extends PreparatorImpl {
 
-    override protected def executeLogic(preparator: MoveProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
+    @throws(classOf[Exception])
+    override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
+        val preparator_ = this.getPreparatorInstance(preparator, classOf[MoveProperty])
+        val errorAccumulator = this.createErrorAccumulator(dataFrame)
+        executeLogic(preparator_, dataFrame, errorAccumulator)
+    }
+
+    protected def executeLogic(preparator: MoveProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val propertyName = preparator.getTargetPropertyName
         val newPosition = preparator.getNewPosition
 

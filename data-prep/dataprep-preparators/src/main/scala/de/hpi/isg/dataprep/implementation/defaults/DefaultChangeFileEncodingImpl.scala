@@ -14,7 +14,7 @@ import scala.util.Try
   * @author Lan Jiang
   * @since 2018/8/19
   */
-class DefaultChangeFileEncodingImpl extends ChangeFileEncodingImpl {
+class efaultChangeFileEncodingImpl extends ChangeFileEncodingImpl {
 
     override def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]

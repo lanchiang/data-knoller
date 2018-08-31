@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.implementation.TrimImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class Trim extends Preparator {
 
     private String propertyName;
 
-    public Trim(TrimImpl impl) {
+    public Trim(PreparatorImpl impl) {
         this.impl = impl;
     }
 

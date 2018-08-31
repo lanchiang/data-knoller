@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep.model.error;
 
+import java.io.Serializable;
+
 /**
  * @author Lan Jiang
  * @since 2018/8/22

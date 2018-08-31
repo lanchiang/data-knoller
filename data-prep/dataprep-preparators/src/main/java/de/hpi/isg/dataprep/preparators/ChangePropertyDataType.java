@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl;
+import de.hpi.isg.dataprep.implementation.defaults.DefaultChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern;
 import de.hpi.isg.dataprep.model.target.Metadata;
@@ -24,9 +25,35 @@ public class ChangePropertyDataType extends Preparator {
     private DatePattern.DatePatternEnum sourceDatePattern;
     private DatePattern.DatePatternEnum targetDatePattern;
 
-    public ChangePropertyDataType(ChangePropertyDataTypeImpl impl) {
-        this.impl = impl;
+    // maybe factory pattern?
+    private ChangePropertyDataType() {
+        this.impl = new DefaultChangePropertyDataTypeImpl();
+    }
 
+    public ChangePropertyDataType(String propertyName) {
+        this();
+        this.propertyName = propertyName;
+    }
+
+    public ChangePropertyDataType(String propertyName, DataType.PropertyType targetType) {
+        this(propertyName);
+        this.targetType = targetType;
+    }
+
+    public ChangePropertyDataType(String propertyName, DataType.PropertyType sourceType, DataType.PropertyType targetType) {
+        this(propertyName, targetType);
+        this.sourceType = sourceType;
+    }
+
+    public ChangePropertyDataType(String propertyName, DataType.PropertyType targetType, DatePattern.DatePatternEnum targetDatePattern) {
+        this(propertyName, targetType);
+        this.targetDatePattern = targetDatePattern;
+    }
+
+    public ChangePropertyDataType(String propertyName, DataType.PropertyType targetType,
+                                  DatePattern.DatePatternEnum sourceDatePattern, DatePattern.DatePatternEnum targetDatePattern) {
+        this(propertyName, targetType, targetDatePattern);
+        this.sourceDatePattern = sourceDatePattern;
     }
 
     @Override

@@ -24,7 +24,7 @@ abstract public class ChangePropertyDataTypeImpl extends PreparatorImpl {
     @Override
     protected final Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception {
         ChangePropertyDataType preparator_ = this.getPreparatorInstance(preparator, ChangePropertyDataType.class);
-        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(preparator_, dataFrame);
+        CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(dataFrame);
 
         return executeLogic(preparator_, dataFrame, errorAccumulator);
     }

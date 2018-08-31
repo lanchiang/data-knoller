@@ -4,9 +4,8 @@ import java.util.Date
 
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper, SchemaUtils}
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
-import de.hpi.isg.dataprep.implementation.AddPropertyImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
-import de.hpi.isg.dataprep.model.target.preparator.Preparator
+import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.AddProperty
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
@@ -19,9 +18,16 @@ import org.apache.spark.sql.types.{DateType, TimestampType}
   * @author Lan Jiang
   * @since 2018/8/20
   */
-class DefaultAddPropertyImpl extends AddPropertyImpl {
+class DefaultAddPropertyImpl extends PreparatorImpl {
 
-    override protected def executeLogic(preparator: AddProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
+    @throws(classOf[Exception])
+    override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
+        val preparator_ = getPreparatorInstance(preparator, classOf[AddProperty])
+        val errorAccumulator = this.createErrorAccumulator(dataFrame)
+        executeLogic(preparator_, dataFrame, errorAccumulator)
+    }
+
+    protected def executeLogic(preparator: AddProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val targetPropertyName = preparator.getTargetPropertyName
         val targetPropertyDataType = preparator.getTargetPropertyDataType
         val positionInSchema = preparator.getPositionInSchema

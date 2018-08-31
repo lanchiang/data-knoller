@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.implementation.PaddingImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class Padding extends Preparator {
     private int expectedLength;
     private String padder = "0"; // default padder is "0"
 
-    public Padding(PaddingImpl impl) {
+    public Padding(PreparatorImpl impl) {
         this.impl = impl;
     }
 

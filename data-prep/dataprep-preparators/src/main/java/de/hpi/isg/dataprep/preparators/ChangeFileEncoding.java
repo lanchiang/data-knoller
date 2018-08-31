@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.implementation.ChangeFileEncodingImpl;
 import de.hpi.isg.dataprep.model.prepmetadata.ChangeFileEncodingMetadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 
 /**
  * @author Lan Jiang
@@ -14,7 +15,7 @@ public class ChangeFileEncoding extends Preparator {
     private String sourceEncoding;
     private String targetEncoding;
 
-    public ChangeFileEncoding(ChangeFileEncodingImpl impl) {
+    public ChangeFileEncoding(PreparatorImpl impl) {
         this.impl = impl;
     }
 

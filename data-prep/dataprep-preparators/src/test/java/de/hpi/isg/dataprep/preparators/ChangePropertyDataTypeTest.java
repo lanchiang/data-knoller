@@ -33,9 +33,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToStringErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator).setPropertyName("identifier");
-        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.STRING);
+//        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
+        Preparator preparator = new ChangePropertyDataType("identifier", DataType.PropertyType.STRING);
+
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
@@ -49,10 +49,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToIntegerErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator).setPropertyName("id");
-        ((ChangePropertyDataType) preparator).setSourceType(DataType.PropertyType.STRING);
-        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.INTEGER);
+        Preparator preparator = new ChangePropertyDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -83,9 +80,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToDoubleErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator).setPropertyName("id");
-        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.DOUBLE);
+        Preparator preparator = new ChangePropertyDataType("id", DataType.PropertyType.DOUBLE);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -108,11 +103,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToDateErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        ((ChangePropertyDataType) preparator).setPropertyName("date");
-        ((ChangePropertyDataType) preparator).setTargetType(DataType.PropertyType.DATE);
-        ((ChangePropertyDataType) preparator).setSourceDatePattern(DatePattern.DatePatternEnum.YearMonthDay);
-        ((ChangePropertyDataType) preparator).setTargetDatePattern(DatePattern.DatePatternEnum.MonthDayYear);
+        Preparator preparator = new ChangePropertyDataType("date", DataType.PropertyType.DATE,
+                DatePattern.DatePatternEnum.YearMonthDay, DatePattern.DatePatternEnum.MonthDayYear);
+
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
