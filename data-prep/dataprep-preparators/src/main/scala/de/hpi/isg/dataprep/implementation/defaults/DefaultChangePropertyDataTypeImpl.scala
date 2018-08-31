@@ -58,9 +58,16 @@ class DefaultChangePropertyDataTypeImpl extends ChangePropertyDataTypeImpl {
             }
             trial.toOption
         })
-        createdRDD.count()
+
+        // persist
+//        createdRDD.persist()
+
+//        createdRDD.count()
 
         val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
+
+        resultDataFrame.show()
+
         new Consequences(resultDataFrame, errorAccumulator)
         //        new Consequences(dataFrame, errorAccumulator)
     }
