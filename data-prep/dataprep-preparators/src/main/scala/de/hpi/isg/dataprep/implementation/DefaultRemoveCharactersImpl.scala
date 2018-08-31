@@ -1,7 +1,6 @@
-package de.hpi.isg.dataprep.implementation.defaults
+package de.hpi.isg.dataprep.implementation
 
 import de.hpi.isg.dataprep.Consequences
-import de.hpi.isg.dataprep.implementation.RemoveCharactersImpl
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.RemoveCharacters

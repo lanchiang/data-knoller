@@ -18,6 +18,13 @@ object SchemaUtils {
         }
     }
 
+    /**
+      * Move the column in the last to the specified position.
+      *
+      * @param dataFrame
+      * @param position
+      * @return
+      */
     def lastToNewPosition(dataFrame: DataFrame, position: Int): DataFrame = {
         val columns = dataFrame.columns
 

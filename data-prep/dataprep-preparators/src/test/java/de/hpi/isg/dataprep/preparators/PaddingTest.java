@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
-import de.hpi.isg.dataprep.implementation.defaults.DefaultPaddingImpl;
+import de.hpi.isg.dataprep.implementation.DefaultPaddingImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;

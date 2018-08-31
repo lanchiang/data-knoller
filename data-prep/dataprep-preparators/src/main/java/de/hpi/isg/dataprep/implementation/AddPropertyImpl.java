@@ -2,7 +2,6 @@ package de.hpi.isg.dataprep.implementation;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.model.error.PreparationError;
-import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
 import de.hpi.isg.dataprep.preparators.AddProperty;

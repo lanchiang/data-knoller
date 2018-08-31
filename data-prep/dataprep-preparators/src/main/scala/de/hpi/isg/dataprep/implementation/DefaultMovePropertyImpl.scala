@@ -1,11 +1,10 @@
-package de.hpi.isg.dataprep.implementation.defaults
+package de.hpi.isg.dataprep.implementation
 
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
-import de.hpi.isg.dataprep.{Consequences, SchemaUtils}
-import de.hpi.isg.dataprep.implementation.MovePropertyImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.MoveProperty
+import de.hpi.isg.dataprep.{Consequences, SchemaUtils}
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 

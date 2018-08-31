@@ -1,8 +1,7 @@
-package de.hpi.isg.dataprep.implementation.defaults
+package de.hpi.isg.dataprep.implementation
 
 import de.hpi.isg.dataprep.Consequences
 import de.hpi.isg.dataprep.SparkPreparators.spark
-import de.hpi.isg.dataprep.implementation.ChangeFileEncodingImpl
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.preparators.ChangeFileEncoding
 import org.apache.spark.sql.{Dataset, Row}

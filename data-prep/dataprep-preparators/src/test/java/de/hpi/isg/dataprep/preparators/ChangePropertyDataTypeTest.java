@@ -1,24 +1,15 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
-import de.hpi.isg.dataprep.implementation.defaults.DefaultChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.util.DatePattern;
 import de.hpi.isg.dataprep.util.DataType;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.text.ParseException;

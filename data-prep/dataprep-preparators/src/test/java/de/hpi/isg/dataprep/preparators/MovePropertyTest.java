@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.implementation.defaults.DefaultMovePropertyImpl;
+import de.hpi.isg.dataprep.implementation.DefaultMovePropertyImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;

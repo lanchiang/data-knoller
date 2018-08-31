@@ -1,8 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
-import de.hpi.isg.dataprep.implementation.ChangePropertyDataTypeImpl;
-import de.hpi.isg.dataprep.implementation.defaults.DefaultChangePropertyDataTypeImpl;
+import de.hpi.isg.dataprep.implementation.DefaultChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern;
 import de.hpi.isg.dataprep.model.target.Metadata;

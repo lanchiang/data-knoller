@@ -2,8 +2,6 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
-import de.hpi.isg.dataprep.implementation.defaults.DefaultAddPropertyImpl;
-import de.hpi.isg.dataprep.implementation.defaults.DefaultChangePropertyDataTypeImpl;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.Pipeline;
 import de.hpi.isg.dataprep.model.target.Preparation;
@@ -27,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
