@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.model.target.Pipeline;
+import de.hpi.isg.dataprep.model.target.system.Pipeline;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;

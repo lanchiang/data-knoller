@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.target.errorlog;
 
-import de.hpi.isg.dataprep.model.target.Preparation;
+import de.hpi.isg.dataprep.model.target.system.Preparation;
 
 import java.util.Objects;
 

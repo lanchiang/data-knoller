@@ -1,6 +1,6 @@
-package de.hpi.isg.dataprep.model.target;
+package de.hpi.isg.dataprep.model.target.system;
 
-import de.hpi.isg.dataprep.util.Nameable;
+import de.hpi.isg.dataprep.model.target.Target;
 
 /**
  * This class is the superclass for both {@link Pipeline} and {@link Preparation}. It represents these two units in a data preparation pipeline.

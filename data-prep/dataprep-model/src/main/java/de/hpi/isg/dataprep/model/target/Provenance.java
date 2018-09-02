@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.model.target;
 
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.Preparation;
 
 /**
  * @author Lan Jiang

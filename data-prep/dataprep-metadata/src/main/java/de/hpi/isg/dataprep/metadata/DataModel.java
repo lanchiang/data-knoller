@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.Metadata;
+import de.hpi.isg.dataprep.model.target.object.Metadata;
 
 /**
  * The original data model used to represent this dataset, although the data is represented as relational data inside this system.

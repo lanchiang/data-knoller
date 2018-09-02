@@ -1,13 +1,13 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.model.target.Metadata;
+import de.hpi.isg.dataprep.model.target.system.Pipeline;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class represent the repository of metadata of a {@link de.hpi.isg.dataprep.model.target.Pipeline}.
+ * This class represent the repository of metadata of a {@link Pipeline}.
  *
  * @author Lan Jiang
  * @since 2018/6/4

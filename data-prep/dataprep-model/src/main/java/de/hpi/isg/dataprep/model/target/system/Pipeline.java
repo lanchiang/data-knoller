@@ -1,12 +1,10 @@
-package de.hpi.isg.dataprep.model.target;
+package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
-import de.hpi.isg.dataprep.util.TerminationCode;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 

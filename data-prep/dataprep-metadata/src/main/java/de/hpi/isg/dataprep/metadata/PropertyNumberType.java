@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.metadata;
 import de.hpi.isg.dataprep.cases.NumberType;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.Metadata;
+import de.hpi.isg.dataprep.model.target.object.Metadata;
 
 /**
  * @author Lan Jiang

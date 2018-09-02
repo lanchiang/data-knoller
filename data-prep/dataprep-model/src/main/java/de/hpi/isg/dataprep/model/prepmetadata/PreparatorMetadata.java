@@ -1,6 +1,5 @@
 package de.hpi.isg.dataprep.model.prepmetadata;
 
-import de.hpi.isg.dataprep.model.target.Metadata;
 import de.hpi.isg.dataprep.util.MetadataEnum;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 

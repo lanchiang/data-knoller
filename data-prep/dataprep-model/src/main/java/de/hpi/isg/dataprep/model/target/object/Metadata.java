@@ -1,19 +1,20 @@
-package de.hpi.isg.dataprep.model.target;
+package de.hpi.isg.dataprep.model.target.object;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
+import de.hpi.isg.dataprep.model.target.Target;
+import de.hpi.isg.dataprep.model.target.system.Pipeline;
 import de.hpi.isg.dataprep.util.Nameable;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The super class of all {@link Metadata}.
+ *
  * @author Lan Jiang
  * @since 2018/8/25
  */
-abstract public class Metadata implements Serializable, Nameable {
+abstract public class Metadata extends Target implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1863322602595412693L;
 

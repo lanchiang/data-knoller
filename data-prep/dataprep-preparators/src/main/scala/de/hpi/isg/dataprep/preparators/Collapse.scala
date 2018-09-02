@@ -5,7 +5,7 @@ import java.util
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.implementation.DefaultCollapseImpl
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.Metadata
+import de.hpi.isg.dataprep.model.target.`object`.Metadata
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.util.DataType
 

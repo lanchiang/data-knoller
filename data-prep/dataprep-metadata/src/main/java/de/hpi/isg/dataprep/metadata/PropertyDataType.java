@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.Metadata;
+import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.List;

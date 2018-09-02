@@ -1,8 +1,9 @@
-package de.hpi.isg.dataprep.model.target;
+package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
+import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 

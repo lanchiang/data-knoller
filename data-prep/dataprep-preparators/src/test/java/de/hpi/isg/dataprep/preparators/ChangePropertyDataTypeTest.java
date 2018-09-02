@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.preparators;
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.Preparation;
+import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;

@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.app;
 
-import de.hpi.isg.dataprep.model.target.Pipeline;
-import de.hpi.isg.dataprep.model.target.Preparation;
+import de.hpi.isg.dataprep.model.target.system.Pipeline;
+import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.preparators.ChangeFileEncoding;
 import org.apache.spark.sql.Dataset;
