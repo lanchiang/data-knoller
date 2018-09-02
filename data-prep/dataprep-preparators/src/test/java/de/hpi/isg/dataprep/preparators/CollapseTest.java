@@ -22,8 +22,7 @@ public class CollapseTest extends PreparatorTest {
 
     @Test
     public void testCollapse() throws Exception {
-        Preparator preparator = new Collapse(new DefaultCollapseImpl());
-        ((Collapse) preparator).setPropertyName("identifier");
+        Preparator preparator = new Collapse("identifier");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

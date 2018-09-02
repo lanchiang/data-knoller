@@ -23,9 +23,7 @@ public class PaddingTest extends PreparatorTest {
 
     @Test
     public void testPaddingAllShorterValue() throws Exception {
-        Preparator preparator = new Padding(new DefaultPaddingImpl());
-        ((Padding) preparator).setPropertyName("id");
-        ((Padding) preparator).setExpectedLength(8);
+        Preparator preparator = new Padding("id", 8);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -47,10 +45,7 @@ public class PaddingTest extends PreparatorTest {
 
     @Test
     public void testPaddingValueTooLong() throws Exception {
-        Preparator preparator = new Padding(new DefaultPaddingImpl());
-        ((Padding) preparator).setPropertyName("id");
-        ((Padding) preparator).setExpectedLength(4);
-        ((Padding) preparator).setPadder("x");
+        Preparator preparator = new Padding("id", 4, "x");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

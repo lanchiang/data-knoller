@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.implementation
 import de.hpi.isg.dataprep.SparkPreparators.spark
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
-import de.hpi.isg.dataprep.preparators.ChangePropertyDataType
+import de.hpi.isg.dataprep.preparators.ChangeDataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
@@ -15,11 +15,11 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2018/8/19
   */
-class DefaultChangePropertyDataTypeImpl extends PreparatorImpl {
+class DefaultChangeDataTypeImpl extends PreparatorImpl {
 
     @throws(classOf[Exception])
     override protected def executePreparator(preparator: Preparator, dataFrame: DataFrame): Consequences = {
-        val preparator_ = getPreparatorInstance(preparator, classOf[ChangePropertyDataType])
+        val preparator_ = getPreparatorInstance(preparator, classOf[ChangeDataType])
         val errorAccumulator = this.createErrorAccumulator( dataFrame)
         executeLogic(preparator_, dataFrame, errorAccumulator)
     }
@@ -31,12 +31,12 @@ class DefaultChangePropertyDataTypeImpl extends PreparatorImpl {
       * @param dataFrame  the operated [[Dataset<Row>]] instance.
       * @return an instance of [[Consequences]] that stores all the execution information.
       */
-    protected def executeLogic(preparator: ChangePropertyDataType, dataFrame: Dataset[Row],
+    protected def executeLogic(preparator: ChangeDataType, dataFrame: Dataset[Row],
                                         errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val targetDataType = preparator.getTargetType
-        val fieldName = preparator.getPropertyName
-        val sourceDatePattern = preparator.getSourceDatePattern
-        val targetDatePattern = preparator.getTargetDatePattern
+        val fieldName = preparator.propertyName
+        val targetDataType = preparator.targetType
+        val sourceDatePattern = preparator.sourceDatePattern
+        val targetDatePattern = preparator.targetDatePattern
         // Here the program needs to check the existence of these fields.
 
         val createdRDD = dataFrame.rdd.flatMap(row => {

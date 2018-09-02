@@ -24,8 +24,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToStringErrorLog() throws Exception {
-//        Preparator preparator = new ChangePropertyDataType(new DefaultChangePropertyDataTypeImpl());
-        Preparator preparator = new ChangePropertyDataType("identifier", DataType.PropertyType.STRING);
+        Preparator preparator = new ChangeDataType("identifier", DataType.PropertyType.STRING);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -40,7 +39,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToIntegerErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
+        Preparator preparator = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -71,7 +70,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToDoubleErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType("id", DataType.PropertyType.DOUBLE);
+        Preparator preparator = new ChangeDataType("id", DataType.PropertyType.DOUBLE);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -94,7 +93,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToDateErrorLog() throws Exception {
-        Preparator preparator = new ChangePropertyDataType("date", DataType.PropertyType.DATE,
+        Preparator preparator = new ChangeDataType("date", DataType.PropertyType.DATE,
                 DatePattern.DatePatternEnum.YearMonthDay, DatePattern.DatePatternEnum.MonthDayYear);
 
         Preparation preparation = new Preparation(preparator);

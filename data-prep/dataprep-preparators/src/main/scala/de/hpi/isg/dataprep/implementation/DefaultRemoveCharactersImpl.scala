@@ -22,9 +22,9 @@ class DefaultRemoveCharactersImpl extends PreparatorImpl {
     }
 
     private def executeLogic(preparator: RemoveCharacters, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val propertyName = preparator.getPropertyName
-        val removeCharactersMode = preparator.getMode
-        val userSpecifiedCharacters = preparator.getUserSpecifiedCharacters
+        val propertyName = preparator.propertyName
+        val removeCharactersMode = preparator.mode
+        val userSpecifiedCharacters = preparator.userSpecifiedCharacters
 
         val createdRDD = dataFrame.rdd.flatMap(row => {
             

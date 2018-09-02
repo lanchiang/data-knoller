@@ -59,15 +59,15 @@ public class PipelineTest {
 
     @Test
     public void testShortPipeline() throws Exception {
-        Preparator preparator1 = new ChangePropertyDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
+        Preparator preparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
         Preparation preparation1 = new Preparation(preparator1);
         pipeline.addPreparation(preparation1);
 
-        Preparator preparator2 = new ChangePropertyDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
+        Preparator preparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
         Preparation preparation2 = new Preparation(preparator2);
         pipeline.addPreparation(preparation2);
 
-        Preparator preparator3 = new ChangePropertyDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
+        Preparator preparator3 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
         Preparation preparation3 = new Preparation(preparator3);
         pipeline.addPreparation(preparation3);
 

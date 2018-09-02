@@ -24,9 +24,9 @@ class DefaultPaddingImpl extends PreparatorImpl {
     }
 
     private def executeLogic(preparator: Padding, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val propertyName = preparator.getPropertyName
-        val expectedLength = preparator.getExpectedLength
-        val padder = preparator.getPadder
+        val propertyName = preparator.propertyName
+        val expectedLength = preparator.expectedLength
+        val padder = preparator.padder
 
         val createdRDD = dataFrame.rdd.flatMap(row => {
             val indexTry = Try{
@@ -40,7 +40,7 @@ class DefaultPaddingImpl extends PreparatorImpl {
                     content
                 }
             }
-            val operatedValue = row.getAs(index)
+            val operatedValue = row.getAs[String](index)
 
             val seq = row.toSeq
             val forepart = seq.take(index)

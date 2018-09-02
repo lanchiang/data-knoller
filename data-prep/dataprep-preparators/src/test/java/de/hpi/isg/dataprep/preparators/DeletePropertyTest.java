@@ -57,8 +57,7 @@ public class DeletePropertyTest {
 
     @Test
     public void testDeleteExistingProperty() throws Exception {
-        Preparator preparator = new DeleteProperty(new DefaultDeletePropertyImpl());
-        ((DeleteProperty) preparator).setPropertyName("species_id");
+        Preparator preparator = new DeleteProperty("species_id");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -90,8 +89,7 @@ public class DeletePropertyTest {
 
     @Test
     public void testDeleteNonExistingProperty() throws Exception {
-        Preparator preparator = new DeleteProperty(new DefaultDeletePropertyImpl());
-        ((DeleteProperty) preparator).setPropertyName("nonexist");
+        Preparator preparator = new DeleteProperty("nonexist");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

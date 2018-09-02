@@ -23,7 +23,7 @@ class DefaultDeletePropertyImpl extends PreparatorImpl {
     }
 
     private def executeLogic(preparator: DeleteProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val targetPropertyName = preparator.getPropertyName
+        val targetPropertyName = preparator.propertyName
 
         val columns = dataFrame.columns
 

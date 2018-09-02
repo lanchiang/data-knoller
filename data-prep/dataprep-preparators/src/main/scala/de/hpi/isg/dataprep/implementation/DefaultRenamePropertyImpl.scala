@@ -22,8 +22,8 @@ class DefaultRenamePropertyImpl extends PreparatorImpl {
     }
 
     private def executeLogic(preparator: RenameProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val targetPropertyName = preparator.getNewPropertyName
-        val currentPropertyName = preparator.getPropertyName
+        val targetPropertyName = preparator.newPropertyName
+        val currentPropertyName = preparator.propertyName
         val columns = dataFrame.columns
 
         var resultDataFrame = dataFrame

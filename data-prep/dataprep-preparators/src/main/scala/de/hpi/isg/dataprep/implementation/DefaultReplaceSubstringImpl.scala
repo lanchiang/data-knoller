@@ -24,10 +24,10 @@ class DefaultReplaceSubstringImpl extends PreparatorImpl {
     }
 
     private def executeLogic(preparator: ReplaceSubstring, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val propertyName = preparator.getPropertyName
-        val source = preparator.getSource
-        val replacement = preparator.getReplacement
-        val firstSome = preparator.getFirstSome // replace only the first N.
+        val propertyName = preparator.propertyName
+        val source = preparator.source
+        val replacement = preparator.replacement
+        val times = preparator.times // replace only the first N.
 
         val createdRDD = dataFrame.rdd.flatMap(row => {
             val indexTry = Try{
@@ -48,7 +48,7 @@ class DefaultReplaceSubstringImpl extends PreparatorImpl {
             val backpart = seq.takeRight(row.length-index-1)
 
             val tryConvert = Try{
-                val newSeq = (forepart :+ ConversionHelper.replaceSubstring(operatedValue, source, replacement, firstSome)) ++ backpart
+                val newSeq = (forepart :+ ConversionHelper.replaceSubstring(operatedValue, source, replacement, times)) ++ backpart
                 Row.fromSeq(newSeq)
             }
             val convertOption = tryConvert match {

@@ -22,10 +22,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
     @Test
     public void testReplaceAllNormalString() throws Exception {
-        Preparator preparator = new ReplaceSubstring(new DefaultReplaceSubstringImpl());
-        ((ReplaceSubstring) preparator).setPropertyName("identifier");
-        ((ReplaceSubstring) preparator).setSource("cha");
-        ((ReplaceSubstring) preparator).setReplacement("CT");
+        Preparator preparator = new ReplaceSubstring("identifier", "cha", "CT");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -47,11 +44,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
     @Test
     public void testReplaceFirstSomeNormalString() throws Exception {
-        Preparator preparator = new ReplaceSubstring(new DefaultReplaceSubstringImpl());
-        ((ReplaceSubstring) preparator).setPropertyName("identifier");
-        ((ReplaceSubstring) preparator).setSource("b");
-        ((ReplaceSubstring) preparator).setReplacement("mam");
-        ((ReplaceSubstring) preparator).setFirstSome(1);
+        Preparator preparator = new ReplaceSubstring("identifier", "b", "mam", 1);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -73,10 +66,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
     @Test
     public void testReplaceAllWithRegex() throws Exception {
-        Preparator preparator = new ReplaceSubstring(new DefaultReplaceSubstringImpl());
-        ((ReplaceSubstring) preparator).setPropertyName("identifier");
-        ((ReplaceSubstring) preparator).setSource("(\\s+)([a-z]+)(\\s+)");
-        ((ReplaceSubstring) preparator).setReplacement("REP");
+        Preparator preparator = new ReplaceSubstring("identifier", "(\\s+)([a-z]+)(\\s+)", "REP");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

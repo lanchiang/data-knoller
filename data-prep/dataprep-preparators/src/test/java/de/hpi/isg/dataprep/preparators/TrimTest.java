@@ -22,8 +22,7 @@ public class TrimTest extends PreparatorTest {
 
     @Test
     public void testTrim() throws Exception {
-        Preparator preparator = new Trim(new DefaultTrimImpl());
-        ((Trim) preparator).setPropertyName("identifier");
+        Preparator preparator = new Trim("identifier");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

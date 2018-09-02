@@ -54,9 +54,7 @@ public class RenamePropertyTest {
 
     @Test
     public void testRenameExistingProperty() throws Exception {
-        Preparator preparator = new RenameProperty(new DefaultRenamePropertyImpl());
-        ((RenameProperty) preparator).setPropertyName("id");
-        ((RenameProperty) preparator).setNewPropertyName("ID");
+        Preparator preparator = new RenameProperty("id", "ID");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -94,9 +92,7 @@ public class RenamePropertyTest {
      */
     @Test
     public void testRenameNonExistingProperty() throws Exception {
-        Preparator preparator = new RenameProperty(new DefaultRenamePropertyImpl());
-        ((RenameProperty) preparator).setPropertyName("Gaodu");
-        ((RenameProperty) preparator).setNewPropertyName("gaodu");
+        Preparator preparator = new RenameProperty("Gaodu", "gaodu");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -131,9 +127,7 @@ public class RenamePropertyTest {
 
     @Test
     public void testRenamePropertyToExistingName() throws Exception {
-        Preparator preparator = new RenameProperty(new DefaultRenamePropertyImpl());
-        ((RenameProperty) preparator).setPropertyName("order");
-        ((RenameProperty) preparator).setNewPropertyName("weight");
+        Preparator preparator = new RenameProperty("order", "weight");
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

@@ -23,7 +23,7 @@ class DefaultTrimImpl extends PreparatorImpl {
     }
 
     private def executeLogic(preparator: Trim, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val propertyName = preparator.getPropertyName
+        val propertyName = preparator.propertyName
 
         val createdRDD = dataFrame.rdd.flatMap(row => {
             val operatedValue = row.getAs[String](propertyName)

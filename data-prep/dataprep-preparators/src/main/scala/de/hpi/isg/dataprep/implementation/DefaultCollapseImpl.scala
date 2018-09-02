@@ -25,7 +25,7 @@ class DefaultCollapseImpl extends PreparatorImpl {
 
     protected def executeLogic(preparator: Collapse, dataFrame: Dataset[Row],
                                         errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val propertyName = preparator.getPropertyName
+        val propertyName = preparator.propertyName
 
         val createdRDD = dataFrame.rdd.flatMap(row => {
             val index = row.fieldIndex(propertyName)

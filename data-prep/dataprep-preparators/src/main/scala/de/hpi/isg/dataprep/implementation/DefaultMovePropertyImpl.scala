@@ -23,8 +23,8 @@ class DefaultMovePropertyImpl extends PreparatorImpl {
     }
 
     protected def executeLogic(preparator: MoveProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
-        val propertyName = preparator.getTargetPropertyName
-        val newPosition = preparator.getNewPosition
+        val propertyName = preparator.propertyName
+        val newPosition = preparator.newPosition
 
         val schema = dataFrame.columns
 

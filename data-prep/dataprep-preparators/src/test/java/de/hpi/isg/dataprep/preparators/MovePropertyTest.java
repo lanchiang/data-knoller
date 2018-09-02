@@ -55,9 +55,7 @@ public class MovePropertyTest {
 
     @Test
     public void testMovePropertyToTheFront() throws Exception {
-        Preparator preparator = new MoveProperty(new DefaultMovePropertyImpl());
-        ((MoveProperty) preparator).setTargetPropertyName("height");
-        ((MoveProperty) preparator).setNewPosition(1);
+        Preparator preparator = new MoveProperty("height", 1);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -90,9 +88,7 @@ public class MovePropertyTest {
 
     @Test
     public void testMovePropertyToTheBack() throws Exception {
-        Preparator preparator = new MoveProperty(new DefaultMovePropertyImpl());
-        ((MoveProperty) preparator).setTargetPropertyName("identifier");
-        ((MoveProperty) preparator).setNewPosition(8);
+        Preparator preparator = new MoveProperty("identifier", 8);
 
         Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
