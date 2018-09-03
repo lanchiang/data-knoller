@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.metadata;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.object.OperatedObject;
 
 import java.util.Objects;
 
@@ -13,6 +14,8 @@ import java.util.Objects;
 public class EndLineCharacters extends Metadata {
 
     private final String name;
+
+    private OperatedObject target;
 
     private String endLineCharacters;
 
@@ -26,8 +29,13 @@ public class EndLineCharacters extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
 
+    }
+
+    @Override
+    public String getTargetName() {
+        return null;
     }
 
     @Override

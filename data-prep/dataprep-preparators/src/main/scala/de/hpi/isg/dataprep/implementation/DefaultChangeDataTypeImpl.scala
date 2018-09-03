@@ -77,7 +77,7 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
 
         createdDataset.count()
 
-        createdDataset.explain()
+//        createdDataset.explain()
 //        println("--------------------------------------------------------------------")
         new Consequences(createdDataset, errorAccumulator)
     }

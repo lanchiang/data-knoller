@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.metadata;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.object.OperatedObject;
 
 import java.util.Set;
 
@@ -14,6 +15,8 @@ public class EscapeCharacters extends Metadata {
 
     private final String name = "escape-characters";
 
+    private OperatedObject target;
+
     private Set<String> escapeCharacters;
 
     public EscapeCharacters(Set<String> escapeCharacters) {
@@ -21,8 +24,13 @@ public class EscapeCharacters extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
 
+    }
+
+    @Override
+    public String getTargetName() {
+        return null;
     }
 
     public Set<String> getEscapeCharacters() {

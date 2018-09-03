@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.object.OperatedObject;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,8 @@ public class EndRecordCharacters extends Metadata {
 
     private final String name = "end-record-characters";
 
+    private OperatedObject target;
+
     private String endRecordCharacters;
 
     public EndRecordCharacters(String endRecordCharacters) {
@@ -26,7 +29,7 @@ public class EndRecordCharacters extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
         List<EndRecordCharacters> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof EndRecordCharacters)
                 .map(metadata -> (EndRecordCharacters) metadata)
@@ -45,6 +48,11 @@ public class EndRecordCharacters extends Metadata {
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
             }
         }
+    }
+
+    @Override
+    public String getTargetName() {
+        return null;
     }
 
     @Override

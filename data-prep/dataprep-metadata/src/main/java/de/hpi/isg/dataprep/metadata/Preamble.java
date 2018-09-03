@@ -22,8 +22,13 @@ public class Preamble extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
 
+    }
+
+    @Override
+    public String getTargetName() {
+        return null;
     }
 
     public String getPreamble() {

@@ -24,6 +24,7 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
      * @param metadataRepository represents the {@link MetadataRepository} of this {@link Pipeline}.
      * @throws Exception
      */
-    abstract public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException;
+    abstract public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException;
 
+    abstract public String getTargetName();
 }

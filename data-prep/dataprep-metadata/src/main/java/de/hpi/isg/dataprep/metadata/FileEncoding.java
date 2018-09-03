@@ -38,7 +38,7 @@ public class FileEncoding extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
         List<FileEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof FileEncoding)
                 .map(metadata -> (FileEncoding) metadata)
@@ -55,6 +55,11 @@ public class FileEncoding extends Metadata {
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
             }
         }
+    }
+
+    @Override
+    public String getTargetName() {
+        return fileName;
     }
 
     @Override

@@ -28,7 +28,7 @@ public class TextLanguage extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
         // try to get text language of current property from the metadata repository.
         List<TextLanguage> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof TextLanguage)
@@ -47,6 +47,11 @@ public class TextLanguage extends Metadata {
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository"));
             }
         }
+    }
+
+    @Override
+    public String getTargetName() {
+        return propertyName;
     }
 
     public String getPropertyName() {

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class Pipeline extends PipelineComponent {
 
-    private MetadataRepository<?> metadataRepository;
+    private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
 
@@ -32,7 +32,7 @@ public class Pipeline extends PipelineComponent {
     private Dataset<Row> rawData;
 
     private Pipeline() {
-        this.metadataRepository = new MetadataRepository<>();
+        this.metadataRepository = new MetadataRepository();
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
         this.preparations = new LinkedList<>();
@@ -52,6 +52,12 @@ public class Pipeline extends PipelineComponent {
         this.preparations.add(preparation);
     }
 
+    /**
+     * Check whether there are pipeline syntax errors during compilation before starting to execute the pipeline.
+     * If there is at least one error, return by throwing a {@link PipelineSyntaxErrorException}, otherwise clear the metadata repository.
+     *
+     * @throws PipelineSyntaxErrorException
+     */
     private void checkPipelineErrors() throws PipelineSyntaxErrorException {
         MetadataRepository metadataRepository = this.metadataRepository;
         preparations.stream().forEachOrdered(preparation -> preparation.checkPipelineErrorWithPrevious(metadataRepository));
@@ -63,6 +69,9 @@ public class Pipeline extends PipelineComponent {
         if (numberOfPipelineError > 0) {
             throw new PipelineSyntaxErrorException("The pipeline contains syntax errors.");
         }
+
+        // remove all the metadata assumed during the pipeline error check phase.
+        metadataRepository.getMetadataPool().clear();
     }
 
     public void executePipeline() throws Exception {
@@ -72,8 +81,11 @@ public class Pipeline extends PipelineComponent {
             // write the errorlog to disc.
 
             // do not use System.exit()
-//            System.exit(TerminationCode.PIPELINE_HAS_ERROR);
+            throw e;
         }
+
+        // here optimize the pipeline.
+
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();
         }

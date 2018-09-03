@@ -6,6 +6,8 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
+import de.hpi.isg.dataprep.model.repository.ErrorRepository;
+import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -33,8 +35,7 @@ abstract public class Preparator extends Target implements Executable {
 
     private Preparation preparation;
 
-    protected List<MetadataEnum> invalid;
-    protected Map<String, String> metadataValue;
+    protected List<Metadata> invalid;
 
     protected Dataset<Row> updatedDataset;
 
@@ -105,13 +106,17 @@ abstract public class Preparator extends Target implements Executable {
      *
      * @return true/false if all the prerequisiteName are/are not met.
      */
-    protected boolean checkMetadata() {
+    protected void checkMetadata() {
         /**
-         * check for each metadata whether valid.
+         * check for each metadata whether valid. Valid metadata are those with correct values.
          * Stores invalid ones.
          * If all prerequisiteName are met, read and store all these metadata, used in preparator execution.
          */
-        return true;
+        MetadataRepository metadataRepository = this.getPreparation().getPipeline().getMetadataRepository();
+
+        prerequisite.stream()
+                .filter(metadata -> !metadataRepository.getMetadataPool().contains(metadata))
+                .forEach(metadata -> invalid.add(metadata));
     }
 
     /**
@@ -130,9 +135,12 @@ abstract public class Preparator extends Target implements Executable {
 
     @Override
     public void execute() throws Exception {
-        if (!checkMetadata()) {
-            throw new MetadataNotMatchException("Some prerequisite metadata are not met.");
+        checkMetadata();
+
+        if (!invalid.isEmpty()) {
+            throw new PreparationHasErrorException("Metadata prerequisite not met.");
         }
+
         try {
             executePreparator();
         } catch (PreparationHasErrorException e) {
@@ -150,7 +158,7 @@ abstract public class Preparator extends Target implements Executable {
         this.preparation = preparation;
     }
 
-    public List<MetadataEnum> getInvalid() {
+    public List<Metadata> getInvalid() {
         return invalid;
     }
 
@@ -160,10 +168,6 @@ abstract public class Preparator extends Target implements Executable {
 
     public Dataset<Row> getUpdatedDataset() {
         return updatedDataset;
-    }
-
-    public Map<String, String> getMetadataValue() {
-        return metadataValue;
     }
 
     public List<Metadata> getPrerequisite() {

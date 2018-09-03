@@ -27,7 +27,12 @@ public class PropertyDatePattern extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
 
+    }
+
+    @Override
+    public String getTargetName() {
+        return propertyName;
     }
 }

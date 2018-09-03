@@ -35,8 +35,6 @@ public class Preparation extends PipelineComponent {
      * @return true if there is at least one pipeline-level error.
      */
     public final void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
-        Preparator preparator = this.preparator;
-
         // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
         for (Metadata metadata : preparator.getPrerequisite()) {
             try {

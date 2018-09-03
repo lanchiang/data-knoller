@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.metadata;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.object.OperatedObject;
 
 import java.util.Date;
 
@@ -14,6 +15,8 @@ import java.util.Date;
  */
 public class CreatedTime extends Metadata {
 
+    private OperatedObject target;
+
     private final String name = "created-time";
 
     private Date createdDateTime;
@@ -23,8 +26,14 @@ public class CreatedTime extends Metadata {
     }
 
     @Override
-    public void checkMetadata(MetadataRepository<?> metadataRepository) throws RuntimeMetadataException {
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
 
+    }
+
+    @Override
+    public String getTargetName() {
+        // it should return an operated object.
+        return null;
     }
 
     public Date getCreatedDateTime() {
