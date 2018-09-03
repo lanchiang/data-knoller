@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.ReplaceSubstring
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
@@ -29,7 +30,9 @@ class DefaultReplaceSubstringImpl extends PreparatorImpl {
         val replacement = preparator.replacement
         val times = preparator.times // replace only the first N.
 
-        val createdRDD = dataFrame.rdd.flatMap(row => {
+        val rowEncoder = RowEncoder(dataFrame.schema)
+
+        val createdDataset = dataFrame.flatMap(row => {
             val indexTry = Try{
                 row.fieldIndex(propertyName)
             }
@@ -59,10 +62,10 @@ class DefaultReplaceSubstringImpl extends PreparatorImpl {
                 case Success(content) => tryConvert
             }
             convertOption.toOption
-        })
-        createdRDD.count()
+        })(rowEncoder)
 
-        val resultDataFrame = dataFrame.sparkSession.createDataFrame(createdRDD, dataFrame.schema)
-        new Consequences(resultDataFrame, errorAccumulator)
+        createdDataset.count()
+
+        new Consequences(createdDataset, errorAccumulator)
     }
 }

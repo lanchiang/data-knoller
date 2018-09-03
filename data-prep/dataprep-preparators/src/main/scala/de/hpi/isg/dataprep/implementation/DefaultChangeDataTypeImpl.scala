@@ -1,14 +1,20 @@
 package de.hpi.isg.dataprep.implementation
 
+import java.util
+
 import de.hpi.isg.dataprep.SparkPreparators.spark
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.ChangeDataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.api.java.function.FlatMapFunction
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Row}
 import org.apache.spark.util.CollectionAccumulator
 
+import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -31,7 +37,7 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
       * @param dataFrame  the operated [[Dataset<Row>]] instance.
       * @return an instance of [[Consequences]] that stores all the execution information.
       */
-    protected def executeLogic(preparator: ChangeDataType, dataFrame: Dataset[Row],
+    protected def executeLogic(preparator: ChangeDataType, dataFrame: DataFrame,
                                         errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val fieldName = preparator.propertyName
         val targetDataType = preparator.targetType
@@ -39,7 +45,9 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
         val targetDatePattern = preparator.targetDatePattern
         // Here the program needs to check the existence of these fields.
 
-        val createdRDD = dataFrame.rdd.flatMap(row => {
+        val rowEncoder = RowEncoder(dataFrame.schema)
+
+        val createdDataset = dataFrame.flatMap(row => {
             val tryRow = Try {
                 val tryConvert = targetDataType match {
                     case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
@@ -62,14 +70,15 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
                 }
             }
             trial.toOption
-        })
+        })(rowEncoder)
 
         // persist
-//        createdRDD.persist()
+        createdDataset.persist()
 
-        createdRDD.count()
+        createdDataset.count()
 
-        val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
-        new Consequences(resultDataFrame, errorAccumulator)
+        createdDataset.explain()
+//        println("--------------------------------------------------------------------")
+        new Consequences(createdDataset, errorAccumulator)
     }
 }

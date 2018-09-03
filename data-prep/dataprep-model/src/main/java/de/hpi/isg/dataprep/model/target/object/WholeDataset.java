@@ -7,5 +7,5 @@ import de.hpi.isg.dataprep.model.target.Target;
  * @since 2018/9/2
  */
 public class WholeDataset extends OperatedObject {
-    
+
 }

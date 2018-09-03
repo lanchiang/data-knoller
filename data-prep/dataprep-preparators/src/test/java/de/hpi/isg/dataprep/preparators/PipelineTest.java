@@ -73,6 +73,8 @@ public class PipelineTest {
 
         pipeline.executePipeline();
 
+        pipeline.getRawData().explain();
+
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 
         ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,

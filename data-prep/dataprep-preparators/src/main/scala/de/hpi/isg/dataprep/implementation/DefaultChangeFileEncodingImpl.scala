@@ -4,7 +4,8 @@ import de.hpi.isg.dataprep.Consequences
 import de.hpi.isg.dataprep.SparkPreparators.spark
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.ChangeFileEncoding
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.Try
@@ -15,7 +16,7 @@ import scala.util.Try
   */
 class DefaultChangeFileEncodingImpl extends PreparatorImpl {
 
-    override def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
+    override def executePreparator(preparator: Preparator, dataFrame: DataFrame): Consequences = {
         val errorAccumulator = new CollectionAccumulator[(Any, Throwable)]
         dataFrame.sparkSession.sparkContext.register(errorAccumulator,
             "The error accumulator for preparator: Change file encoding.")
@@ -23,16 +24,16 @@ class DefaultChangeFileEncodingImpl extends PreparatorImpl {
         val preparator_ = preparator.asInstanceOf[ChangeFileEncoding]
         val targetFileEncoding_ = preparator_.targetEncoding
 
-        val createdRDD = dataFrame.rdd.filter(row => {
+        val rowEncoder = RowEncoder(dataFrame.schema)
+
+        val createdRDD = dataFrame.filter(row => {
             val tryConvert = Try{
 
             }
             true
         })
 
-        val resultDataFrame = spark.createDataFrame(createdRDD, dataFrame.schema)
-
-//        new Consequences(resultDataFrame, errorAccumulator)
-        new Consequences(resultDataFrame, null)
+//        new Consequences(createdRDD, errorAccumulator)
+        new Consequences(dataFrame, null)
     }
 }

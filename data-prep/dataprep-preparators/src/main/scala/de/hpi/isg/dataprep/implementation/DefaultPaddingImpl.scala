@@ -4,7 +4,8 @@ import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.Padding
 import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.{Failure, Success, Try}
@@ -17,18 +18,20 @@ import scala.util.{Failure, Success, Try}
 class DefaultPaddingImpl extends PreparatorImpl {
 
     @throws(classOf[Exception])
-    override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
+    override protected def executePreparator(preparator: Preparator, dataFrame: DataFrame): Consequences = {
         val preparator_ = this.getPreparatorInstance(preparator, classOf[Padding])
         val errorAccumulator = this.createErrorAccumulator(dataFrame)
         executeLogic(preparator_, dataFrame, errorAccumulator)
     }
 
-    private def executeLogic(preparator: Padding, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
+    private def executeLogic(preparator: Padding, dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val propertyName = preparator.propertyName
         val expectedLength = preparator.expectedLength
         val padder = preparator.padder
 
-        val createdRDD = dataFrame.rdd.flatMap(row => {
+        val rowEncoder = RowEncoder(dataFrame.schema)
+
+        val createdDataset = dataFrame.flatMap(row => {
             val indexTry = Try{
                 row.fieldIndex(propertyName)
             }
@@ -59,10 +62,10 @@ class DefaultPaddingImpl extends PreparatorImpl {
                 case Success(content) => tryConvert
             }
             convertOption.toOption
-        })
-        createdRDD.count()
+        })(rowEncoder)
 
-        val resultDataFrame = dataFrame.sparkSession.createDataFrame(createdRDD, dataFrame.schema)
-        new Consequences(resultDataFrame, errorAccumulator)
+        createdDataset.count()
+
+        new Consequences(createdDataset, errorAccumulator)
     }
 }
