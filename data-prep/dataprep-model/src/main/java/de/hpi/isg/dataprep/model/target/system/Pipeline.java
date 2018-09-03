@@ -4,11 +4,14 @@ import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import java.io.BufferedWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -86,8 +89,9 @@ public class Pipeline extends PipelineComponent {
             checkPipelineErrors();
         } catch (PipelineSyntaxErrorException e) {
             // write the errorlog to disc.
+            FlatFileWriter<ErrorLog> flatFileWriter = new FlatFileWriter<>(this.getErrorRepository().getErrorLogs());
+            flatFileWriter.write();
 
-            // do not use System.exit()
             throw e;
         }
 

@@ -42,7 +42,6 @@ abstract public class ErrorLog extends Target {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(errorType, errorMessage);
     }
 }

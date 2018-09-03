@@ -48,4 +48,15 @@ public class PipelineErrorLog extends ErrorLog {
     public int hashCode() {
         return Objects.hash(pipeline, current, previous);
     }
+
+    @Override
+    public String toString() {
+        return "PipelineErrorLog{" +
+                "pipeline=" + pipeline +
+                ", current=" + current +
+                ", previous=" + previous +
+                ", errorType='" + errorType + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                '}';
+    }
 }
