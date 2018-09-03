@@ -1,12 +1,10 @@
 package de.hpi.isg.dataprep.model.target.preparator;
 
 import de.hpi.isg.dataprep.Consequences;
-import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
-import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.model.target.Target;
@@ -14,7 +12,6 @@ import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.util.Executable;
-import de.hpi.isg.dataprep.util.MetadataEnum;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -122,21 +119,40 @@ abstract public class Preparator extends Target implements Executable {
     /**
      * After the execution of this preparator succeeds, call this method to record the provenance.
      */
-    protected void recordProvenance() {
+    private void recordProvenance() {
 
+    }
+
+    private void updateMetadataRepository() {
+        MetadataRepository metadataRepository = this.getPreparation().getPipeline().getMetadataRepository();
+        metadataRepository.updateMetadata(toChange);
+    }
+
+    private void updateDataset() {
+        this.getPreparation().getPipeline().setRawData(updatedDataset);
     }
 
     /**
-     * After the execution of this preparator finishes, update the dataset to its intermediate state.
+     * After the execution of this preparator finishes, call this method to post config the pipeline.
+     * For example, update the dataset, update the metadata repository.
      */
-    protected void updateDataset() {
-        this.getPreparation().getPipeline().setRawData(this.getUpdatedDataset());
+    private void postConfig() {
+        recordProvenance();
+        updateMetadataRepository();
+        updateDataset();
     }
 
+    /**
+     * The template of executing a preparator.
+     *
+     * @throws Exception
+     */
     @Override
     public void execute() throws Exception {
-        checkMetadata();
-
+        // only check the metadata for the preparations except for the first one.
+        if (this.getPreparation().getPosition() > 0) {
+            checkMetadata();
+        }
         if (!invalid.isEmpty()) {
             throw new PreparationHasErrorException("Metadata prerequisite not met.");
         }
@@ -146,8 +162,7 @@ abstract public class Preparator extends Target implements Executable {
         } catch (PreparationHasErrorException e) {
             recordErrorLog();
         }
-        recordProvenance();
-        updateDataset();
+        postConfig();
     }
 
     public Preparation getPreparation() {

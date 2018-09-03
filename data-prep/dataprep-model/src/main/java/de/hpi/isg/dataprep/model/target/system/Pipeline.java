@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
+import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -25,6 +26,8 @@ public class Pipeline extends PipelineComponent {
 
     private List<Preparation> preparations;
 
+    private int index = 0;
+
     /**
      * The raw data contains a set of {@link Row} instances. Each instance represent a line in a tabular data without schema definition,
      * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
@@ -43,8 +46,9 @@ public class Pipeline extends PipelineComponent {
         this.rawData = dataset;
     }
 
-    public void addPreparation(Preparation preparation) throws Exception {
+    public void addPreparation(Preparation preparation) {
         preparation.setPipeline(this);
+        preparation.setPosition(index++);
 
         // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
         preparation.getPreparator().buildMetadataSetup();
@@ -60,6 +64,9 @@ public class Pipeline extends PipelineComponent {
      */
     private void checkPipelineErrors() throws PipelineSyntaxErrorException {
         MetadataRepository metadataRepository = this.metadataRepository;
+
+        // the first preparator should not produce pipeline syntax error. Therefore, do not check the prerequisite for it.
+        // Only add the toChange list to metadata repository.
         preparations.stream().forEachOrdered(preparation -> preparation.checkPipelineErrorWithPrevious(metadataRepository));
 
         long numberOfPipelineError = errorRepository.getErrorLogs().stream()
@@ -85,7 +92,6 @@ public class Pipeline extends PipelineComponent {
         }
 
         // here optimize the pipeline.
-
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();
         }

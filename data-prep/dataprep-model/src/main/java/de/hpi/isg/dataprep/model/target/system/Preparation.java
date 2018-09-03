@@ -21,6 +21,8 @@ public class Preparation extends PipelineComponent {
     private Preparator preparator;
     private Consequences consequences;
 
+    private int position; // the position of this preparation in the pipeline
+
     private Pipeline pipeline;
 
     public Preparation(Preparator preparator) {
@@ -35,13 +37,15 @@ public class Preparation extends PipelineComponent {
      * @return true if there is at least one pipeline-level error.
      */
     public final void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
-        // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
-        for (Metadata metadata : preparator.getPrerequisite()) {
-            try {
-                metadata.checkMetadata(metadataRepository);
-            } catch (RuntimeMetadataException e) {
-                // if the check fails... push a pipeline syntax error exception to a set.
-                this.getPipeline().getErrorRepository().addErrorLog(new PipelineErrorLog(this.getPipeline(), e));
+        if (position != 0) {
+            // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
+            for (Metadata metadata : preparator.getPrerequisite()) {
+                try {
+                    metadata.checkMetadata(metadataRepository);
+                } catch (RuntimeMetadataException e) {
+                    // if the check fails... push a pipeline syntax error exception to a set.
+                    this.getPipeline().getErrorRepository().addErrorLog(new PipelineErrorLog(this.getPipeline(), e));
+                }
             }
         }
         List<Metadata> toChangeMetadata = preparator.getToChange();
@@ -62,6 +66,14 @@ public class Preparation extends PipelineComponent {
 
     public Preparator getPreparator() {
         return preparator;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public void setConsequences(Consequences consequences) {
