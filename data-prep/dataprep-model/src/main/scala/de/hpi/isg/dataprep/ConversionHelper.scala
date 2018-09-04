@@ -1,10 +1,11 @@
 package de.hpi.isg.dataprep
 
+import java.security.MessageDigest
 import java.text.{ParseException, SimpleDateFormat}
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import de.hpi.isg.dataprep.util.RemoveCharactersMode
+import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
 
 import scala.util.{Failure, Success, Try}
 
@@ -108,5 +109,17 @@ object ConversionHelper extends Serializable {
             }
         }
         changed
+    }
+
+    def hash(value: String, hashAlgorithm: HashAlgorithm) : String = {
+        val bytes = hashAlgorithm match {
+            case HashAlgorithm.MD5 => {
+                MessageDigest.getInstance("MD5").digest(value.getBytes)
+            }
+            case HashAlgorithm.SHA => {
+                MessageDigest.getInstance("SHA").digest(value.getBytes)
+            }
+        }
+        bytes.map("%02x".format(_)).mkString
     }
 }
