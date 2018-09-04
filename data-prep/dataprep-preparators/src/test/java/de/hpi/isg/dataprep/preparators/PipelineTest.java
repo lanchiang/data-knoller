@@ -122,7 +122,7 @@ public class PipelineTest {
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 
-        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
+        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline, preparation3,
                 new MetadataNotMatchException(String.format("Metadata value does not match that in the repository.")));
 
         trueErrorlogs.add(pipelineError1);

@@ -21,11 +21,11 @@ import java.util.List;
  */
 public class Pipeline extends PipelineComponent {
 
+    private String name = "Default pipeline";
+
     private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
-
-//    private List<PipelineErrorLog> pipelineErrors;
 
     private List<Preparation> preparations;
 
@@ -47,6 +47,11 @@ public class Pipeline extends PipelineComponent {
     public Pipeline(Dataset<Row> dataset) {
         this();
         this.rawData = dataset;
+    }
+
+    public Pipeline(String name, Dataset<Row> dataset) {
+        this(dataset);
+        this.name = name;
     }
 
     public void addPreparation(Preparation preparation) {
@@ -91,7 +96,6 @@ public class Pipeline extends PipelineComponent {
             // write the errorlog to disc.
             FlatFileWriter<ErrorLog> flatFileWriter = new FlatFileWriter<>(this.getErrorRepository().getErrorLogs());
             flatFileWriter.write();
-
             throw e;
         }
 
@@ -99,6 +103,10 @@ public class Pipeline extends PipelineComponent {
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();
         }
+    }
+
+    public List<Preparation> getPreparations() {
+        return preparations;
     }
 
     public ErrorRepository getErrorRepository() {
@@ -119,5 +127,17 @@ public class Pipeline extends PipelineComponent {
 
     public void setRawData(Dataset<Row> rawData) {
         this.rawData = rawData;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Pipeline{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

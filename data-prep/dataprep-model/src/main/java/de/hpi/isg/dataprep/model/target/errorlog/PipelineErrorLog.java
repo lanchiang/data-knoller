@@ -19,19 +19,14 @@ public class PipelineErrorLog extends ErrorLog {
     public PipelineErrorLog(Pipeline pipeline, Throwable throwable) {
         super(throwable);
         this.pipeline = pipeline;
-        this.error = throwable;
     }
 
-    public PipelineErrorLog(Pipeline pipeline, Preparation current, Throwable throwable) {
+    public PipelineErrorLog(Pipeline pipeline, Preparation preparation, Throwable throwable) {
         this(pipeline, throwable);
-        this.current = current;
-    }
 
-    public PipelineErrorLog(Pipeline pipeline, Preparation current, Preparation previous, Throwable error) {
-        this(pipeline, current, error);
-        this.pipeline = pipeline;
-        this.current = current;
-        this.previous = previous;
+        current = preparation;
+        int previousIndex = current.getPosition() - 1;
+        previous = (previousIndex == -1) ? null : pipeline.getPreparations().stream().filter(prep -> prep.getPosition() == previousIndex).findFirst().get();
     }
 
     @Override

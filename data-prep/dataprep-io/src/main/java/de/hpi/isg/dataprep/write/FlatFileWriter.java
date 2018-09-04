@@ -1,7 +1,6 @@
 package de.hpi.isg.dataprep.write;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
@@ -17,6 +16,8 @@ public class FlatFileWriter<T> extends AbstractWriter<T> {
     private String path = System.getProperty("user.dir") + separator + "pipelineError.txt";
 
     private Collection<T> content;
+
+
 
     public FlatFileWriter(Collection<T> content) {
         this.content = content;

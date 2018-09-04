@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class Preparation extends PipelineComponent {
 
+    private String name;
+
     private Preparator preparator;
     private Consequences consequences;
 
@@ -28,6 +30,8 @@ public class Preparation extends PipelineComponent {
     public Preparation(Preparator preparator) {
         this.preparator = preparator;
         this.preparator.setPreparation(this);
+
+        this.name = this.preparator.getClass().getSimpleName();
     }
 
     /**
@@ -44,7 +48,7 @@ public class Preparation extends PipelineComponent {
                     metadata.checkMetadata(metadataRepository);
                 } catch (RuntimeMetadataException e) {
                     // if the check fails... push a pipeline syntax error exception to a set.
-                    this.getPipeline().getErrorRepository().addErrorLog(new PipelineErrorLog(this.getPipeline(), e));
+                    this.getPipeline().getErrorRepository().addErrorLog(new PipelineErrorLog(this.getPipeline(), this, e));
                 }
             }
         }
@@ -82,5 +86,19 @@ public class Preparation extends PipelineComponent {
 
     public Consequences getConsequences() {
         return consequences;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Preparation{" +
+                "name='" + name + '\'' +
+                ", position=" + position +
+                ", pipeline=" + pipeline +
+                '}';
     }
 }

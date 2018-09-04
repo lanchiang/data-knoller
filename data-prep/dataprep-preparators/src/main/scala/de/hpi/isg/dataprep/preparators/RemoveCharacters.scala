@@ -16,11 +16,11 @@ import de.hpi.isg.dataprep.util.{DataType, RemoveCharactersMode}
   * @since 2018/8/31
   */
 class RemoveCharacters(val propertyName : String,
-                       val userSpecifiedCharacters : String,
-                       val mode : RemoveCharactersMode) extends Preparator{
+                       val mode : RemoveCharactersMode,
+                       val userSpecifiedCharacters : String) extends Preparator{
 
     def this(propertyName : String, mode : RemoveCharactersMode) {
-        this(propertyName, "" , mode)
+        this(propertyName, mode, "")
     }
 
     this.impl = new DefaultRemoveCharactersImpl

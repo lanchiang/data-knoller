@@ -4,6 +4,7 @@ import java.text.{ParseException, SimpleDateFormat}
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import de.hpi.isg.dataprep.util.RemoveCharactersMode
 
 import scala.util.{Failure, Success, Try}
 
@@ -92,5 +93,20 @@ object ConversionHelper extends Serializable {
             }
         }
         processed
+    }
+
+    def removeCharacters(value: String, mode: RemoveCharactersMode, custom: String) : String = {
+        val changed = mode match {
+            case RemoveCharactersMode.NUMERIC => {
+                value.replaceAll("[0-9]+", "")
+            }
+            case RemoveCharactersMode.NONALPHANUMERIC => {
+                value.replaceAll("([^0-9a-zA-Z])+", "")
+            }
+            case RemoveCharactersMode.CUSTOM => {
+                value.replaceAll(custom, "")
+            }
+        }
+        changed
     }
 }

@@ -1,11 +1,15 @@
 package de.hpi.isg.dataprep.implementation
 
-import de.hpi.isg.dataprep.Consequences
-import de.hpi.isg.dataprep.model.error.PreparationError
+import de.hpi.isg.dataprep.{Consequences, ConversionHelper}
+import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
 import de.hpi.isg.dataprep.preparators.RemoveCharacters
-import org.apache.spark.sql.{Dataset, Row}
+import de.hpi.isg.dataprep.util.RemoveCharactersMode
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
+
+import scala.util.{Failure, Success, Try}
 
 /**
   *
@@ -21,17 +25,41 @@ class DefaultRemoveCharactersImpl extends PreparatorImpl {
         executeLogic(preparator_, dataFrame, errorAccumulator)
     }
 
-    private def executeLogic(preparator: RemoveCharacters, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
+    private def executeLogic(preparator: RemoveCharacters, dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError]): Consequences = {
         val propertyName = preparator.propertyName
         val removeCharactersMode = preparator.mode
         val userSpecifiedCharacters = preparator.userSpecifiedCharacters
 
-        val createdRDD = dataFrame.rdd.flatMap(row => {
-            
+        val rowEncoder = RowEncoder(dataFrame.schema)
 
-            None
-        })
+        val createdDataset = dataFrame.flatMap(row => {
+            val indexTry = Try{row.fieldIndex(propertyName)}
+            val index = indexTry match {
+                case Failure(content) => throw content
+                case Success(content) => content
+            }
+            val operatedValue = row.getAs[String](index)
 
-        new Consequences(null, null)
+            val seq = row.toSeq
+            val forepart = seq.take(index)
+            val backpart = seq.takeRight(row.length-index-1)
+
+            val tryConvert = Try{
+                val newSeq = (forepart :+ ConversionHelper.removeCharacters(operatedValue, removeCharactersMode, userSpecifiedCharacters)) ++ backpart
+                val newRow = Row.fromSeq(newSeq)
+                newRow
+            }
+
+            val trial = tryConvert match {
+                case Failure(content) => {
+                    errorAccumulator.add(new RecordError(operatedValue, content))
+                    tryConvert
+                }
+                case Success(content) => tryConvert
+            }
+            trial.toOption
+        })(rowEncoder)
+
+        new Consequences(createdDataset, errorAccumulator)
     }
 }
