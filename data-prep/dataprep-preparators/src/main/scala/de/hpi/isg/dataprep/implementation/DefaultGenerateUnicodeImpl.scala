@@ -1,35 +1,31 @@
 package de.hpi.isg.dataprep.implementation
 
 import de.hpi.isg.dataprep.model.error.RecordError
-import de.hpi.isg.dataprep.{Consequences, ConversionHelper, DatasetUtil}
+import de.hpi.isg.dataprep.{Consequences, DatasetUtil}
 import de.hpi.isg.dataprep.model.target.preparator.{Preparator, PreparatorImpl}
-import de.hpi.isg.dataprep.preparators.Hash
-import org.apache.avro.generic.GenericData.StringType
+import de.hpi.isg.dataprep.preparators.GenerateUnicode
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.functions.lit
 
 import scala.util.{Failure, Success, Try}
-import org.apache.spark.sql.functions.lit
 
 /**
   *
   * @author Lan Jiang
   * @since 2018/9/4
   */
-class DefaultHashImpl extends PreparatorImpl {
+class DefaultGenerateUnicodeImpl extends PreparatorImpl {
 
-    @throws(classOf[Exception])
     override protected def executePreparator(preparator: Preparator, dataFrame: Dataset[Row]): Consequences = {
-        val preparator_ = this.getPreparatorInstance(preparator, classOf[Hash])
-        val errorAccumulator = this.createErrorAccumulator(dataFrame)
+        val preparator_ = getPreparatorInstance(preparator, classOf[GenerateUnicode])
+        val errorAccumulator = createErrorAccumulator(dataFrame)
 
         val propertyName = preparator_.propertyName
-        val hashAlgorithm = preparator_.hashAlgorithm
 
         val dataType = dataFrame.schema(propertyName).dataType
 
-        val intermediate = dataFrame.withColumn(propertyName+"_"+hashAlgorithm.toString, lit(""))
-
+        val intermediate = dataFrame.withColumn(propertyName+"_unicode", lit(""))
         val rowEncoder = RowEncoder(intermediate.schema)
 
         val createdDataset = intermediate.flatMap(row => {
@@ -40,7 +36,7 @@ class DefaultHashImpl extends PreparatorImpl {
             val forepart = seq.take(row.length-1)
 
             val tryConvert = Try{
-                val newSeq = forepart :+ ConversionHelper.hash(operatedValue.toString, hashAlgorithm)
+                val newSeq = forepart :+ None
                 val newRow = Row.fromSeq(newSeq)
                 newRow
             }
@@ -54,10 +50,9 @@ class DefaultHashImpl extends PreparatorImpl {
             }
 
             convertOption.toOption
-        })(rowEncoder)
+        })
 
         createdDataset.persist()
-
         createdDataset.count()
 
         new Consequences(createdDataset, errorAccumulator)
