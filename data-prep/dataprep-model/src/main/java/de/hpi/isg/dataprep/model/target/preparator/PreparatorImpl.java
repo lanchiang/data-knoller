@@ -33,7 +33,7 @@ abstract public class PreparatorImpl {
         Consequences consequences = executePreparator(preparator, dataset);
 
         preparator.getPreparation().setConsequences(consequences);
-        preparator.setUpdatedDataset(consequences.newDataFrame_());
+        preparator.setUpdatedDataset(consequences.newDataFrame());
 
         if (consequences.hasError()) {
             throw new PreparationHasErrorException("This preparation causes errors for some records.");

@@ -102,6 +102,8 @@ public class Pipeline extends PipelineComponent {
         // here optimize the pipeline.
         for (Preparation preparation : preparations) {
             preparation.getPreparator().execute();
+
+            System.out.println("-------------------------------------------------------------------------");
         }
     }
 

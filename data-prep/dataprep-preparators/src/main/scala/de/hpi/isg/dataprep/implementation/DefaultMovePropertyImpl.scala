@@ -46,6 +46,10 @@ class DefaultMovePropertyImpl extends PreparatorImpl {
 
         val resultDataFrame = dataFrame.select(columns: _*)
 
+        resultDataFrame.persist()
+
+        resultDataFrame.show()
+
         new Consequences(resultDataFrame, errorAccumulator)
     }
 }

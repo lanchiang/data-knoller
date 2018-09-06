@@ -60,7 +60,7 @@ abstract public class Preparator extends Target implements Executable {
     protected void recordErrorLog() {
         Consequences consequences = this.getPreparation().getConsequences();
 
-        List<ErrorLog> errorLogs = consequences.errorsAccumulator_().value().stream()
+        List<ErrorLog> errorLogs = consequences.errorsAccumulator().value().stream()
                 .map(error -> {
                     ErrorLog errorLog = null;
                     switch (error.getErrorLevel()) {
@@ -111,9 +111,15 @@ abstract public class Preparator extends Target implements Executable {
          */
         MetadataRepository metadataRepository = this.getPreparation().getPipeline().getMetadataRepository();
 
+        // but if not match invalid.
+        prerequisite.stream()
+                .filter(metadata -> metadataRepository.getMetadataByTargetNameString(metadata.getTargetName())) // repository contains such a metadata
+                .filter(metadata -> !metadataRepository.getMetadataPool().contains(metadata)) // but values are not equivalent
+                .forEach(metadata -> invalid.add(metadata));
+        // not found, add.
         prerequisite.stream()
                 .filter(metadata -> !metadataRepository.getMetadataPool().contains(metadata))
-                .forEach(metadata -> invalid.add(metadata));
+                .forEach(metadata -> this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(metadata));
     }
 
     /**

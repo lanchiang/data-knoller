@@ -1,6 +1,9 @@
 package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.exceptions.DuplicateMetadataException;
+import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
+import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
@@ -46,8 +49,11 @@ public class Preparation extends PipelineComponent {
             for (Metadata metadata : preparator.getPrerequisite()) {
                 try {
                     metadata.checkMetadata(metadataRepository);
-                } catch (RuntimeMetadataException e) {
-                    // if the check fails... push a pipeline syntax error exception to a set.
+                } catch (MetadataNotFoundException e) {
+                    // if metadata not found, add it into the metadata repository.
+                    this.getPipeline().getMetadataRepository().updateMetadata(metadata);
+                } catch (DuplicateMetadataException | MetadataNotMatchException e) {
+                    // if is other Metadata runtime exceptions... push a pipeline syntax error exception to a set.
                     this.getPipeline().getErrorRepository().addErrorLog(new PipelineErrorLog(this.getPipeline(), this, e));
                 }
             }

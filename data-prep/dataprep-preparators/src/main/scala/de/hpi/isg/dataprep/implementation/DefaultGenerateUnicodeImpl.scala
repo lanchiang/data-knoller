@@ -50,7 +50,7 @@ class DefaultGenerateUnicodeImpl extends PreparatorImpl {
             }
 
             convertOption.toOption
-        })
+        })(rowEncoder)
 
         createdDataset.persist()
         createdDataset.count()

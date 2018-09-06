@@ -9,12 +9,10 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2018/8/7
   */
-class Consequences(newDataFrame: DataFrame, errorsAccumulator: CollectionAccumulator[_ <: PreparationError]) {
-
-    var errorsAccumulator_ = errorsAccumulator
-    var newDataFrame_ = newDataFrame
+class Consequences(val newDataFrame: DataFrame,
+                   val errorsAccumulator: CollectionAccumulator[_ <: PreparationError]) {
 
     def hasError(): Boolean = {
-        return !errorsAccumulator_.isZero
+        return !errorsAccumulator.isZero
     }
 }
