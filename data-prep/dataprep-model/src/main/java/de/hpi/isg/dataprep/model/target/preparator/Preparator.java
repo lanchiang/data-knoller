@@ -9,7 +9,7 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
@@ -30,7 +30,7 @@ abstract public class Preparator extends Target implements Executable {
     protected List<Metadata> prerequisite; // the prerequisite metadata needed for check before executing the preparator
     protected List<Metadata> toChange; // the metadata that will be changed after executing the preparator
 
-    private Preparation preparation;
+    private AbstractPreparation preparation;
 
     protected List<Metadata> invalid;
 
@@ -168,11 +168,11 @@ abstract public class Preparator extends Target implements Executable {
         postConfig();
     }
 
-    public Preparation getPreparation() {
+    public AbstractPreparation getPreparation() {
         return preparation;
     }
 
-    public void setPreparation(Preparation preparation) {
+    public void setPreparation(AbstractPreparation preparation) {
         this.preparation = preparation;
     }
 

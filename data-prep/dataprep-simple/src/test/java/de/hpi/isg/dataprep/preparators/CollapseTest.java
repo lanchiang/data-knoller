@@ -1,11 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class CollapseTest extends PreparatorTest {
     public void testCollapse() throws Exception {
         Preparator preparator = new Collapse("identifier");
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

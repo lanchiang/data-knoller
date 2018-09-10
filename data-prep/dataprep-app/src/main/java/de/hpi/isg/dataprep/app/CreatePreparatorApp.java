@@ -1,7 +1,5 @@
 package de.hpi.isg.dataprep.app;
 
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.preparators.ChangeFileEncoding;
 import org.apache.spark.sql.Dataset;
@@ -16,9 +14,9 @@ public class CreatePreparatorApp {
     private static Dataset<Row> rawData = null;
 
     public static void main(String[] args) throws Exception {
-        Pipeline pipeline = new Pipeline(rawData);
+        PipelineOld pipeline = new PipelineOld(rawData);
         Preparator preparator = new ChangeFileEncoding("UTF-8");
-        Preparation preparation = new Preparation(preparator);
+        PreparationOld preparation = new PreparationOld(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
     }

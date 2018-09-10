@@ -1,12 +1,13 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.components.Pipeline;
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -29,31 +30,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/20
  */
-public class AddPropertyTest {
-
-    private static Dataset<Row> dataset;
-    private static Pipeline pipeline;
-
-    @BeforeClass
-    public static void setUp() {
-        Logger.getLogger("org").setLevel(Level.OFF);
-        Logger.getLogger("akka").setLevel(Level.OFF);
-
-        dataset = SparkSession.builder()
-                .appName("Rename property unit tests.")
-                .master("local")
-                .getOrCreate()
-                .read()
-                .option("header", "true")
-                .option("inferSchema", "true")
-                .csv("./src/test/resources/pokemon.csv");
-        pipeline = new Pipeline(dataset);
-    }
-
-    @Before
-    public void cleanUpPipeline() throws Exception {
-        pipeline = new Pipeline(dataset);
-    }
+public class AddPropertyTest extends PreparatorTest {
 
     @Test
     public void testAddIntegerColumn() throws Exception {
@@ -79,7 +56,7 @@ public class AddPropertyTest {
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("classic", DataTypes.IntegerType, false, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
@@ -113,7 +90,7 @@ public class AddPropertyTest {
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
@@ -146,7 +123,7 @@ public class AddPropertyTest {
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("name", DataTypes.StringType, false, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
@@ -181,7 +158,7 @@ public class AddPropertyTest {
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("ship", DataTypes.DateType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
@@ -217,7 +194,7 @@ public class AddPropertyTest {
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),

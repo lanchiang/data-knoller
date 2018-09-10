@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.model.target.errorlog;
 
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
 import java.util.Objects;
 
@@ -11,17 +11,17 @@ import java.util.Objects;
  */
 public class PipelineErrorLog extends ErrorLog {
 
-    private Pipeline pipeline;
+    private AbstractPipeline pipeline;
 
-    private Preparation current;
-    private Preparation previous;
+    private AbstractPreparation current;
+    private AbstractPreparation previous;
 
-    public PipelineErrorLog(Pipeline pipeline, Throwable throwable) {
+    public PipelineErrorLog(AbstractPipeline pipeline, Throwable throwable) {
         super(throwable);
         this.pipeline = pipeline;
     }
 
-    public PipelineErrorLog(Pipeline pipeline, Preparation preparation, Throwable throwable) {
+    public PipelineErrorLog(AbstractPipeline pipeline, AbstractPreparation preparation, Throwable throwable) {
         this(pipeline, throwable);
 
         current = preparation;

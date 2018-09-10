@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.model.target;
 
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
 /**
  * @author Lan Jiang
@@ -9,7 +9,7 @@ import de.hpi.isg.dataprep.model.target.system.Preparation;
  */
 public class Provenance extends Target {
 
-    private Preparation preparation;
+    private AbstractPreparation preparation;
     private Preparator preparator;
     private String createdTime;
     private String messages;

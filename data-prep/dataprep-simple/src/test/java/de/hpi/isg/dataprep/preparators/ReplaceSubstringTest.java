@@ -1,11 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
     public void testReplaceAllNormalString() throws Exception {
         Preparator preparator = new ReplaceSubstring("identifier", "cha", "CT");
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -45,7 +46,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
     public void testReplaceFirstSomeNormalString() throws Exception {
         Preparator preparator = new ReplaceSubstring("identifier", "b", "mam", 1);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -67,7 +68,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
     public void testReplaceAllWithRegex() throws Exception {
         Preparator preparator = new ReplaceSubstring("identifier", "(\\s+)([a-z]+)(\\s+)", "REP");
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -93,7 +94,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
 //        ((ReplaceSubstring) preparator).setReplacement("REP");
 //        ((ReplaceSubstring) preparator).setFirstSome(-1);
 //
-//        Preparation preparation = new Preparation(preparator);
+//        PreparationOld preparation = new PreparationOld(preparator);
 //        pipeline.addPreparation(preparation);
 //        pipeline.executePipeline();
 //

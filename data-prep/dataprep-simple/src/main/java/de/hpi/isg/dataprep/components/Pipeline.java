@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.model.target.system;
+package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
@@ -6,20 +6,21 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.util.context.DataContext;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-import java.io.BufferedWriter;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Lan Jiang
- * @since 2018/6/4
+ * @since 2018/9/10
  */
-public class Pipeline extends PipelineComponent {
+public class Pipeline implements AbstractPipeline {
 
     private String name = "Default pipeline";
 
@@ -27,7 +28,7 @@ public class Pipeline extends PipelineComponent {
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
 
-    private List<Preparation> preparations;
+    private List<AbstractPreparation> preparations;
 
     private int index = 0;
 
@@ -36,25 +37,27 @@ public class Pipeline extends PipelineComponent {
      * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
      */
     private Dataset<Row> rawData;
+    private DataContext dataContext;
 
-    private Pipeline() {
+    public Pipeline() {
         this.metadataRepository = new MetadataRepository();
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
         this.preparations = new LinkedList<>();
     }
 
-    public Pipeline(Dataset<Row> dataset) {
+    public Pipeline(Dataset<Row> rawData) {
         this();
-        this.rawData = dataset;
+        this.rawData = rawData;
     }
 
-    public Pipeline(String name, Dataset<Row> dataset) {
-        this(dataset);
+    public Pipeline(String name, Dataset<Row> rawData) {
+        this(rawData);
         this.name = name;
     }
 
-    public void addPreparation(Preparation preparation) {
+    @Override
+    public void addPreparation(AbstractPreparation preparation) {
         preparation.setPipeline(this);
         preparation.setPosition(index++);
 
@@ -64,13 +67,8 @@ public class Pipeline extends PipelineComponent {
         this.preparations.add(preparation);
     }
 
-    /**
-     * Check whether there are pipeline syntax errors during compilation before starting to execute the pipeline.
-     * If there is at least one error, return by throwing a {@link PipelineSyntaxErrorException}, otherwise clear the metadata repository.
-     *
-     * @throws PipelineSyntaxErrorException
-     */
-    private void checkPipelineErrors() throws PipelineSyntaxErrorException {
+    @Override
+    public void checkPipelineErrors() throws PipelineSyntaxErrorException {
         MetadataRepository metadataRepository = this.metadataRepository;
 
         // the first preparator should not produce pipeline syntax error. Therefore, do not check the prerequisite for it.
@@ -89,6 +87,7 @@ public class Pipeline extends PipelineComponent {
         metadataRepository.getMetadataPool().clear();
     }
 
+    @Override
     public void executePipeline() throws Exception {
         try {
             checkPipelineErrors();
@@ -100,31 +99,37 @@ public class Pipeline extends PipelineComponent {
         }
 
         // here optimize the pipeline.
-        for (Preparation preparation : preparations) {
+        for (AbstractPreparation preparation : preparations) {
             preparation.getPreparator().execute();
         }
     }
 
-    public List<Preparation> getPreparations() {
+    @Override
+    public List<AbstractPreparation> getPreparations() {
         return preparations;
     }
 
+    @Override
     public ErrorRepository getErrorRepository() {
         return errorRepository;
     }
 
+    @Override
     public MetadataRepository getMetadataRepository() {
         return metadataRepository;
     }
 
+    @Override
     public ProvenanceRepository getProvenanceRepository() {
         return provenanceRepository;
     }
 
+    @Override
     public Dataset<Row> getRawData() {
         return rawData;
     }
 
+    @Override
     public void setRawData(Dataset<Row> rawData) {
         this.rawData = rawData;
     }

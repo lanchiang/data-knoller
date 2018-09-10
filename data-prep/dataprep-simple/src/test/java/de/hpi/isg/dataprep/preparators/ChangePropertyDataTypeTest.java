@@ -1,12 +1,13 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.DatePattern;
 import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
@@ -26,7 +27,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
     public void testChangeToStringErrorLog() throws Exception {
         Preparator preparator = new ChangeDataType("identifier", DataType.PropertyType.STRING);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -41,7 +42,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
     public void testChangeToIntegerErrorLog() throws Exception {
         Preparator preparator = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -72,7 +73,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
     public void testChangeToDoubleErrorLog() throws Exception {
         Preparator preparator = new ChangeDataType("id", DataType.PropertyType.DOUBLE);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -96,7 +97,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         Preparator preparator = new ChangeDataType("date", DataType.PropertyType.DATE,
                 DatePattern.DatePatternEnum.YearMonthDay, DatePattern.DatePatternEnum.MonthDayYear);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
+import de.hpi.isg.dataprep.components.Pipeline;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -16,7 +17,7 @@ import org.junit.BeforeClass;
 public class PreparatorTest {
 
     protected static Dataset<Row> dataset;
-    protected static Pipeline pipeline;
+    protected static AbstractPipeline pipeline;
 
     @BeforeClass
     public static void setUp() {

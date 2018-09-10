@@ -1,86 +1,47 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
-import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
-import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
-import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
+import de.hpi.isg.dataprep.components.Pipeline;
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.util.DataType;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.Metadata;
-import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Lan Jiang
  * @since 2018/6/4
  */
-public class PipelineTest {
-
-    private static Dataset<Row> dataset;
-    private static Pipeline pipeline;
-
-    @BeforeClass
-    public static void setUp() {
-        Logger.getLogger("org").setLevel(Level.OFF);
-        Logger.getLogger("akka").setLevel(Level.OFF);
-
-        dataset = SparkSession.builder()
-                .appName("Pipeline unit tests.")
-                .master("local")
-                .getOrCreate()
-                .read()
-                .option("header", "true")
-                .option("sep", "\t")
-                .option("inferSchema", "true")
-                .csv("./src/test/resources/restaurants.tsv");
-
-        pipeline = new Pipeline(dataset);
-    }
-
-    @Before
-    public void cleanUpPipeline() {
-        pipeline = new Pipeline(dataset);
-    }
+public class PipelineTest extends PreparatorTest {
 
     @Test
     public void testPipelineOnRestaurants() throws Exception {
         pipeline.getRawData().show();
 
         Preparator prep1 = new ReplaceSubstring("phone", "/", "-");
-        Preparation preparation1 = new Preparation(prep1);
+        AbstractPreparation preparation1 = new Preparation(prep1);
         pipeline.addPreparation(preparation1);
 
         Preparator prep2 = new ReplaceSubstring("type", "[(\\s[0-9]+/[0-9]+-[0-9]+\\s)]", "");
-        Preparation preparation2 = new Preparation(prep2);
+        AbstractPreparation preparation2 = new Preparation(prep2);
         pipeline.addPreparation(preparation2);
 
         Preparator prep3 = new MoveProperty("id", 0);
-        Preparation preparation3 = new Preparation(prep3);
+        AbstractPreparation preparation3 = new Preparation(prep3);
         pipeline.addPreparation(preparation3);
 
         Preparator prep4 = new MoveProperty("type", 1);
-        Preparation preparation4 = new Preparation(prep4);
+        AbstractPreparation preparation4 = new Preparation(prep4);
         pipeline.addPreparation(preparation4);
 
         Preparator prep5 = new DeleteProperty("merged_values");
-        Preparation preparation5 = new Preparation(prep5);
+        AbstractPreparation preparation5 = new Preparation(prep5);
         pipeline.addPreparation(preparation5);
 
         pipeline.executePipeline();
@@ -94,11 +55,11 @@ public class PipelineTest {
         pipeline.getRawData().printSchema();
 
         Preparator prep1 = new ReplaceSubstring("identifier", "[(\\s)+]", "");
-        Preparation preparation1 = new Preparation(prep1);
+        AbstractPreparation preparation1 = new Preparation(prep1);
         pipeline.addPreparation(preparation1);
 
         Preparator prep2 = new ReplaceSubstring("id", "three", "3");
-        Preparation preparation2 = new Preparation(prep2);
+        AbstractPreparation preparation2 = new Preparation(prep2);
         pipeline.addPreparation(preparation2);
 
         pipeline.executePipeline();
@@ -109,11 +70,11 @@ public class PipelineTest {
     //    @Test
 //    public void testShortPipeline() throws Exception {
 //        Preparator preparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
-//        Preparation preparation1 = new Preparation(preparator1);
+//        PreparationOld preparation1 = new PreparationOld(preparator1);
 //        pipeline.addPreparation(preparation1);
 //
 //        Preparator preparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
-//        Preparation preparation2 = new Preparation(preparator2);
+//        PreparationOld preparation2 = new PreparationOld(preparator2);
 //        pipeline.addPreparation(preparation2);
 //
 //        pipeline.executePipeline();
@@ -156,15 +117,15 @@ public class PipelineTest {
 //    @Test
 //    public void testShortPipelineWithMetadataNotMatch() throws Exception {
 //        Preparator preparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
-//        Preparation preparation1 = new Preparation(preparator1);
+//        PreparationOld preparation1 = new PreparationOld(preparator1);
 //        pipeline.addPreparation(preparation1);
 //
 //        Preparator preparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
-//        Preparation preparation2 = new Preparation(preparator2);
+//        PreparationOld preparation2 = new PreparationOld(preparator2);
 //        pipeline.addPreparation(preparation2);
 //
 //        Preparator preparator3 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
-//        Preparation preparation3 = new Preparation(preparator3);
+//        PreparationOld preparation3 = new PreparationOld(preparator3);
 //        pipeline.addPreparation(preparation3);
 //
 //        pipeline.executePipeline();

@@ -1,9 +1,10 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.RemoveCharactersMode;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class RemoveCharactersTest extends PreparatorTest {
     public void testRemoveNumeric() throws Exception {
         Preparator preparator = new RemoveCharacters("id", RemoveCharactersMode.NUMERIC);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -37,7 +38,7 @@ public class RemoveCharactersTest extends PreparatorTest {
     public void testRemoveNonAlphanumeric() throws Exception {
         Preparator preparator = new RemoveCharacters("base_experience", RemoveCharactersMode.NONALPHANUMERIC);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -53,7 +54,7 @@ public class RemoveCharactersTest extends PreparatorTest {
     public void testRemoveCustom() throws Exception {
         Preparator preparator = new RemoveCharacters("id", RemoveCharactersMode.CUSTOM, "ee");
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.target.errorlog;
 
-import de.hpi.isg.dataprep.model.target.system.Preparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
 import java.util.Objects;
 
@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public class PreparationErrorLog extends ErrorLog {
 
-    private Preparation preparation;
+    private AbstractPreparation preparation;
 
     /**
      * The value that causes this error.
@@ -22,7 +22,7 @@ public class PreparationErrorLog extends ErrorLog {
         this.value = value;
     }
 
-    public PreparationErrorLog(Preparation preparation, String value, Throwable errorType) {
+    public PreparationErrorLog(AbstractPreparation preparation, String value, Throwable errorType) {
         this(value, errorType);
         this.preparation = preparation;
     }

@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.model.target.object;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.Target;
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
 import de.hpi.isg.dataprep.util.Nameable;
 
 import java.io.Serializable;
@@ -21,7 +20,7 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     /**
      * Check whether the value of this metadata reconciles with that in the metadata repository.
      *
-     * @param metadataRepository represents the {@link MetadataRepository} of this {@link Pipeline}.
+     * @param metadataRepository represents the {@link MetadataRepository} of this {@link de.hpi.isg.dataprep.model.target.system.AbstractPipeline}.
      * @throws Exception
      */
     abstract public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException;

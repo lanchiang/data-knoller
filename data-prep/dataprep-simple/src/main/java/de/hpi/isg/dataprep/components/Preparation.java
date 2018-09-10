@@ -1,34 +1,32 @@
-package de.hpi.isg.dataprep.model.target.system;
+package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.exceptions.DuplicateMetadataException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
-import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
+import de.hpi.isg.dataprep.model.target.object.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
 import java.util.List;
 
 /**
- * A preparation is a transformation step within a data preparation pipeline.
- * It includes the preparator to be executed in this step, along with its parameters.
- *
  * @author Lan Jiang
- * @since 2018/8/3
+ * @since 2018/9/10
  */
-public class Preparation extends PipelineComponent {
+public class Preparation implements AbstractPreparation {
 
     private String name;
 
     private Preparator preparator;
     private Consequences consequences;
 
-    private int position; // the position of this preparation in the pipeline
+    private int position;
 
-    private Pipeline pipeline;
+    private AbstractPipeline pipeline;
 
     public Preparation(Preparator preparator) {
         this.preparator = preparator;
@@ -37,13 +35,8 @@ public class Preparation extends PipelineComponent {
         this.name = this.preparator.getClass().getSimpleName();
     }
 
-    /**
-     * Check whether this preparator along with the previous one cause pipeline-level errors.
-     *
-     * @param metadataRepository is the instance of the metadata repository of this pipeline.
-     * @return true if there is at least one pipeline-level error.
-     */
-    public final void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
+    @Override
+    public void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
         if (position != 0) {
             // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
             for (Metadata metadata : preparator.getPrerequisite()) {
@@ -66,30 +59,37 @@ public class Preparation extends PipelineComponent {
         metadataRepository.updateMetadata(toChangeMetadata);
     }
 
-    public Pipeline getPipeline() {
+    @Override
+    public AbstractPipeline getPipeline() {
         return pipeline;
     }
 
-    public void setPipeline(Pipeline pipeline) {
+    @Override
+    public void setPipeline(AbstractPipeline pipeline) {
         this.pipeline = pipeline;
     }
 
+    @Override
     public Preparator getPreparator() {
         return preparator;
     }
 
+    @Override
     public int getPosition() {
         return position;
     }
 
+    @Override
     public void setPosition(int position) {
         this.position = position;
     }
 
+    @Override
     public void setConsequences(Consequences consequences) {
         this.consequences = consequences;
     }
 
+    @Override
     public Consequences getConsequences() {
         return consequences;
     }

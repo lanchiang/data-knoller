@@ -1,10 +1,10 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.target.system.Pipeline;
-import de.hpi.isg.dataprep.model.target.system.Preparation;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -26,37 +26,13 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/21
  */
-public class MovePropertyTest {
-
-    private static Dataset<Row> dataset;
-    private static Pipeline pipeline;
-
-    @BeforeClass
-    public static void setUp() {
-        Logger.getLogger("org").setLevel(Level.OFF);
-        Logger.getLogger("akka").setLevel(Level.OFF);
-
-        dataset = SparkSession.builder()
-                .appName("Rename property unit tests.")
-                .master("local")
-                .getOrCreate()
-                .read()
-                .option("header", "true")
-                .option("inferSchema", "true")
-                .csv("./src/test/resources/pokemon.csv");
-        pipeline = new Pipeline(dataset);
-    }
-
-    @Before
-    public void cleanUpPipeline() throws Exception {
-        pipeline = new Pipeline(dataset);
-    }
+public class MovePropertyTest extends PreparatorTest {
 
     @Test
     public void testMovePropertyToTheFront() throws Exception {
         Preparator preparator = new MoveProperty("height", 1);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -89,7 +65,7 @@ public class MovePropertyTest {
     public void testMovePropertyToTheBack() throws Exception {
         Preparator preparator = new MoveProperty("identifier", 8);
 
-        Preparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
