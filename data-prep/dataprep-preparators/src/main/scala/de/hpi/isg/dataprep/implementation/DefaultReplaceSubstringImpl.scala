@@ -64,10 +64,9 @@ class DefaultReplaceSubstringImpl extends PreparatorImpl {
             convertOption.toOption
         })(rowEncoder)
 
-//        createdDataset.count()
         createdDataset.persist()
 
-        createdDataset.show()
+        createdDataset.count()
 
         new Consequences(createdDataset, errorAccumulator)
     }

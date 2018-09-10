@@ -155,10 +155,7 @@ abstract public class Preparator extends Target implements Executable {
      */
     @Override
     public void execute() throws Exception {
-        // only check the metadata for the preparations except for the first one.
-        if (this.getPreparation().getPosition() > 0) {
-            checkMetadata();
-        }
+        checkMetadata();
         if (!invalid.isEmpty()) {
             throw new PreparationHasErrorException("Metadata prerequisite not met.");
         }

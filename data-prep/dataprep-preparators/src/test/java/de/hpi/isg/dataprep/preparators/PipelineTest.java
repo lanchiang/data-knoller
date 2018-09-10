@@ -51,15 +51,6 @@ public class PipelineTest {
                 .option("inferSchema", "true")
                 .csv("./src/test/resources/restaurants.tsv");
 
-//        dataset = SparkSession.builder()
-//                .appName("Pipeline unit tests.")
-//                .master("local")
-//                .getOrCreate()
-//                .read()
-//                .option("header", "true")
-//                .option("inferSchema", "true")
-//                .csv("./src/test/resources/pokemon.csv");
-
         pipeline = new Pipeline(dataset);
     }
 

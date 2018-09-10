@@ -48,8 +48,6 @@ class DefaultMovePropertyImpl extends PreparatorImpl {
 
         resultDataFrame.persist()
 
-        resultDataFrame.show()
-
         new Consequences(resultDataFrame, errorAccumulator)
     }
 }
