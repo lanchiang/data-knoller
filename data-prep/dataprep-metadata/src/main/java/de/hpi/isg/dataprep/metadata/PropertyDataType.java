@@ -11,6 +11,7 @@ import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,26 +20,12 @@ import java.util.stream.Collectors;
  */
 public class PropertyDataType extends Metadata {
 
-    private final String name = "property-data-type";
-
-    private MetadataScope scope;
-
-//    private String propertyName;
     private DataType.PropertyType propertyDataType;
-
-//    public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
-//        this.propertyName = propertyName;
-//        this.propertyDataType = propertyDataType;
-//    }
 
     public PropertyDataType(MetadataScope scope, DataType.PropertyType propertyDataType) {
         this.scope = scope;
         this.propertyDataType = propertyDataType;
     }
-
-//    public String getPropertyName() {
-//        return propertyName;
-//    }
 
     public MetadataScope getScope() {
         return scope;
@@ -50,11 +37,6 @@ public class PropertyDataType extends Metadata {
 
     @Override
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getTargetName() {
         return scope.getName();
     }
 
@@ -63,7 +45,7 @@ public class PropertyDataType extends Metadata {
         List<PropertyDataType> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof PropertyDataType)
                 .map(metadata -> (PropertyDataType) metadata)
-                .filter(metadata -> metadata.getTargetName().equals(this.scope.getName()))
+                .filter(metadata -> metadata.getName().equals(this.scope.getName()))
 //                .filter(metadata -> metadata.getPropertyName().equals(this.propertyName))
                 .collect(Collectors.toList());
 
@@ -82,33 +64,22 @@ public class PropertyDataType extends Metadata {
     }
 
     @Override
+    public boolean equalsByValue(Metadata metadata) {
+        return this.getPropertyDataType().equals(((PropertyDataType)metadata).getPropertyDataType());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof PropertyDataType)) return false;
         PropertyDataType that = (PropertyDataType) o;
-        return Objects.equals(scope, that.scope) &&
-                propertyDataType == that.propertyDataType;
+        return scope == that.scope;
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(scope, propertyDataType);
+        return Objects.hash(scope);
     }
-
-    //    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        PropertyDataType that = (PropertyDataType) o;
-//        return Objects.equals(propertyName, that.propertyName) &&
-//                propertyDataType == that.propertyDataType;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(propertyName, propertyDataType);
-//    }
 
     @Override
     public String toString() {

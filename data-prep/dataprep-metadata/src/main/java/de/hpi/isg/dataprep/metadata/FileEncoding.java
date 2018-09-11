@@ -58,13 +58,13 @@ public class FileEncoding extends Metadata {
     }
 
     @Override
-    public String getTargetName() {
-        return fileName;
+    public boolean equalsByValue(Metadata metadata) {
+        return false;
     }
 
     @Override
     public String getName() {
-        return name;
+        return scope.getName();
     }
 
     @Override

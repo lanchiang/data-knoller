@@ -10,4 +10,5 @@ import de.hpi.isg.dataprep.util.Nameable;
  * @since 2018/9/2
  */
 abstract public class MetadataScope extends Target implements Nameable {
+
 }

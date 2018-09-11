@@ -5,6 +5,8 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
+import java.util.Objects;
+
 /**
  * @author Lan Jiang
  * @since 2018/8/28
@@ -12,8 +14,6 @@ import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 public class EscapeCharacter extends Metadata {
 
     private final String name = "escape-characters";
-
-    private MetadataScope scope;
 
     private String escapeCharacter;
 
@@ -32,8 +32,8 @@ public class EscapeCharacter extends Metadata {
     }
 
     @Override
-    public String getTargetName() {
-        return scope.getName();
+    public boolean equalsByValue(Metadata metadata) {
+        return this.equals(metadata);
     }
 
     public String getEscapeCharacter() {
@@ -42,6 +42,21 @@ public class EscapeCharacter extends Metadata {
 
     @Override
     public String getName() {
-        return name;
+        return scope.getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EscapeCharacter that = (EscapeCharacter) o;
+        return Objects.equals(scope, that.scope) &&
+                Objects.equals(escapeCharacter, that.escapeCharacter);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(scope, escapeCharacter);
     }
 }

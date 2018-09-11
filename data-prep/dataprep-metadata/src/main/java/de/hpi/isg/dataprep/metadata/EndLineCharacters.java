@@ -15,8 +15,6 @@ public class EndLineCharacters extends Metadata {
 
     private final String name;
 
-    private MetadataScope target;
-
     private String endLineCharacters;
 
     public EndLineCharacters(String endLineCharacters) {
@@ -34,27 +32,28 @@ public class EndLineCharacters extends Metadata {
     }
 
     @Override
-    public String getTargetName() {
-        return null;
+    public boolean equalsByValue(Metadata metadata) {
+        return this.equals(metadata);
     }
 
     @Override
     public String getName() {
-        return null;
+        return scope.getName();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof EndLineCharacters)) return false;
         EndLineCharacters that = (EndLineCharacters) o;
-        return Objects.equals(endLineCharacters, that.endLineCharacters);
+        return Objects.equals(scope, that.scope) &&
+                Objects.equals(endLineCharacters, that.endLineCharacters);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(endLineCharacters);
+        return Objects.hash(scope, endLineCharacters);
     }
 
     @Override

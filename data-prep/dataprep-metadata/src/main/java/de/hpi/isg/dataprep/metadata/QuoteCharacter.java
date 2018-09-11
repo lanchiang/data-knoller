@@ -5,6 +5,8 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
+import java.util.Objects;
+
 /**
  * A pairwise string identifier wraps the position of real data content in a data file.
  *
@@ -14,8 +16,6 @@ import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 public class QuoteCharacter extends Metadata {
 
     private final String name = "quote";
-
-    private MetadataScope scope;
 
     private String QuoteCharacter;
 
@@ -34,8 +34,8 @@ public class QuoteCharacter extends Metadata {
     }
 
     @Override
-    public String getTargetName() {
-        return scope.getName();
+    public boolean equalsByValue(Metadata metadata) {
+        return this.equals(metadata);
     }
 
     public String getQuoteCharacter() {
@@ -43,7 +43,17 @@ public class QuoteCharacter extends Metadata {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuoteCharacter that = (QuoteCharacter) o;
+        return Objects.equals(scope, that.scope) &&
+                Objects.equals(QuoteCharacter, that.QuoteCharacter);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(scope, QuoteCharacter);
     }
 }

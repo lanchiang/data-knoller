@@ -29,13 +29,6 @@ public class CollapseTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-
-        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "identifier" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-        trueErrorlogs.add(pipelineError1);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();

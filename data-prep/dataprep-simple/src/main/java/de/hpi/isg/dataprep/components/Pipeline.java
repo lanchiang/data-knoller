@@ -68,7 +68,7 @@ public class Pipeline implements AbstractPipeline {
     public Pipeline(DataContext dataContext) {
         this();
         this.dataContext = dataContext;
-
+        this.rawData = dataContext.getDataFrame();
     }
 
     @Override

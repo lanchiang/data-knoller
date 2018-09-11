@@ -61,12 +61,12 @@ class ChangeDataType(val propertyName : String,
         }
 
         if (targetType == DataType.PropertyType.DATE) {
-            if (sourceDatePattern != null) prerequisites += new PropertyDatePattern(propertyName, sourceDatePattern)
+            if (sourceDatePattern != null) prerequisites += new PropertyDatePattern(new Property(propertyName), sourceDatePattern)
             else {
                 // use the value in the metadata repository.
             }
             if (targetDatePattern == null) throw new ParameterNotSpecifiedException("Change to DATE type but target date pattern not specified!")
-            else tochanges.add(new PropertyDatePattern(propertyName, targetDatePattern))
+            else tochanges.add(new PropertyDatePattern(new Property(propertyName), targetDatePattern))
         }
 
         this.prerequisite.addAll(prerequisites.toList)
