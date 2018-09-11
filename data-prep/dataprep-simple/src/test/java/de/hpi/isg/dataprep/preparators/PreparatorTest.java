@@ -30,21 +30,18 @@ public class PreparatorTest {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        dataset = SparkSession.builder()
-                .appName("Change property data type unit tests.")
-                .master("local")
-                .getOrCreate()
-                .read()
-                .option("header", "true")
-                .option("inferSchema", "true")
-                .csv("./src/test/resources/pokemon.csv");
-        pipeline = new Pipeline(dataset);
-
         FileLoadDialect dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
                 .url("./src/test/resources/pokemon.csv")
                 .buildDialect();
+
+//        FileLoadDialect dialect = new DialectBuilder()
+//                .hasHeader(true)
+//                .delimiter("\t")
+//                .inferSchema(true)
+//                .url("./src/test/resources/restaurants.tsv")
+//                .buildDialect();
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();

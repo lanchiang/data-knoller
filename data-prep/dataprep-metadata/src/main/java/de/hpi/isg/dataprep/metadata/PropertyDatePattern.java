@@ -39,11 +39,11 @@ public class PropertyDatePattern extends Metadata {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PropertyDatePattern that = (PropertyDatePattern) o;
-        return scope == that.scope;
+        return Objects.equals(scope, that.scope) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scope);
+        return Objects.hash(scope, name);
     }
 }

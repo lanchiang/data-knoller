@@ -44,16 +44,15 @@ public class EndLineCharacters extends Metadata {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EndLineCharacters)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         EndLineCharacters that = (EndLineCharacters) o;
-        return Objects.equals(scope, that.scope) &&
-                Objects.equals(endLineCharacters, that.endLineCharacters);
+        return Objects.equals(name, that.name) && Objects.equals(scope, that.scope);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(scope, endLineCharacters);
+        return Objects.hash(name, scope);
     }
 
     @Override

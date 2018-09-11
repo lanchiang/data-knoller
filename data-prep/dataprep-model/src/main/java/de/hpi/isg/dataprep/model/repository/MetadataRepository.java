@@ -57,9 +57,11 @@ public class MetadataRepository {
         if (!metadataPool.contains(metadata)) {
             metadataPool.add(metadata);
         } else {
-            Set<Metadata> tmpMetadataPool = metadataPool.stream().filter(metadata_ -> metadata_.equals(this)).collect(Collectors.toSet());
-            tmpMetadataPool.add(metadata);
-            metadataPool = tmpMetadataPool;
+            metadataPool.remove(metadata);
+            metadataPool.add(metadata);
+//            Set<Metadata> tmpMetadataPool = metadataPool.stream().filter(metadata_ -> metadata_.equals(this)).collect(Collectors.toSet());
+//            tmpMetadataPool.add(metadata);
+//            metadataPool = tmpMetadataPool;
         }
     }
 

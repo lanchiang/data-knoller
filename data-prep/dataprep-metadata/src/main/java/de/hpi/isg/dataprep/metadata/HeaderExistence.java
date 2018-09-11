@@ -52,13 +52,13 @@ public class HeaderExistence extends Metadata {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HeaderExistence that = (HeaderExistence) o;
-        return headerExistence == that.headerExistence &&
+        return Objects.equals(name, that.name) &&
                 Objects.equals(scope, that.scope);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(scope, headerExistence);
+        return Objects.hash(scope, name);
     }
 }

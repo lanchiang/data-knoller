@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
  */
 public class PropertyDataType extends Metadata {
 
+    private final String name = "property-data-type";
+
     private DataType.PropertyType propertyDataType;
 
     public PropertyDataType(MetadataScope scope, DataType.PropertyType propertyDataType) {
@@ -45,8 +47,9 @@ public class PropertyDataType extends Metadata {
         List<PropertyDataType> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof PropertyDataType)
                 .map(metadata -> (PropertyDataType) metadata)
-                .filter(metadata -> metadata.getName().equals(this.scope.getName()))
+//                .filter(metadata -> metadata.getName().equals(this.scope.getName()))
 //                .filter(metadata -> metadata.getPropertyName().equals(this.propertyName))
+                .filter(metadata -> metadata.equals(this))
                 .collect(Collectors.toList());
 
         if (matchedInRepo.size() == 0) {
@@ -56,7 +59,8 @@ public class PropertyDataType extends Metadata {
                     this.getClass().getSimpleName(), this.scope.getName()));
         } else {
             PropertyDataType metadataInRepo = matchedInRepo.get(0);
-            if (!this.propertyDataType.equals(metadataInRepo.getPropertyDataType())) {
+//            if (!this.propertyDataType.equals(metadataInRepo.getPropertyDataType())) {
+            if (!this.equalsByValue(metadataInRepo)) {
                 // value of this metadata does not match that in the repository.
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
             }
@@ -73,12 +77,12 @@ public class PropertyDataType extends Metadata {
         if (this == o) return true;
         if (!(o instanceof PropertyDataType)) return false;
         PropertyDataType that = (PropertyDataType) o;
-        return scope == that.scope;
+        return Objects.equals(scope, that.scope) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scope);
+        return Objects.hash(scope, name);
     }
 
     @Override

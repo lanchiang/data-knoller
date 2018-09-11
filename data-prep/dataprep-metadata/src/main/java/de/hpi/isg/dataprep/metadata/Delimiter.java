@@ -15,8 +15,6 @@ public class Delimiter extends Metadata {
 
     private final String name = "delimiter";
 
-    private MetadataScope scope;
-
     private String delimiter;
 
     public Delimiter(String delimiter) {
@@ -51,13 +49,14 @@ public class Delimiter extends Metadata {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Delimiter that = (Delimiter) o;
-        return Objects.equals(scope, that.scope) &&
-                Objects.equals(delimiter, that.delimiter);
+        Delimiter delimiter = (Delimiter) o;
+        return Objects.equals(name, delimiter.name) &&
+                Objects.equals(scope, delimiter.scope);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scope, delimiter);
+
+        return Objects.hash(name, scope);
     }
 }

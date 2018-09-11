@@ -48,12 +48,12 @@ public class QuoteCharacter extends Metadata {
         if (o == null || getClass() != o.getClass()) return false;
         QuoteCharacter that = (QuoteCharacter) o;
         return Objects.equals(scope, that.scope) &&
-                Objects.equals(QuoteCharacter, that.QuoteCharacter);
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(scope, QuoteCharacter);
+        return Objects.hash(scope, name);
     }
 }

@@ -51,12 +51,12 @@ public class EscapeCharacter extends Metadata {
         if (o == null || getClass() != o.getClass()) return false;
         EscapeCharacter that = (EscapeCharacter) o;
         return Objects.equals(scope, that.scope) &&
-                Objects.equals(escapeCharacter, that.escapeCharacter);
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(scope, escapeCharacter);
+        return Objects.hash(scope, name);
     }
 }
