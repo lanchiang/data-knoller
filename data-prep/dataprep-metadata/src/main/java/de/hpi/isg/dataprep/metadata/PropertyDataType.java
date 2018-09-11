@@ -5,8 +5,8 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.Target;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.List;
@@ -21,16 +21,27 @@ public class PropertyDataType extends Metadata {
 
     private final String name = "property-data-type";
 
-    private String propertyName;
+    private MetadataScope scope;
+
+//    private String propertyName;
     private DataType.PropertyType propertyDataType;
 
-    public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
-        this.propertyName = propertyName;
+//    public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
+//        this.propertyName = propertyName;
+//        this.propertyDataType = propertyDataType;
+//    }
+
+    public PropertyDataType(MetadataScope scope, DataType.PropertyType propertyDataType) {
+        this.scope = scope;
         this.propertyDataType = propertyDataType;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+//    public String getPropertyName() {
+//        return propertyName;
+//    }
+
+    public MetadataScope getScope() {
+        return scope;
     }
 
     public DataType.PropertyType getPropertyDataType() {
@@ -44,7 +55,7 @@ public class PropertyDataType extends Metadata {
 
     @Override
     public String getTargetName() {
-        return propertyName;
+        return scope.getName();
     }
 
     @Override
@@ -52,14 +63,15 @@ public class PropertyDataType extends Metadata {
         List<PropertyDataType> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof PropertyDataType)
                 .map(metadata -> (PropertyDataType) metadata)
-                .filter(metadata -> metadata.getPropertyName().equals(this.propertyName))
+                .filter(metadata -> metadata.getTargetName().equals(this.scope.getName()))
+//                .filter(metadata -> metadata.getPropertyName().equals(this.propertyName))
                 .collect(Collectors.toList());
 
         if (matchedInRepo.size() == 0) {
             throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", this.toString()));
         } else if (matchedInRepo.size() > 1) {
             throw new DuplicateMetadataException(String.format("Metadata %s has multiple data type for property: %s",
-                    this.getClass().getSimpleName(), this.propertyName));
+                    this.getClass().getSimpleName(), this.scope.getName()));
         } else {
             PropertyDataType metadataInRepo = matchedInRepo.get(0);
             if (!this.propertyDataType.equals(metadataInRepo.getPropertyDataType())) {
@@ -74,20 +86,34 @@ public class PropertyDataType extends Metadata {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PropertyDataType that = (PropertyDataType) o;
-        return Objects.equals(propertyName, that.propertyName) &&
+        return Objects.equals(scope, that.scope) &&
                 propertyDataType == that.propertyDataType;
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(propertyName, propertyDataType);
+        return Objects.hash(scope, propertyDataType);
     }
+
+    //    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        PropertyDataType that = (PropertyDataType) o;
+//        return Objects.equals(propertyName, that.propertyName) &&
+//                propertyDataType == that.propertyDataType;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(propertyName, propertyDataType);
+//    }
 
     @Override
     public String toString() {
         return "PropertyDataType{" +
-                "propertyName='" + propertyName + '\'' +
+                "propertyName='" + scope.getName() + '\'' +
                 ", propertyDataType=" + propertyDataType +
                 '}';
     }

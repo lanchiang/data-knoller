@@ -28,6 +28,8 @@ public interface AbstractPipeline extends Nameable {
 
     void executePipeline() throws Exception;
 
+    void initMetadataRepository();
+
     List<AbstractPreparation> getPreparations();
 
     ErrorRepository getErrorRepository();

@@ -1,6 +1,7 @@
-package de.hpi.isg.dataprep.model.target.object;
+package de.hpi.isg.dataprep.model.target.objects;
 
 import de.hpi.isg.dataprep.model.target.Target;
+import de.hpi.isg.dataprep.util.Nameable;
 
 /**
  * Super class of all the operated objects for preparators, such as a property, or a whole dataset.
@@ -8,5 +9,5 @@ import de.hpi.isg.dataprep.model.target.Target;
  * @author Lan Jiang
  * @since 2018/9/2
  */
-abstract public class OperatedObject extends Target {
+abstract public class MetadataScope extends Target implements Nameable {
 }

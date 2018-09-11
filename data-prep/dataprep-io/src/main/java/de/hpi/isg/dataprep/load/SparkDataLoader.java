@@ -1,13 +1,14 @@
 package de.hpi.isg.dataprep.load;
 
-import de.hpi.isg.dataprep.util.context.DataContext;
+import de.hpi.isg.dataprep.context.DataContext;
+import de.hpi.isg.dataprep.metadata.Delimiter;
+import de.hpi.isg.dataprep.metadata.QuoteCharacter;
+import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Lan Jiang
@@ -15,61 +16,35 @@ import java.util.Map;
  */
 abstract public class SparkDataLoader {
 
-    // the instance to keep loaded dataset from supported source.
-    protected DataContext dataContext;
-
-    protected String sparkAppName = "Default data preparation task";
-    protected String masterUrl = "local";
-    protected String url;
-    protected Map<String, String> options;
-
     protected String encoding;
 
+    protected FileLoadDialect dialect;
+    protected Dataset<Row> dataFrame;
 
     public SparkDataLoader() {
-        options = new HashMap<>();
-    }
-
-    public SparkDataLoader(String sparkAppName, String masterUrl) {
-        this();
-        this.sparkAppName = sparkAppName;
-        this.masterUrl = masterUrl;
-    }
-
-    public SparkDataLoader(String sparkAppName, String masterUrl, String url) {
-        this(sparkAppName, masterUrl);
-        this.url = url;
-    }
-
-    public SparkDataLoader addOption(String key, String value) {
-        options.put(key, value);
-        return this;
     }
 
     protected DataFrameReader createDataFrameReader() {
-        DataFrameReader dataFrameReader = SparkSession.builder().appName(sparkAppName).master(masterUrl).getOrCreate().read();
+        DataFrameReader dataFrameReader = SparkSession.builder()
+                .appName(dialect.getSparkAppName())
+                .master(dialect.getMasterUrl()).getOrCreate().read();
 
-        for (Map.Entry<String, String> option : options.entrySet()) {
-            dataFrameReader = dataFrameReader.option(option.getKey(), option.getValue());
-        }
+        dataFrameReader.option("sep", dialect.getDelimiter())
+                .option("quote", dialect.getQuoteChar())
+                .option("escape", dialect.getEscapeChar())
+                .option("header", dialect.getHasHeader())
+                .option("inferSchema", dialect.getInferSchema());
+
         return dataFrameReader;
     }
 
-    abstract public void load();
+    abstract public DataContext load();
 
-    public String getUrl() {
-        return url;
+    public FileLoadDialect getDialect() {
+        return dialect;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public DataContext getDataContext() {
-        return dataContext;
-    }
-
-    public Map<String, String> getOptions() {
-        return options;
+    public Dataset<Row> getDataFrame() {
+        return dataFrame;
     }
 }

@@ -20,7 +20,11 @@
             <groupId>de.hpi.isg</groupId>
             <artifactId>dataprep-preparators</artifactId>
             <version>0.01-SNAPSHOT</version>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.hpi.isg</groupId>
+            <artifactId>dataprep-io</artifactId>
+            <version>0.01-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

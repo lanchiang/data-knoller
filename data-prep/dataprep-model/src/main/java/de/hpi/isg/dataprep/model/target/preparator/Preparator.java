@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;

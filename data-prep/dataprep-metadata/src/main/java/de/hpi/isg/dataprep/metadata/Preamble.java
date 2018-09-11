@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
 
 /**
  * A {@link Preamble} is the portion of data file that indicates non-content information. Such as copyright, data using instruction...

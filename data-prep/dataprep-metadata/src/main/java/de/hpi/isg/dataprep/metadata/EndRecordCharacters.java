@@ -5,8 +5,8 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
-import de.hpi.isg.dataprep.model.target.object.OperatedObject;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +20,7 @@ public class EndRecordCharacters extends Metadata {
 
     private final String name = "end-record-characters";
 
-    private OperatedObject target;
+    private MetadataScope target;
 
     private String endRecordCharacters;
 

@@ -6,22 +6,26 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
 /**
- * The original data model used to represent this dataset, although the data is represented as relational data inside this system.
+ * A pairwise string identifier wraps the position of real data content in a data file.
  *
  * @author Lan Jiang
  * @since 2018/8/28
  */
-public class DataModel extends Metadata {
+public class QuoteCharacter extends Metadata {
 
-    private final String name = "data-model";
+    private final String name = "quote";
 
-    private MetadataScope target;
+    private MetadataScope scope;
 
-    // find something better than a String.
-    private String dataModel;
+    private String QuoteCharacter;
 
-    public DataModel(String dataModel) {
-        this.dataModel = dataModel;
+    public QuoteCharacter(String QuoteCharacter) {
+        this.QuoteCharacter = QuoteCharacter;
+    }
+
+    public QuoteCharacter(MetadataScope scope, String quoteCharacter) {
+        this.scope = scope;
+        QuoteCharacter = quoteCharacter;
     }
 
     @Override
@@ -31,11 +35,11 @@ public class DataModel extends Metadata {
 
     @Override
     public String getTargetName() {
-        return null;
+        return scope.getName();
     }
 
-    public String getDataModel() {
-        return dataModel;
+    public String getQuoteCharacter() {
+        return QuoteCharacter;
     }
 
     @Override

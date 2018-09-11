@@ -15,7 +15,11 @@
             <groupId>de.hpi.isg</groupId>
             <artifactId>dataprep-util</artifactId>
             <version>0.01-SNAPSHOT</version>
-            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.hpi.isg</groupId>
+            <artifactId>dataprep-metadata</artifactId>
+            <version>0.01-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

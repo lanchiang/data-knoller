@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.preparators
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.implementation.DefaultChangeDataTypeImpl
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.target.`object`.Metadata
+import de.hpi.isg.dataprep.model.target.objects.{Metadata, Property}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
@@ -51,9 +51,11 @@ class ChangeDataType(val propertyName : String,
 
         if (propertyName == null) throw new ParameterNotSpecifiedException("Property name not specified!")
         if (targetType == null) throw new ParameterNotSpecifiedException("Target data type not specified!")
-        else tochanges.add(new PropertyDataType(propertyName, targetType))
+//        else tochanges.add(new PropertyDataType(propertyName, targetType))
+        else tochanges.add(new PropertyDataType(new Property(propertyName), targetType))
 
-        if (sourceType != null) prerequisites += new PropertyDataType(propertyName, sourceType)
+//        if (sourceType != null) prerequisites += new PropertyDataType(propertyName, sourceType)
+        if (sourceType != null) prerequisites += new PropertyDataType(new Property(propertyName), sourceType)
         else {
             // use the value in the metadata repository.
         }

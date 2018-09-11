@@ -6,7 +6,7 @@ import java.util.{ArrayList, List}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.implementation.DefaultTrimImpl
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.`object`.Metadata
+import de.hpi.isg.dataprep.model.target.objects.{Metadata, Property}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.util.DataType
 
@@ -31,7 +31,8 @@ class Trim(val propertyName : String) extends Preparator {
 
         if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified.", propertyName))
         // Trim can only be applied on String data type. Later version can support trim on other data type
-        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+        prerequisites.add(new PropertyDataType(new Property(propertyName), DataType.PropertyType.STRING))
 
         this.prerequisite.addAll(prerequisites)
         this.toChange.addAll(tochanges)

@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.preparator.Preparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;

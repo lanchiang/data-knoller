@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.model.target.object;
+package de.hpi.isg.dataprep.model.target.objects;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
@@ -16,6 +16,11 @@ import java.io.Serializable;
 abstract public class Metadata extends Target implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1863322602595412693L;
+
+    /**
+     * Which metadata repository this metadata belongs to.
+     */
+    private MetadataRepository belongs;
 
     /**
      * Check whether the value of this metadata reconciles with that in the metadata repository.

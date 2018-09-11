@@ -6,7 +6,7 @@ import java.util.{ArrayList, List}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.implementation.DefaultRemoveCharactersImpl
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.`object`.Metadata
+import de.hpi.isg.dataprep.model.target.objects.{Metadata, Property}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.util.{DataType, RemoveCharactersMode}
 
@@ -38,7 +38,8 @@ class RemoveCharacters(val propertyName : String,
         if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Property name not specified."))
         else if (mode == null) throw new ParameterNotSpecifiedException(String.format("Remove character mode not specified."))
 
-        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+        prerequisites.add(new PropertyDataType(new Property(propertyName), DataType.PropertyType.STRING))
 
         if (mode eq RemoveCharactersMode.CUSTOM) if (userSpecifiedCharacters == null) throw new ParameterNotSpecifiedException(String.format("Characters must be specified if choosing custom mode."))
 

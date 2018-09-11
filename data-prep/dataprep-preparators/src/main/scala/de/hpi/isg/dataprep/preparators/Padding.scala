@@ -6,7 +6,7 @@ import java.util.{ArrayList, List}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.implementation.DefaultPaddingImpl
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.`object`.Metadata
+import de.hpi.isg.dataprep.model.target.objects.{Metadata, Property}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
@@ -39,7 +39,8 @@ class Padding(val propertyName : String,
         // illegal padding length was input.
         if (expectedLength <= 0) throw new IllegalArgumentException(String.format("Padding length is illegal!"))
 
-        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+        prerequisites.add(new PropertyDataType(new Property(propertyName), DataType.PropertyType.STRING))
 
         // when basic statistics is implemented, one shall be capable of retrieving value length from the metdata repository
         // therefore, this method shall compare the value length as well.

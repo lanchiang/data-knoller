@@ -6,22 +6,24 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
 /**
- * The original data model used to represent this dataset, although the data is represented as relational data inside this system.
- *
  * @author Lan Jiang
  * @since 2018/8/28
  */
-public class DataModel extends Metadata {
+public class EscapeCharacter extends Metadata {
 
-    private final String name = "data-model";
+    private final String name = "escape-characters";
 
-    private MetadataScope target;
+    private MetadataScope scope;
 
-    // find something better than a String.
-    private String dataModel;
+    private String escapeCharacter;
 
-    public DataModel(String dataModel) {
-        this.dataModel = dataModel;
+    public EscapeCharacter(String escapeCharacter) {
+        this.escapeCharacter = escapeCharacter;
+    }
+
+    public EscapeCharacter(MetadataScope scope, String escapeCharacter) {
+        this.scope = scope;
+        this.escapeCharacter = escapeCharacter;
     }
 
     @Override
@@ -31,11 +33,11 @@ public class DataModel extends Metadata {
 
     @Override
     public String getTargetName() {
-        return null;
+        return scope.getName();
     }
 
-    public String getDataModel() {
-        return dataModel;
+    public String getEscapeCharacter() {
+        return escapeCharacter;
     }
 
     @Override

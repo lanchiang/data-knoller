@@ -24,7 +24,7 @@ public class CollapseTest extends PreparatorTest {
     public void testCollapse() throws Exception {
         Preparator preparator = new Collapse("identifier");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

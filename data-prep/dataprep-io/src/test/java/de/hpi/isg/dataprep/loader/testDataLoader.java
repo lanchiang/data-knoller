@@ -13,13 +13,13 @@ public class testDataLoader {
 
     @Test
     public void testLoadData() {
-        SparkDataLoader dataLoader = new FlatFileDataLoader("Test", "local");
-        dataLoader.setUrl("./src/test/resources/pokemon.csv");
-        dataLoader.addOption("header", "true").addOption("inferSchema", "true");
-        dataLoader.load();
-
-        Dataset<?> dataset = dataLoader.getDataContext().getDataset();
-        dataset.show();
-        dataset.printSchema();
+//        SparkDataLoader dataLoader = new FlatFileDataLoader("Test", "local");
+//        dataLoader.setUrl("./src/test/resources/pokemon.csv");
+//        dataLoader.addOption("header", "true").addOption("inferSchema", "true");
+//        dataLoader.load();
+//
+//        Dataset<?> dataset = dataLoader.getDataContext().getDataset();
+//        dataset.show();
+//        dataset.printSchema();
     }
 }

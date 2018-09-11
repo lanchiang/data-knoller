@@ -2,8 +2,8 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
-import de.hpi.isg.dataprep.model.target.object.OperatedObject;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
 import java.util.Objects;
 
@@ -15,7 +15,7 @@ public class EndLineCharacters extends Metadata {
 
     private final String name;
 
-    private OperatedObject target;
+    private MetadataScope target;
 
     private String endLineCharacters;
 

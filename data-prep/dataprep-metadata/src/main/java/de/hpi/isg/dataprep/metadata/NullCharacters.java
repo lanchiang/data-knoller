@@ -2,8 +2,8 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.object.Metadata;
-import de.hpi.isg.dataprep.model.target.object.OperatedObject;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
 /**
  * @author Lan Jiang
@@ -13,7 +13,7 @@ public class NullCharacters extends Metadata {
 
     private final String name = "null-characters";
 
-    private OperatedObject target;
+    private MetadataScope target;
 
     private String nullCharacters;
 
