@@ -52,10 +52,10 @@ class ChangeDataType(val propertyName : String,
         if (propertyName == null) throw new ParameterNotSpecifiedException("Property name not specified!")
         if (targetType == null) throw new ParameterNotSpecifiedException("Target data type not specified!")
 //        else tochanges.add(new PropertyDataType(propertyName, targetType))
-        else tochanges.add(new PropertyDataType(new Property(propertyName), targetType))
+        else tochanges.add(new PropertyDataType(propertyName, targetType))
 
 //        if (sourceType != null) prerequisites += new PropertyDataType(propertyName, sourceType)
-        if (sourceType != null) prerequisites += new PropertyDataType(new Property(propertyName), sourceType)
+        if (sourceType != null) prerequisites += new PropertyDataType(propertyName, sourceType)
         else {
             // use the value in the metadata repository.
         }

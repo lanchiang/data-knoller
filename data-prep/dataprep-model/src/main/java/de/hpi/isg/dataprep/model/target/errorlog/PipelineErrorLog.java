@@ -23,10 +23,21 @@ public class PipelineErrorLog extends ErrorLog {
 
     public PipelineErrorLog(AbstractPipeline pipeline, AbstractPreparation preparation, Throwable throwable) {
         this(pipeline, throwable);
-
         current = preparation;
         int previousIndex = current.getPosition() - 1;
         previous = (previousIndex == -1) ? null : pipeline.getPreparations().stream().filter(prep -> prep.getPosition() == previousIndex).findFirst().get();
+    }
+
+    public AbstractPipeline getPipeline() {
+        return pipeline;
+    }
+
+    public AbstractPreparation getCurrent() {
+        return current;
+    }
+
+    public AbstractPreparation getPrevious() {
+        return previous;
     }
 
     @Override
@@ -46,6 +57,9 @@ public class PipelineErrorLog extends ErrorLog {
 
     @Override
     public String toString() {
+        StringBuffer stringBuffer = new StringBuffer();
+
+
         return "PipelineErrorLog{" +
                 "pipeline=" + pipeline +
                 ", current=" + current +

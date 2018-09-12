@@ -31,7 +31,7 @@ class Collapse(val propertyName : String) extends Preparator {
         if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified", propertyName))
         // Collapse can only be applied on String data type
 //        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-        prerequisites.add(new PropertyDataType(new Property(propertyName), DataType.PropertyType.STRING))
+        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
         this.prerequisite.addAll(prerequisites)
         this.toChange.addAll(tochanges)

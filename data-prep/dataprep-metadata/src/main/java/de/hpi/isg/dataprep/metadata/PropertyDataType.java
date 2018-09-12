@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
+import de.hpi.isg.dataprep.model.target.objects.Property;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.List;
@@ -24,8 +25,8 @@ public class PropertyDataType extends Metadata {
 
     private DataType.PropertyType propertyDataType;
 
-    public PropertyDataType(MetadataScope scope, DataType.PropertyType propertyDataType) {
-        this.scope = scope;
+    public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
+        this.scope = new Property(propertyName);
         this.propertyDataType = propertyDataType;
     }
 

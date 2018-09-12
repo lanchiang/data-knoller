@@ -114,7 +114,7 @@ abstract public class Preparator extends Target implements Executable {
         // but if not match invalid.
         prerequisite.stream()
                 .filter(metadata -> metadataRepository.getMetadataPool().contains(metadata)) // but values are not equivalent
-                .filter(metadata -> !metadataRepository.equalsByValue(metadata))
+                .filter(metadata -> !metadataRepository.containByValue(metadata))
                 .forEach(metadata -> invalid.add(metadata));
         // not found, add.
         prerequisite.stream()

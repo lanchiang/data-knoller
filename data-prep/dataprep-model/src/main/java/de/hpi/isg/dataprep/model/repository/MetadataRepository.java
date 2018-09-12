@@ -36,32 +36,11 @@ public class MetadataRepository {
     public void updateMetadata(Metadata metadata) {
         metadata.setBelongs(this);
 
-//        Set<Metadata> existence = this.metadataPool.stream().filter(metadata_ -> metadata_.equals(metadata)).collect(Collectors.toSet());
-//        if (existence.size()==0) {
-//            metadataPool.add(metadata);
-//        } else {
-//            // If the metadata is in the repository, keep all the other except the metadata sharing the same name with the one in parameter.
-//            Set<Metadata> tmpMetadataPool;
-//            if (metadata.getScope() instanceof Property) {
-//                tmpMetadataPool = this.getMetadataPool().stream()
-//                        .filter(metadata_ -> metadata_.getName().equals(metadata.getName())).collect(Collectors.toSet());
-//            } else {
-//                // scope is instance of DataSet
-//                tmpMetadataPool = this.getMetadataPool().stream()
-//                        .filter(metadata_ -> metadata_.equals(this)).collect(Collectors.toSet());
-//            }
-//            tmpMetadataPool.add(metadata);
-//            metadataPool = tmpMetadataPool;
-//        }
-
         if (!metadataPool.contains(metadata)) {
             metadataPool.add(metadata);
         } else {
             metadataPool.remove(metadata);
             metadataPool.add(metadata);
-//            Set<Metadata> tmpMetadataPool = metadataPool.stream().filter(metadata_ -> metadata_.equals(this)).collect(Collectors.toSet());
-//            tmpMetadataPool.add(metadata);
-//            metadataPool = tmpMetadataPool;
         }
     }
 
@@ -69,17 +48,8 @@ public class MetadataRepository {
         metadataCollection.stream().forEach(metadata -> updateMetadata(metadata));
     }
 
-    public boolean getMetadataByTargetNameString(String targetName) {
-        Optional<Metadata> result = metadataPool.stream().filter(metadata -> metadata.getName().equals(targetName)).findFirst();
-        return result.isPresent();
-    }
-
-    public boolean equalsByValue(Metadata metadata) {
+    public boolean containByValue(Metadata metadata) {
         Optional<Metadata> result = metadataPool.stream().filter(metadata_ -> metadata_.equalsByValue(metadata)).findFirst();
         return result.isPresent();
-    }
-
-    public boolean getMetadataByTarget(Target target) {
-        return true;
     }
 }

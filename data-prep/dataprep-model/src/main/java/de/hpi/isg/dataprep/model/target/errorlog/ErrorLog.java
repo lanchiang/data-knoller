@@ -27,8 +27,20 @@ abstract public class ErrorLog extends Target {
 
     public ErrorLog(Throwable error) {
         this.error = error;
-        this.errorType = error.getClass().getName();
+        this.errorType = error.getClass().getSimpleName();
         this.errorMessage = error.getMessage();
+    }
+
+    public Throwable getError() {
+        return error;
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     @Override

@@ -39,7 +39,7 @@ class RemoveCharacters(val propertyName : String,
         else if (mode == null) throw new ParameterNotSpecifiedException(String.format("Remove character mode not specified."))
 
 //        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-        prerequisites.add(new PropertyDataType(new Property(propertyName), DataType.PropertyType.STRING))
+        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
         if (mode eq RemoveCharactersMode.CUSTOM) if (userSpecifiedCharacters == null) throw new ParameterNotSpecifiedException(String.format("Characters must be specified if choosing custom mode."))
 

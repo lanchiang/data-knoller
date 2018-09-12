@@ -17,6 +17,7 @@
         <module>dataprep-preparators</module>
         <module>dataprep-metadata</module>
         <module>dataprep-simple</module>
+        <module>dataprep-spark</module>
     </modules>
 
     <properties>

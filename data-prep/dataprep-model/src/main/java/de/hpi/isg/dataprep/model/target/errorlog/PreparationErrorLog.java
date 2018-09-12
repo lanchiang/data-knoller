@@ -27,6 +27,14 @@ public class PreparationErrorLog extends ErrorLog {
         this.preparation = preparation;
     }
 
+    public AbstractPreparation getPreparation() {
+        return preparation;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

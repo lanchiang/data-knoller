@@ -42,7 +42,7 @@ class ReplaceSubstring(val propertyName : String,
         if (times < 0) throw new IllegalArgumentException(String.format("Cannot replace the first minus sub-strings."))
 
 //        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-        prerequisites.add(new PropertyDataType(new Property(propertyName), DataType.PropertyType.STRING))
+        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
         this.prerequisite.addAll(prerequisites)
         this.toChange.addAll(tochange)

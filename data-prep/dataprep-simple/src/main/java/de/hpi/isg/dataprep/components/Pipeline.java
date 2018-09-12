@@ -20,6 +20,7 @@ import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -109,8 +110,8 @@ public class Pipeline implements AbstractPipeline {
             checkPipelineErrors();
         } catch (PipelineSyntaxErrorException e) {
             // write the errorlog to disc.
-            FlatFileWriter<ErrorLog> flatFileWriter = new FlatFileWriter<>(this.getErrorRepository().getErrorLogs());
-            flatFileWriter.write();
+            FlatFileWriter<ErrorRepository> flatFileWriter = new FlatFileWriter<>();
+            flatFileWriter.write(this.getErrorRepository());
             throw e;
         }
 
@@ -125,10 +126,6 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void initMetadataRepository() {
         FileLoadDialect dialect = this.dataContext.getDialect();
-//        Delimiter delimiter = new Delimiter(dialect.getDelimiter());
-//        QuoteCharacter quoteCharacter = new QuoteCharacter(dialect.getQuoteChar());
-//        EscapeCharacter escapeCharacter = new EscapeCharacter(dialect.getEscapeChar());
-//        HeaderExistence headerExistence = new HeaderExistence(dialect.getHasHeader().equals("true"));
 
         Delimiter delimiter = new Delimiter(new DataSet(dialect.getDataSetName()), dialect.getDelimiter());
         QuoteCharacter quoteCharacter = new QuoteCharacter(new DataSet(dialect.getDataSetName()), dialect.getQuoteChar());
