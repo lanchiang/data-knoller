@@ -24,7 +24,7 @@ public class PropertyDataType extends Metadata {
     private DataType.PropertyType propertyDataType;
 
     public PropertyDataType() {
-        super("property-data-type");
+        super(PropertyDataType.class.getSimpleName());
     }
 
     public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {

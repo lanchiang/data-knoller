@@ -5,8 +5,6 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
-import java.util.Objects;
-
 /**
  * A pairwise string identifier wraps the position of real data content in a data file.
  *
@@ -15,16 +13,16 @@ import java.util.Objects;
  */
 public class QuoteCharacter extends Metadata {
 
-    private String QuoteCharacter;
+    private String quoteCharacter;
 
     private QuoteCharacter() {
-        super("quote");
+        super(QuoteCharacter.class.getSimpleName());
     }
 
     public QuoteCharacter(MetadataScope scope, String quoteCharacter) {
         this();
         this.scope = scope;
-        QuoteCharacter = quoteCharacter;
+        this.quoteCharacter = quoteCharacter;
     }
 
     @Override
@@ -38,6 +36,6 @@ public class QuoteCharacter extends Metadata {
     }
 
     public String getQuoteCharacter() {
-        return QuoteCharacter;
+        return quoteCharacter;
     }
 }

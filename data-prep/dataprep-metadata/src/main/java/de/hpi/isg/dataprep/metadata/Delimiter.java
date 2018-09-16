@@ -16,7 +16,7 @@ public class Delimiter extends Metadata {
     private String delimiter;
 
     private Delimiter() {
-        super("delimiter");
+        super(Delimiter.class.getSimpleName());
     }
 
     public Delimiter(MetadataScope scope, String delimiter) {

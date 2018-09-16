@@ -18,12 +18,15 @@ import java.util.stream.Collectors;
  */
 public class FileEncoding extends Metadata {
 
-    private final String name = "file-encoding";
-
     private String fileName;
     private Encoding fileEncoding;
 
+    private FileEncoding() {
+        super(FileEncoding.class.getSimpleName());
+    }
+
     public FileEncoding(String fileName, Encoding fileEncoding) {
+        this();
         this.fileName = fileName;
         this.fileEncoding = fileEncoding;
 

@@ -21,7 +21,7 @@ public class EndLineCharacters extends Metadata {
     }
 
     private EndLineCharacters() {
-        super("end-line-characters");
+        super(EndLineCharacters.class.getSimpleName());
     }
 
     @Override

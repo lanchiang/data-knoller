@@ -18,7 +18,7 @@ public class HeaderExistence extends Metadata {
     private boolean headerExistence;
 
     private HeaderExistence() {
-        super("header-existence");
+        super(HeaderExistence.class.getSimpleName());
     }
 
     public HeaderExistence(MetadataScope scope, boolean headerExistence) {

@@ -17,7 +17,7 @@ public class PropertyDatePattern extends Metadata {
     private DatePattern.DatePatternEnum datePattern;
 
     private PropertyDatePattern() {
-        super("property-date-pattern");
+        super(PropertyDatePattern.class.getSimpleName());
     }
 
     public PropertyDatePattern(MetadataScope scope, DatePattern.DatePatternEnum datePattern) {

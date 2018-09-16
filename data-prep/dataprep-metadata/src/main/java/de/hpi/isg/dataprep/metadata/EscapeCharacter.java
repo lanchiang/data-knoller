@@ -16,7 +16,7 @@ public class EscapeCharacter extends Metadata {
     private String escapeCharacter;
 
     private EscapeCharacter() {
-        super("escape-characters");
+        super(EscapeCharacter.class.getSimpleName());
     }
 
     public EscapeCharacter(MetadataScope scope, String escapeCharacter) {
