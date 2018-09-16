@@ -13,15 +13,14 @@ import java.util.Objects;
  */
 public class EscapeCharacter extends Metadata {
 
-    private final String name = "escape-characters";
-
     private String escapeCharacter;
 
-    public EscapeCharacter(String escapeCharacter) {
-        this.escapeCharacter = escapeCharacter;
+    private EscapeCharacter() {
+        super("escape-characters");
     }
 
     public EscapeCharacter(MetadataScope scope, String escapeCharacter) {
+        this();
         this.scope = scope;
         this.escapeCharacter = escapeCharacter;
     }
@@ -43,20 +42,5 @@ public class EscapeCharacter extends Metadata {
     @Override
     public String getName() {
         return scope.getName();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EscapeCharacter that = (EscapeCharacter) o;
-        return Objects.equals(scope, that.scope) &&
-                Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(scope, name);
     }
 }

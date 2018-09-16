@@ -15,15 +15,14 @@ import java.util.Objects;
  */
 public class QuoteCharacter extends Metadata {
 
-    private final String name = "quote";
-
     private String QuoteCharacter;
 
-    public QuoteCharacter(String QuoteCharacter) {
-        this.QuoteCharacter = QuoteCharacter;
+    private QuoteCharacter() {
+        super("quote");
     }
 
     public QuoteCharacter(MetadataScope scope, String quoteCharacter) {
+        this();
         this.scope = scope;
         QuoteCharacter = quoteCharacter;
     }
@@ -40,20 +39,5 @@ public class QuoteCharacter extends Metadata {
 
     public String getQuoteCharacter() {
         return QuoteCharacter;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        QuoteCharacter that = (QuoteCharacter) o;
-        return Objects.equals(scope, that.scope) &&
-                Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(scope, name);
     }
 }

@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.util.Nameable;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,11 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     private static final long serialVersionUID = 1863322602595412693L;
 
     protected MetadataScope scope;
+    protected final String name;
+
+    protected Metadata(String name) {
+        this.name = name;
+    }
 
     /**
      * Which metadata repository this metadata belongs to.
@@ -52,5 +58,19 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     @Override
     public String getName() {
         return scope.getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Metadata metadata = (Metadata) o;
+        return Objects.equals(scope, metadata.scope) &&
+                Objects.equals(name, metadata.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(scope, name);
     }
 }

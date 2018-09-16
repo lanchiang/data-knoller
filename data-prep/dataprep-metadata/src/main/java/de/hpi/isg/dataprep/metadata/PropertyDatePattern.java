@@ -14,11 +14,14 @@ import java.util.Objects;
  */
 public class PropertyDatePattern extends Metadata {
 
-    private final String name = "property-date-pattern";
-
     private DatePattern.DatePatternEnum datePattern;
 
+    private PropertyDatePattern() {
+        super("property-date-pattern");
+    }
+
     public PropertyDatePattern(MetadataScope scope, DatePattern.DatePatternEnum datePattern) {
+        this();
         this.scope = scope;
         this.datePattern = datePattern;
     }
@@ -32,18 +35,5 @@ public class PropertyDatePattern extends Metadata {
     public boolean equalsByValue(Metadata metadata) {
         PropertyDatePattern that = (PropertyDatePattern) metadata;
         return this.datePattern.equals(that.datePattern);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PropertyDatePattern that = (PropertyDatePattern) o;
-        return Objects.equals(scope, that.scope) && Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(scope, name);
     }
 }

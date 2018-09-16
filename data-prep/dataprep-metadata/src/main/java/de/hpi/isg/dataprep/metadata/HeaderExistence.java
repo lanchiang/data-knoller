@@ -15,15 +15,14 @@ import java.util.Objects;
  */
 public class HeaderExistence extends Metadata {
 
-    private final String name = "header-existence";
-
     private boolean headerExistence;
 
-    public HeaderExistence(boolean headerExistence) {
-        this.headerExistence = headerExistence;
+    private HeaderExistence() {
+        super("header-existence");
     }
 
     public HeaderExistence(MetadataScope scope, boolean headerExistence) {
+        this();
         this.scope = scope;
         this.headerExistence = headerExistence;
     }
@@ -45,20 +44,5 @@ public class HeaderExistence extends Metadata {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        HeaderExistence that = (HeaderExistence) o;
-        return Objects.equals(name, that.name) &&
-                Objects.equals(scope, that.scope);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(scope, name);
     }
 }

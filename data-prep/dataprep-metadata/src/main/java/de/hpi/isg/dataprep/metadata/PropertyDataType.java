@@ -21,11 +21,14 @@ import java.util.stream.Collectors;
  */
 public class PropertyDataType extends Metadata {
 
-    private final String name = "property-data-type";
-
     private DataType.PropertyType propertyDataType;
 
+    public PropertyDataType() {
+        super("property-data-type");
+    }
+
     public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
+        this();
         this.scope = new Property(propertyName);
         this.propertyDataType = propertyDataType;
     }
@@ -71,19 +74,6 @@ public class PropertyDataType extends Metadata {
     @Override
     public boolean equalsByValue(Metadata metadata) {
         return this.getPropertyDataType().equals(((PropertyDataType)metadata).getPropertyDataType());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PropertyDataType)) return false;
-        PropertyDataType that = (PropertyDataType) o;
-        return Objects.equals(scope, that.scope) && Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(scope, name);
     }
 
     @Override

@@ -13,15 +13,14 @@ import java.util.Objects;
  */
 public class Delimiter extends Metadata {
 
-    private final String name = "delimiter";
-
     private String delimiter;
 
-    public Delimiter(String delimiter) {
-        this.delimiter = delimiter;
+    private Delimiter() {
+        super("delimiter");
     }
 
     public Delimiter(MetadataScope scope, String delimiter) {
+        this();
         this.scope = scope;
         this.delimiter = delimiter;
     }
@@ -43,20 +42,5 @@ public class Delimiter extends Metadata {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Delimiter delimiter = (Delimiter) o;
-        return Objects.equals(name, delimiter.name) &&
-                Objects.equals(scope, delimiter.scope);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(name, scope);
     }
 }

@@ -13,8 +13,6 @@ import java.util.Objects;
  */
 public class EndLineCharacters extends Metadata {
 
-    private final String name;
-
     private String endLineCharacters;
 
     public EndLineCharacters(String endLineCharacters) {
@@ -22,8 +20,8 @@ public class EndLineCharacters extends Metadata {
         this.endLineCharacters = endLineCharacters;
     }
 
-    public EndLineCharacters() {
-        name = "end-line-characters";
+    private EndLineCharacters() {
+        super("end-line-characters");
     }
 
     @Override
@@ -39,20 +37,6 @@ public class EndLineCharacters extends Metadata {
     @Override
     public String getName() {
         return scope.getName();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EndLineCharacters that = (EndLineCharacters) o;
-        return Objects.equals(name, that.name) && Objects.equals(scope, that.scope);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(name, scope);
     }
 
     @Override
