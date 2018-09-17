@@ -12,5 +12,12 @@
 
     <artifactId>dataprep-spark</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>de.hpi.isg</groupId>
+            <artifactId>dataprep-model</artifactId>
+            <version>0.01-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.model.target;
 
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
 /**
@@ -10,7 +10,7 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 public class Provenance extends Target {
 
     private AbstractPreparation preparation;
-    private Preparator preparator;
+    private AbstractPreparator preparator;
     private String createdTime;
     private String messages;
 }

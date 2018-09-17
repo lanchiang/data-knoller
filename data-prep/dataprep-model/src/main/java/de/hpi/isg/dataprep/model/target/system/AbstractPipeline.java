@@ -11,11 +11,18 @@ import org.apache.spark.sql.Row;
 import java.util.List;
 
 /**
+ * The abstract class of a data preparation pipeline.
+ *
  * @author Lan Jiang
  * @since 2018/9/10
  */
 public interface AbstractPipeline extends Nameable {
-    
+
+    /**
+     * Add a {@link AbstractPreparation} to this pipeline.
+     *
+     * @param preparation
+     */
     void addPreparation(AbstractPreparation preparation);
 
     /**
@@ -26,10 +33,23 @@ public interface AbstractPipeline extends Nameable {
      */
     void checkPipelineErrors() throws PipelineSyntaxErrorException;
 
+    /**
+     * Entrance of the execution of the data preparation pipeline.
+     *
+     * @throws Exception
+     */
     void executePipeline() throws Exception;
 
+    /**
+     * Insert the metadata whose values are already known into the {@link MetadataRepository}
+     */
     void initMetadataRepository();
 
+    /**
+     * Configure the {@link de.hpi.isg.dataprep.model.target.objects.Metadata} prerequisites used when checking metadata, as well as
+     * the set of metadata that will be modified after executing a preparator successfully.
+     *
+     */
     void buildMetadataSetup();
 
     List<AbstractPreparation> getPreparations();
@@ -42,7 +62,7 @@ public interface AbstractPipeline extends Nameable {
 
     Dataset<Row> getRawData();
 
-    void setRawData(Dataset<Row> rawData);
-
     String getDatasetName();
+
+    void setRawData(Dataset<Row> rawData);
 }

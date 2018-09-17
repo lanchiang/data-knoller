@@ -1,28 +1,22 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
+import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
-import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.preparators.define.*;
 import de.hpi.isg.dataprep.util.DataType;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;

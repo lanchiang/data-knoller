@@ -7,7 +7,7 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
@@ -21,7 +21,7 @@ public class Preparation implements AbstractPreparation {
 
     private String name;
 
-    private Preparator preparator;
+    private AbstractPreparator preparator;
     private Consequences consequences;
 
     private int position;
@@ -39,7 +39,7 @@ public class Preparation implements AbstractPreparation {
     public void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
         if (position != 0) {
             // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
-            for (Metadata metadata : preparator.getPrerequisite()) {
+            for (Metadata metadata : preparator.getPrerequisiteMetadata()) {
                 try {
                     metadata.checkMetadata(metadataRepository);
                 } catch (MetadataNotFoundException e) {
@@ -51,7 +51,7 @@ public class Preparation implements AbstractPreparation {
                 }
             }
         }
-        List<Metadata> toChangeMetadata = preparator.getToChange();
+        List<Metadata> toChangeMetadata = preparator.getUpdateMetadata();
 
         // update metadata repository. This shall be done even if the metadata fail to agree, because the following preparations need to
         // check the pipeline error with this presumably correct metadata.
@@ -70,7 +70,7 @@ public class Preparation implements AbstractPreparation {
     }
 
     @Override
-    public Preparator getPreparator() {
+    public AbstractPreparator getPreparator() {
         return preparator;
     }
 

@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.preparators.define.Hash;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.HashAlgorithm;
 import org.junit.Test;

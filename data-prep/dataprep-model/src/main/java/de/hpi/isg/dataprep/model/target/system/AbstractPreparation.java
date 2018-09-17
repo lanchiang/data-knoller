@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.Consequences;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.preparator.Preparator;
+import de.hpi.isg.dataprep.model.target.preparator.AbstractPreparator;
 import de.hpi.isg.dataprep.util.Nameable;
 
 /**
@@ -23,7 +23,7 @@ public interface AbstractPreparation extends Nameable {
 
     void setPipeline(AbstractPipeline pipeline);
 
-    Preparator getPreparator();
+    AbstractPreparator getPreparator();
 
     int getPosition();
 

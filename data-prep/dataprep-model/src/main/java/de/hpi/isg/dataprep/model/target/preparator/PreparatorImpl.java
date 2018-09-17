@@ -13,7 +13,7 @@ import org.apache.spark.util.CollectionAccumulator;
  */
 abstract public class PreparatorImpl {
 
-    abstract protected Consequences executePreparator(Preparator preparator, Dataset<Row> dataFrame) throws Exception;
+    abstract protected Consequences executePreparator(AbstractPreparator preparator, Dataset<Row> dataFrame) throws Exception;
 
     protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Dataset<Row> dataFrame) {
         CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator();
@@ -22,25 +22,25 @@ abstract public class PreparatorImpl {
         return errorAccumulator;
     }
 
-    private final Dataset<Row> getDataSet(Preparator preparator) {
+    private final Dataset<Row> getDataSet(AbstractPreparator preparator) {
         return preparator.getPreparation().getPipeline().getRawData();
     }
 
-    public final void execute(Preparator preparator) throws Exception {
+    public final void execute(AbstractPreparator preparator) throws Exception {
         // getDataset
         Dataset<Row> dataset = this.getDataSet(preparator);
 
         Consequences consequences = executePreparator(preparator, dataset);
 
         preparator.getPreparation().setConsequences(consequences);
-        preparator.setUpdatedDataset(consequences.newDataFrame());
+        preparator.setUpdatedTable(consequences.newDataFrame());
 
         if (consequences.hasError()) {
             throw new PreparationHasErrorException("This preparation causes errors for some records.");
         }
     }
 
-    public final <T> T getPreparatorInstance(Preparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
+    public final <T> T getPreparatorInstance(AbstractPreparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
         if (!(preparator.getClass().isAssignableFrom(concretePreparatorClass))) {
             throw new ClassCastException("Class is not required type.");
         }
