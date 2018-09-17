@@ -6,7 +6,7 @@ import java.util.{ArrayList, List}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.implementation.DefaultReplaceSubstringImpl
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.objects.{Metadata, Property}
+import de.hpi.isg.dataprep.model.target.objects.{Metadata, ColumnMetadata}
 import de.hpi.isg.dataprep.model.target.preparator.Preparator
 import de.hpi.isg.dataprep.util.DataType
 
@@ -36,7 +36,7 @@ class ReplaceSubstring(val propertyName : String,
         val prerequisites = new util.ArrayList[Metadata]
         val tochange = new util.ArrayList[Metadata]
 
-        if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Property name not specified"))
+        if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified"))
         if (source == null) throw new ParameterNotSpecifiedException(String.format("Source sub-string not specified"))
         if (replacement == null) throw new ParameterNotSpecifiedException(String.format("Target sub-string not specified"))
         if (times < 0) throw new IllegalArgumentException(String.format("Cannot replace the first minus sub-strings."))

@@ -75,7 +75,7 @@ public class RenamePropertyTest extends PreparatorTest {
 
         List<ErrorLog> trueErrorLog = new ArrayList<>();
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorLog);
-        ErrorLog errorLog = new PreparationErrorLog(preparation, "Gaodu", new PreparationHasErrorException("Property name does not exist."));
+        ErrorLog errorLog = new PreparationErrorLog(preparation, "Gaodu", new PreparationHasErrorException("ColumnMetadata name does not exist."));
         trueErrorLog.add(errorLog);
 
         // First test error log repository

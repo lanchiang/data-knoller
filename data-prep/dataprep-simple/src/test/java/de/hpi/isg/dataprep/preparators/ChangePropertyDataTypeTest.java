@@ -48,13 +48,6 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 
-        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "id" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING +
-                        '}')));
-        trueErrorlogs.add(pipelineErrorLog);
-
         ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", new NumberFormatException("For input string: \"three\""));
         ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", new NumberFormatException("For input string: \"six\""));
         ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", new NumberFormatException("For input string: \"ten\""));
@@ -111,6 +104,30 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         trueErrorlogs.add(errorLog2);
         trueErrorlogs.add(errorLog3);
         trueErrorlogs.add(errorLog4);
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        pipeline.getRawData().show();
+
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+    }
+
+    @Test
+    public void testChangeToStringSourceTypeSpecifiedWrong() throws Exception {
+        Preparator preparator = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
+
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+
+        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "three", new NumberFormatException("For input string: \"three\""));
+        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "six", new NumberFormatException("For input string: \"six\""));
+        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "ten", new NumberFormatException("For input string: \"ten\""));
+
+        trueErrorlogs.add(errorLog1);
+        trueErrorlogs.add(errorLog2);
+        trueErrorlogs.add(errorLog3);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();

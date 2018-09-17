@@ -5,8 +5,6 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
-import java.util.Objects;
-
 /**
  * This metadata specifies the existence of headers in a relational data model.
  *
@@ -21,7 +19,7 @@ public class HeaderExistence extends Metadata {
         super(HeaderExistence.class.getSimpleName());
     }
 
-    public HeaderExistence(MetadataScope scope, boolean headerExistence) {
+    public HeaderExistence(boolean headerExistence, MetadataScope scope) {
         this();
         this.scope = scope;
         this.headerExistence = headerExistence;

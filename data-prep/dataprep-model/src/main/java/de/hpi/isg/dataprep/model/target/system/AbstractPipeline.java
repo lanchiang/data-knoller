@@ -30,6 +30,8 @@ public interface AbstractPipeline extends Nameable {
 
     void initMetadataRepository();
 
+    void buildMetadataSetup();
+
     List<AbstractPreparation> getPreparations();
 
     ErrorRepository getErrorRepository();
@@ -41,4 +43,6 @@ public interface AbstractPipeline extends Nameable {
     Dataset<Row> getRawData();
 
     void setRawData(Dataset<Row> rawData);
+
+    String getDatasetName();
 }

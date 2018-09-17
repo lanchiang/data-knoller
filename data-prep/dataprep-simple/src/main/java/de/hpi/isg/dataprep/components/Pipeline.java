@@ -2,27 +2,24 @@ package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
-import de.hpi.isg.dataprep.metadata.Delimiter;
-import de.hpi.isg.dataprep.metadata.EscapeCharacter;
-import de.hpi.isg.dataprep.metadata.HeaderExistence;
-import de.hpi.isg.dataprep.metadata.QuoteCharacter;
+import de.hpi.isg.dataprep.metadata.*;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
-import de.hpi.isg.dataprep.model.target.objects.DataSet;
+import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.StructType;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,6 +45,7 @@ public class Pipeline implements AbstractPipeline {
      */
     private Dataset<Row> rawData;
     private DataContext dataContext;
+    private String datasetName;
 
     private Pipeline() {
         this.metadataRepository = new MetadataRepository();
@@ -70,6 +68,7 @@ public class Pipeline implements AbstractPipeline {
         this();
         this.dataContext = dataContext;
         this.rawData = dataContext.getDataFrame();
+        this.datasetName = dataContext.getDialect().getTableName();
     }
 
     @Override
@@ -77,9 +76,7 @@ public class Pipeline implements AbstractPipeline {
         preparation.setPipeline(this);
         preparation.setPosition(index++);
 
-        // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
-        preparation.getPreparator().buildMetadataSetup();
-
+//        preparation.getPreparator().buildMetadataSetup();
         this.preparations.add(preparation);
     }
 
@@ -106,6 +103,9 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void executePipeline() throws Exception {
         initMetadataRepository();
+
+        buildMetadataSetup();
+
         try {
             checkPipelineErrors();
         } catch (PipelineSyntaxErrorException e) {
@@ -127,10 +127,10 @@ public class Pipeline implements AbstractPipeline {
     public void initMetadataRepository() {
         FileLoadDialect dialect = this.dataContext.getDialect();
 
-        Delimiter delimiter = new Delimiter(new DataSet(dialect.getDataSetName()), dialect.getDelimiter());
-        QuoteCharacter quoteCharacter = new QuoteCharacter(new DataSet(dialect.getDataSetName()), dialect.getQuoteChar());
-        EscapeCharacter escapeCharacter = new EscapeCharacter(new DataSet(dialect.getDataSetName()), dialect.getEscapeChar());
-        HeaderExistence headerExistence = new HeaderExistence(new DataSet(dialect.getDataSetName()), dialect.getHasHeader().equals("true"));
+        Delimiter delimiter = new Delimiter(dialect.getDelimiter(), new TableMetadata(dialect.getTableName()));
+        QuoteCharacter quoteCharacter = new QuoteCharacter(dialect.getQuoteChar(), new TableMetadata(dialect.getTableName()));
+        EscapeCharacter escapeCharacter = new EscapeCharacter(dialect.getEscapeChar(), new TableMetadata(dialect.getTableName()));
+        HeaderExistence headerExistence = new HeaderExistence(dialect.getHasHeader().equals("true"), new TableMetadata(dialect.getTableName()));
 
         List<Metadata> initMetadata = new ArrayList<>();
         initMetadata.add(delimiter);
@@ -138,7 +138,21 @@ public class Pipeline implements AbstractPipeline {
         initMetadata.add(escapeCharacter);
         initMetadata.add(headerExistence);
 
+        StructType structType = this.rawData.schema();
+        Arrays.stream(structType.fields()).forEach(field -> {
+            DataType dataType = field.dataType();
+            String fieldName = field.name();
+            PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
+            initMetadata.add(propertyDataType);
+        });
+
         this.metadataRepository.updateMetadata(initMetadata);
+    }
+
+    @Override
+    public void buildMetadataSetup() {
+        // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
+        this.preparations.stream().forEachOrdered(preparation -> preparation.getPreparator().buildMetadataSetup());
     }
 
     @Override
@@ -169,6 +183,11 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void setRawData(Dataset<Row> rawData) {
         this.rawData = rawData;
+    }
+
+    @Override
+    public String getDatasetName() {
+        return this.datasetName;
     }
 
     @Override

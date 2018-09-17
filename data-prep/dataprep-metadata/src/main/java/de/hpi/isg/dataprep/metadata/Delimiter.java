@@ -19,10 +19,10 @@ public class Delimiter extends Metadata {
         super(Delimiter.class.getSimpleName());
     }
 
-    public Delimiter(MetadataScope scope, String delimiter) {
+    public Delimiter(String delimiter, MetadataScope scope) {
         this();
-        this.scope = scope;
         this.delimiter = delimiter;
+        this.scope = scope;
     }
 
     @Override

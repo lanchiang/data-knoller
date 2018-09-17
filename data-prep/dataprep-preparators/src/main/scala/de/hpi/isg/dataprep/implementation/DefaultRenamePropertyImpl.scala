@@ -30,7 +30,7 @@ class DefaultRenamePropertyImpl extends PreparatorImpl {
 
         // needs to check whether the new name string is valid.
         if (!columns.contains(currentPropertyName)) {
-            errorAccumulator.add(new PropertyError(currentPropertyName, new PreparationHasErrorException("Property name does not exist.")));
+            errorAccumulator.add(new PropertyError(currentPropertyName, new PreparationHasErrorException("ColumnMetadata name does not exist.")));
         } else {
             if (columns.contains(targetPropertyName)) {
                 errorAccumulator.add(new PropertyError(targetPropertyName, new PreparationHasErrorException("New name already exists.")));

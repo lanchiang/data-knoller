@@ -5,8 +5,6 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
-import java.util.Objects;
-
 /**
  * @author Lan Jiang
  * @since 2018/8/28
@@ -19,7 +17,7 @@ public class EscapeCharacter extends Metadata {
         super(EscapeCharacter.class.getSimpleName());
     }
 
-    public EscapeCharacter(MetadataScope scope, String escapeCharacter) {
+    public EscapeCharacter(String escapeCharacter, MetadataScope scope) {
         this();
         this.scope = scope;
         this.escapeCharacter = escapeCharacter;

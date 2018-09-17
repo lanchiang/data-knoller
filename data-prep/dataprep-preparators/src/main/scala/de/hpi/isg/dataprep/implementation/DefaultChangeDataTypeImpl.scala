@@ -26,12 +26,11 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
     @throws(classOf[Exception])
     override protected def executePreparator(preparator: Preparator, dataFrame: DataFrame): Consequences = {
         val preparator_ = getPreparatorInstance(preparator, classOf[ChangeDataType])
-        val errorAccumulator = this.createErrorAccumulator( dataFrame)
+        val errorAccumulator = this.createErrorAccumulator(dataFrame)
         executeLogic(preparator_, dataFrame, errorAccumulator)
     }
 
     /**
-      * The subclass decides which specific scala code snippet to invoke.
       *
       * @param preparator the specific [[Preparator]] invoked.
       * @param dataFrame  the operated [[Dataset<Row>]] instance.

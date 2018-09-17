@@ -14,6 +14,7 @@ import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import scala.tools.cmd.Meta;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -113,13 +114,19 @@ abstract public class Preparator extends Target implements Executable {
 
         // but if not match invalid.
         prerequisite.stream()
-                .filter(metadata -> metadataRepository.getMetadataPool().contains(metadata)) // but values are not equivalent
-                .filter(metadata -> !metadataRepository.containByValue(metadata))
-                .forEach(metadata -> invalid.add(metadata));
+                .forEach(metadata -> {
+                    Metadata that = metadataRepository.getMetadata(metadata);
+                    if (that==null) {
+                        return;
+                    }
+                    if (!metadata.equalsByValue(that)) {
+                        invalid.add(metadata);
+                    }
+                });
         // not found, add.
-        prerequisite.stream()
-                .filter(metadata -> !metadataRepository.getMetadataPool().contains(metadata))
-                .forEach(metadata -> this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(metadata));
+//        prerequisite.stream()
+//                .filter(metadata -> !metadataRepository.getMetadataPool().contains(metadata))
+//                .forEach(metadata -> this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(metadata));
     }
 
     /**

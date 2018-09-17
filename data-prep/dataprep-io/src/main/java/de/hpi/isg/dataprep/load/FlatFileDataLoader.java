@@ -3,8 +3,6 @@ package de.hpi.isg.dataprep.load;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import org.apache.spark.sql.DataFrameReader;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 
 /**
  * @author Lan Jiang
@@ -14,7 +12,7 @@ public class FlatFileDataLoader extends SparkDataLoader {
 
     public FlatFileDataLoader(FileLoadDialect dialect) {
         this.dialect = dialect;
-        this.getDialect().setDataSetName("Default dataset name");
+        this.getDialect().setTableName(dialect.getTableName()==null?"Default dataset name":dialect.getTableName());
     }
 
     @Override

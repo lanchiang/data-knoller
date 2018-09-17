@@ -7,12 +7,10 @@ import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
-import de.hpi.isg.dataprep.model.target.objects.Property;
+import de.hpi.isg.dataprep.model.target.objects.ColumnMetadata;
 import de.hpi.isg.dataprep.util.DataType;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +27,7 @@ public class PropertyDataType extends Metadata {
 
     public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
         this();
-        this.scope = new Property(propertyName);
+        this.scope = new ColumnMetadata(propertyName);
         this.propertyDataType = propertyDataType;
     }
 
@@ -51,8 +49,6 @@ public class PropertyDataType extends Metadata {
         List<PropertyDataType> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof PropertyDataType)
                 .map(metadata -> (PropertyDataType) metadata)
-//                .filter(metadata -> metadata.getName().equals(this.scope.getName()))
-//                .filter(metadata -> metadata.getPropertyName().equals(this.propertyName))
                 .filter(metadata -> metadata.equals(this))
                 .collect(Collectors.toList());
 
@@ -63,7 +59,6 @@ public class PropertyDataType extends Metadata {
                     this.getClass().getSimpleName(), this.scope.getName()));
         } else {
             PropertyDataType metadataInRepo = matchedInRepo.get(0);
-//            if (!this.propertyDataType.equals(metadataInRepo.getPropertyDataType())) {
             if (!this.equalsByValue(metadataInRepo)) {
                 // value of this metadata does not match that in the repository.
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
@@ -73,7 +68,7 @@ public class PropertyDataType extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        return this.getPropertyDataType().equals(((PropertyDataType)metadata).getPropertyDataType());
+        return propertyDataType.equals(((PropertyDataType)metadata).getPropertyDataType());
     }
 
     @Override

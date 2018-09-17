@@ -34,7 +34,7 @@ class DefaultAddPropertyImpl extends PreparatorImpl {
         val schema = dataFrame.columns
 
         if (schema.contains(targetPropertyName)) {
-            val error = new PropertyError(targetPropertyName, new PreparationHasErrorException("Property already exists."))
+            val error = new PropertyError(targetPropertyName, new PreparationHasErrorException("ColumnMetadata already exists."))
             errorAccumulator.add(error)
         }
 

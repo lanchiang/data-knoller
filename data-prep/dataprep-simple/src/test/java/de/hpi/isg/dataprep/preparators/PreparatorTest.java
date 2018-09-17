@@ -30,18 +30,18 @@ public class PreparatorTest {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        FileLoadDialect dialect = new DialectBuilder()
-                .hasHeader(true)
-                .inferSchema(true)
-                .url("./src/test/resources/pokemon.csv")
-                .buildDialect();
-
 //        FileLoadDialect dialect = new DialectBuilder()
 //                .hasHeader(true)
-//                .delimiter("\t")
 //                .inferSchema(true)
-//                .url("./src/test/resources/restaurants.tsv")
+//                .url("./src/test/resources/pokemon.csv")
 //                .buildDialect();
+
+        FileLoadDialect dialect = new DialectBuilder()
+                .hasHeader(true)
+                .delimiter("\t")
+                .inferSchema(true)
+                .url("./src/test/resources/restaurants.tsv")
+                .buildDialect();
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();

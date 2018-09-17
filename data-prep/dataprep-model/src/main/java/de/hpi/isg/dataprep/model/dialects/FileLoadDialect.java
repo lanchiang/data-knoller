@@ -1,17 +1,12 @@
 package de.hpi.isg.dataprep.model.dialects;
 
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Lan Jiang
  * @since 2018/9/9
  */
 public class FileLoadDialect {
 
-    private String dataSetName;
+    private String tableName;
 
     private String delimiter;
     private String quoteChar;
@@ -116,11 +111,11 @@ public class FileLoadDialect {
         this.inferSchema = inferSchema;
     }
 
-    public String getDataSetName() {
-        return dataSetName;
+    public String getTableName() {
+        return tableName;
     }
 
-    public void setDataSetName(String dataSetName) {
-        this.dataSetName = dataSetName;
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 }

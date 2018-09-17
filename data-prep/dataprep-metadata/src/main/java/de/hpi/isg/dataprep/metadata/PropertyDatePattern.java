@@ -20,7 +20,7 @@ public class PropertyDatePattern extends Metadata {
         super(PropertyDatePattern.class.getSimpleName());
     }
 
-    public PropertyDatePattern(MetadataScope scope, DatePattern.DatePatternEnum datePattern) {
+    public PropertyDatePattern(DatePattern.DatePatternEnum datePattern, MetadataScope scope) {
         this();
         this.scope = scope;
         this.datePattern = datePattern;

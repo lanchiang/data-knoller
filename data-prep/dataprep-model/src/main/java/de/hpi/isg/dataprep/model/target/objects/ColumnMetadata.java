@@ -9,34 +9,34 @@ import java.util.Objects;
  * @author Lan Jiang
  * @since 2018/9/2
  */
-public class Property extends MetadataScope {
+public class ColumnMetadata extends MetadataScope {
 
-    String propertyName;
+    String columnName;
 
-    public Property(String propertyName) {
-        this.propertyName = propertyName;
+    public ColumnMetadata(String propertyName) {
+        this.columnName = propertyName;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public String getColumnName() {
+        return columnName;
     }
 
     @Override
     public String getName() {
-        return propertyName;
+        return columnName;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Property property = (Property) o;
-        return Objects.equals(propertyName, property.propertyName);
+        ColumnMetadata columnMetadata = (ColumnMetadata) o;
+        return Objects.equals(columnName, columnMetadata.columnName);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(propertyName);
+        return Objects.hash(columnName);
     }
 }

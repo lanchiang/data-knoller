@@ -1,14 +1,11 @@
 package de.hpi.isg.dataprep.model.repository;
 
-import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.objects.Property;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * This class represent the repository of metadata of a {@link de.hpi.isg.dataprep.model.target.system.AbstractPipeline}.
@@ -29,10 +26,6 @@ public class MetadataRepository {
         return metadataPool;
     }
 
-    public void setMetadataPool(Set<Metadata> metadataPool) {
-        this.metadataPool = metadataPool;
-    }
-
     public void updateMetadata(Metadata metadata) {
         metadata.setBelongs(this);
 
@@ -51,5 +44,20 @@ public class MetadataRepository {
     public boolean containByValue(Metadata metadata) {
         Optional<Metadata> result = metadataPool.stream().filter(metadata_ -> metadata_.equalsByValue(metadata)).findFirst();
         return result.isPresent();
+    }
+
+    /**
+     * Get the metadata with the same signature from the repository. Evaluating same signatures inspects whether scope and name are the same.
+     *
+     * @param metadata
+     * @return
+     */
+    public Metadata getMetadata(Metadata metadata) {
+        Optional<Metadata> first = metadataPool.stream().filter(metadata_ -> metadata_.equals(metadata)).findFirst();
+        if (first.isPresent()) {
+            return first.get();
+        } else {
+            return null;
+        }
     }
 }

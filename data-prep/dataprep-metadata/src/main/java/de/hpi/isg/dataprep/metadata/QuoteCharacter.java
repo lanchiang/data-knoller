@@ -19,7 +19,7 @@ public class QuoteCharacter extends Metadata {
         super(QuoteCharacter.class.getSimpleName());
     }
 
-    public QuoteCharacter(MetadataScope scope, String quoteCharacter) {
+    public QuoteCharacter(String quoteCharacter, MetadataScope scope) {
         this();
         this.scope = scope;
         this.quoteCharacter = quoteCharacter;
