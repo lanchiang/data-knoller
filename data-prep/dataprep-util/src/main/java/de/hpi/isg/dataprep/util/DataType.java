@@ -1,9 +1,6 @@
 package de.hpi.isg.dataprep.util;
 
-import org.apache.spark.sql.types.DateType;
-import org.apache.spark.sql.types.DoubleType;
-import org.apache.spark.sql.types.IntegerType;
-import org.apache.spark.sql.types.StringType;
+import org.apache.spark.sql.types.*;
 
 import java.io.Serializable;
 
@@ -37,5 +34,19 @@ public class DataType implements Serializable {
             // pass
         }
         return innerType;
+    }
+
+    public static org.apache.spark.sql.types.DataType getSparkTypeFromInnerType(PropertyType dataType) {
+        org.apache.spark.sql.types.DataType javaType = null;
+        if (dataType.equals(PropertyType.STRING)) {
+            javaType = DataTypes.StringType;
+        } else if (dataType.equals(PropertyType.INTEGER)) {
+            javaType = DataTypes.IntegerType;
+        } else if (dataType.equals(PropertyType.DOUBLE)) {
+            javaType = DataTypes.DoubleType;
+        } else if (dataType.equals(PropertyType.DATE)) {
+            javaType = DataTypes.DateType;
+        }
+        return javaType;
     }
 }

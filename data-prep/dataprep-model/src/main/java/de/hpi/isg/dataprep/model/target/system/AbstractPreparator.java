@@ -1,8 +1,7 @@
-package de.hpi.isg.dataprep.model.target.preparator;
+package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -16,7 +15,7 @@ import java.util.List;
 public interface AbstractPreparator extends Executable {
 
     /**
-     * This method validates the input parameters of a {@link Preparator}. If succeeds, setup the values of metadata into both
+     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
      * prerequisite and toChange set.
      *
      * @throws ParameterNotSpecifiedException
@@ -32,7 +31,7 @@ public interface AbstractPreparator extends Executable {
      * After the execution of this preparator finishes, call this method to post config the pipeline.
      * For example, update the dataset, update the metadata repository.
      */
-    void configureAfterExecution();
+    void postExecConfig();
 
     @Override
     void execute() throws Exception;

@@ -1,13 +1,13 @@
 package de.hpi.isg.dataprep.components;
 
-import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.exceptions.DuplicateMetadataException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.preparator.AbstractPreparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
@@ -22,7 +22,7 @@ public class Preparation implements AbstractPreparation {
     private String name;
 
     private AbstractPreparator preparator;
-    private Consequences consequences;
+    private ExecutionContext executionContext;
 
     private int position;
 
@@ -85,13 +85,13 @@ public class Preparation implements AbstractPreparation {
     }
 
     @Override
-    public void setConsequences(Consequences consequences) {
-        this.consequences = consequences;
+    public void setExecutionContext(ExecutionContext executionContext) {
+        this.executionContext = executionContext;
     }
 
     @Override
-    public Consequences getConsequences() {
-        return consequences;
+    public ExecutionContext getExecutionContext() {
+        return executionContext;
     }
 
     @Override

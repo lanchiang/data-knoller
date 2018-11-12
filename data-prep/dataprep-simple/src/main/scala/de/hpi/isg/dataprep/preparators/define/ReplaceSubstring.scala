@@ -20,7 +20,7 @@ class ReplaceSubstring(val propertyName : String,
                        val replacement : String,
                        val times : Int) extends Preparator {
 
-    this.impl = new DefaultReplaceSubstringImpl
+//    this.impl = new DefaultReplaceSubstringImpl
 
     def this(propertyName :String, source : String, replacement : String) {
         this(propertyName, source, replacement, ReplaceSubstring.DEFAULT_TIMES)

@@ -1,8 +1,7 @@
 package de.hpi.isg.dataprep.model.target.system;
 
-import de.hpi.isg.dataprep.Consequences;
+import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.preparator.AbstractPreparator;
 import de.hpi.isg.dataprep.util.Nameable;
 
 /**
@@ -29,7 +28,7 @@ public interface AbstractPreparation extends Nameable {
 
     void setPosition(int position);
 
-    void setConsequences(Consequences consequences);
+    void setExecutionContext(ExecutionContext executionContext);
 
-    Consequences getConsequences();
+    ExecutionContext getExecutionContext();
 }

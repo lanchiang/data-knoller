@@ -6,6 +6,7 @@ import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
+import org.apache.spark.sql.Row
 
 import scala.util.{Failure, Success, Try}
 

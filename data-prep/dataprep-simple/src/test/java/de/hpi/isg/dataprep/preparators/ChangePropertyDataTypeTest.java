@@ -111,6 +111,20 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
     }
 
     @Test
+    public void testChangeFromIntegerToDouble() throws Exception {
+        Preparator preparator = new ChangeDataType("species_id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
+
+        Preparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        pipeline.getRawData().show();
+        pipeline.getRawData().printSchema();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+    }
+
+    @Test
     public void testChangeToStringSourceTypeSpecifiedWrong() throws Exception {
         Preparator preparator = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
 

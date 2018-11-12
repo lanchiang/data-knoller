@@ -29,7 +29,8 @@ abstract public class SparkDataLoader {
                 .appName(dialect.getSparkAppName())
                 .master(dialect.getMasterUrl()).getOrCreate().read();
 
-        dataFrameReader.option("sep", dialect.getDelimiter())
+        dataFrameReader
+                .option("sep", dialect.getDelimiter())
                 .option("quote", dialect.getQuoteChar())
                 .option("escape", dialect.getEscapeChar())
                 .option("header", dialect.getHasHeader())

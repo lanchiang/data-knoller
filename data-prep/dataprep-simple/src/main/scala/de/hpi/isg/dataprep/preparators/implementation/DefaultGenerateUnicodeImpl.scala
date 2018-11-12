@@ -1,12 +1,14 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.model.error.RecordError
-import de.hpi.isg.dataprep.{Consequences, DatasetUtil}
-import de.hpi.isg.dataprep.model.target.preparator.{AbstractPreparator, PreparatorImpl}
+import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.{DatasetUtil, ExecutionContext}
 import de.hpi.isg.dataprep.preparators.define.GenerateUnicode
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.sql.functions.lit
+import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.{Failure, Success, Try}
 
@@ -17,15 +19,55 @@ import scala.util.{Failure, Success, Try}
   */
 class DefaultGenerateUnicodeImpl extends PreparatorImpl {
 
-    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: Dataset[Row]): Consequences = {
-        val preparator_ = getPreparatorInstance(preparator, classOf[GenerateUnicode])
-        val errorAccumulator = createErrorAccumulator(dataFrame)
+    //    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: Dataset[Row]): ExecutionContext = {
+    //        val preparator_ = getPreparatorInstance(preparator, classOf[GenerateUnicode])
+    //        val errorAccumulator = createErrorAccumulator(dataFrame)
+    //
+    //        val propertyName = preparator_.propertyName
+    //
+    //        val dataType = dataFrame.schema(propertyName).dataType
+    //
+    //        val intermediate = dataFrame.withColumn(propertyName+"_unicode", lit(""))
+    //        val rowEncoder = RowEncoder(intermediate.schema)
+    //
+    //        val createdDataset = intermediate.flatMap(row => {
+    //            val index = DatasetUtil.getFieldIndexByPropertyNameSafe(row, propertyName)
+    //            val operatedValue = DatasetUtil.getValueByFieldIndex(row, index, dataType)
+    //
+    //            val seq = row.toSeq
+    //            val forepart = seq.take(row.length-1)
+    //
+    //            val tryConvert = Try{
+    //                val newSeq = forepart :+ None
+    //                val newRow = Row.fromSeq(newSeq)
+    //                newRow
+    //            }
+    //
+    //            val convertOption = tryConvert match {
+    //                case Failure(content) => {
+    //                    errorAccumulator.add(new RecordError(operatedValue.toString, content))
+    //                    tryConvert
+    //                }
+    //                case Success(content) => tryConvert
+    //            }
+    //
+    //            convertOption.toOption
+    //        })(rowEncoder)
+    //
+    //        createdDataset.persist()
+    //        createdDataset.count()
+    //
+    //        new ExecutionContext(createdDataset, errorAccumulator)
+    //    }
 
-        val propertyName = preparator_.propertyName
+    override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+        val preparator = abstractPreparator.asInstanceOf[GenerateUnicode]
+
+        val propertyName = preparator.propertyName
 
         val dataType = dataFrame.schema(propertyName).dataType
 
-        val intermediate = dataFrame.withColumn(propertyName+"_unicode", lit(""))
+        val intermediate = dataFrame.withColumn(propertyName + "_unicode", lit(""))
         val rowEncoder = RowEncoder(intermediate.schema)
 
         val createdDataset = intermediate.flatMap(row => {
@@ -33,9 +75,9 @@ class DefaultGenerateUnicodeImpl extends PreparatorImpl {
             val operatedValue = DatasetUtil.getValueByFieldIndex(row, index, dataType)
 
             val seq = row.toSeq
-            val forepart = seq.take(row.length-1)
+            val forepart = seq.take(row.length - 1)
 
-            val tryConvert = Try{
+            val tryConvert = Try {
                 val newSeq = forepart :+ None
                 val newRow = Row.fromSeq(newSeq)
                 newRow
@@ -55,6 +97,6 @@ class DefaultGenerateUnicodeImpl extends PreparatorImpl {
         createdDataset.persist()
         createdDataset.count()
 
-        new Consequences(createdDataset, errorAccumulator)
+        new ExecutionContext(createdDataset, errorAccumulator)
     }
 }

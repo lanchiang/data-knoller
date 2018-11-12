@@ -1,7 +1,6 @@
 package de.hpi.isg.dataprep.components;
 
-import de.hpi.isg.dataprep.Consequences;
-import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
+import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
@@ -9,9 +8,10 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.preparator.AbstractPreparator;
-import de.hpi.isg.dataprep.model.target.preparator.PreparatorImpl;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.preparators.define.ChangeDataType;
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDataTypeImpl;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -36,10 +36,15 @@ abstract public class Preparator implements AbstractPreparator {
 
     protected PreparatorImpl impl;
 
-    public Preparator() {
+    public Preparator() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         invalid = new ArrayList<>();
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
+
+        String simpleClassName = this.getClass().getSimpleName();
+
+        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
+        this.impl = Class.forName(preparatorImplClass).asSubclass(PreparatorImpl.class).newInstance();
     }
 
     @Override
@@ -54,7 +59,7 @@ abstract public class Preparator implements AbstractPreparator {
         } catch (PreparationHasErrorException e) {
             recordErrorLog();
         }
-        configureAfterExecution();
+        postExecConfig();
     }
 
     /**
@@ -96,9 +101,9 @@ abstract public class Preparator implements AbstractPreparator {
      * record an error log.
      */
     protected void recordErrorLog() {
-        Consequences consequences = this.getPreparation().getConsequences();
+        ExecutionContext executionContext = this.getPreparation().getExecutionContext();
 
-        List<ErrorLog> errorLogs = consequences.errorsAccumulator().value().stream()
+        List<ErrorLog> errorLogs = executionContext.errorsAccumulator().value().stream()
                 .map(error -> {
                     ErrorLog errorLog = null;
                     switch (error.getErrorLevel()) {
@@ -129,7 +134,7 @@ abstract public class Preparator implements AbstractPreparator {
     }
 
     @Override
-    public void configureAfterExecution() {
+    public void postExecConfig() {
         recordProvenance();
         updateMetadataRepository();
         updateDataset();

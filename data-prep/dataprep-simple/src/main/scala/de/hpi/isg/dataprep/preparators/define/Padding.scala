@@ -39,10 +39,9 @@ class Padding(val propertyName : String,
         // illegal padding length was input.
         if (expectedLength <= 0) throw new IllegalArgumentException(String.format("Padding length is illegal!"))
 
-//        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
         prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
-        // when basic statistics is implemented, one shall be capable of retrieving value length from the metdata repository
+        // when basic statistics is implemented, one shall be capable of retrieving value length from the metadata repository
         // therefore, this method shall compare the value length as well.
 
         this.prerequisites.addAll(prerequisites)

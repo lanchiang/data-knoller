@@ -23,7 +23,7 @@ class ChangeDataType(val propertyName : String,
                      val sourceDatePattern : DatePatternEnum,
                      val targetDatePattern : DatePatternEnum) extends Preparator {
 
-    this.impl = new DefaultChangeDataTypeImpl
+//    this.impl = new DefaultChangeDataTypeImpl
 
     def this(propertyName : String, targetType : PropertyType) {
         this(propertyName, null, targetType = targetType, null, null)

@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class Pipeline implements AbstractPipeline {
 
-    private String name = "Default pipeline";
+    private String name = "default-pipeline";
 
     private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;
