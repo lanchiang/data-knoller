@@ -25,7 +25,7 @@ public interface AbstractPreparator extends Executable {
     /**
      * This method checks whether values of the prerequisite metadata are met. It shall preserve the unsatisfying metadata.
      */
-    void inspectMetadata();
+    void checkMetadataPrerequisite();
 
     /**
      * After the execution of this preparator finishes, call this method to post config the pipeline.

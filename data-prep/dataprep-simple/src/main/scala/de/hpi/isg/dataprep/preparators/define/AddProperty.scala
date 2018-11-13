@@ -15,8 +15,6 @@ class AddProperty(val targetPropertyName : String,
                   val position : Int,
                   val filling : Any) extends Preparator {
 
-    this.impl = new DefaultAddPropertyImpl()
-
     def this(targetPropertyName : String, targetType : PropertyType) {
         this(targetPropertyName, targetType, AddProperty.DEFAULT_POSITION, AddProperty.DEFAULT_VALUE(targetType))
     }

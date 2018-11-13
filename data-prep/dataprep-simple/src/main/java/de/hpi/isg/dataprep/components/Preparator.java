@@ -10,7 +10,6 @@ import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.preparators.define.ChangeDataType;
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDataTypeImpl;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -49,7 +48,7 @@ abstract public class Preparator implements AbstractPreparator {
 
     @Override
     public void execute() throws Exception {
-        inspectMetadata();
+        checkMetadataPrerequisite();
         if (!invalid.isEmpty()) {
             throw new PreparationHasErrorException("Metadata prerequisite not met.");
         }
@@ -71,7 +70,7 @@ abstract public class Preparator implements AbstractPreparator {
     }
 
     @Override
-    public void inspectMetadata() {
+    public void checkMetadataPrerequisite() {
         /**
          * check for each metadata whether valid. Valid metadata are those with correct values.
          * Stores invalid ones.
@@ -100,7 +99,7 @@ abstract public class Preparator implements AbstractPreparator {
      * Call this method whenever an error occurs during the preparator execution in order to
      * record an error log.
      */
-    protected void recordErrorLog() {
+    private void recordErrorLog() {
         ExecutionContext executionContext = this.getPreparation().getExecutionContext();
 
         List<ErrorLog> errorLogs = executionContext.errorsAccumulator().value().stream()

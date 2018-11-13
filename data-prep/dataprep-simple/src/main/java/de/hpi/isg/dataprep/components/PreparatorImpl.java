@@ -54,6 +54,7 @@ abstract public class PreparatorImpl {
         preparator.getPreparation().setExecutionContext(executionContext);
         preparator.setUpdatedTable(executionContext.newDataFrame());
 
+        // throw the runtime errors to the preparator. The preparator is due to record the errors.
         if (executionContext.hasError()) {
             throw new PreparationHasErrorException("This preparation causes errors for some records.");
         }

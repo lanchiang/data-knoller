@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.util.Nameable;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
