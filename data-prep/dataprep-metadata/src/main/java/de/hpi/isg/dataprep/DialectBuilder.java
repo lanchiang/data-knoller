@@ -1,8 +1,5 @@
 package de.hpi.isg.dataprep;
 
-import de.hpi.isg.dataprep.metadata.Delimiter;
-import de.hpi.isg.dataprep.metadata.EscapeCharacter;
-import de.hpi.isg.dataprep.metadata.QuoteCharacter;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 
 /**
@@ -13,6 +10,7 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
  */
 public class DialectBuilder {
 
+    // at some point, implement the functions to guess delimiter.
     private String delimiter = ",";
     private String quoteChar = "\"";
     private String escapeChar = "\\";
