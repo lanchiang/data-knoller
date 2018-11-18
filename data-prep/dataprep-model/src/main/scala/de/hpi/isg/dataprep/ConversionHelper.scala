@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep
 
 import java.security.MessageDigest
-import java.text.{ParseException, SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
@@ -47,6 +47,38 @@ object ConversionHelper extends Serializable {
                 val targetDate = new SimpleDateFormat(target.getPattern).format(date.toOption.get)
                 targetDate
             }
+        }
+    }
+
+    /**
+      * Converts the pattern of the date value into the desired pattern.
+      *
+      * @param value  the value to be converted
+      * @param target the target date pattern.
+      * @return the converted [[Date]]
+      */
+    @throws(classOf[Exception])
+    def toDate(value: String, target: DatePatternEnum): String = {
+        val longYearRegex = "(\\d{1,2})(.*?)(\\d{1,2})(.*?)(\\d{4})".r
+        val shortYearRegex = "(\\d{1,2})(.*?)(\\d{1,2})(.*?)(\\d{2})".r
+
+        val parsedDate = List(longYearRegex, shortYearRegex)
+            .map(regex => regex.findAllMatchIn(value))
+            .filter(matches => matches.nonEmpty)
+            .map { matches =>
+                val regexMatch = matches.next()
+                val days = regexMatch.group(1)
+                val months = regexMatch.group(3)
+                val years = regexMatch.group(5)
+                val date = s"$years-$months-$days"
+                val yearPattern = "y" * years.length
+                new SimpleDateFormat(s"$yearPattern-MM-dd").parse(date)
+            }.headOption
+
+        parsedDate match {
+            case Some(date) =>
+                new SimpleDateFormat(target.getPattern).format(date)
+            case None => throw new IllegalArgumentException(s"Failed to parse date $value")
         }
     }
 
