@@ -52,6 +52,7 @@ object ConversionHelper extends Serializable {
 
     def splitFileBySeparator(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split file by given separator
+      // possible separators: # - x _ 
       (source, source)
     }
     
