@@ -52,7 +52,15 @@ object ConversionHelper extends Serializable {
 
     def splitFileBySeparator(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split file by given separator
-      // possible separators: # - x _ 
+      
+      separator match {
+        case "#" => source.getLines().drop(1).map(_.split("#"))
+        case "-" =>
+        case "_" =>
+        case "x" =>
+        case "X" =>
+      }
+      
       (source, source)
     }
     
