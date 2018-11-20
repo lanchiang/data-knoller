@@ -50,9 +50,17 @@ object ConversionHelper extends Serializable {
         }
     }
 
-    def splitFile(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
-
+    def splitFileBySeparator(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
+      //TODO: split file by given separator
       (source, source)
+    }
+    
+    def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
+      //TODO: split File by different Datatypes in collumns
+    }
+    
+    def splitFileByCountingHeaders(source: DataFrame) : (DataFrame, DataFrame) = {
+      //TODO: split file by different number of headers
     }
 
     def getDefaultDate(): String = {
