@@ -5,9 +5,12 @@ import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitAttribute
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
+import scala.collection.mutable.ArrayBuffer
+
+// TODO prerequisite property to split should be a string
 class DefaultSplitAttributeImpl extends PreparatorImpl {
   /**
     * The abstract class of preparator implementation.
@@ -18,7 +21,7 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
     * @return an instance of { @link ExecutionContext} that includes the new dataset, and produced errors.
     * @throws Exception
     */
-  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: DataFrame,
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[SplitAttribute]
     val propertyName = preparator.propertyName
@@ -27,13 +30,34 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
     val startLeft = preparator.startLeft
 
     (separator, startLeft, times) match {
-      case (null, startLeft, -1) => split(propertyName)
-      case (separator, startLeft, -1) => split(propertyName, separator)
-      case (separator, startLeft, times) => split(propertyName, separator, startLeft, times)
+      case (null, startLeft, -1) => split(dataFrame, errorAccumulator, propertyName)
+      case (separator, startLeft, -1) => split(dataFrame, errorAccumulator, propertyName, separator)
+      case (separator, startLeft, times) => split(dataFrame, errorAccumulator, propertyName, separator, startLeft, times)
     }
   }
 
-  def split(propertyName: String, separator: String, startLeft: Boolean, times: Int): ExecutionContext = ???
-  def split(propertyName: String, separator: String): ExecutionContext = ???
-  def split(propertyName: String): ExecutionContext = ???
+  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String, separator: String, startLeft: Boolean, times: Int): ExecutionContext = ???
+
+  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String, separator: String): ExecutionContext = {
+    val newDataFrame = dataFrame.map(row => {
+      val splittedProperty = row.getAs[String](propertyName).split(separator)
+      val propertyIndex = row.fieldIndex(propertyName)
+
+      val values = new ArrayBuffer[Any]
+      (0 until row.size) foreach (i => {
+        if (i == propertyIndex) {
+          values ++= splittedProperty
+        } else {
+          values += row.get(i)
+        }
+      })
+
+      Row(values.toArray:_*)
+    })
+
+    new ExecutionContext(newDataFrame, errorAccumulator)
+  }
+
+
+  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String): ExecutionContext = ???
 }
