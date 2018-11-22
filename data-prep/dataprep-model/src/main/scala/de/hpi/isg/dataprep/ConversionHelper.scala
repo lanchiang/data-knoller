@@ -52,24 +52,19 @@ object ConversionHelper extends Serializable {
 
     def splitFileBySeparator(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split file by given separator
-      
-      separator match {
-        case "#" => source.getLines().drop(1).map(_.split("#"))
-        case "-" =>
-        case "_" =>
-        case "x" =>
-        case "X" =>
-      }
+
       
       (source, source)
     }
     
     def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split File by different Datatypes in collumns
+      (source, source)
     }
     
     def splitFileByCountingHeaders(source: DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split file by different number of headers
+      (source, source)
     }
 
     def getDefaultDate(): String = {
