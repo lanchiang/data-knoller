@@ -8,6 +8,7 @@ import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
 import org.apache.spark.sql.{DataFrame, Row}
 
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -52,8 +53,18 @@ object ConversionHelper extends Serializable {
 
     def splitFileBySeparator(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split file by given separator
+      val b = ListBuffer(ListBuffer[String]())
+      source.foreach { row =>
+         if (row == separator) {
+            if( !b.last.isEmpty ) b += ListBuffer[String]()
+         }
+         else b.last += row
+      }
+      b.map(_.toList)
 
-      
+       // source.write.partitionBy(separator).format("csv").save("/")
+
+      //return List of files
       (source, source)
     }
     

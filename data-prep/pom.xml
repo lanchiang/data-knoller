@@ -126,6 +126,13 @@
             <version>3.2.0-SNAP10</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.scalamock/scalamock-scalatest-support -->
+        <dependency>
+            <groupId>org.scalamock</groupId>
+            <artifactId>scalamock-scalatest-support_2.12</artifactId>
+            <version>3.6.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.scalacheck</groupId>
             <artifactId>scalacheck_2.11</artifactId>
