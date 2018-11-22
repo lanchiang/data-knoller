@@ -1,8 +1,5 @@
 package de.hpi.isg.dataprep;
 
-import de.hpi.isg.dataprep.metadata.Delimiter;
-import de.hpi.isg.dataprep.metadata.EscapeCharacter;
-import de.hpi.isg.dataprep.metadata.QuoteCharacter;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 
 /**
