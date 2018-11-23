@@ -6,7 +6,7 @@ import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
@@ -52,18 +52,21 @@ object ConversionHelper extends Serializable {
     }
 
     def splitFileBySeparator(separator: String, source : DataFrame) : List[DataFrame] = {
-      var listWithDatasets = List[DataFrame]()
+        var datasetOne: DataFrame = null
+        var datasetTwo: DataFrame = null
 
       source.foreach { row =>
-         if (row == separator) {
-            //if( !b.last.isEmpty ) b += ListBuffer[String]()
+         if (row != separator) {
+             //solange separator nicht gefunden wurde wird alles in ein DataFrame gepackt
+             datasetOne += row.toString()
 
-             listWithDatasets += row.toString()
+         } else (row == separator) {
+             //TODO wenn separator gefunden wurde, soll alles danach in zweites DataFrame gepackt werden
+             datasetTwo += row.toString()
          }
-        // else b.last += row
       }
 
-       return listWithDatasets
+        return List[DataFrame](datasetOne, datasetTwo)
     }
     
     def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
