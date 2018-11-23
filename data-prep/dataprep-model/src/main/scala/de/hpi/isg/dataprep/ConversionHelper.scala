@@ -51,21 +51,19 @@ object ConversionHelper extends Serializable {
         }
     }
 
-    def splitFileBySeparator(separator: String, source : DataFrame) : (DataFrame, DataFrame) = {
-      //TODO: split file by given separator
-      val b = ListBuffer(ListBuffer[String]())
+    def splitFileBySeparator(separator: String, source : DataFrame) : List[DataFrame] = {
+      var listWithDatasets = List[DataFrame]()
+
       source.foreach { row =>
          if (row == separator) {
-            if( !b.last.isEmpty ) b += ListBuffer[String]()
+            //if( !b.last.isEmpty ) b += ListBuffer[String]()
+
+             listWithDatasets += row.toString()
          }
-         else b.last += row
+        // else b.last += row
       }
-      b.map(_.toList)
 
-       // source.write.partitionBy(separator).format("csv").save("/")
-
-      //return List of files
-      (source, source)
+       return listWithDatasets
     }
     
     def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
