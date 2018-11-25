@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep
 
+import com.holdenkarau.spark.testing.DataFrameSuiteBase
+import org.apache.spark.sql._
 import org.apache.spark.sql.{DataFrame, Row, _}
 import org.scalatest._
 import org.scalamock.scalatest.MockFactory
@@ -14,39 +16,32 @@ trait TestData {
 }
 */
 
-class ConversionHelperTest extends FlatSpec with MockFactory {
+class test extends FunSuite with DataFrameSuiteBase {
+  test("simple Test"){
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
 
-  def splitFileBySeparator: Unit = {
-    val testFile = Seq(
-      "hallo",
-      "----",
-      "welt"
-    )
+    val input1 = sc.parallelize(List(1, 2, 3)).toDF
+    assertDataFrameEquals(input1, input1) // equal
 
-
-
+    val input2 = sc.parallelize(List(4, 5, 6)).toDF
+    intercept[org.scalatest.exceptions.TestFailedException] {
+      assertDataFrameEquals(input1, input2) // not equal
+    }
   }
+}
 
-  /*
-  "Split file with Separator" should "return two data sets" in new TestData {
-    val testFile = Seq(
-      "hallo",
-      "----",
-      "welt"
-    )
+class ConversionHelperTest extends FunSuite with DataFrameSuiteBase {
 
-    val expectedDatasetOne = Seq (
-      "hallo"
-    )
-    val expectedDatasetTwo = Seq (
-      "welt"
-    )
+  test("Dataframe is split by Separator if given"){
+    val sqlCtx = sqlContext
+    import sqlCtx.implicits._
 
-*/
-    //val df = testFile.toDF()
+    val input = sc.parallelize(List("hallo", "----", "Welt")).toDF
 
-    //val resDf = ConversionHelper.splitFileBySeparator("-", testFile)
-    //assert(resDf._1.isInstanceOf[DataFrame])
-    //assert(resDf._2.isInstanceOf[DataFrame])
+    val splittedDataframes = ConversionHelper.splitFileBySeparator("-", input)
+
+    assertDataFrameEquals(splittedDataframes.head, sc.parallelize(List("hallo")).toDF)
+    assertDataFrameEquals(splittedDataframes.last, sc.parallelize(List("Welt")).toDF)
   }
 }

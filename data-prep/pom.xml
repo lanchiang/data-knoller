@@ -140,6 +140,18 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.holdenkarau</groupId>
+            <artifactId>spark-testing-base_2.11</artifactId>
+            <version>${spark.version}_0.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.scalactic</groupId>
+            <artifactId>scalactic_2.11</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
     
 </project>
