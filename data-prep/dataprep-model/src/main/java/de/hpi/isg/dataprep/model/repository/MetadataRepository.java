@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.model.repository;
 
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import scala.Serializable;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,7 +14,7 @@ import java.util.Set;
  * @author Lan Jiang
  * @since 2018/6/4
  */
-public class MetadataRepository {
+public class MetadataRepository implements Serializable {
 
     // the set of metadata this metadata repository is holding currently.
     private Set<Metadata> metadataPool;

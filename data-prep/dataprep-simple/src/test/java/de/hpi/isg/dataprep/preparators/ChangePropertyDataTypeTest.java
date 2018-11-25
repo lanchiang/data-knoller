@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.preparators.define.ChangeDataType;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -84,31 +85,31 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
 
-    @Test
-    public void testChangeToDateErrorLog() throws Exception {
-        Preparator preparator = new ChangeDataType("date", DataType.PropertyType.DATE,
-                DatePattern.DatePatternEnum.YearMonthDay, DatePattern.DatePatternEnum.MonthDayYear);
-
-        AbstractPreparation preparation = new Preparation(preparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "thisIsDate", new ParseException("Unparseable date: \"thisIsDate\"", 0));
-        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "12-11-1989", new ParseException("Unparseable date: \"12-11-1989\"", 10));
-        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "2014-13-31", new ParseException("Unparseable date: \"2014-13-31\"", 10));
-        ErrorLog errorLog4 = new PreparationErrorLog(preparation, "2000-01-32", new ParseException("Unparseable date: \"2000-01-32\"", 10));
-
-        trueErrorlogs.add(errorLog1);
-        trueErrorlogs.add(errorLog2);
-        trueErrorlogs.add(errorLog3);
-        trueErrorlogs.add(errorLog4);
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
-        pipeline.getRawData().show();
-
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-    }
+//    @Test
+//    public void testChangeToDateErrorLog() throws Exception {
+//        Preparator preparator = new ChangeDataType("date", DataType.PropertyType.DATE,
+//                DatePattern.DatePatternEnum.YearMonthDay, DatePattern.DatePatternEnum.MonthDayYear);
+//
+//        AbstractPreparation preparation = new Preparation(preparator);
+//        pipeline.addPreparation(preparation);
+//        pipeline.executePipeline();
+//
+//        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+//        ErrorLog errorLog1 = new PreparationErrorLog(preparation, "thisIsDate", new ParseException("Unparseable date: \"thisIsDate\"", 0));
+//        ErrorLog errorLog2 = new PreparationErrorLog(preparation, "12-11-1989", new ParseException("Unparseable date: \"12-11-1989\"", 10));
+//        ErrorLog errorLog3 = new PreparationErrorLog(preparation, "2014-13-31", new ParseException("Unparseable date: \"2014-13-31\"", 10));
+//        ErrorLog errorLog4 = new PreparationErrorLog(preparation, "2000-01-32", new ParseException("Unparseable date: \"2000-01-32\"", 10));
+//
+//        trueErrorlogs.add(errorLog1);
+//        trueErrorlogs.add(errorLog2);
+//        trueErrorlogs.add(errorLog3);
+//        trueErrorlogs.add(errorLog4);
+//        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+//
+//        pipeline.getRawData().show();
+//
+//        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+//    }
 
     @Test
     public void testChangeFromIntegerToDouble() throws Exception {
@@ -124,7 +125,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
     }
 
-    @Test
+    @Test(expected = PreparationHasErrorException.class)
     public void testChangeToStringSourceTypeSpecifiedWrong() throws Exception {
         Preparator preparator = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
 
