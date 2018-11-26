@@ -1,18 +1,16 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
+import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
-import org.apache.spark.sql.functions.lit
 
 import scala.util.{Failure, Success, Try}
-
-import scala.util.Try
 
 class DefaultSplitPropertyImpl extends PreparatorImpl {
 
@@ -31,7 +29,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
 
     new ExecutionContext(resultDataFrame, errorAccumulator)
 
-    val rowEncoder = RowEncoder(dataFrame.schema)
+    val rowEncoder = RowEncoder(resultDataFrame.schema)
 
     val createdDataset = dataFrame.flatMap(row => {
       val indexTry = Try {
@@ -48,9 +46,11 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
       val operatedValue = row.getAs[String](index)
 
       val splittedValues = operatedValue.split(separator, times+1)
+      val oldRow = row.toSeq
+      val fill = List.fill(times+1 - splittedValues.length)("").toSeq
 
       val tryConvert = Try {
-        val newSeq = splittedValues
+        val newSeq = oldRow ++ splittedValues ++ fill
         val newRow = Row.fromSeq(newSeq)
         newRow
       }
