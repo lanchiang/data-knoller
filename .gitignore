@@ -4,8 +4,8 @@
 */*/pipelineError.txt
 
 # IDEA
-*.iml
-.idea/
+# *.iml
+# .idea/
 
 # eclipse
 .settings

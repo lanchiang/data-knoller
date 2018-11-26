@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="dataprep-app" />
+        <module name="dataprep-io" />
+        <module name="dataprep-metadata" />
+        <module name="dataprep-model" />
+        <module name="dataprep-preparators" />
+        <module name="dataprep-simple" />
+        <module name="dataprep-spark" />
+        <module name="dataprep-tools" />
+        <module name="dataprep-util" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="data-prep" target="8" />
+      <module name="dataprep-app" target="8" />
+      <module name="dataprep-io" target="8" />
+      <module name="dataprep-metadata" target="8" />
+      <module name="dataprep-model" target="8" />
+      <module name="dataprep-preparators" target="8" />
+      <module name="dataprep-simple" target="8" />
+      <module name="dataprep-spark" target="8" />
+      <module name="dataprep-tools" target="8" />
+      <module name="dataprep-util" target="8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
