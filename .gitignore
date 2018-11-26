@@ -6,6 +6,7 @@
 # IDEA
 # *.iml
 # .idea/
+data-prep/.idea/workspace.xml
 
 # eclipse
 .settings
