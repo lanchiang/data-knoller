@@ -10,6 +10,8 @@ import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.DataType;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,50 +27,15 @@ public class PaddingTest extends PreparatorTest {
     @Test
     public void testPaddingAllShorterValue() throws Exception {
         Preparator preparator = new Padding("id", 8);
-
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "id" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        trueErrorlogs.add(pipelineError1);
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
         pipeline.getRawData().show();
 
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-    }
-
-    @Test
-    public void testPaddingValueTooLong() throws Exception {
-        Preparator preparator = new Padding("id", 4, "x");
-
-        AbstractPreparation preparation = new Preparation(preparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "id" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        trueErrorlogs.add(pipelineError1);
-
-        ErrorLog errorlog1 = new PreparationErrorLog(preparation, "three",
-                new IllegalArgumentException(String.format("Value length is already larger than padded length.")));
-        trueErrorlogs.add(errorlog1);
-
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
-        pipeline.getRawData().show();
-
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-        Assert.assertEquals(pipeline.getRawData().count(), 9L);
+        Assert.assertEquals(
+                new ErrorRepository(new ArrayList<>()),
+                pipeline.getErrorRepository()
+        );
     }
 }

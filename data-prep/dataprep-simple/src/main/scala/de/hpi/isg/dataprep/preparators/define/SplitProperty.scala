@@ -9,7 +9,7 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.util.DataType
 
-class SplitProperty(val propertyName: String, val separator: Char, fromLeft: Boolean, times: Int) extends Preparator{
+class SplitProperty(val propertyName: String, val separator: Char, val fromLeft: Boolean, val times: Int) extends Preparator{
 
     impl = new DefaultSplitPropertyImpl
 
@@ -23,7 +23,7 @@ class SplitProperty(val propertyName: String, val separator: Char, fromLeft: Boo
     val prerequisites = new util.ArrayList[Metadata]
     if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified.", propertyName))
 
-    if (times > 0) throw new IllegalArgumentException("Times must be greater than 0.")
+    if (times <= 0) throw new IllegalArgumentException("Times must be greater than 0.")
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
     this.prerequisites.addAll(prerequisites)
