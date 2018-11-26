@@ -44,8 +44,8 @@
         </dependency>
         <dependency>
             <groupId>org.scalanlp</groupId>
-            <artifactId>breeze_2.10</artifactId> <!-- or 2.11 -->
-            <version>0.13.2</version>
+            <artifactId>epic_2.12</artifactId>
+            <version>0.4.4</version>
         </dependency>
     </dependencies>
 
