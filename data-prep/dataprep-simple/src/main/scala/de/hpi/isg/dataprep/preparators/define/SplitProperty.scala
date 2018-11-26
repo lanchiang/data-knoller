@@ -4,10 +4,12 @@ import java.util
 
 import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
+import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
+import de.hpi.isg.dataprep.util.DataType
 
-class SplitProperty(val propertyName: String, val separator: Char) extends Preparator{
+class SplitProperty(val propertyName: String, val separator: Char, fromLeft: Boolean, times: Int) extends Preparator{
 
     impl = new DefaultSplitPropertyImpl
 
@@ -20,5 +22,10 @@ class SplitProperty(val propertyName: String, val separator: Char) extends Prepa
   override def buildMetadataSetup(): Unit = {
     val prerequisites = new util.ArrayList[Metadata]
     if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified.", propertyName))
+
+    if (times > 0) throw new IllegalArgumentException("Times must be greater than 0.")
+    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+
+    this.prerequisites.addAll(prerequisites)
   }
 }
