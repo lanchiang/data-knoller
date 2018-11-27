@@ -31,12 +31,12 @@ public class PaddingTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "id" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-        trueErrorlogs.add(pipelineError1);
+//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
+//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+//                        "propertyName='" + "id" + '\'' +
+//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+//                        '}')));
+//        trueErrorlogs.add(pipelineError1);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();
@@ -53,12 +53,12 @@ public class PaddingTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "id" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-        trueErrorlogs.add(pipelineError1);
+//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
+//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+//                        "propertyName='" + "id" + '\'' +
+//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+//                        '}')));
+//        trueErrorlogs.add(pipelineError1);
 
         ErrorLog errorlog1 = new PreparationErrorLog(preparation, "three",
                 new IllegalArgumentException(String.format("Value length is already larger than padded length.")));
