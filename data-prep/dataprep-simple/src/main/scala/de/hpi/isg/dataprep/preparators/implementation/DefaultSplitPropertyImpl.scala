@@ -39,8 +39,8 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     new ExecutionContext(splitValuesDataFrame, errorAccumulator)
   }
 
-  def appendEmptyColumns(dataSet: Dataset[Row], propertyName: String, n: Int): Dataset[Row] = {
-    var result = dataSet
+  def appendEmptyColumns(dataFrame: Dataset[Row], propertyName: String, n: Int): Dataset[Row] = {
+    var result = dataFrame
     for (i <- 1 to n) {
       result = result.withColumn(s"$propertyName$i", lit(""))
     }
@@ -78,22 +78,23 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     )(rowEncoder)
   }
 
-  def findMaxSeperatorCount(dataSet: Dataset[Row], propertyName: String, separator: String): Int = {
-    val counts = dataSet
+  def findMaxSeperatorCount(dataFrame: Dataset[Row], propertyName: String, separator: String): Int = {
+    val counts = dataFrame
       .select(propertyName)
       .collect()
       .map(row => {
         val operatedValue: String = row.getAs[String](0)
         operatedValue.split(separator).length
       })
-
     counts.max
   }
 
   def findSeperator(dataFrame: Dataset[Row], propertyName: String): String = {
     val charMaps = dataFrame.select(propertyName).collect().map(row => {
       val value = row.getAs[String](0)
-      value.groupBy(identity).filter(c => !c._1.isLetterOrDigit).mapValues(_.length)
+      value.groupBy(identity).filter{
+        case(char, string) => !char.isLetterOrDigit
+      }.mapValues(_.length)
     })
     val chars = charMaps.flatMap(map => map.keys).distinct
     val checkSeparatorCondition = (char: Char) => {
@@ -101,6 +102,12 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
       (counts.forall(_ == counts.head), counts.head, char)
 
     }
-    chars.map(checkSeparatorCondition).filter(x => x._1).maxBy(x => x._2)._3.toString
+    chars.map(checkSeparatorCondition).filter{
+      case (valid, counts, char) => valid
+    }
+    .maxBy{
+      case (valid, counts, char) => counts
+    }._3.toString
+
   }
 }
