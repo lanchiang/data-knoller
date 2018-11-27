@@ -22,7 +22,7 @@ public class SplitPropertyTest extends PreparatorTest {
 
     @Test
     public void testPaddingAllShorterValue() throws Exception {
-        Preparator preparator = new SplitProperty("date", "-", true, 2);
+        Preparator preparator = new SplitProperty("date", "-", true, null);
 
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
