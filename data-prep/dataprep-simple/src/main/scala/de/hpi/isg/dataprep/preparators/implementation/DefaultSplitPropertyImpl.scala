@@ -22,6 +22,8 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"dataFrame has no column $propertyName")
 
+    val bla = findMaxSeperatorCount(dataFrame, propertyName, separator)
+
     if (times < 2)
       return new ExecutionContext(dataFrame, errorAccumulator)
 
@@ -68,5 +70,18 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
         Row.fromSeq(row.toSeq ++ split)
       }
     )(rowEncoder)
+  }
+
+  def findMaxSeperatorCount(dataSet: Dataset[Row], propertyName: String, separator: String): Int = {
+    val test = dataSet
+      .select(propertyName)
+      .collect()
+      .map(row => {
+        val operatedValue: String = row.getAs[String](0)
+        println("Test")
+        operatedValue.count(_ == separator)
+      })
+
+    1
   }
 }
