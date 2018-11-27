@@ -34,6 +34,28 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
 
     val rowEncoder = RowEncoder(dataFrame.schema)
     val createdDataset = dataFrame.flatMap(row => {
+
+      //
+      def lemmatizeString(str: String): String = {
+
+        val props = new Properties()
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
+        val pipeline = new StanfordCoreNLP(props)
+        val document = new Annotation(str)
+        pipeline.annotate(document)
+
+        val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
+        if (sentences.size() != 1)
+          throw new Exception("Field empty or more than one sentence supplied")
+        val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
+        if (tokens.size() != 1)
+          throw new Exception("Field empty or more than one token supplied")
+        val lemmatized = tokens.get(0).get(classOf[CoreAnnotations.LemmaAnnotation])
+
+        lemmatized
+      }
+      //
+
       val indexTry = Try{row.fieldIndex(propertyName)}
       val index = indexTry match {
         case Failure(content) => throw content
@@ -61,27 +83,6 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     })(rowEncoder)
 
     new ExecutionContext(createdDataset, errorAccumulator)
-  }
-
-  val props = new Properties()
-  props.setProperty("annotators", "lemma")
-  val pipeline = new StanfordCoreNLP(props)
-
-  private def lemmatizeString(str: String): String ={
-
-    val document = new Annotation(str)
-    pipeline.annotate(document)
-
-    val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-    if (sentences.size() != 1)
-      throw new Exception("Field empty or more than one sentence supplied")
-    val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
-    if (tokens.size() != 1)
-      throw new Exception("Field empty or more than one token supplied")
-    val lemmatized = tokens.get(0).get(classOf[CoreAnnotations.LemmaAnnotation])
-
-    lemmatized
-
   }
 
 }

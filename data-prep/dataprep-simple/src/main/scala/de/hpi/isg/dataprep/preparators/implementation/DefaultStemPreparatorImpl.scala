@@ -33,7 +33,31 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
     val propertyName = preparator.propertyName
 
     val rowEncoder = RowEncoder(dataFrame.schema)
+//    val createdDataset = dataFrame.withColumn(propertyName + "_stemmed", map(dataFrame.col(""), ))
+//    val dfWithEmptyCol = dataFrame.withColumn(propertyName + "_stemmed", lit(0))
     val createdDataset = dataFrame.flatMap(row => {
+
+      //
+      def stemString(str: String): String = {
+
+        val props = new Properties()
+        props.setProperty("annotators", "stem,tokenize,ssplit,pos")
+        val pipeline = new StanfordCoreNLP(props)
+        val document = new Annotation(str)
+        pipeline.annotate(document)
+
+        val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
+        if (sentences.size() != 1)
+          throw new Exception("Field empty or more than one sentence supplied")
+        val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
+        if (tokens.size() != 1)
+          throw new Exception("Field empty or more than one token supplied")
+        val stemmed = tokens.get(0).get(classOf[CoreAnnotations.StemAnnotation])
+
+        stemmed
+      }
+      //
+
       val indexTry = Try{row.fieldIndex(propertyName)}
       val index = indexTry match {
         case Failure(content) => throw content
@@ -61,26 +85,6 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
     })(rowEncoder)
 
     new ExecutionContext(createdDataset, errorAccumulator)
-  }
-
-  val props = new Properties()
-  props.setProperty("annotators", "stem")
-  val pipeline = new StanfordCoreNLP(props)
-
-  private def stemString(str: String): String ={
-
-    val document = new Annotation(str)
-    pipeline.annotate(document)
-
-    val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-    if (sentences.size() != 1)
-      throw new Exception("Field empty or more than one sentence supplied")
-    val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
-    if (tokens.size() != 1)
-      throw new Exception("Field empty or more than one token supplied")
-    val stemmed = tokens.get(0).get(classOf[CoreAnnotations.StemAnnotation])
-
-    stemmed
   }
 
 }
