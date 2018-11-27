@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.preparators.concrete
+package de.hpi.isg.dataprep.preparators.implementation
 
 import java.util.Properties
 
@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.preparators.define.StemPreparator
 import edu.stanford.nlp.ling.CoreAnnotations
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
@@ -17,7 +18,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by danthe on 26.11.18.
   */
-class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
+class DefaultStemPreparatorImpl extends PreparatorImpl {
   /**
     * The abstract class of preparator implementation.
     *
@@ -28,7 +29,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     * @throws Exception
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
+    val preparator = abstractPreparator.asInstanceOf[StemPreparator]
     val propertyName = preparator.propertyName
 
     val rowEncoder = RowEncoder(dataFrame.schema)
@@ -44,7 +45,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
       val forepart = seq.take(index)
       val backpart = seq.takeRight(row.length-index-1)
       val tryConvert = Try{
-        val newSeq = (forepart :+ lemmatizeString(operatedValue)) ++ backpart
+        val newSeq = (forepart :+ stemString(operatedValue)) ++ backpart
         val newRow = Row.fromSeq(newSeq)
         newRow
       }
@@ -63,10 +64,10 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
   }
 
   val props = new Properties()
-  props.setProperty("annotators", "lemma")
+  props.setProperty("annotators", "stem")
   val pipeline = new StanfordCoreNLP(props)
 
-  private def lemmatizeString(str: String): String ={
+  private def stemString(str: String): String ={
 
     val document = new Annotation(str)
     pipeline.annotate(document)
@@ -77,10 +78,9 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
     if (tokens.size() != 1)
       throw new Exception("Field empty or more than one token supplied")
-    val lemmatized = tokens.get(0).get(classOf[CoreAnnotations.LemmaAnnotation])
+    val stemmed = tokens.get(0).get(classOf[CoreAnnotations.StemAnnotation])
 
-    lemmatized
-
+    stemmed
   }
 
 }

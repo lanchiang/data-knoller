@@ -5,9 +5,7 @@ import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.preparators.concrete.LemmatizePreparator;
-import de.hpi.isg.dataprep.preparators.define.RemoveCharacters;
-import de.hpi.isg.dataprep.util.RemoveCharactersMode;
+import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import org.junit.Assert;
 import org.junit.Test;
 

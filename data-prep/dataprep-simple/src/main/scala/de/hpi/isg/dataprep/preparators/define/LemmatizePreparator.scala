@@ -1,11 +1,11 @@
-package de.hpi.isg.dataprep.preparators.concrete
+package de.hpi.isg.dataprep.preparators.define
 
 import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.util.DataType
 
-class StemPreparator(val propertyName : String) extends Preparator {
+class LemmatizePreparator(val propertyName : String) extends Preparator {
 
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
