@@ -5,7 +5,7 @@
 
 # IDEA
 # *.iml
-# .idea/
+.idea/
 
 # eclipse
 .settings
