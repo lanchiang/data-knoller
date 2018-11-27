@@ -3,13 +3,14 @@ package de.hpi.isg.dataprep.preparators.implementation
 import java.util
 
 import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangeDataType
 import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
-import de.hpi.isg.dataprep.{ExecutionContext, ConversionHelper}
+import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -128,7 +129,14 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
         val preparator = abstractPreparator.asInstanceOf[ChangeDataType]
         val fieldName = preparator.propertyName
         val targetDataType = preparator.targetType
-        val sourceDataType = preparator.sourceType
+
+        val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
+        val metadata = new PropertyDataType(fieldName, null)
+        val sourceDataType = Option(preparator.sourceType) match {
+            case None => metadataRepository.getMetadata(metadata).asInstanceOf[PropertyDataType].getPropertyDataType
+            case Some(_) => preparator.sourceType
+        }
+
         val sourceDatePattern = preparator.sourceDatePattern
         val targetDatePattern = preparator.targetDatePattern
         // Here the program needs to check the existence of these fields.
@@ -151,6 +159,10 @@ class DefaultChangeDataTypeImpl extends PreparatorImpl {
                             case PropertyType.DATE => {
                                 ConversionHelper.toDate(row.getAs[Int](fieldName).toString,
                                     sourceDatePattern, targetDatePattern)
+                            }
+                            case _ => {
+                                val metadataInRepo = metadataRepository.getMetadata(metadata)
+
                             }
                         }
                     }
