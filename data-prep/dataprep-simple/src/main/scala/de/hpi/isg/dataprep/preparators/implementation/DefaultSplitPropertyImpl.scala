@@ -2,15 +2,13 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.PreparatorImpl
-import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
+import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
-
-import scala.util.{Failure, Success, Try}
 
 class DefaultSplitPropertyImpl extends PreparatorImpl {
 
@@ -21,51 +19,35 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     val fromLeft = preparator.fromLeft
     val times = preparator.times
 
-    var resultDataFrame = dataFrame
-
-    for (i <- 0 to times) {
-      resultDataFrame = resultDataFrame.withColumn(s"split $i", lit(""))
-    }
-
-    new ExecutionContext(resultDataFrame, errorAccumulator)
-
+    val resultDataFrame = appendEmptyColumns(dataFrame, propertyName, times)
     val rowEncoder = RowEncoder(resultDataFrame.schema)
 
-    val createdDataset = dataFrame.flatMap(row => {
-      val indexTry = Try {
-        row.fieldIndex(propertyName)
-      }
-      val index = indexTry match {
-        case Failure(content) => {
-          throw content
-        }
-        case Success(content) => {
-          content
-        }
-      }
-      val operatedValue = row.getAs[String](index)
+    val splitPropertyDataset = dataFrame.map(
+      row => splitRow(row, propertyName, separator, times)
+    )(rowEncoder)
 
-      val splittedValues = operatedValue.split(separator, times+1)
-      val oldRow = row.toSeq
-      val fill = List.fill(times+1 - splittedValues.length)("").toSeq
+    splitPropertyDataset.count()
+    new ExecutionContext(splitPropertyDataset, errorAccumulator)
+  }
 
-      val tryConvert = Try {
-        val newSeq = oldRow ++ splittedValues ++ fill
-        val newRow = Row.fromSeq(newSeq)
-        newRow
-      }
-      val convertOption = tryConvert match {
-        case Failure(content) => {
-          errorAccumulator.add(new RecordError(operatedValue, content))
-          tryConvert
-        }
-        case Success(content) => tryConvert
-      }
-      convertOption.toOption
-    })(rowEncoder)
+  def splitRow(row: Row, propertyName: String, separator: String, times: Int): Row = {
+    val index = row.fieldIndex(propertyName)
+    val value = row.getAs[String](index)
+    val splitValues = value.split(separator, times)
+    val fill = List.fill(times - splitValues.length)("")
 
-    createdDataset.count()
+    Row.fromSeq(row.toSeq ++ splitValues ++ fill)
+  }
 
-    new ExecutionContext(createdDataset, errorAccumulator)
+  def appendEmptyColumns(dataSet: Dataset[Row], propertyName: String, n: Int): Dataset[Row] = {
+    if (!dataSet.schema.contains(propertyName)) {
+      throw new IllegalArgumentException(s"dataFrame has no column $propertyName")
+    }
+
+    var result = dataSet
+    for (i <- 1 to n) {
+      result = result.withColumn(s"$propertyName$i", lit(""))
+    }
+    result
   }
 }
