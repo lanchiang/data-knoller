@@ -19,35 +19,54 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     val fromLeft = preparator.fromLeft
     val times = preparator.times
 
-    val resultDataFrame = appendEmptyColumns(dataFrame, propertyName, times)
-    val rowEncoder = RowEncoder(resultDataFrame.schema)
+    if (!dataFrame.columns.contains(propertyName))
+      throw new IllegalArgumentException(s"dataFrame has no column $propertyName")
 
-    val splitPropertyDataset = dataFrame.map(
-      row => splitRow(row, propertyName, separator, times)
-    )(rowEncoder)
+    if (times < 2)
+      return new ExecutionContext(dataFrame, errorAccumulator)
 
-    splitPropertyDataset.count()
-    new ExecutionContext(splitPropertyDataset, errorAccumulator)
-  }
+    val splitValuesDataFrame = createSplitValuesDataFrame(dataFrame, propertyName, separator, fromLeft, times)
 
-  def splitRow(row: Row, propertyName: String, separator: String, times: Int): Row = {
-    val index = row.fieldIndex(propertyName)
-    val value = row.getAs[String](index)
-    val splitValues = value.split(separator, times)
-    val fill = List.fill(times - splitValues.length)("")
-
-    Row.fromSeq(row.toSeq ++ splitValues ++ fill)
+    splitValuesDataFrame.count()
+    new ExecutionContext(splitValuesDataFrame, errorAccumulator)
   }
 
   def appendEmptyColumns(dataSet: Dataset[Row], propertyName: String, n: Int): Dataset[Row] = {
-    if (!dataSet.schema.contains(propertyName)) {
-      throw new IllegalArgumentException(s"dataFrame has no column $propertyName")
-    }
-
     var result = dataSet
     for (i <- 1 to n) {
       result = result.withColumn(s"$propertyName$i", lit(""))
     }
     result
+  }
+
+  def createSplitValuesDataFrame(dataFrame: Dataset[Row], propertyName: String, separator: String, fromLeft: Boolean, times: Int): Dataset[Row] = {
+    val rowEncoder = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
+
+    val splitValue = (value: String) => {
+      var split = value.split(separator)
+      if (!fromLeft)
+        split = split.reverse
+
+      if (split.length <= times) {
+        val fill = List.fill(times - split.length)("")
+        split = split ++ fill
+      }
+
+      val head = split.slice(0, times - 1)
+      var tail = split.slice(times - 1, split.length)
+      if (!fromLeft) {
+        tail = tail.reverse
+      }
+      head :+ tail.mkString(separator)
+    }
+
+    dataFrame.map(
+      row => {
+        val index = row.fieldIndex(propertyName)
+        val value = row.getAs[String](index)
+        val split = splitValue(value)
+        Row.fromSeq(row.toSeq ++ split)
+      }
+    )(rowEncoder)
   }
 }
