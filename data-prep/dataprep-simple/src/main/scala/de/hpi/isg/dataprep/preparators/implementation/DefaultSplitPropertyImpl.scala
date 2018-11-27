@@ -15,12 +15,15 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
   override def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[SplitProperty]
     val propertyName = preparator.propertyName
-    val separator = preparator.separator
     val fromLeft = preparator.fromLeft
-
 
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"dataFrame has no column $propertyName")
+
+    val separator = preparator.separator match {
+      case null => findSeperator(dataFrame, propertyName)
+      case Some(s) => s
+    }
 
     val times = preparator.times match {
       case null => findMaxSeperatorCount(dataFrame, propertyName, separator)
@@ -87,4 +90,17 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     counts.max
   }
 
+  def findSeperator(dataFrame: Dataset[Row], propertyName: String): String = {
+    val charMaps = dataFrame.select(propertyName).collect().map(row => {
+      val value = row.getAs[String](0)
+      value.groupBy(identity).filter(c => !c._1.isLetterOrDigit).mapValues(_.length)
+    })
+    val chars = charMaps.flatMap(map => map.keys).distinct
+    val checkSeparatorCondition = (char: Char) => {
+      val counts = charMaps.map(map => map.withDefaultValue(0)(char)).filter(x => x > 0)
+      (counts.forall(_ == counts.head), counts.head, char)
+
+    }
+    chars.map(checkSeparatorCondition).filter(x => x._1).maxBy(x => x._2)._3.toString
+  }
 }

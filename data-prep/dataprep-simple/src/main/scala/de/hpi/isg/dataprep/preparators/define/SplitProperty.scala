@@ -10,7 +10,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.util.DataType
 
 
-class SplitProperty(val propertyName: String, val separator: String, val fromLeft: Boolean = true, val times: Option[Int]) extends Preparator{
+class SplitProperty(val propertyName: String, val separator: Option[String], val fromLeft: Boolean = true, val times: Option[Int]) extends Preparator{
 
     impl = new DefaultSplitPropertyImpl
 
