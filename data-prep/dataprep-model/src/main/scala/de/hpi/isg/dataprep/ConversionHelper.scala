@@ -58,11 +58,11 @@ object ConversionHelper extends Serializable {
       source.foreach { row =>
          if (row != separator) {
              //solange separator nicht gefunden wurde wird alles in ein DataFrame gepackt
-             datasetOne += row.toString()
+             datasetOne.apply(row.toString())
 
-         } else (row == separator) {
+         } else {
              //TODO wenn separator gefunden wurde, soll alles danach in zweites DataFrame gepackt werden
-             datasetTwo += row.toString()
+             datasetTwo.apply(row.toString())
          }
       }
 
