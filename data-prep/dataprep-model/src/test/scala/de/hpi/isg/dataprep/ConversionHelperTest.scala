@@ -64,6 +64,22 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       firstDataset.collect shouldBe(List(Row("hallo","ballo")).toArray)
     }
   }
+
+  "Find Separator" should {
+    "find the most common non-alphanumeric character in the file" in withSparkContext{ (sparkContext) =>
+      val data = Seq(("hallo", "ballo"),("-----", "------"),("world", "noerld"))
+      val rdd = sparkContext.parallelize(data)
+      val sc = SparkSession.builder
+        .master("local")
+        .appName("Word Count")
+        .getOrCreate()
+      import sc.implicits._
+      val testFrame = rdd.toDF()
+      val separator = ConversionHelper.findUnknownFileSeparator(testFrame)
+
+      separator shouldBe("-")
+    }
+  }
 }
 
 trait SparkContextSetup {

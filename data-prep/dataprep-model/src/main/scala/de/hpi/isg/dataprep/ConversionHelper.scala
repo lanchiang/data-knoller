@@ -71,7 +71,14 @@ object ConversionHelper extends Serializable {
     }
 
   def findUnknownFileSeparator(source: Dataset[Row]) : String = {
-    return ""
+    val specialCharacters = source.collect.map(row => row.toString().replaceAll("[A-Za-z0-9]",""))
+    val charCountList = specialCharacters.map(row => row.groupBy(c => c).mapValues(v => v.size))
+    val mergedDictionaries = charCountList.map(a => a.toSeq).reduce((a,b) => a ++ b)
+    val groupedDicts = mergedDictionaries.groupBy(_._1)
+    val combinedDicts = groupedDicts
+      .mapValues( li => li.map(_._2).toList)
+      .mapValues( li => li.reduce(_+_) / (li.size*li.size))
+    return combinedDicts.maxBy(_._2)._1.toString
   }
     
     def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
