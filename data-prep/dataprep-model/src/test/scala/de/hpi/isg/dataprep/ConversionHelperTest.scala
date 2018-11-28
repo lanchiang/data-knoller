@@ -48,8 +48,20 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       import sc.implicits._
       val testFrame = rdd.toDF
       val firstDataset = ConversionHelper.splitFileBySeparator("-", testFrame)
-      printf(firstDataset.toString())
-      1 shouldBe(1)
+      firstDataset.collect shouldBe(List(Row("hallo")).toArray)
+    }
+
+    "works on Datasets with multiple rows" in withSparkContext { (sparkContext) =>
+      val data = Seq(("hallo", "ballo"),("----", "------"),("world", "noerld"))
+      val rdd = sparkContext.parallelize(data)
+      val sc = SparkSession.builder
+        .master("local")
+        .appName("Word Count")
+        .getOrCreate()
+      import sc.implicits._
+      val testFrame = rdd.toDF()
+      val firstDataset = ConversionHelper.splitFileBySeparator("-", testFrame)
+      firstDataset.collect shouldBe(List(Row("hallo","ballo")).toArray)
     }
   }
 }

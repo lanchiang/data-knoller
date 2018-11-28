@@ -63,11 +63,16 @@ object ConversionHelper extends Serializable {
       val dataList = source.collectAsList
       val rowWithMaxSeparators = dataList.toArray
         .map(x => (x, countSubstring(x.toString(), separator)))
-        .maxBy(item => item._2)
+        .maxBy(item => item._2)._1
       val indexOfSplitLine = dataList.lastIndexOf(rowWithMaxSeparators)
-      val resultArray = dataList.subList(0,indexOfSplitLine)
-      return source.filter( row => resultArray.contains(row))
+      //TODO: Throw error if index <0
+      val resultArray = dataList.subList(0,indexOfSplitLine).toArray
+      return source.filter(row => resultArray.contains(row))
     }
+
+  def findUnknownFileSeparator(source: Dataset[Row]) : String = {
+    return ""
+  }
     
     def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
       //TODO: split File by different Datatypes in collumns
