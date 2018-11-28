@@ -22,24 +22,13 @@ public class SplitPropertyTest extends PreparatorTest {
 
     @Test
     public void testPaddingAllShorterValue() throws Exception {
-        Preparator preparator = new SplitProperty("date", null, true, null);
+        Preparator preparator = new SplitProperty("date");
 
-        AbstractPreparation preparation = new Preparation(preparator);
-        pipeline.addPreparation(preparation);
+        pipeline.addPreparation(new Preparation(preparator));
         pipeline.executePipeline();
-
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "id" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        trueErrorlogs.add(pipelineError1);
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
         pipeline.getRawData().show();
 
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+        Assert.assertEquals(new ErrorRepository(new ArrayList<>()), pipeline.getErrorRepository());
     }
 
     @Test
