@@ -1,47 +1,45 @@
 package de.hpi.isg.dataprep
 
-import com.holdenkarau.spark.testing.DataFrameSuiteBase
-import org.apache.spark.sql._
-import org.apache.spark.sql.{DataFrame, Row, _}
+import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest._
-import org.scalamock.scalatest.MockFactory
 
-/*
-trait TestData {
-  val data1 = List(
-    "this,is,valid,data",
-    "-----",
-    "this,is,invalid,data"
-  )
-}
-*/
+class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup {
+  "My analytics" should {
+    "calculate the right thing" in withSparkContext { (sparkContext) =>
+      val data = Seq(1,2,3,4, 990)
+      val rdd = sparkContext.parallelize(data)
+      val total = rdd.reduce(_ + _)
 
-class test extends FunSuite with DataFrameSuiteBase {
-  test("simple Test"){
-    val sqlCtx = sqlContext
-    import sqlCtx.implicits._
+      total shouldBe 1000
+    }
+  }
 
-    val input1 = sc.parallelize(List(1, 2, 3)).toDF
-    assertDataFrameEquals(input1, input1) // equal
-
-    val input2 = sc.parallelize(List(4, 5, 6)).toDF
-    intercept[org.scalatest.exceptions.TestFailedException] {
-      assertDataFrameEquals(input1, input2) // not equal
+  "Split File" should {
+    "return a Dataset" in withSparkContext{ (sparkContext) =>
+      val data = Seq("hallo","----", "world")
+      val rdd = sparkContext.parallelize(data)
+      val sc = SparkSession.builder
+        .master("local")
+        .appName("Word Count")
+        .getOrCreate()
+      import sc.implicits._
+      val testFrame = rdd.toDF
+      val firstDataset = ConversionHelper.splitFileBySeparator("-", testFrame)
+      1 shouldBe(1)
     }
   }
 }
 
-class ConversionHelperTest extends FunSuite with DataFrameSuiteBase {
-
-  test("Dataframe is split by Separator if given"){
-    val sqlCtx = sqlContext
-    import sqlCtx.implicits._
-
-    val input = sc.parallelize(List("hallo", "----", "Welt")).toDF
-
-    val splittedDataframes = ConversionHelper.splitFileBySeparator("-", input)
-
-    assertDataFrameEquals(splittedDataframes.head, sc.parallelize(List("hallo")).toDF)
-    assertDataFrameEquals(splittedDataframes.last, sc.parallelize(List("Welt")).toDF)
+trait SparkContextSetup {
+  def withSparkContext(testMethod: (SparkContext) => Any) {
+    val conf = new SparkConf()
+      .setMaster("local")
+      .setAppName("Spark test")
+    val sparkContext = new SparkContext(conf)
+    try {
+      testMethod(sparkContext)
+    }
+    finally sparkContext.stop()
   }
 }

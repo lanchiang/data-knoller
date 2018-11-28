@@ -7,6 +7,8 @@ import java.util.Date
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.expressions._
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
@@ -51,19 +53,20 @@ object ConversionHelper extends Serializable {
         }
     }
 
-    def splitFileBySeparator(separator: String, source : DataFrame) : List[DataFrame] = {
-        var datasetOne: DataFrame = null
-        var datasetTwo: DataFrame = null
+    def splitFileBySeparator(separator: String, source : Dataset[Row]) : List[DataFrame] = {
+      var datasetOne: DataFrame = null
+      var datasetTwo: DataFrame = null
+
+      val dataList = source.collectAsList()
+      printf(dataList.toString)
 
       source.foreach { row =>
-         if (row != separator) {
-             //solange separator nicht gefunden wurde wird alles in ein DataFrame gepackt
-             datasetOne += row.toString()
-
-         } else (row == separator) {
-             //TODO wenn separator gefunden wurde, soll alles danach in zweites DataFrame gepackt werden
-             datasetTwo += row.toString()
-         }
+        row match {
+            //TODO wenn separator gefunden wurde, soll alles danach in zweites DataFrame gepackt werden
+            case separator => //datasetOne += row.toString()
+            //solange separator nicht gefunden wurde wird alles in ein DataFrame gepackt
+            case _  => //datasetTwo += row.toString()
+        }
       }
 
         return List[DataFrame](datasetOne, datasetTwo)

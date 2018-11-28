@@ -132,8 +132,8 @@
         <!-- https://mvnrepository.com/artifact/org.scalamock/scalamock-scalatest-support -->
         <dependency>
             <groupId>org.scalamock</groupId>
-            <artifactId>scalamock-scalatest-support_2.12</artifactId>
-            <version>3.6.0</version>
+            <artifactId>scalamock-scalatest-support_2.11</artifactId>
+            <version>3.4.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -144,17 +144,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.holdenkarau</groupId>
-            <artifactId>spark-testing-base_2.11</artifactId>
-            <version>${spark.version}_0.10.0</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
             <groupId>org.scalactic</groupId>
             <artifactId>scalactic_2.11</artifactId>
-            <version>3.0.1</version>
+            <version>3.2.0-SNAP10</version>
         </dependency>
+
     </dependencies>
-    
 </project>
