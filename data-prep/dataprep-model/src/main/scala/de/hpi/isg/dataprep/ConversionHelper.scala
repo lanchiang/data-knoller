@@ -6,9 +6,12 @@ import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
+import org.apache.spark.api.java.JavaRDD
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.expressions._
+import org.apache.spark.sql.types.{StructField, StructType}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
@@ -53,23 +56,17 @@ object ConversionHelper extends Serializable {
         }
     }
 
-    def splitFileBySeparator(separator: String, source : Dataset[Row]) : List[DataFrame] = {
-      var datasetOne: DataFrame = null
-      var datasetTwo: DataFrame = null
+    def countSubstring( str:String, substr:String ) = substr.r.findAllMatchIn(str).length
 
-      val dataList = source.collectAsList()
-      printf(dataList.toString)
 
-      source.foreach { row =>
-        row match {
-            //TODO wenn separator gefunden wurde, soll alles danach in zweites DataFrame gepackt werden
-            case separator => //datasetOne += row.toString()
-            //solange separator nicht gefunden wurde wird alles in ein DataFrame gepackt
-            case _  => //datasetTwo += row.toString()
-        }
-      }
-
-        return List[DataFrame](datasetOne, datasetTwo)
+    def splitFileBySeparator(separator: String, source : Dataset[Row]) : Dataset[Row] = {
+      val dataList = source.collectAsList
+      val rowWithMaxSeparators = dataList.toArray
+        .map(x => (x, countSubstring(x.toString(), separator)))
+        .maxBy(item => item._2)
+      val indexOfSplitLine = dataList.lastIndexOf(rowWithMaxSeparators)
+      val resultArray = dataList.subList(0,indexOfSplitLine)
+      return source.filter( row => resultArray.contains(row))
     }
     
     def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {

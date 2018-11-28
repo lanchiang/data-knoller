@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep
 
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import de.hpi.isg.dataprep.ConversionHelper.countSubstring
+import org.apache.spark.sql.{Row, SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest._
 
@@ -16,6 +17,27 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
   }
 
   "Split File" should {
+    "Tuple the input" in withSparkContext{ (sparkContext) =>
+      val data = Seq("hallo","----", "world")
+      val rdd = sparkContext.parallelize(data)
+      val sc = SparkSession.builder
+        .master("local")
+        .appName("Word Count")
+        .getOrCreate()
+      import sc.implicits._
+      val testFrame = rdd.toDF
+      testFrame.collectAsList.toArray shouldBe(List(Row("hallo"),Row("----"), Row("world")).toArray)
+      val mappedRows = testFrame.collectAsList.toArray().map(x => (x, countSubstring(x.toString(), "-"))).toList
+      mappedRows shouldBe(List((Row("hallo"), 0), (Row("----"), 4), (Row("world"), 0)))
+    }
+
+    "Find the Row with the most separators" in withSparkContext{ (sparkContext) =>
+
+      val maximumSepRow = List((Row("hallo"), 0), (Row("----"), 4), (Row("world"), 0)).toArray
+        .maxBy(item => item._2)
+      maximumSepRow shouldBe((Row("----"), 4))
+    }
+
     "return a Dataset" in withSparkContext{ (sparkContext) =>
       val data = Seq("hallo","----", "world")
       val rdd = sparkContext.parallelize(data)
@@ -26,6 +48,7 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       import sc.implicits._
       val testFrame = rdd.toDF
       val firstDataset = ConversionHelper.splitFileBySeparator("-", testFrame)
+      printf(firstDataset.toString())
       1 shouldBe(1)
     }
   }
