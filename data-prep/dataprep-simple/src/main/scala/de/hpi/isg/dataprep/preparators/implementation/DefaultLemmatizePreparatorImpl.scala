@@ -30,7 +30,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
-    val propertyName = preparator.propertyName
+    val propertyNames = preparator.propertyNames
 
     val rowEncoder = RowEncoder(dataFrame.schema)
     val createdDataset = dataFrame.flatMap(row => {
@@ -54,7 +54,8 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
 
         lemmatized
       }
-      //
+      // Todo: iterate over all propertyNames
+      val propertyName = propertyNames.head
 
       val indexTry = Try{row.fieldIndex(propertyName)}
       val index = indexTry match {

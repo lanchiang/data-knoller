@@ -6,9 +6,13 @@ import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
 
-class LemmatizePreparator(val propertyName : String) extends Preparator {
+class LemmatizePreparator(val propertyNames : Set[String]) extends Preparator {
 
   this.impl = new DefaultLemmatizePreparatorImpl
+
+  def this(propertyName : String) {
+    this(Set(propertyName))
+  }
 
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
@@ -18,11 +22,11 @@ class LemmatizePreparator(val propertyName : String) extends Preparator {
     */
   override def buildMetadataSetup(): Unit = {
 
-    if (propertyName == null)
-      throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-
-    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-
+    propertyNames.foreach { propertyName: String =>
+      if (propertyName == null)
+        throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
+        this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+    }
   }
 
 }
