@@ -2,20 +2,16 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import org.apache.spark.sql.Row;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import scala.Char;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -25,7 +21,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * @author Lan Jiang
@@ -47,17 +42,33 @@ public class ChangeEncodingTest extends PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
+
+        try {
+            pipeline.executePipeline();
+            oldPaths = getPaths();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void testChangeKnownEncoding() throws Exception {
-        pipeline.executePipeline();
-        oldPaths = getPaths();
-
         Charset oldEncoding = Charset.forName("UTF-16");
         Charset newEncoding = Charset.forName("UTF-8");
-        Preparator preparator = new ChangeEncoding("bio", oldEncoding, newEncoding);
+        ChangeEncoding preparator = new ChangeEncoding("bio", oldEncoding, newEncoding);
+        testPreparator(preparator, oldEncoding, newEncoding);
+    }
 
+    @Test
+    public void testChangeUnknownEncoding() throws Exception {
+        Charset oldEncoding = Charset.forName("UTF-16");
+        Charset newEncoding = Charset.forName("UTF-8");
+        ChangeEncoding preparator = new ChangeEncoding("bio", newEncoding);
+        testPreparator(preparator, oldEncoding, newEncoding);
+    }
+
+
+    private void testPreparator(ChangeEncoding preparator, Charset oldEncoding, Charset newEncoding) throws Exception {
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
