@@ -7,8 +7,8 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
-import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import de.hpi.isg.dataprep.util.DataType
 
 /**
   *
@@ -31,7 +31,7 @@ class ChangeDateFormat(val propertyName : String,
         val prerequisites = new util.ArrayList[Metadata]
         val toChange = new util.ArrayList[Metadata]
 
-        if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Propertry name not specified.", propertyName))
+        if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Propertry name not specified."))
 
         prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 

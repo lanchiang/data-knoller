@@ -20,7 +20,7 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2018/8/29
   */
-class DefaultChangeDateFormatImpl extends PreparatorImpl {
+class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
 
     override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
         val preparator = abstractPreparator.asInstanceOf[ChangeDateFormat]
@@ -45,14 +45,13 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl {
             val backpart = seq.takeRight(row.length-index-1)
 
             val tryConvert = Try{
-                if (preparator.sourceDatePattern.isDefined) {
-                    val sourceDatePattern = preparator.sourceDatePattern.get
+                if (!preparator.sourceDatePattern.isDefined) {
+                    val sourceDatePattern = preparator.sourceDatePattern
                     val targetDatePattern = preparator.targetDatePattern
-                    val newSeq = forepart :+ ConversionHelper.toDate(operatedValue, sourceDatePattern, targetDatePattern)
+                    val newSeq = forepart :+ ConversionHelper.toDate(operatedValue, sourceDatePattern.get, targetDatePattern)
                     val newRow = Row.fromSeq(newSeq)
                     newRow
                 } else {
-                    val sourceDatePattern = preparator.sourceDatePattern
                     val targetDatePattern = preparator.targetDatePattern
                     val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern)
                     val newRow = Row.fromSeq(newSeq)
@@ -76,11 +75,11 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl {
     }
 
     def formatToTargetPattern(date: String, targetPattern: DatePatternEnum): Unit = {
-        val parsedDate = toDate(date)
+        val parsedDate : String = toDate(date)
         new SimpleDateFormat(targetPattern.getPattern).parse(parsedDate)
     }
 
-    def toDate(date: String): Unit = {
+    def toDate(date: String): String = {
         for (patternMatch <- splitPattern.findFirstMatchIn(date)){
             var year: String = ""
             var month: String = ""
@@ -113,8 +112,9 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl {
                 day = result._3
             }
             println(s"$year, $month, $day \n")
-            s"$year-$month-$day"
+            return s"$year-$month-$day"
         }
+        ""
     }
 
     val splitPattern: Regex = "([0-9]+)[\\.\\-\\/\\s]{1}([0-9]+)[\\.\\-\\/]([0-9]+)".r
