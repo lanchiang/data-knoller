@@ -30,7 +30,7 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[StemPreparator]
-    val propertyName = preparator.propertyName
+    val propertyNames = preparator.propertyNames
 
     val rowEncoder = RowEncoder(dataFrame.schema)
 //    val createdDataset = dataFrame.withColumn(propertyName + "_stemmed", map(dataFrame.col(""), ))
@@ -56,7 +56,8 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
 
         stemmed
       }
-      //
+      // Todo: iterate over all propertyNames
+      val propertyName = propertyNames.head
 
       val indexTry = Try{row.fieldIndex(propertyName)}
       val index = indexTry match {

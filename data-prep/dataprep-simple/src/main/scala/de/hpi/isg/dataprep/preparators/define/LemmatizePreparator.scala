@@ -25,7 +25,7 @@ class LemmatizePreparator(val propertyNames : Set[String]) extends Preparator {
     propertyNames.foreach { propertyName: String =>
       if (propertyName == null)
         throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-        this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+      this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
     }
   }
 
