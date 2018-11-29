@@ -63,7 +63,7 @@ object ConversionHelper extends Serializable {
       val dataList = source.collectAsList
       val rowWithMaxSeparators = dataList.toArray
         .map(x => (x, countSubstring(x.toString(), separator)))
-        .maxBy(item => item._2)._1
+        .maxBy(item => item._2)._1 //gibt mir x Element aus dem tupel
       val indexOfSplitLine = dataList.lastIndexOf(rowWithMaxSeparators)
       //TODO: Throw error if index <0
       val resultArray = dataList.subList(0,indexOfSplitLine).toArray
@@ -86,9 +86,31 @@ object ConversionHelper extends Serializable {
       (source, source)
     }
     
-    def splitFileByCountingHeaders(source: DataFrame) : (DataFrame, DataFrame) = {
+    def splitFileByCountingHeaders(source: Dataset[Row]) : Dataset[Row] = {
       //TODO: split file by different number of headers
-      (source, source)
+      // minimal: two columns: entweder weniger / mehr
+      val dataArray = source.collect()
+
+
+      // Loop over rows.
+        for (row <- dataArray) {
+          // Loop over cells in rows.
+          var countNullValue = 0
+          for (cell <- row) {
+            if(row.isNullAt(cell)) {
+              countNullValue+=1 //wenn in der Zeile ein null value gefunden wurde, setze den counter eins hoch
+              if (countNullValue == 3) {
+                  val indexArray = dataArray.slice(0, cell) //aktuell werden Leerstrings mit ausgegeben
+              }
+            }
+          }
+        }
+
+
+
+
+
+      return source
     }
 
     def getDefaultDate(): String = {
