@@ -9,7 +9,7 @@ import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.preparators.implementation.DefaultRemoveCharactersImpl
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl
 import de.hpi.isg.dataprep.util.{ChangeEncodingMode, DataType}
 
 /**
@@ -26,7 +26,7 @@ class ChangeEncoding(val propertyName: String,
     this(propertyName, mode, userSpecifiedGoalEncoding, userSpecifiedSourceEncoding)
   }
 
-  this.impl = new DefaultRemoveCharactersImpl
+  this.impl = new DefaultChangeEncodingImpl
 
   /**
     * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
@@ -48,13 +48,11 @@ class ChangeEncoding(val propertyName: String,
 
 
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-    //prerequisites.add(new PropertyDataType(mode, ChangeEncodingMode))
-    //prerequisites.add(new PropertyDataType(userSpecifiedSourceEncoding, DataType.PropertyType.STRING))
-    prerequisites.add(new PropertyDataType(userSpecifiedGoalEncoding, DataType.PropertyType.STRING))
 
     toChange.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedGoalEncoding)))
 
     this.prerequisites.addAll(prerequisites)
+    //TODO: handle error if failing in preperator
     this.updates.addAll(toChange)
   }
 }
