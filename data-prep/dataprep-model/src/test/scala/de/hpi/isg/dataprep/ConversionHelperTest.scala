@@ -77,7 +77,7 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       val testFrame = rdd.toDF()
       val separator = ConversionHelper.findUnknownFileSeparator(testFrame)
 
-      separator shouldBe("-")
+      separator._1 shouldBe("-")
     }
   }
 }

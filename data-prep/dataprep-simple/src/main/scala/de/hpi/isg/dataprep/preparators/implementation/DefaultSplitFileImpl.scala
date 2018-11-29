@@ -17,7 +17,11 @@ class DefaultSplitFileImpl extends PreparatorImpl{
     val fileSeparator = preparator.fileSeparator
 
     if(fileSeparator == ""){
-      // TODO: implement heuristic for splitting dataframes as good as we can here
+      val (foundSeparator, sepConfidence) = ConversionHelper.findUnknownFileSeparator(dataFarme)
+      if(sepConfidence >= 1){
+        val splitData = ConversionHelper.splitFileBySeparator(foundSeparator, dataFrame)
+      }
+      // TODO: implement heuristic for splitting dataframes as good as we can - if there is no separator
     }else{
       val splitDataSets = ConversionHelper.splitFileBySeparator(fileSeparator, dataFrame)
     }
