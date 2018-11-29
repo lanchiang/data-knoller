@@ -1,6 +1,9 @@
 package de.hpi.isg.dataprep.preparators.define
 
 import de.hpi.isg.dataprep.components.Preparator
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
+import de.hpi.isg.dataprep.metadata.PropertyDataType
+import de.hpi.isg.dataprep.util.DataType
 
 class ChangePhoneFormat(val propertyName : String,
                         val sourceFormat : String,
@@ -16,5 +19,9 @@ class ChangePhoneFormat(val propertyName : String,
     * @throws Exception
     */
   override def buildMetadataSetup(): Unit = {
+    if (propertyName == null) throw new ParameterNotSpecifiedException("Property name must be specified.")
+    if (targetFormat == null) throw new ParameterNotSpecifiedException("Target format must be specified.")
+
+    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 }
