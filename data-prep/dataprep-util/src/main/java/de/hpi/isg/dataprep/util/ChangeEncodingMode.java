@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.util;
 
-public enum  ChangeEncodingMode {
-    SOURCEANDAIMED,
-    GIVENGOAL;
+public enum ChangeEncodingMode {
+	SOURCEANDTARGET,
+	GIVENTARGET
 }

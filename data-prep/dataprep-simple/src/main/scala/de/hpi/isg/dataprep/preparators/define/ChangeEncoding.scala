@@ -1,7 +1,5 @@
 package de.hpi.isg.dataprep.preparators.define
 
-<<<<<<< HEAD
-
 import java.nio.charset.Charset
 import java.util
 
@@ -19,11 +17,11 @@ import de.hpi.isg.dataprep.util.{ChangeEncodingMode, DataType}
   */
 class ChangeEncoding(val propertyName: String,
                      val mode: ChangeEncodingMode,
-                     val userSpecifiedSourceEncoding: Option[String],
-                     val userSpecifiedGoalEncoding: String) extends Preparator {
+                     val userSpecifiedSourceEncoding: String,
+                     val userSpecifiedTargetEncoding: String) extends Preparator {
 
-  def this(propertyName: String, mode: ChangeEncodingMode, userSpecifiedGoalEncoding: String, userSpecifiedSourceEncoding: String) {
-    this(propertyName, mode, userSpecifiedGoalEncoding, userSpecifiedSourceEncoding)
+  def this(propertyName: String, mode: ChangeEncodingMode, userSpecifiedTargetEncoding: String) {
+    this(propertyName, mode, "", userSpecifiedTargetEncoding)
   }
 
   this.impl = new DefaultChangeEncodingImpl
@@ -38,18 +36,18 @@ class ChangeEncoding(val propertyName: String,
     val prerequisites = new util.ArrayList[Metadata]
     val toChange = new util.ArrayList[Metadata]
 
-    if (!Charset.isSupported(userSpecifiedGoalEncoding)) {
-      throw new EncodingNotSupportedException("Your entered goalEncoding is not supported by this preperator.")
+    if (!Charset.isSupported(userSpecifiedTargetEncoding)) {
+      throw new EncodingNotSupportedException("Your entered targetEncoding is not supported by this preperator.")
     }
     if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
     if (mode == null) throw new ParameterNotSpecifiedException(String.format("ChangeEncoding mode not specified."))
-    if (userSpecifiedGoalEncoding == null) throw new ParameterNotSpecifiedException(String.format("You have at least to specify a goalEncoding"))
-    if (mode eq ChangeEncodingMode.SOURCEANDAIMED) if (userSpecifiedSourceEncoding == null) throw new ParameterNotSpecifiedException(String.format("While using SOURCEANDAIMED Mode you have to specify a source encoding."))
+    if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException(String.format("You have at least to specify a targetEncoding"))
+    if (mode eq ChangeEncodingMode.SOURCEANDTARGET) if (userSpecifiedSourceEncoding == null) throw new ParameterNotSpecifiedException(String.format("While using SOURCEANDTARGET Mode you have to specify a source encoding."))
 
 
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
-    toChange.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedGoalEncoding)))
+    toChange.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
 
     this.prerequisites.addAll(prerequisites)
     //TODO: handle error if failing in preperator
