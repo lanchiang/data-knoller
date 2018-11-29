@@ -106,11 +106,7 @@ object ConversionHelper extends Serializable {
           }
         }
 
-
-
-
-
-      return source
+      return source.filter(row => dataArray.contains(row))
     }
 
     def getDefaultDate(): String = {
