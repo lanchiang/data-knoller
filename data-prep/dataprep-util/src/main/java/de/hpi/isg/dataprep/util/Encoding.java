@@ -5,4 +5,5 @@ package de.hpi.isg.dataprep.util;
  * @since 2018/8/27
  */
 public class Encoding {
+
 }
