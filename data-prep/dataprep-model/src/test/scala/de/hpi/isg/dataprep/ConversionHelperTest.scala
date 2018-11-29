@@ -80,6 +80,23 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       separator._1 shouldBe("-")
     }
   }
+
+  "Find null values" should {
+    "find 3 null values in one row one below the other" in withSparkContext{ (sparkContext) =>
+      val data = Seq(("hallo", "ballo"),("world", "noerld"),("bla", ""),("abc", ""), ("xyz",""))
+      val rdd = sparkContext.parallelize(data)
+      val sc = SparkSession.builder
+        .master("local")
+        .appName("Word Count")
+        .getOrCreate()
+      import sc.implicits._
+      val testFrame = rdd.toDF()
+      val nullValue = ConversionHelper.splitFileByCountingHeaders(testFrame)
+
+     nullValue.collect() shouldBe(List(Row("hallo", "ballo"),("world", "noerld"),("bla", ""),("abc", ""), ("xyz","")).toArray)
+    }
+  }
+
 }
 
 trait SparkContextSetup {

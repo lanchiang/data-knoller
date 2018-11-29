@@ -90,23 +90,31 @@ object ConversionHelper extends Serializable {
       //TODO: split file by different number of headers
       // minimal: two columns: entweder weniger / mehr
       val dataArray = source.collect()
+      var indexArray = Array[Row]()
+      var countNullValue = 0
 
 
       // Loop over rows.
         for (row <- dataArray) {
           // Loop over cells in rows.
-          var countNullValue = 0
-          for (cell <- row) {
-            if(row.isNullAt(cell)) {
+
+          var content = row.get(0)
+          var length = row.length
+          for (i <- Range(0, row.length)) {
+            val valu = row.get(i)
+            if(valu == "") {
               countNullValue+=1 //wenn in der Zeile ein null value gefunden wurde, setze den counter eins hoch
               if (countNullValue == 3) {
-                  val indexArray = dataArray.slice(0, cell) //aktuell werden Leerstrings mit ausgegeben
+                //indexArray = dataArray.slice(0, i) //aktuell werden Leerstrings mit ausgegeben
               }
             }
           }
+
+
+
         }
 
-      return source.filter(row => dataArray.contains(row))
+      return source.filter(row => indexArray.contains(row))
     }
 
     def getDefaultDate(): String = {
