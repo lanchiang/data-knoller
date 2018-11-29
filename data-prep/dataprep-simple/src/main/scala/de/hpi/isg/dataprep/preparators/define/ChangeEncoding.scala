@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep.preparators.define
 
+<<<<<<< HEAD
+
 import java.nio.charset.Charset
 import java.util
 
