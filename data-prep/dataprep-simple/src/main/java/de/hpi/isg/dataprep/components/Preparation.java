@@ -11,13 +11,14 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author Lan Jiang
  * @since 2018/9/10
  */
-public class Preparation implements AbstractPreparation {
+public class Preparation implements AbstractPreparation, Serializable {
 
     private String name;
 

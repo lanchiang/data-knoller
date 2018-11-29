@@ -1,10 +1,12 @@
 package de.hpi.isg.dataprep.model.dialects;
 
+import java.io.Serializable;
+
 /**
  * @author Lan Jiang
  * @since 2018/9/9
  */
-public class FileLoadDialect {
+public class FileLoadDialect implements Serializable {
 
     private String tableName;
 

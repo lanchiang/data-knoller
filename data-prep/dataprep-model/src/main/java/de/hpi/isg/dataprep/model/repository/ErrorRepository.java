@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.Printer.ErrorLogPrinter;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.util.PrettyPrintable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Objects;
  * @author Lan Jiang
  * @since 2018/8/8
  */
-public class ErrorRepository implements PrettyPrintable {
+public class ErrorRepository implements PrettyPrintable, Serializable {
 
     private List<ErrorLog> errorLogs;
 

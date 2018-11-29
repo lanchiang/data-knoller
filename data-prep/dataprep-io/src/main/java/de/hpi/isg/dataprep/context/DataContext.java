@@ -4,11 +4,13 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import java.io.Serializable;
+
 /**
  * @author Lan Jiang
  * @since 2018/9/11
  */
-public class DataContext {
+public class DataContext implements Serializable {
 
     private Dataset<Row> dataFrame;
     private FileLoadDialect dialect;
