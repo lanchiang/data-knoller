@@ -53,19 +53,15 @@ public class SplitPropertyTest extends PreparatorTest {
 
         pipeline.getRawData().foreach(
                 row -> {
-                    String date = row.get(8).toString();
-                    String[] split = date.split("-");
-                    if(split.length > 1) {
-                        String date1 = row.get(9).toString();
-                        String date2 = row.get(10).toString();
-                        String date3 = row.get(11).toString();
-                        Assert.assertEquals(split[0], date1);
-                        Assert.assertEquals(split[1], date2);
-                        Assert.assertEquals(split[2], date3);
+                    String[] expectedSplit = row.get(8).toString().split("-");
+                    String[] split = {row.get(9).toString(), row.get(10).toString(), row.get(11).toString()};
+                    if(expectedSplit.length == 1) {
+                        String[] singleValueSplit = {expectedSplit[0], "", ""};
+                        Assert.assertArrayEquals(singleValueSplit, split);
+                    } else {
+                        Assert.assertArrayEquals(expectedSplit, split);
                     }
                 }
         );
-
-
     }
 }
