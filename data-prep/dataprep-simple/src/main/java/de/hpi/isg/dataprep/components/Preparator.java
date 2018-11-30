@@ -13,7 +13,6 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDataTypeImpl;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import scala.Serializable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Lan Jiang
  * @since 2018/9/17
  */
-abstract public class Preparator implements AbstractPreparator, Serializable {
+abstract public class Preparator implements AbstractPreparator {
 
     protected List<Metadata> prerequisites;
     protected List<Metadata> updates;
