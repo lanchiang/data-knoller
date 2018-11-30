@@ -12,10 +12,11 @@ import scala.util.matching.Regex
 
 val possible_dates = List(
   "12.03.2004",
-  "31.01.16",
+  "31.1.16",
   "25.1.16",
   "9.1.16",
   "04/28/1996",
+  "23.3.98",
   "09/17/96",
   "1975-01-18",
   "75-01-18",
@@ -25,6 +26,68 @@ val possible_dates = List(
 )
 
 val splitPattern: Regex = "([0-9]+)([\\.\\-\\/\\s]{1})([0-9]+)([\\.\\-\\/]{1})([0-9]+)".r
+
+for (date <- possible_dates) {
+  for (patternMatch <- splitPattern.findFirstMatchIn(date)){
+    var year: String = "XXXX"
+    var month: String = "XX"
+    var day: String = "XX"
+    val groups = padSingleDigitDates(patternMatch.subgroups)
+    val numGroups = List(groups.head, groups(2), groups(4))
+    val separators = List(groups(1), groups(3))
+
+    print("Numbers:", numGroups)
+    println("Sep:", separators)
+
+    numGroups.find { group =>
+      group.length == 4
+    } match {
+      case Some(group) =>
+        year = group
+        val result = determineDateAndMonth(numGroups.filter(_ != group))
+        day = result._1
+        month = result._2
+      case None =>
+        val result = handleEqualSizedBlocks(numGroups)
+        year = result._1
+        month = result._2
+        day = result._3
+    }
+
+    if (year != "XXXX" && month != "XX" && day != "XX") {
+      val result = generatePatternAndRegex(groups, separators, year, month, day)
+      println("Pattern: " + result._2 + " Regex: " + result._1)
+      year = padYearIfNeeded(year)
+    }
+
+    println(s"YYYY-MM-DD: $year-$month-$day \n")
+  }
+}
+
+def generatePatternAndRegex(fullGroup:List[String], separators:List[String], year: String, month: String, day: String): (String, String) = {
+  var newGroup = fullGroup.updated(fullGroup.indexOf(year), generatePlaceholder(year, "Y"))
+  newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
+  newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "D"))
+
+  var pattern: String = ""
+  var regex: String = ""
+
+  for(group <- newGroup) {
+    val groupAsString = group.toString
+
+    pattern = pattern + groupAsString
+
+    "[DMY]+".r.findFirstMatchIn(groupAsString) match {
+      case Some(_) =>
+        regex = regex + s"[0-9]{${groupAsString.length}}"
+      case None =>
+        regex = regex + "\\" + groupAsString // TODO: better escaping
+    }
+
+  }
+
+  (regex, pattern)
+}
 
 def determineDateAndMonth(groups: List[String]): (String, String) = {
   var day: String = "XX"
@@ -77,62 +140,7 @@ def generatePlaceholder(origString:String, placeholder:String):String = {
   origString.replaceAll(".", placeholder)
 }
 
-
-def generatePatternAndRegex(fullGroup:List[String], separators:List[String], year: String, month: String, day: String): (String, String) = {
-  var newGroup = fullGroup.patch(fullGroup.indexOf(year), generatePlaceholder(year, "Y"), 1).asInstanceOf[List[String]]
-  newGroup = newGroup.patch(newGroup.indexOf(month), generatePlaceholder(month, "M"), 1).asInstanceOf[List[String]]
-  newGroup = newGroup.patch(newGroup.indexOf(day), generatePlaceholder(day, "D"), 1).asInstanceOf[List[String]]
-
-  var pattern: String = ""
-  var regex: String = ""
-
-  for(groupAsString <- newGroup) {
-    pattern = pattern + groupAsString
-
-    if (groupAsString.matches("[0-9]+")) {
-      regex = regex + s"[0-9]{${groupAsString.length}}" // TODO: this leads to different regexes 1.1.2018 and 10.10.2018 although they are the same
-    } else {
-      regex = regex + groupAsString
-    }
-  }
-
-  (regex, pattern)
-}
-
-for (date <- possible_dates) {
-  for (patternMatch <- splitPattern.findFirstMatchIn(date)){
-    var year: String = "XXXX"
-    var month: String = "XX"
-    var day: String = "XX"
-    val groups = patternMatch.subgroups
-    val numGroups = List(groups.head, groups(2), groups(4))
-    val separators = List(groups(1), groups(3))
-
-    print("Numbers:", numGroups)
-    println("Sep:", separators)
-
-    numGroups.find { group =>
-      group.length == 4
-    } match {
-      case Some(group) =>
-        year = group
-        val result = determineDateAndMonth(numGroups.filter(_ != group))
-        day = result._1
-        month = result._2
-      case None =>
-        val result = handleEqualSizedBlocks(numGroups)
-        year = result._1
-        month = result._2
-        day = result._3
-    }
-
-    if (year != "XXXX" && month != "XX" && day != "XX") {
-      val result = generatePatternAndRegex(groups, separators, year, month, day)
-      println("Pattern: " + result._2)
-      year = padYearIfNeeded(year)
-    }
-
-    println(s"YYYY-MM-DD: $year-$month-$day \n")
-  }
+def padSingleDigitDates(dates: List[String]): List[String] = {
+  dates.map( date => if (date.length == 1 && date.forall(Character.isDigit)) "0" + date else date )
 }
 
