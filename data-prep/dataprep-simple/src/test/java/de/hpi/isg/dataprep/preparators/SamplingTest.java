@@ -28,7 +28,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/29
  */
-public class PreparatorTest {
+public class SamplingTest {
 
     protected static Dataset<Row> dataset;
     protected static AbstractPipeline pipeline;
@@ -64,4 +64,21 @@ public class PreparatorTest {
         pipeline = new Pipeline(dataContext);
     }
 
+    @Test
+    public void testSampling() throws Exception {
+
+        Preparator preparator = new Sampling(0.33);
+       // ((Sampling) preparator).setPercentage(0.33);
+
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        pipeline.getRawData().show();
+
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+
+        //Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+    }
 }
