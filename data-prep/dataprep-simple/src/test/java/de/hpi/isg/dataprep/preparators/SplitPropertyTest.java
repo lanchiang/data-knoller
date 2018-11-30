@@ -106,4 +106,18 @@ public class SplitPropertyTest extends PreparatorTest {
                 }
         );
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalArgumentExceptionWhenNumColsIs1() throws Exception {
+        Preparator preparator = new SplitProperty("date", "-", 1, true);
+        pipeline.addPreparation(new Preparation(preparator));
+        pipeline.executePipeline();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalArgumentExceptionWhenPropertyNameDoNotExist() throws Exception {
+        Preparator preparator = new SplitProperty("xyz", "-", 3, true);
+        pipeline.addPreparation(new Preparation(preparator));
+        pipeline.executePipeline();
+    }
 }
