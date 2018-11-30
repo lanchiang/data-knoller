@@ -64,6 +64,8 @@ def handleEqualSizedBlocks(groups: List[String]): (String, String, String) = {
 def padYearIfNeeded(year: String): String = {
   val currentYear: Int = 18 //TODO compute
   var paddedYear: String = year
+  // The idea is kinda stupid because it won't allow dates which lie in the future
+  // However, this leads to the problem that there will no way of determining the full year if only 2 digits are given
   if(year.length == 2 && year.toInt > currentYear) {
     paddedYear = "19" + year
   }
@@ -76,16 +78,25 @@ def generatePlaceholder(origString:String, placeholder:String):String = {
 }
 
 
-def generatePattern(fullGroup:List[String], separators:List[String], year: String, month: String, day: String): String = {
-  var newGroup = fullGroup.patch(fullGroup.indexOf(year), generatePlaceholder(year, "Y"), 1)
-  newGroup = newGroup.patch(newGroup.indexOf(month), generatePlaceholder(month, "M"), 1)
-  newGroup = newGroup.patch(newGroup.indexOf(day), generatePlaceholder(day, "D"), 1)
+def generatePatternAndRegex(fullGroup:List[String], separators:List[String], year: String, month: String, day: String): (String, String) = {
+  var newGroup = fullGroup.patch(fullGroup.indexOf(year), generatePlaceholder(year, "Y"), 1).asInstanceOf[List[String]]
+  newGroup = newGroup.patch(newGroup.indexOf(month), generatePlaceholder(month, "M"), 1).asInstanceOf[List[String]]
+  newGroup = newGroup.patch(newGroup.indexOf(day), generatePlaceholder(day, "D"), 1).asInstanceOf[List[String]]
 
-  var pattern = ""
-  for(group <- newGroup) {
-    pattern = pattern + group
+  var pattern: String = ""
+  var regex: String = ""
+
+  for(groupAsString <- newGroup) {
+    pattern = pattern + groupAsString
+
+    if (groupAsString.matches("[0-9]+")) {
+      regex = regex + s"[0-9]{${groupAsString.length}}" // TODO: this leads to different regexes 1.1.2018 and 10.10.2018 although they are the same
+    } else {
+      regex = regex + groupAsString
+    }
   }
-  pattern
+
+  (regex, pattern)
 }
 
 for (date <- possible_dates) {
@@ -116,8 +127,8 @@ for (date <- possible_dates) {
     }
 
     if (year != "XXXX" && month != "XX" && day != "XX") {
-      val pattern: String = generatePattern(groups, separators, year, month, day)
-      println("Pattern: " + pattern)
+      val result = generatePatternAndRegex(groups, separators, year, month, day)
+      println("Pattern: " + result._2)
       year = padYearIfNeeded(year)
     }
 
