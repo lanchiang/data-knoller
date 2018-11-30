@@ -8,6 +8,7 @@ import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.Padding;
 import de.hpi.isg.dataprep.preparators.define.SplitProperty;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataTypes;
@@ -26,34 +27,75 @@ import java.util.List;
  */
 public class SplitPropertyTest extends PreparatorTest {
 
-    @Test
-    public void testSplitProperty() throws Exception {
-        Preparator preparator = new SplitProperty("date");
+    private StructType newSchema = new StructType(new StructField[] {
+            new StructField("id", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
+            new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
+            new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
+            new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
+            new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
+            new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("date1", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("date2", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("date3", DataTypes.StringType, true, Metadata.empty())
+    });
 
+    @Test
+    public void testSplitPropertyWithAllParameters() throws Exception {
+        Preparator preparator = new SplitProperty("date", "-", 3, true);
+        assertTest(preparator);
+    }
+
+    @Test
+    public void testSplitPropertyWithPropertyAndSeparator() throws Exception {
+        Preparator preparator = new SplitProperty("date", "-");
+        assertTest(preparator);
+    }
+
+    @Test
+    public void testSplitPropertyWithOnlyProperty() throws Exception {
+        Preparator preparator = new SplitProperty("date");
+        assertTest(preparator);
+    }
+
+    private void assertTest(Preparator preparator) throws Exception {
         pipeline.addPreparation(new Preparation(preparator));
         pipeline.executePipeline();
 
         Assert.assertEquals(new ErrorRepository(new ArrayList<>()), pipeline.getErrorRepository());
 
-        StructType newSchema = new StructType(new StructField[] {
-                new StructField("id", DataTypes.StringType, true, Metadata.empty()),
-                new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
-                new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
-                new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("date", DataTypes.StringType, true, Metadata.empty()),
-                new StructField("date1", DataTypes.StringType, true, Metadata.empty()),
-                new StructField("date2", DataTypes.StringType, true, Metadata.empty()),
-                new StructField("date3", DataTypes.StringType, true, Metadata.empty())
-        });
         Assert.assertEquals(newSchema, pipeline.getRawData().schema());
 
         pipeline.getRawData().foreach(
                 row -> {
                     String[] expectedSplit = row.get(8).toString().split("-");
+                    String[] split = {row.get(9).toString(), row.get(10).toString(), row.get(11).toString()};
+                    if(expectedSplit.length == 1) {
+                        String[] singleValueSplit = {expectedSplit[0], "", ""};
+                        Assert.assertArrayEquals(singleValueSplit, split);
+                    } else {
+                        Assert.assertArrayEquals(expectedSplit, split);
+                    }
+                }
+        );
+    }
+
+    @Test
+    public void testSplitPropertyWithFromLeftIsFalse() throws Exception {
+        Preparator preparator = new SplitProperty("date", "-", 3, false);
+        pipeline.addPreparation(new Preparation(preparator));
+        pipeline.executePipeline();
+
+        Assert.assertEquals(new ErrorRepository(new ArrayList<>()), pipeline.getErrorRepository());
+
+        Assert.assertEquals(newSchema, pipeline.getRawData().schema());
+
+        pipeline.getRawData().foreach(
+                row -> {
+                    String[] expectedSplit = row.get(8).toString().split("-");
+                    ArrayUtils.reverse(expectedSplit); // reverse expectedSplit
                     String[] split = {row.get(9).toString(), row.get(10).toString(), row.get(11).toString()};
                     if(expectedSplit.length == 1) {
                         String[] singleValueSplit = {expectedSplit[0], "", ""};
