@@ -23,14 +23,14 @@ class ChangeDateFormatTest extends FunSuite with BeforeAndAfter {
   before {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
-    val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("../dataprep-simple/src/test/resources/pokemon.csv").buildDialect
+    val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("../dataprep-simple/src/test/resources/dates.csv").buildDialect
     val dataLoader = new FlatFileDataLoader(dialect)
     dataContext = dataLoader.load
     pipeline = new Pipeline(dataContext)
   }
 
   test("ChangeDateFormatTest.execute") {
-    val preparator: Preparator = new ChangeDateFormat("identifier", Option(DatePattern.DatePatternEnum.DayMonthYear), DatePattern.DatePatternEnum.MonthDayYear)
+    val preparator: Preparator = new ChangeDateFormat("date", Option(DatePattern.DatePatternEnum.YearMonthDay), DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
     pipeline.addPreparation(preparation)
@@ -40,6 +40,8 @@ class ChangeDateFormatTest extends FunSuite with BeforeAndAfter {
     val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
 
     pipeline.getRawData.show()
+
+    println(pipeline.getErrorRepository.getPrintedReady)
 
     Assert.assertEquals(errorRepository, pipeline.getErrorRepository)
   }

@@ -25,6 +25,8 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
     override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
         val preparator = abstractPreparator.asInstanceOf[ChangeDateFormat]
         val propertyName = preparator.propertyName
+        val sourceDatePattern = preparator.sourceDatePattern
+        val targetDatePattern = preparator.targetDatePattern
 
         val rowEncoder = RowEncoder(dataFrame.schema)
 
@@ -45,14 +47,11 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
             val backpart = seq.takeRight(row.length-index-1)
 
             val tryConvert = Try{
-                if (!preparator.sourceDatePattern.isDefined) {
-                    val sourceDatePattern = preparator.sourceDatePattern
-                    val targetDatePattern = preparator.targetDatePattern
+                if (sourceDatePattern.isDefined) {
                     val newSeq = forepart :+ ConversionHelper.toDate(operatedValue, sourceDatePattern.get, targetDatePattern)
                     val newRow = Row.fromSeq(newSeq)
                     newRow
                 } else {
-                    val targetDatePattern = preparator.targetDatePattern
                     val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern)
                     val newRow = Row.fromSeq(newSeq)
                     newRow
@@ -80,6 +79,8 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
     }
 
     def toDate(date: String): String = {
+        val splitPattern: Regex = "([0-9]+)[\\.\\-\\/\\s]{1}([0-9]+)[\\.\\-\\/]([0-9]+)".r
+
         for (patternMatch <- splitPattern.findFirstMatchIn(date)){
             var year: String = ""
             var month: String = ""
@@ -116,8 +117,6 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
         }
         ""
     }
-
-    val splitPattern: Regex = "([0-9]+)[\\.\\-\\/\\s]{1}([0-9]+)[\\.\\-\\/]([0-9]+)".r
 
     def determineDateAndMonth(first: String, second: String): (String, String) = {
         var day: String = "-1"
