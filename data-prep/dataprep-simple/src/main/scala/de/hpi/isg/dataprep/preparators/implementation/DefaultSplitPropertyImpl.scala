@@ -7,7 +7,7 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{Dataset, Encoder, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 class DefaultSplitPropertyImpl extends PreparatorImpl {
@@ -16,7 +16,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[SplitProperty]
     val propertyName = preparator.propertyName
 
-    val (separator, numCols): (String, Int) = try {
+    val (separator, numCols) = try {
       val separator = preparator.separator match {
         case Some(s) => s
         case _ => findSeperator(dataFrame, propertyName)
@@ -92,7 +92,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
   }
 
   def createSplitValuesDataFrame(dataFrame: Dataset[Row], propertyName: String, separator: String, times: Int, fromLeft: Boolean): Dataset[Row] = {
-    val rowEncoder = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
+    implicit val rowEncoder: Encoder[Row] = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
 
     val splitValue = (value: String) => {
       var split = value.split(separator)
@@ -119,7 +119,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
         val split = splitValue(value)
         Row.fromSeq(row.toSeq ++ split)
       }
-    )(rowEncoder)
+    )
   }
 
   def appendEmptyColumns(dataFrame: Dataset[Row], propertyName: String, numCols: Int): Dataset[Row] = {

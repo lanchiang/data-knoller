@@ -8,6 +8,12 @@ import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.Padding;
 import de.hpi.isg.dataprep.preparators.define.SplitProperty;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,47 +21,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Lan Jiang
- * @since 2018/8/29
+ * @author Jakob Köhler
+ * @since 2018/11/30
  */
 public class SplitPropertyTest extends PreparatorTest {
 
     @Test
-    public void testPaddingAllShorterValue() throws Exception {
+    public void testSplitProperty() throws Exception {
         Preparator preparator = new SplitProperty("date");
 
         pipeline.addPreparation(new Preparation(preparator));
         pipeline.executePipeline();
-        pipeline.getRawData().show();
 
         Assert.assertEquals(new ErrorRepository(new ArrayList<>()), pipeline.getErrorRepository());
-    }
 
-    @Test
-    public void testPaddingValueTooLong() throws Exception {
-        Preparator preparator = new Padding("id", 4, "x");
+        StructType newSchema = new StructType(new StructField[] {
+                new StructField("id", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("date1", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("date2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("date3", DataTypes.StringType, true, Metadata.empty())
+        });
+        Assert.assertEquals(newSchema, pipeline.getRawData().schema());
 
-        AbstractPreparation preparation = new Preparation(preparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
+        pipeline.getRawData().foreach(
+                row -> {
+                    String date = row.get(8).toString();
+                    String[] split = date.split("-");
+                    if(split.length > 1) {
+                        String date1 = row.get(9).toString();
+                        String date2 = row.get(10).toString();
+                        String date3 = row.get(11).toString();
+                        Assert.assertEquals(split[0], date1);
+                        Assert.assertEquals(split[1], date2);
+                        Assert.assertEquals(split[2], date3);
+                    }
+                }
+        );
 
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "id" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        trueErrorlogs.add(pipelineError1);
 
-        ErrorLog errorlog1 = new PreparationErrorLog(preparation, "three",
-                new IllegalArgumentException(String.format("Value length is already larger than padded length.")));
-        trueErrorlogs.add(errorlog1);
-
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
-        pipeline.getRawData().show();
-
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-        Assert.assertEquals(pipeline.getRawData().count(), 9L);
     }
 }
