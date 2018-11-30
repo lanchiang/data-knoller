@@ -92,6 +92,9 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
   }
 
   def createSplitValuesDataFrame(dataFrame: Dataset[Row], propertyName: String, separator: String, times: Int, fromLeft: Boolean): Dataset[Row] = {
+    if (!dataFrame.columns.contains(propertyName))
+      throw new IllegalArgumentException(s"No column $propertyName found!")
+
     implicit val rowEncoder: Encoder[Row] = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
 
     val splitValue = (value: String) => {
