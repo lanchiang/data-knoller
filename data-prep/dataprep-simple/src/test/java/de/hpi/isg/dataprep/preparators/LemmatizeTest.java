@@ -6,10 +6,12 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
+import org.apache.spark.SparkException;
 import org.apache.spark.sql.Row;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,28 @@ public class LemmatizeTest extends PreparatorTest {
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
+
+    @Test
+    public void testMultipleValidColumns() throws Exception {
+
+        String[] parameters = new String[2];
+        parameters[0] = "stemlemma";
+        parameters[1] = "stemlemma2";
+        Preparator preparator = new LemmatizePreparator(parameters);
+
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        pipeline.getRawData().show();
+        pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
+
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+
+        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+    }
+
 
     @Test
     public void testInValidColumn() throws Exception {
@@ -77,4 +101,5 @@ public class LemmatizeTest extends PreparatorTest {
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
+
 }

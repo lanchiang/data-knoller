@@ -32,56 +32,59 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
     val propertyNames = preparator.propertyNames
 
-    val rowEncoder = RowEncoder(dataFrame.schema)
-    val createdDataset = dataFrame.flatMap(row => {
+    var createdDataset : Dataset[Row] = dataFrame
 
-      //
-      def lemmatizeString(str: String): String = {
+    propertyNames.foreach { propertyName : String =>
+      val rowEncoder = RowEncoder(createdDataset.schema)
+      createdDataset = createdDataset.flatMap(row => {
 
-        val props = new Properties()
-        props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
-        val pipeline = new StanfordCoreNLP(props)
-        val document = new Annotation(str)
-        pipeline.annotate(document)
+        //
+        def lemmatizeString(str: String): String = {
 
-        val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-        if (sentences.size() != 1)
-          throw new Exception("Field empty or more than one sentence supplied")
-        val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
-        if (tokens.size() != 1)
-          throw new Exception("Field empty or more than one token supplied")
-        val lemmatized = tokens.get(0).get(classOf[CoreAnnotations.LemmaAnnotation])
+          val props = new Properties()
+          props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
+          val pipeline = new StanfordCoreNLP(props)
+          val document = new Annotation(str)
+          pipeline.annotate(document)
 
-        lemmatized
-      }
-      // Todo: iterate over all propertyNames
-      val propertyName = propertyNames.head
+          val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
+          if (sentences.size() != 1)
+            throw new Exception("Field empty or more than one sentence supplied")
+          val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
+          if (tokens.size() != 1)
+            throw new Exception("Field empty or more than one token supplied")
+          val lemmatized = tokens.get(0).get(classOf[CoreAnnotations.LemmaAnnotation])
 
-      val indexTry = Try{row.fieldIndex(propertyName)}
-      val index = indexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
-      val operatedValue = row.getAs[String](index)
-
-      val seq = row.toSeq
-      val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length-index-1)
-      val tryConvert = Try{
-        val newSeq = (forepart :+ lemmatizeString(operatedValue)) ++ backpart
-        val newRow = Row.fromSeq(newSeq)
-        newRow
-      }
-
-      val trial = tryConvert match {
-        case Failure(content) => {
-          errorAccumulator.add(new RecordError(operatedValue, content))
-          tryConvert
+          lemmatized
         }
-        case Success(content) => tryConvert
-      }
-      trial.toOption
-    })(rowEncoder)
+
+        val indexTry = Try{row.fieldIndex(propertyName)}
+        val index = indexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+        val operatedValue = row.getAs[String](index)
+
+        val seq = row.toSeq
+        val forepart = seq.take(index)
+        val backpart = seq.takeRight(row.length-index-1)
+        val tryConvert = Try{
+          val newSeq = (forepart :+ lemmatizeString(operatedValue)) ++ backpart
+          val newRow = Row.fromSeq(newSeq)
+          newRow
+        }
+
+        val trial = tryConvert match {
+          case Failure(content) => {
+            errorAccumulator.add(new RecordError(operatedValue, content))
+            tryConvert
+          }
+          case Success(content) => tryConvert
+        }
+        trial.toOption
+      })(rowEncoder)
+    }
+
 
     new ExecutionContext(createdDataset, errorAccumulator)
   }
