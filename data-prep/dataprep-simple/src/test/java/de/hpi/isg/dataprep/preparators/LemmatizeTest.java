@@ -57,4 +57,24 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
 
+    @Test(expected = SparkException.class)
+    public void testMissingColumn() throws Exception {
+        Preparator preparator = new LemmatizePreparator("this_column_does_not_exist");
+
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        pipeline.getRawData().show();
+//        String[] rows = new String[]{""};
+//        for(Iterator<Row> iter = pipeline.getRawData().toLocalIterator(), int i=0; iter.hasNext();i++){
+//            Row row = iter.next();
+//        }
+        pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
+
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+
+        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+    }
 }
