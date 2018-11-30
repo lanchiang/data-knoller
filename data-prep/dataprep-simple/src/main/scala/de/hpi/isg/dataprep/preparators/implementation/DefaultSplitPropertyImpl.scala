@@ -19,7 +19,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     val (separator, numCols) = try {
       val separator = preparator.separator match {
         case Some(s) => s
-        case _ => findSeperator(dataFrame, propertyName)
+        case _ => findSeparator(dataFrame, propertyName)
       }
 
       val numCols = preparator.numCols match {
@@ -46,7 +46,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     new ExecutionContext(splitValuesDataFrame, errorAccumulator)
   }
 
-  def findSeperator(dataFrame: Dataset[Row], propertyName: String): String = {
+  def findSeparator(dataFrame: Dataset[Row], propertyName: String): String = {
     // Given a column name, this method returns the character that is most likely the separator.
     // Possible separators are non-alphanumeric characters that are evenly distributed over all rows.
     // Rows where the character does not appear at all are ignored.
@@ -86,7 +86,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
       }
     ).filter(x => x > 1)
 
-    if (counts.isEmpty )
+    if (counts.isEmpty)
       throw new IllegalArgumentException(s"Separator not found in column $propertyName")
     counts.max
   }
