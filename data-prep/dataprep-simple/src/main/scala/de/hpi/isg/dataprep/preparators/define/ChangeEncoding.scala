@@ -21,7 +21,7 @@ class ChangeEncoding(val propertyName: String,
                      val userSpecifiedTargetEncoding: String) extends Preparator {
 
   def this(propertyName: String, mode: ChangeEncodingMode, userSpecifiedTargetEncoding: String) {
-    this(propertyName, mode, "", userSpecifiedTargetEncoding)
+    this(propertyName, mode, null, userSpecifiedTargetEncoding)
   }
 
   this.impl = new DefaultChangeEncodingImpl
@@ -36,21 +36,28 @@ class ChangeEncoding(val propertyName: String,
     val prerequisites = new util.ArrayList[Metadata]
     val toChange = new util.ArrayList[Metadata]
 
-    if (!Charset.isSupported(userSpecifiedTargetEncoding)) {
-      throw new EncodingNotSupportedException("Your entered targetEncoding is not supported by this preperator.")
-    }
-    if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-    if (mode == null) throw new ParameterNotSpecifiedException(String.format("ChangeEncoding mode not specified."))
-    if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException(String.format("You have at least to specify a targetEncoding"))
-    if (mode eq ChangeEncodingMode.SOURCEANDTARGET) if (userSpecifiedSourceEncoding == null) throw new ParameterNotSpecifiedException(String.format("While using SOURCEANDTARGET Mode you have to specify a source encoding."))
+    if (propertyName == null) throw new ParameterNotSpecifiedException("ColumnMetadata name not specified.")
+    if (mode == null) throw new ParameterNotSpecifiedException("ChangeEncoding mode not specified.")
+    if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have at least to specify a targetEncoding")
 
+    if (!Charset.isSupported(userSpecifiedTargetEncoding)) {
+      throw new EncodingNotSupportedException("Your entered targetEncoding is not a valid Charset identifier.")
+    }
+
+    if (mode == ChangeEncodingMode.SOURCEANDTARGET) {
+      if (userSpecifiedSourceEncoding == null) {
+        throw new ParameterNotSpecifiedException("While using SOURCEANDTARGET Mode you have to specify a source encoding.")
+      } else if (!Charset.isSupported(userSpecifiedSourceEncoding)) {
+        throw new EncodingNotSupportedException("Your entered sourceEncoding is not a valid Charset identifier.")
+      }
+    }
 
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
     toChange.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
 
     this.prerequisites.addAll(prerequisites)
-    //TODO: handle error if failing in preperator
+    //TODO: handle error if failing in preparator
     this.updates.addAll(toChange)
   }
 }
