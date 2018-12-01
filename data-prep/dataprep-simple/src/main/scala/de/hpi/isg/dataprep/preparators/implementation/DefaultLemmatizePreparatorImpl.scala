@@ -34,10 +34,8 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
 
     var createdDataset : Dataset[Row] = dataFrame
 
-    propertyNames.foreach { propertyName : String =>
       val rowEncoder = RowEncoder(createdDataset.schema)
       createdDataset = createdDataset.flatMap(row => {
-
         //
         def lemmatizeString(str: String): String = {
 
@@ -58,32 +56,38 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
           lemmatized
         }
 
-        val indexTry = Try{row.fieldIndex(propertyName)}
-        val index = indexTry match {
-          case Failure(content) => throw content
-          case Success(content) => content
-        }
-        val operatedValue = row.getAs[String](index)
-
-        val seq = row.toSeq
-        val forepart = seq.take(index)
-        val backpart = seq.takeRight(row.length-index-1)
-        val tryConvert = Try{
-          val newSeq = (forepart :+ lemmatizeString(operatedValue)) ++ backpart
-          val newRow = Row.fromSeq(newSeq)
-          newRow
-        }
-
-        val trial = tryConvert match {
-          case Failure(content) => {
-            errorAccumulator.add(new RecordError(operatedValue, content))
-            tryConvert
+        val remappings = propertyNames.map(propertyName => {
+          val indexTry = Try {
+            row.fieldIndex(propertyName)
           }
-          case Success(content) => tryConvert
-        }
-        trial.toOption
+          val index = indexTry match {
+            case Failure(content) => throw content
+            case Success(content) => content
+          }
+          val operatedValue = row.getAs[String](index)
+          (index, operatedValue)
+        }).toMap
+
+          val seq = row.toSeq
+          val tryConvert = Try {
+            val newSeq = seq.zipWithIndex.map(tuple => {
+              if(remappings.isDefinedAt(tuple._2))
+                lemmatizeString(remappings.get(tuple._2).get)
+              tuple._1
+            })
+            val newRow = Row.fromSeq(newSeq)
+            newRow
+          }
+
+          val trial = tryConvert match {
+            case Failure(content) => {
+              errorAccumulator.add(new RecordError(remappings.values.toString(), content))
+              tryConvert
+            }
+            case Success(content) => tryConvert
+          }
+          trial.toOption
       })(rowEncoder)
-    }
 
 
     new ExecutionContext(createdDataset, errorAccumulator)

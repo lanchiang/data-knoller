@@ -41,9 +41,7 @@ public class LemmatizeTest extends PreparatorTest {
     @Test
     public void testMultipleValidColumns() throws Exception {
 
-        String[] parameters = new String[2];
-        parameters[0] = "stemlemma";
-        parameters[1] = "stemlemma2";
+        String[] parameters = new String[]{"stemlemma", "stemlemma2"};
         Preparator preparator = new LemmatizePreparator(parameters);
 
         AbstractPreparation preparation = new Preparation(preparator);
