@@ -29,73 +29,73 @@ import java.util.logging.Logger;
  * @since 2018/9/4
  */
 public class ChangeEncodingTest extends PreparatorTest {
-	private static String[] oldPaths;
+    private static String[] oldPaths;
 
-	@BeforeClass
-	public static void setUp() {
-		Logger.getLogger("org").setLevel(Level.OFF);
-		Logger.getLogger("akka").setLevel(Level.OFF);
+    @BeforeClass
+    public static void setUp() {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
 
-		FileLoadDialect dialect = new DialectBuilder()
-				.hasHeader(true)
-				.inferSchema(true)
-				.url("./src/test/resources/digimon.csv")
-				.buildDialect();
+        FileLoadDialect dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url("./src/test/resources/digimon.csv")
+                .buildDialect();
 
-		SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
-		dataContext = dataLoader.load();
-	}
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+    }
 
-	@Test
-	public void testChangeKnownEncoding() throws Exception {
-		String oldEncoding = "UTF-16";
-		String newEncoding = "UTF-8";
-		ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
-		testPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
-	}
-
-	@Test
-	public void testChangeUnknownEncoding() throws Exception {
+    @Test
+    public void testChangeKnownEncoding() throws Exception {
         String oldEncoding = "UTF-16";
         String newEncoding = "UTF-8";
-		ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.GIVENTARGET, newEncoding);
-		testPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
-	}
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
+        testPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
+    }
+
+    @Test
+    public void testChangeUnknownEncoding() throws Exception {
+        String oldEncoding = "UTF-16";
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.GIVENTARGET, newEncoding);
+        testPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
+    }
 
 
-	private void testPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
+    private void testPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
         pipeline.executePipeline();
         oldPaths = getPaths();
 
-		AbstractPreparation preparation = new Preparation(preparator);
-		pipeline.addPreparation(preparation);
-		pipeline.executePipeline();
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
 
-		pipeline.getRawData().show();
+        pipeline.getRawData().show();
 
-		List<ErrorLog> errorLogs = new ArrayList<>();
-		ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
-		Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-		String[] newPaths = getPaths();
-		for (int i = 0; i < oldPaths.length; i++) {
-			Assert.assertEquals(readFile(oldPaths[i], oldCharset), readFile(newPaths[i], newCharset));
-		}
-	}
+        String[] newPaths = getPaths();
+        for (int i = 0; i < oldPaths.length; i++) {
+            Assert.assertEquals(readFile(oldPaths[i], oldCharset), readFile(newPaths[i], newCharset));
+        }
+    }
 
-	private String readFile(String path, Charset encoding) throws FileNotFoundException {
-		FileInputStream is = new FileInputStream(path);
-		InputStreamReader isr = new InputStreamReader(is, encoding);
+    private String readFile(String path, Charset encoding) throws FileNotFoundException {
+        FileInputStream is = new FileInputStream(path);
+        InputStreamReader isr = new InputStreamReader(is, encoding);
         return new Scanner(isr).useDelimiter("\\A").next();
-	}
+    }
 
-	private static String[] getPaths() {
-		return pipeline.getRawData()
-				.select("bio_path")
-				.collectAsList()
-				.stream()
-				.map(row -> row.getString(0))
-				.toArray(String[]::new);
-	}
+    private static String[] getPaths() {
+        return pipeline.getRawData()
+                .select("bio_path")
+                .collectAsList()
+                .stream()
+                .map(row -> row.getString(0))
+                .toArray(String[]::new);
+    }
 }
