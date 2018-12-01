@@ -1,17 +1,20 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
+import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.EncodingNotSupportedException;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
-import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding;
 import de.hpi.isg.dataprep.util.ChangeEncodingMode;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.functions;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,8 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +34,7 @@ import java.util.logging.Logger;
  * @since 2018/9/4
  */
 public class ChangeEncodingTest extends PreparatorTest {
+    private static String[] newPaths = new String[0];
     private static String[] oldPaths;
 
     @BeforeClass
@@ -47,30 +50,79 @@ public class ChangeEncodingTest extends PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
+
+        try {
+            pipeline = new Pipeline(dataContext);
+            pipeline.executePipeline();
+            oldPaths = getPaths();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
     }
 
+    @After
+    public void cleanUp() {
+        for (String path : newPaths) {
+            if (!Arrays.asList(oldPaths).contains(path)) new File(path).delete();
+        }
+        newPaths = new String[0];
+    }
     /* Test happy path */
 
     @Test
     public void testChangeKnownEncoding() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
-        testPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
+        testWorkingPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
     }
 
     @Test
     public void testChangeUnknownEncoding() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.GIVENTARGET, newEncoding);
-        testPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
+        testWorkingPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
     }
 
 
-    /* Test encoding errors */
+    /* Test I/O errors */
 
-    // TODO
+    @Test
+    public void testFileNotFound() throws Exception {
+        Dataset<Row> oldData = pipeline.getRawData();
+        Dataset<Row> newdata = oldData.withColumn("bio_path", functions.lit("fake_path"));
+        pipeline.setRawData(newdata);
+
+        String oldEncoding = "cp1252";
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
+
+        executePreparator(preparator);
+        countErrors((int) newdata.count());
+    }
+
+    @Test
+    public void testWrongSourceEncoding() throws Exception {
+        String oldEncoding = "ASCII";
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
+
+        executePreparator(preparator);
+        countErrors((int) pipeline.getRawData().count());
+    }
+
+    @Test
+    public void testTargetEncodingCannotEncodeSource() throws Exception {
+        String oldEncoding = "cp1252";
+        String newEncoding = "ASCII";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
+
+        executePreparator(preparator);
+        countErrors((int) pipeline.getRawData().count());
+    }
+
 
     /* Test malformed parameters */
 
@@ -83,7 +135,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullMode() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", null, oldEncoding, newEncoding);
         executePreparator(preparator);
@@ -98,7 +150,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullDestEnc() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, null);
         executePreparator(preparator);
     }
@@ -127,28 +179,20 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     /* Helpers */
 
-    private void testPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
-        pipeline.executePipeline();
-        oldPaths = getPaths();
-
+    private void testWorkingPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
         executePreparator(preparator);
-        pipeline.getRawData().show();
+        countErrors(0);
 
-        List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-
-        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
-
-        String[] newPaths = getPaths();
+        newPaths = getPaths();
         for (int i = 0; i < oldPaths.length; i++) {
             Assert.assertNotEquals(oldPaths[i], newPaths[i]);
             Assert.assertEquals(readFile(oldPaths[i], oldCharset), readFile(newPaths[i], newCharset));
         }
+    }
 
-        // clean up
-        for (String path : newPaths) {
-            new File(path).delete();
-        }
+    // The error repository is too convoluted to recreate, just count the errors and pray to god it's the right ones
+    private void countErrors(int errorCount) {
+        Assert.assertEquals(errorCount, pipeline.getErrorRepository().getErrorLogs().size());
     }
 
     private void executePreparator(ChangeEncoding preparator) throws Exception {
