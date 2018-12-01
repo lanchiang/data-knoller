@@ -63,7 +63,7 @@ class ChangeEncoding(val propertyName: String,
             if (!source && !Charset.forName(encoding).canEncode) throw new EncodingNotSupportedException(s"$encoding is not supported as target encoding.")
         } catch {
             case _: IllegalCharsetNameException => throw new EncodingNotSupportedException(s"$encoding is not a valid encoding.")
-            case e => throw e
+            case e: Throwable => throw e
         }
     }
 }
