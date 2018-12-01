@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.nio.charset.Charset
+import java.nio.charset.{Charset, IllegalCharsetNameException}
 import java.util
 
 import de.hpi.isg.dataprep.components.Preparator
@@ -39,17 +39,13 @@ class ChangeEncoding(val propertyName: String,
         if (propertyName == null) throw new ParameterNotSpecifiedException("ColumnMetadata name not specified.")
         if (mode == null) throw new ParameterNotSpecifiedException("ChangeEncoding mode not specified.")
         if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have at least to specify a targetEncoding")
-
-        if (!Charset.isSupported(userSpecifiedTargetEncoding)) {
-            throw new EncodingNotSupportedException("Your entered targetEncoding is not a valid Charset identifier.")
-        }
+        verifyEncoding(userSpecifiedTargetEncoding, source = false)
 
         if (mode == ChangeEncodingMode.SOURCEANDTARGET) {
             if (userSpecifiedSourceEncoding == null) {
                 throw new ParameterNotSpecifiedException("While using SOURCEANDTARGET Mode you have to specify a source encoding.")
-            } else if (!Charset.isSupported(userSpecifiedSourceEncoding)) {
-                throw new EncodingNotSupportedException("Your entered sourceEncoding is not a valid Charset identifier.")
             }
+            verifyEncoding(userSpecifiedSourceEncoding, source = true)
         }
 
         prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
@@ -59,5 +55,15 @@ class ChangeEncoding(val propertyName: String,
         this.prerequisites.addAll(prerequisites)
         //TODO: handle error if failing in preparator
         this.updates.addAll(toChange)
+    }
+
+    private def verifyEncoding(encoding: String, source: Boolean): Unit = {
+        try {
+            if (!Charset.isSupported(encoding)) throw new EncodingNotSupportedException(s"$encoding is not supported by your JVM.")
+            if (!source && !Charset.forName(encoding).canEncode) throw new EncodingNotSupportedException(s"$encoding is not supported as target encoding.")
+        } catch {
+            case _: IllegalCharsetNameException => throw new EncodingNotSupportedException(s"$encoding is not a valid encoding.")
+            case e => throw e
+        }
     }
 }

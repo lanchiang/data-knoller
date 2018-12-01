@@ -2,6 +2,8 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Preparation;
+import de.hpi.isg.dataprep.exceptions.EncodingNotSupportedException;
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
@@ -47,6 +49,8 @@ public class ChangeEncodingTest extends PreparatorTest {
         dataContext = dataLoader.load();
     }
 
+    /* Test happy path */
+
     @Test
     public void testChangeKnownEncoding() throws Exception {
         String oldEncoding = "UTF-16";
@@ -64,14 +68,70 @@ public class ChangeEncodingTest extends PreparatorTest {
     }
 
 
+    /* Test encoding errors */
+
+    // TODO
+
+    /* Test malformed parameters */
+
+    @Test(expected = ParameterNotSpecifiedException.class)
+    public void testNullProperty() throws Exception {
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding(null, ChangeEncodingMode.GIVENTARGET, newEncoding);
+        executePreparator(preparator);
+    }
+
+    @Test(expected = ParameterNotSpecifiedException.class)
+    public void testNullMode() throws Exception {
+        String oldEncoding = "UTF-16";
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", null, oldEncoding, newEncoding);
+        executePreparator(preparator);
+    }
+
+    @Test(expected = ParameterNotSpecifiedException.class)
+    public void testNullSourceEnc() throws Exception {
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, null, newEncoding);
+        executePreparator(preparator);
+    }
+
+    @Test(expected = ParameterNotSpecifiedException.class)
+    public void testNullDestEnc() throws Exception {
+        String oldEncoding = "UTF-16";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, null);
+        executePreparator(preparator);
+    }
+
+    @Test(expected = EncodingNotSupportedException.class)
+    public void testInvalidSourceEnc() throws Exception {
+        String oldEncoding = "not a real encoding";
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
+        executePreparator(preparator);
+    }
+
+    @Test(expected = EncodingNotSupportedException.class)
+    public void testInvalidDestEnc() throws Exception {
+        String newEncoding = "not a real encoding";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.GIVENTARGET, newEncoding);
+        executePreparator(preparator);
+    }
+
+    @Test(expected = Exception.class)  // TODO something should happen
+    public void testInvalidProperty() throws Exception {
+        String newEncoding = "UTF-8";
+        ChangeEncoding preparator = new ChangeEncoding("fake property", ChangeEncodingMode.GIVENTARGET, newEncoding);
+        executePreparator(preparator);
+    }
+
+    /* Helpers */
+
     private void testPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
         pipeline.executePipeline();
         oldPaths = getPaths();
 
-        AbstractPreparation preparation = new Preparation(preparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-
+        executePreparator(preparator);
         pipeline.getRawData().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
@@ -89,6 +149,12 @@ public class ChangeEncodingTest extends PreparatorTest {
         for (String path : newPaths) {
             new File(path).delete();
         }
+    }
+
+    private void executePreparator(ChangeEncoding preparator) throws Exception {
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
     }
 
     private String readFile(String path, Charset encoding) throws FileNotFoundException {
