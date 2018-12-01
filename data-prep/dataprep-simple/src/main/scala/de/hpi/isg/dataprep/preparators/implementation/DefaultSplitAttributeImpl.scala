@@ -5,10 +5,11 @@ import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitAttribute
+import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitAttributeImpl._
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
-import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.sql.functions.{col, udf}
+import org.apache.spark.util.CollectionAccumulator
 
 // TODO prerequisite property to split should be a string
 class DefaultSplitAttributeImpl extends PreparatorImpl {
@@ -36,15 +37,22 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
     }
   }
 
-  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String, separator: String, startLeft: Boolean, times: Int): ExecutionContext = ???
+  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String, separator: String, startLeft: Boolean, times: Int): ExecutionContext = {
+    val newDf = dataFrame.withColumn("newCol", split(separator, Some(times), startLeft)(col(propertyName)))
+    new ExecutionContext(newDf, errorAccumulator)
+  }
 
   def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String, separator: String): ExecutionContext = {
     val newDf = dataFrame.withColumn("newCol", split(separator)(col(propertyName)))
     new ExecutionContext(newDf, errorAccumulator)
   }
 
+  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String): ExecutionContext = {
+    val separator = "\\" + countOccurrences(dataFrame, propertyName).maxBy(_._1)._1._1.toString
+    val newDf = dataFrame.withColumn("newCol", split(separator)(col(propertyName)))
 
-  def split(dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError], propertyName: String): ExecutionContext = ???
+    new ExecutionContext(newDf, errorAccumulator)
+  }
 
   def split(separator: String, times: Option[Int] = None, startLeft: Boolean = true): UserDefinedFunction =
     udf((s: String) => {
@@ -52,5 +60,23 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
       if (times.isEmpty) splitted else splitted.take(times.get)
     })
 
+  def countOccurrences(dataFrame: DataFrame, columnName: String): Map[(Char, Int), Int] = {
+    dataFrame.rdd.map(_.getAs[String](columnName))
+      .flatMap(countSeparatorInString)
+      .map(i => (i, 1))
+      .reduceByKey(_ + _)
+      .collectAsMap()
+      .toMap
+  }
 
+  def countSeparatorInString(string: String): List[(Char, Int)] = {
+    string.filter(potentialSeparator.contains(_))
+      .groupBy(i => i)
+      .map(char => (char._1, char._2.size))
+      .toList
+  }
+}
+
+object DefaultSplitAttributeImpl {
+  val potentialSeparator = Array(',', '|', ';', '!', '\t', '_', '-')
 }
