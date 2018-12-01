@@ -25,11 +25,13 @@ val possible_dates = List(
   "29 Jul. 1935"
 )
 
+// Used to generate pattern. Just transform date to place holder, e.g. 2004 to YYYY
 def generatePlaceholder(origString:String, placeholder:String):String = {
   origString.replaceAll(".", placeholder)
 }
 
 def generatePatternAndRegex(fullGroup:List[String], separators:List[String], year: String, month: String, day: String): (String, String) = {
+  // Generate List of placeholder strings which are in the same order as original numbers
   var newGroup = fullGroup.updated(fullGroup.indexOf(year), generatePlaceholder(year, "Y"))
   newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
   newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "D"))
@@ -40,8 +42,10 @@ def generatePatternAndRegex(fullGroup:List[String], separators:List[String], yea
   for(group <- newGroup) {
     val groupAsString = group.toString
 
+    // Glue placeholders together to get pattern
     pattern = pattern + groupAsString
 
+    // Generate "[0-9]{length}" part of regex if current group is placeholder for a number, insert separator otherwise
     "[DMY]+".r.findFirstMatchIn(groupAsString) match {
       case Some(_) =>
         regex = regex + s"[0-9]{${groupAsString.length}}"
@@ -89,6 +93,7 @@ def handleEqualSizedBlocks(groups: List[String]): (String, String, String) = {
   (year, month, day)
 }
 
+// Pad year to 4 digits if possible
 def padYearIfNeeded(year: String): String = {
   val currentYear: Int = 18 //TODO compute
   var paddedYear: String = year
@@ -101,10 +106,14 @@ def padYearIfNeeded(year: String): String = {
   paddedYear
 }
 
+// Add leading zeroes if any block consists only of 1 number
 def padSingleDigitDates(dates: List[String]): List[String] = {
   dates.map( date => if (date.length == 1 && date.forall(Character.isDigit)) "0" + date else date )
 }
 
+// Main
+
+// Looking for 3 blocks of numbers separated bei . - \ or any whitespace
 val splitPattern: Regex = "([0-9]+)([\\.\\-\\/\\s]{1})([0-9]+)([\\.\\-\\/]{1})([0-9]+)".r
 
 for (date <- possible_dates) {
