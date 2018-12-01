@@ -72,7 +72,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test
     public void testChangeKnownEncoding() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
         testWorkingPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
@@ -80,7 +80,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test
     public void testChangeUnknownEncoding() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.GIVENTARGET, newEncoding);
         testWorkingPreparator(preparator, Charset.forName(oldEncoding), Charset.forName(newEncoding));
@@ -95,7 +95,7 @@ public class ChangeEncodingTest extends PreparatorTest {
         Dataset<Row> newdata = oldData.withColumn("bio_path", functions.lit("fake_path"));
         pipeline.setRawData(newdata);
 
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
 
@@ -125,7 +125,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullMode() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", null, oldEncoding, newEncoding);
         executePreparator(preparator);
@@ -140,7 +140,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullDestEnc() throws Exception {
-        String oldEncoding = "UTF-16";
+        String oldEncoding = "cp1252";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, null);
         executePreparator(preparator);
     }

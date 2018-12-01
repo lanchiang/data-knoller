@@ -16,6 +16,7 @@ import org.apache.spark.util.CollectionAccumulator
 
 import scala.io.{Codec, Source}
 import scala.util.{Failure, Success, Try}
+import org.mozilla.universalchardet.UniversalDetector;
 
 
 /**
@@ -57,24 +58,35 @@ object ConversionHelper2 { // TODO prettify, rename, document
         )
     }
 
-    def convertEncoding(inputEncoding: String,
+    def convertEncoding(inputEncodingOrNull: String,
                         outputEncoding: String,
                         errorAccumulator: CollectionAccumulator[PreparationError])(fileName: String): String = {
+        val inputEncoding = if (inputEncodingOrNull != null) inputEncodingOrNull else inferInputEncoding(fileName)
         val newFileName = fileName + ".new"  // TODO
         Try({
             val content = readFile(fileName, Charset.forName(inputEncoding))
             writeFile(Paths.get(newFileName), content, Charset.forName(outputEncoding))
         }) match {
             case Success(_) => newFileName
-            case Failure(ex) => {
-                ex match {
-                    case ex: IOException => errorAccumulator.add(new RecordError(fileName, ex))
-                    case ex: Exception =>
-                        ex.printStackTrace()
-                        errorAccumulator.add(new RecordError(fileName, ex))
-                }
+            case Failure(ex) =>
+                errorAccumulator.add(new RecordError(fileName, ex))
                 fileName
-            }
         }
+    }
+
+    def inferInputEncoding(fileName: String): String = {
+        val buf = new Array[Byte](4096)
+        val inStream = Files.newInputStream(Paths.get(fileName))
+
+        val detector = new UniversalDetector(null)
+
+        var bytesRead = inStream.read(buf)
+        while (bytesRead > 0 && !detector.isDone) {
+            detector.handleData(buf, 0, bytesRead)
+            bytesRead = inStream.read(buf)
+        }
+        detector.dataEnd()
+
+        detector.getDetectedCharset  // TODO handle null
     }
 }
