@@ -81,8 +81,8 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
     }
   }
 
-  "Find null values" should {
-    "find 3 null values in one row one below the other" in withSparkContext{ (sparkContext) =>
+  "Find empty values" should {
+    "find 3 emtpy values in one row one below the other" in withSparkContext{ (sparkContext) =>
       val data = Seq(("hallo", "ballo"),("world", "noerld"),("bla", ""),("abc", ""), ("xyz",""))
       val rdd = sparkContext.parallelize(data)
       val sc = SparkSession.builder
@@ -91,9 +91,31 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
         .getOrCreate()
       import sc.implicits._
       val testFrame = rdd.toDF()
-      val nullValue = ConversionHelper.splitFileByCountingHeaders(testFrame)
+      val nullValue = ConversionHelper.splitFileByEmptyValues(testFrame)
 
      nullValue.collect() shouldBe(List(Row("hallo", "ballo"),Row("world", "noerld")).toArray)
+    }
+  }
+
+  "Find new values" should {
+    "Find new values under 4 empty values in one row" in withSparkContext{ (sparkContext) =>
+      val data = Seq(
+                    ("world", ""),
+                    ("bla", ""),
+                    ("abc", ""),
+                    ("xyz","sss"),
+                    ("gef", "fef"),
+                    ("lfe", "das"))
+      val rdd = sparkContext.parallelize(data)
+      val sc = SparkSession.builder
+        .master("local")
+        .appName("Word Count")
+        .getOrCreate()
+      import sc.implicits._
+      val testFrame = rdd.toDF()
+      val nullValue = ConversionHelper.splitFileByNewValuesAfterEmpty(testFrame)
+
+      nullValue.collect() shouldBe(List(Row("xyz","sss"), Row("gef", "fef"),Row("lfe", "das")).toArray)
     }
   }
 

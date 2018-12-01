@@ -86,7 +86,7 @@ object ConversionHelper extends Serializable {
       (source, source)
     }
     
-    def splitFileByCountingHeaders(source: Dataset[Row]) : Dataset[Row] = {
+    def splitFileByEmptyValues(source: Dataset[Row]) : Dataset[Row] = {
       val dataArray = source.collect()
       var indexArray = Array[Row]()
       var countNullValue = 0
@@ -104,6 +104,29 @@ object ConversionHelper extends Serializable {
           }
         }
 
+      return source.filter(row => indexArray.contains(row))
+    }
+
+    def splitFileByNewValuesAfterEmpty(source: Dataset[Row]) : Dataset[Row] = {
+      val dataArray = source.collect()
+      var indexArray = Array[Row]()
+      var countNullValue = 0
+      var countLines = 0
+
+      for(row <- dataArray) {
+        countLines+=1
+        //if(row.get(0) == "") {
+          for(i <- Range(0, row.length)) {
+            if(row.get(i) == ""){
+              countNullValue+=1
+            } else {
+              indexArray = dataArray.slice(countNullValue, 10) //TODO bis Ende der Row
+            }
+          }
+      //  } else {
+          // mach splitFileByEmptyValues
+       // }
+      }
       return source.filter(row => indexArray.contains(row))
     }
 
