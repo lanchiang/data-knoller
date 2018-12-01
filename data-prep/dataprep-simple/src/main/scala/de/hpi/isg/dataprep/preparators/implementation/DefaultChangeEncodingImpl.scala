@@ -43,8 +43,7 @@ object ConversionHelper2 { // TODO prettify, rename, document
                             errorAccumulator: CollectionAccumulator[PreparationError]): UserDefinedFunction =
         udf(convertEncoding(inputEncoding, outputEncoding, errorAccumulator) _)
 
-    def readFile(file: File, inputEncoding: Charset): String =
-        Source.fromFile(file)(new Codec(inputEncoding)).mkString
+    def readFile(file: File, inputEncoding: Charset): String = Source.fromFile(file)(new Codec(inputEncoding)).mkString
 
     def writeFile(outputPath: Path, content: String, outputEncoding: Charset): Unit = {
         Files.write(

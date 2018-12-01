@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -80,7 +81,13 @@ public class ChangeEncodingTest extends PreparatorTest {
 
         String[] newPaths = getPaths();
         for (int i = 0; i < oldPaths.length; i++) {
+            Assert.assertNotEquals(oldPaths[i], newPaths[i]);
             Assert.assertEquals(readFile(oldPaths[i], oldCharset), readFile(newPaths[i], newCharset));
+        }
+
+        // clean up
+        for (String path : newPaths) {
+            new File(path).delete();
         }
     }
 
