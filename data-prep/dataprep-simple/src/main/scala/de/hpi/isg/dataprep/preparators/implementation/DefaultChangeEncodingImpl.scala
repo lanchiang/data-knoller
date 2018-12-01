@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.exceptions.ImproperTargetEncodingException
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding
@@ -51,6 +52,7 @@ object ConversionHelper2 { // TODO prettify, rename, document
     def readFile(file: String, inputEncoding: Charset): String = Source.fromFile(new File(file))(new Codec(inputEncoding)).mkString
 
     def writeFile(outputPath: Path, content: String, outputEncoding: Charset): Unit = {
+        if (!outputEncoding.newEncoder().canEncode(content)) throw new ImproperTargetEncodingException(content, outputEncoding)
         Files.write(
             outputPath,
             content.getBytes(outputEncoding),

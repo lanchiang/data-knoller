@@ -113,6 +113,16 @@ public class ChangeEncodingTest extends PreparatorTest {
         countErrors((int) pipeline.getRawData().count());
     }
 
+    @Test
+    public void testTargetEncodingCannotEncodeSource() throws Exception {
+        String oldEncoding = "cp1252";
+        String newEncoding = "ASCII";
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
+
+        executePreparator(preparator);
+        countErrors((int) pipeline.getRawData().count());
+    }
+
 
     /* Test malformed parameters */
 
