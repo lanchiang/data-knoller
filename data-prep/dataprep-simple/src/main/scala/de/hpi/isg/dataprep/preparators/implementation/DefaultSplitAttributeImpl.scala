@@ -69,14 +69,16 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
       .toMap
   }
 
-  def countSeparatorInString(string: String): List[(Char, Int)] = {
+  def countSeparatorInString: String => List[(Char, Int)] = (string: String) => {
     string.filter(potentialSeparator.contains(_))
       .groupBy(i => i)
       .map(char => (char._1, char._2.size))
       .toList
   }
+
 }
 
 object DefaultSplitAttributeImpl {
   val potentialSeparator = Array(',', '|', ';', '!', '\t', '_', '-')
+
 }

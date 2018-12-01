@@ -23,6 +23,7 @@ public class SplitPreparatorTest {
 
         FileLoadDialect dialect = new DialectBuilder()
                 .url("./src/test/resources/splitAttributeTest.csv")
+                .delimiter("~")
                 .buildDialect();
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
