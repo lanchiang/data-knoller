@@ -1,3 +1,4 @@
+import java.text.ParseException
 import java.util
 
 import de.hpi.isg.dataprep.DialectBuilder
@@ -5,7 +6,7 @@ import de.hpi.isg.dataprep.components.{Pipeline, Preparation, Preparator}
 import de.hpi.isg.dataprep.context.DataContext
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog
+import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparation}
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
 import de.hpi.isg.dataprep.util.DatePattern
@@ -30,13 +31,15 @@ class ChangeDateFormatTest extends FunSuite with BeforeAndAfter {
   }
 
   test("ChangeDateFormatTest.execute") {
-    val preparator: Preparator = new ChangeDateFormat("date", Option(DatePattern.DatePatternEnum.YearMonthDay), DatePattern.DatePatternEnum.DayMonthYear)
+    val preparator: Preparator = new ChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
     pipeline.addPreparation(preparation)
     pipeline.executePipeline()
 
     val errorLogs: util.List[ErrorLog] = new util.ArrayList[ErrorLog]
+    val errorLog: PreparationErrorLog = new PreparationErrorLog(preparation, "1989-01-00", new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1))
+    errorLogs.add(errorLog)
     val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
 
     pipeline.getRawData.show()
