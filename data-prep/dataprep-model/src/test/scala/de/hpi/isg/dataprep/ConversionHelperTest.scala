@@ -93,7 +93,7 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       val testFrame = rdd.toDF()
       val nullValue = ConversionHelper.splitFileByCountingHeaders(testFrame)
 
-     nullValue.collect() shouldBe(List(Row("hallo", "ballo"),("world", "noerld"),("bla", ""),("abc", ""), ("xyz","")).toArray)
+     nullValue.collect() shouldBe(List(Row("hallo", "ballo"),("world", "noerld")).toArray)
     }
   }
 

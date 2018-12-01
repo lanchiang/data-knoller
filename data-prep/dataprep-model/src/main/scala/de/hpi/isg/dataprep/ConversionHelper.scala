@@ -87,31 +87,21 @@ object ConversionHelper extends Serializable {
     }
     
     def splitFileByCountingHeaders(source: Dataset[Row]) : Dataset[Row] = {
-      //TODO: split file by different number of headers
-      // minimal: two columns: entweder weniger / mehr
       val dataArray = source.collect()
       var indexArray = Array[Row]()
       var countNullValue = 0
+      var countLines = 0
 
-
-      // Loop over rows.
         for (row <- dataArray) {
-          // Loop over cells in rows.
-
-          var content = row.get(0)
-          var length = row.length
+          countLines+=1
           for (i <- Range(0, row.length)) {
-            val valu = row.get(i)
-            if(valu == "") {
-              countNullValue+=1 //wenn in der Zeile ein null value gefunden wurde, setze den counter eins hoch
+            if(row.get(i) == "") {
+              countNullValue+=1
               if (countNullValue == 3) {
-                //indexArray = dataArray.slice(0, i) //aktuell werden Leerstrings mit ausgegeben
+                indexArray = dataArray.slice(0, countLines-countNullValue)
               }
             }
           }
-
-
-
         }
 
       return source.filter(row => indexArray.contains(row))
