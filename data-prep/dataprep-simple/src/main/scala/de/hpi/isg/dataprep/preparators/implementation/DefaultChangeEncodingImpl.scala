@@ -1,12 +1,12 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import java.io.File
+import java.io.{File, IOException}
 import java.nio.charset.Charset
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.PreparatorImpl
-import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
+import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding
 import org.apache.spark.sql.expressions.UserDefinedFunction
@@ -27,15 +27,18 @@ class DefaultChangeEncodingImpl extends PreparatorImpl {
     override protected def executeLogic(abstractPreparator: AbstractPreparator,
                                         dataFrame: Dataset[Row],
                                         errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[ChangeEncoding]
-    val propertyName = preparator.propertyName
-    val convertEncodingFunc = ConversionHelper2.convertEncodingFunc(preparator.userSpecifiedSourceEncoding,
-                                                                    preparator.userSpecifiedTargetEncoding,
-                                                                    errorAccumulator)
+        val preparator = abstractPreparator.asInstanceOf[ChangeEncoding]
+        val propertyName = preparator.propertyName
+        val convertEncodingFunc = ConversionHelper2.convertEncodingFunc(preparator.userSpecifiedSourceEncoding,
+                                                                        preparator.userSpecifiedTargetEncoding,
+                                                                        errorAccumulator)
 
-    val createdDataset = dataFrame.withColumn( propertyName, convertEncodingFunc(col(propertyName)))
-    new ExecutionContext(createdDataset, errorAccumulator)
-  }
+        val createdDataset = dataFrame.withColumn(propertyName, convertEncodingFunc(col(propertyName)))
+        // since Spark is lazy, we force it to execute the transformation immediately in order to populate errorAccumulator
+        createdDataset.first()
+
+        new ExecutionContext(createdDataset, errorAccumulator)
+    }
 }
 
 object ConversionHelper2 { // TODO prettify, rename, document
@@ -56,10 +59,22 @@ object ConversionHelper2 { // TODO prettify, rename, document
 
     def convertEncoding(inputEncoding: String,
                         outputEncoding: String,
-                        collectionAccumulator: CollectionAccumulator[PreparationError])(fileName: String): String = {
+                        errorAccumulator: CollectionAccumulator[PreparationError])(fileName: String): String = {
         val newFileName = fileName + ".new"  // TODO
-        val content = readFile(fileName, Charset.forName(inputEncoding))
-        writeFile(Paths.get(newFileName), content, Charset.forName(outputEncoding))
-        newFileName
+        Try({
+            val content = readFile(fileName, Charset.forName(inputEncoding))
+            writeFile(Paths.get(newFileName), content, Charset.forName(outputEncoding))
+        }) match {
+            case Success(_) => newFileName
+            case Failure(ex) => {
+                ex match {
+                    case ex: IOException => errorAccumulator.add(new RecordError(fileName, ex))
+                    case ex: Exception =>
+                        ex.printStackTrace()
+                        errorAccumulator.add(new RecordError(fileName, ex))
+                }
+                fileName
+            }
+        }
     }
 }

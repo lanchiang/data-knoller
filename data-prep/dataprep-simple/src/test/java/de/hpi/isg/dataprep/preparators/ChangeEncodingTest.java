@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
+import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.EncodingNotSupportedException;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
@@ -34,7 +35,7 @@ import java.util.logging.Logger;
  */
 public class ChangeEncodingTest extends PreparatorTest {
     private static String[] newPaths = new String[0];
-    private static String[] oldPaths = new String[0];
+    private static String[] oldPaths;
 
     @BeforeClass
     public static void setUp() {
@@ -49,6 +50,15 @@ public class ChangeEncodingTest extends PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
+
+        try {
+            pipeline = new Pipeline(dataContext);
+            pipeline.executePipeline();
+            oldPaths = getPaths();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
     }
 
     @After
@@ -57,7 +67,6 @@ public class ChangeEncodingTest extends PreparatorTest {
             if (!Arrays.asList(oldPaths).contains(path)) new File(path).delete();
         }
         newPaths = new String[0];
-        oldPaths = new String[0];
     }
     /* Test happy path */
 
@@ -86,8 +95,9 @@ public class ChangeEncodingTest extends PreparatorTest {
         Dataset<Row> newdata = oldData.withColumn("bio_path", functions.lit("fake_path"));
         pipeline.setRawData(newdata);
 
+        String oldEncoding = "UTF-16";
         String newEncoding = "UTF-8";
-        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.GIVENTARGET, newEncoding);
+        ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
 
         executePreparator(preparator);
         countErrors((int) newdata.count());
@@ -95,7 +105,7 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test
     public void testWrongSourceEncoding() throws Exception {
-        String oldEncoding = "cp1252";
+        String oldEncoding = "ASCII";
         String newEncoding = "UTF-8";
         ChangeEncoding preparator = new ChangeEncoding("bio_path", ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, newEncoding);
 
@@ -160,9 +170,6 @@ public class ChangeEncodingTest extends PreparatorTest {
     /* Helpers */
 
     private void testWorkingPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
-        pipeline.executePipeline();
-        oldPaths = getPaths();
-
         executePreparator(preparator);
         countErrors(0);
 
