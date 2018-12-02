@@ -41,6 +41,32 @@ public class StemTest extends PreparatorTest {
     }
 
     @Test
+    public void testMultipleValidColumns() throws Exception {
+
+        String[] parameters = new String[]{"stemlemma", "stemlemma2"};
+        Preparator preparator = new StemPreparator(parameters);
+
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        pipeline.getRawData().show();
+        pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
+
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2").as(Encoders.STRING()).collectAsList();
+        List<String> expected = Arrays.asList("worst", "best", "You ar", "amazingli", "I am", "ar", "go", "war", "Fred 's hous", "succeed");
+
+        Assert.assertEquals(expected, actualStemlemma);
+        Assert.assertEquals(expected, actualStemlemma2);
+    }
+
+
+    @Test
     public void testInvalidColumn() throws Exception {
         Preparator preparator = new StemPreparator("stemlemma_wrong");
 
