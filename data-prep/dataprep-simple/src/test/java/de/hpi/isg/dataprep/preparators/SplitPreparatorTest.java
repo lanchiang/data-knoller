@@ -19,7 +19,7 @@ public class SplitPreparatorTest {
     @Test
     public void testTrivialSplit() throws Exception {
         Preparator preperator = new SplitAttribute("_c0");
-        Preparator prep1 = new ExplodeArray("newCol");
+        Preparator prep1 = new ExplodeArray("_c0");
 
         FileLoadDialect dialect = new DialectBuilder()
                 .url("./src/test/resources/splitAttributeTest.csv")
