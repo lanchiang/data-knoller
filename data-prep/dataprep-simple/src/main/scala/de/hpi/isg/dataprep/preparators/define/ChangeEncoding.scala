@@ -26,43 +26,25 @@ class ChangeEncoding(val propertyName: String,
 
     this.impl = new DefaultChangeEncodingImpl
 
-    /**
-      * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
-      * prerequisite and toChange set.
-      *
-      * @throws Exception
-      */
     override def buildMetadataSetup(): Unit = {
-        val prerequisites = new util.ArrayList[Metadata]
-        val toChange = new util.ArrayList[Metadata]
+        this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+        this.updates.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
 
-        if (propertyName == null) throw new ParameterNotSpecifiedException("ColumnMetadata name not specified.")
+        if (propertyName == null) throw new ParameterNotSpecifiedException("Column name not specified.")
         if (mode == null) throw new ParameterNotSpecifiedException("ChangeEncoding mode not specified.")
-        if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have at least to specify a targetEncoding")
-        verifyEncoding(userSpecifiedTargetEncoding, source = false)
+        if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have to specify at least a target encoding.")
+        verifyEncoding(userSpecifiedTargetEncoding, target = true)
 
         if (mode == ChangeEncodingMode.SOURCEANDTARGET) {
             if (userSpecifiedSourceEncoding == null) {
-                throw new ParameterNotSpecifiedException("While using SOURCEANDTARGET Mode you have to specify a source encoding.")
+                throw new ParameterNotSpecifiedException("While using SOURCEANDTARGET mode you have to specify a source encoding.")
             }
-            verifyEncoding(userSpecifiedSourceEncoding, source = true)
+            verifyEncoding(userSpecifiedSourceEncoding, target = false)
         }
-
-        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-
-        toChange.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
-
-        this.prerequisites.addAll(prerequisites)
-        this.updates.addAll(toChange)
     }
 
-    private def verifyEncoding(encoding: String, source: Boolean): Unit = {
-        try {
-            if (!Charset.isSupported(encoding)) throw new EncodingNotSupportedException(s"$encoding is not supported by your JVM.")
-            if (!source && !Charset.forName(encoding).canEncode) throw new EncodingNotSupportedException(s"$encoding is not supported as target encoding.")
-        } catch {
-            case _: IllegalCharsetNameException => throw new EncodingNotSupportedException(s"$encoding is not a valid encoding.")
-            case e: Throwable => throw e
-        }
+    private def verifyEncoding(encoding: String, target: Boolean): Unit = {
+        if (!Charset.isSupported(encoding)) throw new EncodingNotSupportedException(s"$encoding is not supported by your JVM.")
+        if (target && !Charset.forName(encoding).canEncode) throw new IllegalCharsetNameException(encoding)
     }
 }
