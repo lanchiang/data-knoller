@@ -53,7 +53,6 @@ class ChangeEncoding(val propertyName: String,
         toChange.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
 
         this.prerequisites.addAll(prerequisites)
-        //TODO: handle error if failing in preparator
         this.updates.addAll(toChange)
     }
 

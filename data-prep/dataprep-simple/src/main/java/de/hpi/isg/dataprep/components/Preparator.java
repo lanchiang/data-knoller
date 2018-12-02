@@ -82,10 +82,7 @@ abstract public class Preparator implements AbstractPreparator {
         prerequisites.stream()
                 .forEach(metadata -> {
                     Metadata that = metadataRepository.getMetadata(metadata);
-                    if (that == null) {
-                        return;
-                    }
-                    if (!metadata.equalsByValue(that)) {
+                    if (that == null || !metadata.equalsByValue(that)) {
                         invalid.add(metadata);
                     }
                 });

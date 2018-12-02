@@ -5,6 +5,7 @@ import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.EncodingNotSupportedException;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
@@ -159,7 +160,7 @@ public class ChangeEncodingTest extends PreparatorTest {
         executePreparator(preparator);
     }
 
-    @Test(expected = Exception.class)  // TODO something should happen
+    @Test(expected = PreparationHasErrorException.class)
     public void testInvalidProperty() throws Exception {
         ChangeEncoding preparator = new ChangeEncoding("fake property", ChangeEncodingMode.GIVENTARGET, NEW_ENCODING);
         executePreparator(preparator);
