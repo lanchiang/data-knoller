@@ -3,12 +3,13 @@ package de.hpi.isg.dataprep.preparators.implementation
 import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.{PreparatorImpl, Stemmer}
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.StemPreparator
 import edu.stanford.nlp.ling.CoreAnnotations
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
+import edu.stanford.nlp.process.PTBTokenizer
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -41,7 +42,7 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
       def stemString(str: String): String = {
 
         val props = new Properties()
-        props.setProperty("annotators", "stem,tokenize,ssplit,pos")
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
         val pipeline = new StanfordCoreNLP(props)
         val document = new Annotation(str)
         pipeline.annotate(document)
@@ -52,8 +53,8 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
         val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
         if (tokens.size() != 1)
           throw new Exception("Field empty or more than one token supplied")
-        val stemmed = tokens.get(0).get(classOf[CoreAnnotations.StemAnnotation])
-
+        val s = new Stemmer
+        val stemmed = s.stem(tokens.get(0).word())
         stemmed
       }
       // Todo: iterate over all propertyNames
