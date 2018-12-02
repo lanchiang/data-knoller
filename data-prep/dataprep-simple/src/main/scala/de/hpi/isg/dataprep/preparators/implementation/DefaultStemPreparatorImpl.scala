@@ -9,7 +9,6 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.StemPreparator
 import edu.stanford.nlp.ling.CoreAnnotations
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
-import edu.stanford.nlp.process.PTBTokenizer
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
