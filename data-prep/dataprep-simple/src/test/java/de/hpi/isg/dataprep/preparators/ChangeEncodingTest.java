@@ -67,7 +67,9 @@ public class ChangeEncodingTest extends PreparatorTest {
     public void cleanUp() {
         String[] newPaths = getPaths();
         for (String path : newPaths) {
-            if (!Arrays.asList(oldPaths).contains(path)) new File(path).delete();
+            if (!Arrays.asList(oldPaths).contains(path)) {
+                if (!new File(path).delete()) Assert.fail("Warning: files created by this test could not be deleted");
+            }
         }
     }
 
@@ -97,6 +99,7 @@ public class ChangeEncodingTest extends PreparatorTest {
         ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, OLD_ENCODING, NEW_ENCODING);
         executePreparator(preparator);
         assertErrorCount((int) newData.count());
+        pipeline.setRawData(oldData);  // restore actual paths so cleanUp doesn't complain
     }
 
     @Test
