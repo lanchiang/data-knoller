@@ -1,12 +1,10 @@
 package de.hpi.isg.dataprep.preparators.define
 
 import java.nio.charset.{Charset, IllegalCharsetNameException}
-import java.util
 
 import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
-import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl
 import de.hpi.isg.dataprep.util.{ChangeEncodingMode, DataType}
 
