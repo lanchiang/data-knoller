@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
@@ -7,18 +8,38 @@ import de.hpi.isg.dataprep.components.{PreparatorImpl, Stemmer}
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.StemPreparator
-import edu.stanford.nlp.ling.CoreAnnotations
+import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
+import scala.collection.JavaConverters._
 
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
   * Created by danthe on 26.11.18.
   */
-class DefaultStemPreparatorImpl extends PreparatorImpl {
+class DefaultStemPreparatorImpl extends PreparatorImpl with Serializable {
+
+  val props = new Properties()
+  props.setProperty("annotators", "tokenize")
+  @transient var pipeline = new StanfordCoreNLP(props)
+
+  def stemString(str: String): String = {
+    val document = new Annotation(str)
+    pipeline.annotate(document)
+
+    val tokens = document.get(classOf[CoreAnnotations.TokensAnnotation]).asScala
+    if (tokens.size < 1)
+      throw new Exception("Empty field")
+
+    val s = new Stemmer
+    val stemmed = tokens.map(t => s.stem(t.word())).mkString(" ")
+    stemmed
+  }
+
   /**
     * The abstract class of preparator implementation.
     *
@@ -33,59 +54,55 @@ class DefaultStemPreparatorImpl extends PreparatorImpl {
     val propertyNames = preparator.propertyNames
 
     val rowEncoder = RowEncoder(dataFrame.schema)
-//    val createdDataset = dataFrame.withColumn(propertyName + "_stemmed", map(dataFrame.col(""), ))
-//    val dfWithEmptyCol = dataFrame.withColumn(propertyName + "_stemmed", lit(0))
     val createdDataset = dataFrame.flatMap(row => {
 
-      //
-      def stemString(str: String): String = {
-
-        val props = new Properties()
-        props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
-        val pipeline = new StanfordCoreNLP(props)
-        val document = new Annotation(str)
-        pipeline.annotate(document)
-
-        val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-        if (sentences.size() != 1)
-          throw new Exception("Field empty or more than one sentence supplied")
-        val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
-        if (tokens.size() != 1)
-          throw new Exception("Field empty or more than one token supplied")
-        val s = new Stemmer
-        val stemmed = s.stem(tokens.get(0).word())
-        stemmed
-      }
-      // Todo: iterate over all propertyNames
-      val propertyName = propertyNames.head
-
-      val indexTry = Try{row.fieldIndex(propertyName)}
-      val index = indexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
-      val operatedValue = row.getAs[String](index)
+      val remappings = propertyNames.map(propertyName => {
+        val indexTry = Try {
+          row.fieldIndex(propertyName)
+        }
+        val index = indexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+        val operatedValue = row.getAs[String](index)
+        (index, operatedValue)
+      }).toMap
 
       val seq = row.toSeq
-      val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length-index-1)
-      val tryConvert = Try{
-        val newSeq = (forepart :+ stemString(operatedValue)) ++ backpart
+      val tryConvert = Try {
+        val newSeq = seq.zipWithIndex.map(tuple => {
+          if (remappings.isDefinedAt(tuple._2))
+            stemString(remappings(tuple._2))
+          else
+            tuple._1
+        })
         val newRow = Row.fromSeq(newSeq)
         newRow
       }
 
       val trial = tryConvert match {
-        case Failure(content) => {
-          errorAccumulator.add(new RecordError(operatedValue, content))
+        case Failure(content) =>
+          errorAccumulator.add(new RecordError(remappings.values.mkString(","), content))
           tryConvert
-        }
         case Success(content) => tryConvert
       }
       trial.toOption
     })(rowEncoder)
+    createdDataset.count()
 
     new ExecutionContext(createdDataset, errorAccumulator)
+  }
+
+  @throws[IOException]
+  private def writeObject(oos: ObjectOutputStream) = {
+    oos.defaultWriteObject()
+  }
+
+  @throws[ClassNotFoundException]
+  @throws[IOException]
+  private def readObject(ois: ObjectInputStream) = {
+    ois.defaultReadObject()
+    this.pipeline = new StanfordCoreNLP(props)
   }
 
 }

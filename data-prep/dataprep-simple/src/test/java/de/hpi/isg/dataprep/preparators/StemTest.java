@@ -4,13 +4,16 @@ import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import de.hpi.isg.dataprep.preparators.define.StemPreparator;
+import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,15 +31,17 @@ public class StemTest extends PreparatorTest {
 
         pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
-
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
+        List<String> expected = Arrays.asList("worst", "best", "You ar", "amazingli", "I am", "ar", "go", "war", "Fred 's hous", "succeed");
+        Assert.assertEquals(expected, actualStemlemma);
     }
 
     @Test
-    public void testInValidColumn() throws Exception {
+    public void testInvalidColumn() throws Exception {
         Preparator preparator = new StemPreparator("stemlemma_wrong");
 
         AbstractPreparation preparation = new Preparation(preparator);
@@ -44,16 +49,15 @@ public class StemTest extends PreparatorTest {
         pipeline.executePipeline();
 
         pipeline.getRawData().show();
-//        String[] rows = new String[]{""};
-//        for(Iterator<Row> iter = pipeline.getRawData().toLocalIterator(), int i=0; iter.hasNext();i++){
-//            Row row = iter.next();
-//        }
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
-        List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+        List<ErrorLog> realErrorLogs = pipeline.getErrorRepository().getErrorLogs();
+        Assert.assertEquals(1, realErrorLogs.size());
 
-        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+        PreparationErrorLog emptyStringError = (PreparationErrorLog) realErrorLogs.get(0);
+        Assert.assertEquals("StemPreparator", emptyStringError.getPreparation().getName());
+        Assert.assertEquals("Empty field", emptyStringError.getErrorMessage());
+        Assert.assertEquals("  ", emptyStringError.getValue());
     }
 
 }
