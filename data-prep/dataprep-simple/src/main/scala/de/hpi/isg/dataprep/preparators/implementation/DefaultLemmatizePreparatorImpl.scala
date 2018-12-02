@@ -88,6 +88,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
       trial.toOption
     })(rowEncoder)
 
+    createdDataset.count()
 
     new ExecutionContext(createdDataset, errorAccumulator)
   }
