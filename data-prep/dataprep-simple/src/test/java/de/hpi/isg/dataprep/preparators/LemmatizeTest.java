@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import org.apache.spark.SparkException;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,6 +37,11 @@ public class LemmatizeTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
+        List<String> expected = Arrays.asList("worst", "best", "lovingly", "amazingly", "am", "be", "go", "war", "succeed");
+
+        Assert.assertEquals(actualStemlemma, expected);
     }
 
     @Test
@@ -55,6 +61,13 @@ public class LemmatizeTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2").as(Encoders.STRING()).collectAsList();
+        List<String> expected = Arrays.asList("worst", "best", "lovingly", "amazingly", "am", "be", "go", "war", "succeed");
+
+        Assert.assertEquals(actualStemlemma, expected);
+        Assert.assertEquals(actualStemlemma2, expected);
     }
 
 
