@@ -89,16 +89,16 @@ object ConversionHelper extends Serializable {
     def splitFileByEmptyValues(source: Dataset[Row]) : Dataset[Row] = {
       val dataArray = source.collect()
       var indexArray = Array[Row]()
-      var countNullValue = 0
+      var countEmptyValues = 0
       var countLines = 0
 
         for (row <- dataArray) {
           countLines+=1
           for (i <- Range(0, row.length)) {
             if(row.get(i) == "") {
-              countNullValue+=1
-              if (countNullValue == 3) {
-                indexArray = dataArray.slice(0, countLines-countNullValue)
+              countEmptyValues+=1
+              if (countEmptyValues == 3) {
+                indexArray = dataArray.slice(0, countLines-countEmptyValues)
               }
             }
           }
@@ -110,23 +110,18 @@ object ConversionHelper extends Serializable {
     def splitFileByNewValuesAfterEmpty(source: Dataset[Row]) : Dataset[Row] = {
       val dataArray = source.collect()
       var indexArray = Array[Row]()
-      var countNullValue = 0
-      var countLines = 0
+      var countEmptyValues = 0
 
       for(row <- dataArray) {
-        countLines+=1
-        //if(row.get(0) == "") {
           for(i <- Range(0, row.length)) {
             if(row.get(i) == ""){
-              countNullValue+=1
+              countEmptyValues+=1
             } else {
-              indexArray = dataArray.slice(countNullValue, 10) //TODO bis Ende der Row
+              indexArray = dataArray.slice(countEmptyValues, 1000) //TODO bis Ende der Row
             }
           }
-      //  } else {
-          // mach splitFileByEmptyValues
-       // }
-      }
+       }
+
       return source.filter(row => indexArray.contains(row))
     }
 
