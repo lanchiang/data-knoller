@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
@@ -13,15 +14,35 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
-import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
 /**
   * Created by danthe on 26.11.18.
   */
-class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
+class DefaultLemmatizePreparatorImpl extends PreparatorImpl with Serializable {
+
+  val props = new Properties()
+  props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
+  @transient var pipeline = new StanfordCoreNLP(props)
+
+  def lemmatizeString(str: String): String = {
+    val document = new Annotation(str)
+    pipeline.annotate(document)
+
+    val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
+    val sentenceTokens = sentences.asScala.map(
+      _.get(classOf[CoreAnnotations.TokensAnnotation]).asScala
+    ).reduceOption((a, b) => a ++ b).getOrElse(mutable.Buffer[CoreLabel]())
+
+    if (sentenceTokens.size < 1)
+      throw new Exception("Empty field")
+    val lemmatized = sentenceTokens.map(_.get(classOf[CoreAnnotations.LemmaAnnotation])).mkString(" ")
+    lemmatized
+  }
+
   /**
     * The abstract class of preparator implementation.
     *
@@ -39,24 +60,6 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     val rowEncoder = RowEncoder(dataFrame.schema)
     val createdDataset = dataFrame.flatMap(row => {
       //
-      def lemmatizeString(str: String): String = {
-
-        val props = new Properties()
-        props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
-        val pipeline = new StanfordCoreNLP(props)
-        val document = new Annotation(str)
-        pipeline.annotate(document)
-
-        val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-        val sentenceTokens = sentences.asScala.map(
-          _.get(classOf[CoreAnnotations.TokensAnnotation]).asScala
-        ).reduceOption((a,b) => a ++ b).getOrElse(mutable.Buffer[CoreLabel]())
-
-        if (sentenceTokens.size < 1)
-          throw new Exception("Empty field")
-        val lemmatized = sentenceTokens.map(_.get(classOf[CoreAnnotations.LemmaAnnotation])).mkString(" ")
-        lemmatized
-      }
 
       val remappings = propertyNames.map(propertyName => {
         val indexTry = Try {
@@ -93,6 +96,18 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     createdDataset.count()
 
     new ExecutionContext(createdDataset, errorAccumulator)
+  }
+
+  @throws[IOException]
+  private def writeObject(oos: ObjectOutputStream) = {
+    oos.defaultWriteObject()
+  }
+
+  @throws[ClassNotFoundException]
+  @throws[IOException]
+  private def readObject(ois: ObjectInputStream) = {
+    ois.defaultReadObject()
+    this.pipeline = new StanfordCoreNLP(props)
   }
 
 }
