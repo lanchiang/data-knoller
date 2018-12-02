@@ -10,6 +10,7 @@ import de.hpi.isg.dataprep.exceptions.{EncodingNotDetectedException, ImproperTar
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding
+import org.apache.spark.sql.execution.streaming.FileStreamSource.Timestamp
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Dataset, Row}
@@ -43,17 +44,20 @@ class DefaultChangeEncodingImpl extends PreparatorImpl {
 }
 
 object EncodingConversionHelper {
+    // udf wrapper for convertEncoding
+    // the timestamp ensures that multiple executions of the udf don't create multiple files with the same content
     def conversionFunc(inputEncoding: String,
                        outputEncoding: String,
                        errorAccumulator: CollectionAccumulator[PreparationError]): UserDefinedFunction =
-        udf(convertEncoding(inputEncoding, outputEncoding, errorAccumulator) _)
+        udf(convertEncoding(inputEncoding, outputEncoding, errorAccumulator, System.currentTimeMillis) _)
 
     // reads a file, converts it to outputEncoding and saves it under a new name
     // returns the new file name if the conversion was successful, the old file name otherwise
     private def convertEncoding(inputEncodingOrNull: String,
-                        outputEncoding: String,
-                        errorAccumulator: CollectionAccumulator[PreparationError])(fileName: String): String = {
-        val newFileName = generateNewFileName(fileName)
+                                outputEncoding: String,
+                                errorAccumulator: CollectionAccumulator[PreparationError],
+                                timestamp: Timestamp)(fileName: String): String = {
+        val newFileName = generateNewFileName(fileName, timestamp)
 
         Try({
             val inputEncoding = if (inputEncodingOrNull == null) inferInputEncoding(fileName) else inputEncodingOrNull
@@ -97,10 +101,10 @@ object EncodingConversionHelper {
         }
     }
 
-    private def generateNewFileName(fileName: String): String = {
+    private def generateNewFileName(fileName: String, timestamp: Timestamp): String = {
         val file = new File(fileName)
         val dirName = file.getParent
-        val newFileName = System.currentTimeMillis() + "_" + file.getName
+        val newFileName = timestamp.toString + "_" + file.getName
         dirName + File.separator + newFileName
     }
 }
