@@ -32,10 +32,8 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
     val propertyNames = preparator.propertyNames
 
-    var createdDataset: Dataset[Row] = dataFrame
-
-    val rowEncoder = RowEncoder(createdDataset.schema)
-    createdDataset = createdDataset.flatMap(row => {
+    val rowEncoder = RowEncoder(dataFrame.schema)
+    val createdDataset = dataFrame.flatMap(row => {
       //
       def lemmatizeString(str: String): String = {
 
