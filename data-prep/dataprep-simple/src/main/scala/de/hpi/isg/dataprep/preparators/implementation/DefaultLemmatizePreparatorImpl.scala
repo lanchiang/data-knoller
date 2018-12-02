@@ -71,7 +71,8 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
         val newSeq = seq.zipWithIndex.map(tuple => {
           if (remappings.isDefinedAt(tuple._2))
             lemmatizeString(remappings.get(tuple._2).get)
-          tuple._1
+          else
+            tuple._1
         })
         val newRow = Row.fromSeq(newSeq)
         newRow
