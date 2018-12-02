@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.preparators;
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.exceptions.EncodingNotSupportedException;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
@@ -25,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -146,14 +146,14 @@ public class ChangeEncodingTest extends PreparatorTest {
         executePreparator(preparator);
     }
 
-    @Test(expected = EncodingNotSupportedException.class)
+    @Test(expected = IllegalCharsetNameException.class)
     public void testInvalidSourceEnc() throws Exception {
         String oldEncoding = "not a real encoding";
         ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, NEW_ENCODING);
         executePreparator(preparator);
     }
 
-    @Test(expected = EncodingNotSupportedException.class)
+    @Test(expected = IllegalCharsetNameException.class)
     public void testInvalidDestEnc() throws Exception {
         String newEncoding = "not a real encoding";
         ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.GIVENTARGET, newEncoding);

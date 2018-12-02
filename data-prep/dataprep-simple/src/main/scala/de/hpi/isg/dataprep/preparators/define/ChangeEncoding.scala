@@ -25,9 +25,6 @@ class ChangeEncoding(val propertyName: String,
     this.impl = new DefaultChangeEncodingImpl
 
     override def buildMetadataSetup(): Unit = {
-        this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-        this.updates.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
-
         if (propertyName == null) throw new ParameterNotSpecifiedException("Column name not specified.")
         if (mode == null) throw new ParameterNotSpecifiedException("ChangeEncoding mode not specified.")
         if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have to specify at least a target encoding.")
@@ -39,6 +36,9 @@ class ChangeEncoding(val propertyName: String,
             }
             verifyEncoding(userSpecifiedSourceEncoding, target = false)
         }
+
+        this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+        this.updates.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
     }
 
     private def verifyEncoding(encoding: String, target: Boolean): Unit = {
