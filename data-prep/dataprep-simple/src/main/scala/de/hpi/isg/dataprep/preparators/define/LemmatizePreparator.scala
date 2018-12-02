@@ -5,7 +5,6 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
-import scala.collection.JavaConverters._
 
 class LemmatizePreparator(val propertyNames : Set[String]) extends Preparator {
 
