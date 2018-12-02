@@ -7,12 +7,15 @@ import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
-import edu.stanford.nlp.ling.CoreAnnotations
+import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
+import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -32,6 +35,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
     val propertyNames = preparator.propertyNames
 
+    val realErrors = ListBuffer[PreparationError]()
     val rowEncoder = RowEncoder(dataFrame.schema)
     val createdDataset = dataFrame.flatMap(row => {
       //
@@ -44,13 +48,13 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
         pipeline.annotate(document)
 
         val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-        if (sentences.size() != 1)
-          throw new Exception("Field empty or more than one sentence supplied")
-        val tokens = sentences.get(0).get(classOf[CoreAnnotations.TokensAnnotation])
-        if (tokens.size() != 1)
-          throw new Exception("Field empty or more than one token supplied")
-        val lemmatized = tokens.get(0).get(classOf[CoreAnnotations.LemmaAnnotation])
+        val sentenceTokens = sentences.asScala.map(
+          _.get(classOf[CoreAnnotations.TokensAnnotation]).asScala
+        ).reduceOption((a,b) => a ++ b).getOrElse(mutable.Buffer[CoreLabel]())
 
+        if (sentenceTokens.size < 1)
+          throw new Exception("Empty field")
+        val lemmatized = sentenceTokens.map(_.get(classOf[CoreAnnotations.LemmaAnnotation])).mkString(" ")
         lemmatized
       }
 
@@ -70,7 +74,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
       val tryConvert = Try {
         val newSeq = seq.zipWithIndex.map(tuple => {
           if (remappings.isDefinedAt(tuple._2))
-            lemmatizeString(remappings.get(tuple._2).get)
+            lemmatizeString(remappings(tuple._2))
           else
             tuple._1
         })
@@ -79,15 +83,13 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl {
       }
 
       val trial = tryConvert match {
-        case Failure(content) => {
-          errorAccumulator.add(new RecordError(remappings.values.toString(), content))
+        case Failure(content) =>
+          errorAccumulator.add(new RecordError(remappings.values.mkString(","), content))
           tryConvert
-        }
         case Success(content) => tryConvert
       }
       trial.toOption
     })(rowEncoder)
-
     createdDataset.count()
 
     new ExecutionContext(createdDataset, errorAccumulator)

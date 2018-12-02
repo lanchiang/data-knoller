@@ -4,17 +4,16 @@ import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import org.apache.spark.SparkException;
 import org.apache.spark.sql.Encoders;
-import org.apache.spark.sql.Row;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.*;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,9 +38,9 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
         List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
-        List<String> expected = Arrays.asList("worst", "best", "lovingly", "amazingly", "am", "be", "go", "war", "succeed");
+        List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "go", "war", "Fred 's house", "succeed");
 
-        Assert.assertEquals(actualStemlemma, expected);
+        Assert.assertEquals(expected, actualStemlemma);
     }
 
     @Test
@@ -59,20 +58,19 @@ public class LemmatizeTest extends PreparatorTest {
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
         List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
         List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2").as(Encoders.STRING()).collectAsList();
-        List<String> expected = Arrays.asList("worst", "best", "lovingly", "amazingly", "am", "be", "go", "war", "succeed");
+        List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "go", "war", "Fred 's house", "succeed");
 
-        Assert.assertEquals(actualStemlemma, expected);
-        Assert.assertEquals(actualStemlemma2, expected);
+        Assert.assertEquals(expected, actualStemlemma);
+        Assert.assertEquals(expected, actualStemlemma2);
     }
 
 
     @Test
-    public void testInValidColumn() throws Exception {
+    public void testInvalidColumn() throws Exception {
         Preparator preparator = new LemmatizePreparator("stemlemma_wrong");
 
         AbstractPreparation preparation = new Preparation(preparator);
@@ -80,16 +78,16 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.executePipeline();
 
         pipeline.getRawData().show();
-//        String[] rows = new String[]{""};
-//        for(Iterator<Row> iter = pipeline.getRawData().toLocalIterator(), int i=0; iter.hasNext();i++){
-//            Row row = iter.next();
-//        }
+
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
-        List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+        List<ErrorLog> realErrorLogs = pipeline.getErrorRepository().getErrorLogs();
+        Assert.assertEquals(1, realErrorLogs.size());
 
-        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+        PreparationErrorLog emptyStringError = (PreparationErrorLog) realErrorLogs.get(0);
+        Assert.assertEquals("LemmatizePreparator", emptyStringError.getPreparation().getName());
+        Assert.assertEquals("Empty field", emptyStringError.getErrorMessage());
+        Assert.assertEquals("  ", emptyStringError.getValue());
     }
 
     @Test(expected = SparkException.class)
@@ -101,10 +99,6 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.executePipeline();
 
         pipeline.getRawData().show();
-//        String[] rows = new String[]{""};
-//        for(Iterator<Row> iter = pipeline.getRawData().toLocalIterator(), int i=0; iter.hasNext();i++){
-//            Row row = iter.next();
-//        }
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
         List<ErrorLog> errorLogs = new ArrayList<>();
