@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.metadata.DINPhoneNumber
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat
@@ -9,6 +10,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class DefaultChangePhoneFormatImpl extends PreparatorImpl {
@@ -24,7 +26,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[ChangePhoneFormat]
     val propertyName = preparator.propertyName
-    val sourceFormat = preparator.sourceFormat
+    val sourceFormat = Option(preparator.sourceFormat)
     val targetFormat = preparator.targetFormat
 
     val rowEncoder = RowEncoder(dataFrame.schema)
@@ -34,24 +36,20 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
         row.fieldIndex(propertyName)
       }
       val index = indexTry match {
-        case Failure(content) => {
-          throw content
-        }
-        case Success(content) => {
-          content
-        }
+        case Failure(content) => throw content
+        case Success(content) => content
       }
+
       val operatedValue = row.getAs[String](index)
 
       val tryConvert = Try {
-        val newSeq = convertPhoneNumber(operatedValue, sourceFormat, targetFormat)
+        val newSeq = sourceFormat.fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
         Row.fromSeq(newSeq)
       }
       val convertOption = tryConvert match {
-        case Failure(content) => {
+        case Failure(content) =>
           errorAccumulator.add(new RecordError(operatedValue, content))
           tryConvert
-        }
         case Success(content) => tryConvert
       }
       convertOption.toOption
@@ -64,8 +62,51 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
+  final case class NormalizedPhoneNumber(
+    number: String,
+    optCountryCode: Option[String] = None,
+    optAreaCode: Option[String] = None,
+    optSpecialNumber: Option[String] = None,
+    optExtensionNumber: Option[String] = None
+  ) {
+    override def toString: String = {
+      val prefix = List(optCountryCode, optAreaCode, optSpecialNumber).flatten.mkString(" ")
+      val postFix = optExtensionNumber.fold("")(extension => s"-$extension")
+
+      s"$prefix $number$postFix"
+    }
+  }
+
+  object NormalizedPhoneNumber {
+    def fromMeta(meta: DINPhoneNumber)(phoneNumber: String): NormalizedPhoneNumber = {
+      val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
+      val matched = meta.getRegex.findFirstMatchIn(phoneNumber).get
+      val number = matched.group("number")
+
+      format.filter(_._2).keySet.foldLeft(NormalizedPhoneNumber(number)) {
+        case (normalized, "countryCode") => normalized.copy(optCountryCode = Some(matched.group("countryCode")))
+        case (normalized, "areaCode") => normalized.copy(optAreaCode = Some(matched.group("areaCode")))
+        case (normalized, "specialNumber") => normalized.copy(optSpecialNumber = Some(matched.group("specialNumber")))
+        case (normalized, "extensionNumber") => normalized.copy(optExtensionNumber = Some(matched.group("extensionNumber")))
+        case (normalized, _) => normalized
+      }
+    }
+
+    def toMeta(meta: DINPhoneNumber)(normalized: NormalizedPhoneNumber): String = {
+      val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
+
+      format.filterNot(_._2).keySet.foldLeft(normalized) {
+        case (phoneNumber, "countryCode") => phoneNumber.copy(optCountryCode = None)
+        case (phoneNumber, "areaCode") => phoneNumber.copy(optAreaCode = None)
+        case (phoneNumber, "specialNumber") => phoneNumber.copy(optSpecialNumber = None)
+        case (phoneNumber, "extensionNumber") => phoneNumber.copy(optExtensionNumber = None)
+        case (phoneNumber, _) => phoneNumber
+      }.toString
+    }
+  }
+
   private def convertPhoneNumber(phoneNumber: String, sourceFormat: String, targetFormat: String) : String = {
-    val digitsOnly = phoneNumber.replaceFirst("+", "00").replaceAll(raw"""\D""", "")
+    val digitsOnly = phoneNumber.replaceFirst("\\+", "00").replaceAll("\\D", "")
     var formattedPhoneNumber = ""
     var digitsOnlyCount = 0
 
@@ -88,5 +129,24 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
     }
     formattedPhoneNumber
   }
-}
 
+  private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): String = {
+    (NormalizedPhoneNumber.fromMeta(sourceFormat) andThen NormalizedPhoneNumber.toMeta(targetFormat))(phoneNumber)
+  }
+
+  private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): String = {
+    val areaCoded = new Regex("""(\d+) (\d+)""", "areaCode", "number")
+    val extended = new Regex("""(\d+) (\d+)-(\d+)""", "areaCode", "number", "extension")
+    val specialNumbered = new Regex("""(\d+) (\d) (\d+)""", "areaCode", "specialNumber", "number")
+    val countryCoded = new Regex("""(\+\d{2}) (\d+) (\d+)""", "countryCode", "areaCode", "number")
+
+    val sourceFormat = phoneNumber match {
+      case areaCoded(_*) => new DINPhoneNumber(false, true, false, false, areaCoded)
+      case extended(_*) => new DINPhoneNumber(false, true, false, true, extended)
+      case specialNumbered(_*) => new DINPhoneNumber(false, true, true, false, specialNumbered)
+      case countryCoded(_*) => new DINPhoneNumber(true, true, false, false, countryCoded)
+    }
+
+    convert(phoneNumber, sourceFormat, targetFormat)
+  }
+}
