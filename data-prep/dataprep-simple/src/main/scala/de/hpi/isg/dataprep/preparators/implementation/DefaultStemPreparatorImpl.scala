@@ -46,8 +46,8 @@ class DefaultStemPreparatorImpl extends PreparatorImpl with Serializable {
     * The abstract class of preparator implementation.
     *
     * @param abstractPreparator is the instance of { @link AbstractPreparator}. It needs to be converted to the corresponding subclass in the implementation body.
-    * @param dataFrame        contains the intermediate dataset
-    * @param errorAccumulator is the { @link CollectionAccumulator} to store preparation errors while executing the preparator.
+    * @param dataFrame          contains the intermediate dataset
+    * @param errorAccumulator   is the { @link CollectionAccumulator} to store preparation errors while executing the preparator.
     * @return an instance of { @link ExecutionContext} that includes the new dataset, and produced errors.
     * @throws Exception
     */
@@ -84,12 +84,12 @@ class DefaultStemPreparatorImpl extends PreparatorImpl with Serializable {
 
       val seq = row.toSeq
       val tryConvert = Try {
-        val newSeq = seq.zipWithIndex.map(tuple => {
-          if (remappings.isDefinedAt(tuple._2))
-            stemString(remappings(tuple._2))
+        val newSeq = seq.zipWithIndex.map { case (value:Any, index:Int) =>
+          if (remappings.isDefinedAt(index))
+            stemString(remappings(index))
           else
-            tuple._1
-        })
+            value
+        }
         val newRow = Row.fromSeq(newSeq)
         newRow
       }

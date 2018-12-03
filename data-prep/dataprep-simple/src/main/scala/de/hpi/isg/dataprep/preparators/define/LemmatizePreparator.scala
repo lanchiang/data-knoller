@@ -6,15 +6,15 @@ import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
 
-class LemmatizePreparator(val propertyNames : Set[String]) extends Preparator {
+class LemmatizePreparator(val propertyNames: Set[String]) extends Preparator {
 
   this.impl = new DefaultLemmatizePreparatorImpl
 
-  def this(propertyName : String) {
+  def this(propertyName: String) {
     this(Set(propertyName))
   }
 
-  def this(propertyNames : Array[String]) {
+  def this(propertyNames: Array[String]) {
     this(propertyNames.toSet)
   }
 
@@ -26,11 +26,14 @@ class LemmatizePreparator(val propertyNames : Set[String]) extends Preparator {
     */
   override def buildMetadataSetup(): Unit = {
 
+    if (propertyNames == null)
+      throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
     propertyNames.foreach { propertyName: String =>
       if (propertyName == null)
         throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
       this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
     }
+
   }
 
 }

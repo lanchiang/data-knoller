@@ -6,15 +6,15 @@ import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.preparators.implementation.DefaultStemPreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
 
-class StemPreparator(val propertyNames : Set[String]) extends Preparator {
+class StemPreparator(val propertyNames: Set[String]) extends Preparator {
 
   this.impl = new DefaultStemPreparatorImpl
 
-  def this(propertyName : String) {
+  def this(propertyName: String) {
     this(Set(propertyName))
   }
 
-  def this(propertyNames : Array[String]) {
+  def this(propertyNames: Array[String]) {
     this(propertyNames.toSet)
   }
 
@@ -26,10 +26,18 @@ class StemPreparator(val propertyNames : Set[String]) extends Preparator {
     */
   override def buildMetadataSetup(): Unit = {
 
-    propertyNames.foreach { propertyName : String =>
+    if (propertyNames == null)
+      throw new ParameterNotSpecifiedException(
+        String.format("ColumnMetadata name not specified.")
+      )
+    propertyNames.foreach { propertyName: String =>
       if (propertyName == null)
-        throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-      this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+        throw new ParameterNotSpecifiedException(
+          String.format("ColumnMetadata name not specified.")
+        )
+      this.prerequisites.add(
+        new PropertyDataType(propertyName, DataType.PropertyType.STRING)
+      )
     }
 
   }

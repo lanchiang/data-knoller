@@ -88,12 +88,12 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl with Serializable {
 
       val seq = row.toSeq
       val tryConvert = Try {
-        val newSeq = seq.zipWithIndex.map(tuple => {
-          if (remappings.isDefinedAt(tuple._2))
-            lemmatizeString(remappings(tuple._2))
+        val newSeq = seq.zipWithIndex.map{ case (value:Any, index:Int) =>
+          if (remappings.isDefinedAt(index))
+            lemmatizeString(remappings(index))
           else
-            tuple._1
-        })
+            value
+        }
         val newRow = Row.fromSeq(newSeq)
         newRow
       }
