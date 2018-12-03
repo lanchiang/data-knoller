@@ -35,7 +35,7 @@ public class StemTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_stemmed").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("worst", "best", "You ar", "amazingli", "I am", "ar", "go", "war", "Fred 's hous", "succeed");
         Assert.assertEquals(expected, actualStemlemma);
     }
@@ -57,8 +57,8 @@ public class StemTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
-        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_stemmed").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2_stemmed").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("worst", "best", "You ar", "amazingli", "I am", "ar", "go", "war", "Fred 's hous", "succeed");
 
         Assert.assertEquals(expected, actualStemlemma);

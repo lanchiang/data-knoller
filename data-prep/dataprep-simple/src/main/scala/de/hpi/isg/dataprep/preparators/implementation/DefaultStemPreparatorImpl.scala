@@ -12,6 +12,7 @@ import de.hpi.isg.dataprep.util.Stemmer
 import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
@@ -54,18 +55,30 @@ class DefaultStemPreparatorImpl extends PreparatorImpl with Serializable {
     val preparator = abstractPreparator.asInstanceOf[StemPreparator]
     val propertyNames = preparator.propertyNames
 
-    val rowEncoder = RowEncoder(dataFrame.schema)
-    val createdDataset = dataFrame.flatMap(row => {
+    var df = dataFrame
+    for (name <- propertyNames) {
+      df = df.withColumn(name + "_stemmed", lit(""))
+    }
+    val rowEncoder = RowEncoder(df.schema)
+    val createdDataset = df.flatMap(row => {
 
       val remappings = propertyNames.map(propertyName => {
-        val indexTry = Try {
+        val valIndexTry = Try {
           row.fieldIndex(propertyName)
+        }
+        val valIndex = valIndexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+        val operatedValue = row.getAs[String](valIndex)
+
+        val indexTry = Try {
+          row.fieldIndex(propertyName + "_stemmed")
         }
         val index = indexTry match {
           case Failure(content) => throw content
           case Success(content) => content
         }
-        val operatedValue = row.getAs[String](index)
         (index, operatedValue)
       }).toMap
 

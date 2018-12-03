@@ -11,8 +11,9 @@ import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
 import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
+import org.apache.spark.sql.functions.lit
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -57,19 +58,31 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl with Serializable {
     val propertyNames = preparator.propertyNames
 
     val realErrors = ListBuffer[PreparationError]()
-    val rowEncoder = RowEncoder(dataFrame.schema)
-    val createdDataset = dataFrame.flatMap(row => {
-      //
 
+    var df = dataFrame
+    for (name <- propertyNames) {
+      df = df.withColumn(name + "_lemmatized", lit(""))
+    }
+    val rowEncoder = RowEncoder(df.schema)
+    val createdDataset = df.flatMap(row => {
+      //
       val remappings = propertyNames.map(propertyName => {
-        val indexTry = Try {
+        val valIndexTry = Try {
           row.fieldIndex(propertyName)
+        }
+        val valIndex = valIndexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+        val operatedValue = row.getAs[String](valIndex)
+
+        val indexTry = Try {
+          row.fieldIndex(propertyName + "_lemmatized")
         }
         val index = indexTry match {
           case Failure(content) => throw content
           case Success(content) => content
         }
-        val operatedValue = row.getAs[String](index)
         (index, operatedValue)
       }).toMap
 

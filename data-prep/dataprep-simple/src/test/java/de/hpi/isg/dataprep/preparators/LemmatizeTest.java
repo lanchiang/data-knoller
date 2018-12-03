@@ -35,7 +35,7 @@ public class LemmatizeTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "go", "war", "Fred 's house", "succeed");
         Assert.assertEquals(expected, actualStemlemma);
     }
@@ -57,8 +57,8 @@ public class LemmatizeTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma").as(Encoders.STRING()).collectAsList();
-        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "go", "war", "Fred 's house", "succeed");
 
         Assert.assertEquals(expected, actualStemlemma);
