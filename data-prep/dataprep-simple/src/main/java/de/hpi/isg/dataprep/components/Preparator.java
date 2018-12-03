@@ -10,7 +10,6 @@ import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDataTypeImpl;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -39,12 +38,10 @@ abstract public class Preparator implements AbstractPreparator {
         invalid = new ArrayList<>();
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
-
-        String simpleClassName = this.getClass().getSimpleName();
-
-        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
-        this.impl = Class.forName(preparatorImplClass).asSubclass(PreparatorImpl.class).newInstance();
+        impl = newImpl();
     }
+
+    protected abstract PreparatorImpl newImpl();
 
     @Override
     public void execute() throws Exception {

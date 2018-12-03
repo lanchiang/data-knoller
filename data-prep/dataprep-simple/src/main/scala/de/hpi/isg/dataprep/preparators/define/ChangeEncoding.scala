@@ -14,14 +14,14 @@ import de.hpi.isg.dataprep.util.DataType
   * @since 2018/11/29
   */
 class ChangeEncoding(val propertyName: String,
-                     val userSpecifiedSourceEncoding: String,
+                     var userSpecifiedSourceEncoding: String,
                      val userSpecifiedTargetEncoding: String) extends Preparator {
 
     def this(propertyName: String, userSpecifiedTargetEncoding: String) {
         this(propertyName, null, userSpecifiedTargetEncoding)
     }
 
-    this.impl = new DefaultChangeEncodingImpl
+    override def newImpl = new DefaultChangeEncodingImpl
 
     override def buildMetadataSetup(): Unit = {
         if (propertyName == null) throw new ParameterNotSpecifiedException("Column name not specified.")

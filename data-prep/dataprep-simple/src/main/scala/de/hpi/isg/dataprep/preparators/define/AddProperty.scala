@@ -23,6 +23,8 @@ class AddProperty(val targetPropertyName : String,
         this(targetPropertyName, targetType, position, AddProperty.DEFAULT_VALUE(targetType))
     }
 
+    override def newImpl = new DefaultAddPropertyImpl
+
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
       * prerequisite and toChange set.
