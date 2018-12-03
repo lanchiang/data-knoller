@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.components;
+package de.hpi.isg.dataprep.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
