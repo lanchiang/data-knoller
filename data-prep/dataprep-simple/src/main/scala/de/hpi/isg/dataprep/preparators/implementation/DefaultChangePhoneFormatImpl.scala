@@ -44,13 +44,16 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
       val forepart = seq.take(index)
       val backpart = seq.takeRight(row.length-index-1)
 
-      val convertOption = sourceFormat
-        .fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
-        .map(number => Row.fromSeq(forepart ++ Seq(number) ++ backpart))
+			val convertTry = sourceFormat
+				.fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
+				.flatMap(number => Try(Row.fromSeq(forepart ++ Seq(number) ++ backpart)))
 
-      if (convertOption.isEmpty) errorAccumulator.add(new RecordError(operatedValue, new IllegalArgumentException))
+			convertTry match {
+				case Failure(exception) => errorAccumulator.add(new RecordError(operatedValue, exception))
+				case Success(_) => ()
+			}
 
-      convertOption
+			convertTry.toOption
 
     })(rowEncoder)
 
@@ -77,7 +80,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   }
 
   object NormalizedPhoneNumber {
-    def fromMeta(meta: DINPhoneNumber)(phoneNumber: String): Option[NormalizedPhoneNumber] = {
+    def fromMeta(meta: DINPhoneNumber)(phoneNumber: String): Try[NormalizedPhoneNumber] = Try {
       meta.getRegex.findFirstMatchIn(phoneNumber).map { matched =>
 
         val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
@@ -90,7 +93,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
           case (normalized, "extensionNumber") => normalized.copy(optExtensionNumber = Some(matched.group("extensionNumber")))
           case (normalized, _) => normalized
         }
-      }
+      }.get
     }
 
     def toMeta(meta: DINPhoneNumber)(normalized: NormalizedPhoneNumber): String = {
@@ -133,21 +136,21 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   }
   */
 
-  private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): Option[String] = {
+  private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): Try[String] = {
     NormalizedPhoneNumber.fromMeta(sourceFormat)(phoneNumber).map(NormalizedPhoneNumber.toMeta(targetFormat))
   }
 
-  private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): Option[String] = {
-    val areaCoded = new Regex("""(\d+) (\d+)""", "areaCode", "number")
-    val extended = new Regex("""(\d+) (\d+)-(\d+)""", "areaCode", "number", "extension")
-    val specialNumbered = new Regex("""(\d+) (\d) (\d+)""", "areaCode", "specialNumber", "number")
-    val countryCoded = new Regex("""(\+\d{2}) (\d+) (\d+)""", "countryCode", "areaCode", "number")
+  private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): Try[String] = {
+    val areaCoded = new Regex("""(\d+)\D+(\d+).*""", "areaCode", "number")
+    val extended = new Regex("""(\d+)\D+(\d+)\D+(\d*).*""", "areaCode", "number", "extensionNumber")
+    val specialNumbered = new Regex("""(\d+)\D+(\d)\D+(\d+).*""", "areaCode", "specialNumber", "number")
+    val countryCoded = new Regex("""(\+\d{2})\D+(\d+)\D+(\d+).*""", "countryCode", "areaCode", "number")
 
     val sourceFormat = phoneNumber match {
-      case areaCoded(_*) => new DINPhoneNumber(false, true, false, false, areaCoded)
-      case extended(_*) => new DINPhoneNumber(false, true, false, true, extended)
-      case specialNumbered(_*) => new DINPhoneNumber(false, true, true, false, specialNumbered)
       case countryCoded(_*) => new DINPhoneNumber(true, true, false, false, countryCoded)
+      case specialNumbered(_*) => new DINPhoneNumber(false, true, true, false, specialNumbered)
+      case extended(_*) => new DINPhoneNumber(false, true, false, true, extended)
+      case areaCoded(_*) => new DINPhoneNumber(false, true, false, false, areaCoded)
     }
 
     convert(phoneNumber, sourceFormat, targetFormat)
