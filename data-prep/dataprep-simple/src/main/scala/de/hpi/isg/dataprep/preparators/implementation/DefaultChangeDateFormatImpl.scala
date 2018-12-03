@@ -39,7 +39,7 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
           .map(_.get)
           .map((_, 1L))
           .reduceByKey(_ + _)
-          .sortByKey(ascending = false)
+          .sortBy(_._2, ascending = false)
           .collect()
           .toMap
 
