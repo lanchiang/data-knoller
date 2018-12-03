@@ -95,7 +95,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"No column $propertyName found!")
 
-    def splitValue(value: String): Seq[String] = {
+    val splitValue = (value: String) => {
       var split = value.split(separator)
       if (!fromLeft)
         split = split.reverse
