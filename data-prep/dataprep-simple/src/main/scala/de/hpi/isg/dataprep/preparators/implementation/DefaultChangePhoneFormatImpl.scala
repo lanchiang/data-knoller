@@ -13,7 +13,7 @@ import org.apache.spark.util.CollectionAccumulator
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
-class DefaultChangePhoneFormatImpl extends PreparatorImpl {
+class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   /**
     * The abstract class of preparator implementation.
     *
@@ -68,7 +68,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
     optAreaCode: Option[String] = None,
     optSpecialNumber: Option[String] = None,
     optExtensionNumber: Option[String] = None
-  ) {
+  ) extends {
     override def toString: String = {
       val prefix = List(optCountryCode, optAreaCode, optSpecialNumber).flatten.mkString(" ")
       val postFix = optExtensionNumber.fold("")(extension => s"-$extension")
@@ -105,6 +105,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
     }
   }
 
+  /*
   private def convertPhoneNumber(phoneNumber: String, sourceFormat: String, targetFormat: String) : String = {
     val digitsOnly = phoneNumber.replaceFirst("\\+", "00").replaceAll("\\D", "")
     var formattedPhoneNumber = ""
@@ -129,9 +130,10 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl {
     }
     formattedPhoneNumber
   }
+  */
 
   private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): String = {
-    (NormalizedPhoneNumber.fromMeta(sourceFormat) andThen NormalizedPhoneNumber.toMeta(targetFormat))(phoneNumber)
+    ((NormalizedPhoneNumber.fromMeta(sourceFormat) _) andThen (NormalizedPhoneNumber.toMeta(targetFormat) _))(phoneNumber)
   }
 
   private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): String = {
