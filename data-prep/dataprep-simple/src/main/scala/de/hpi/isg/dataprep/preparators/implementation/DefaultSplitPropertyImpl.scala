@@ -95,9 +95,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"No column $propertyName found!")
 
-    implicit val rowEncoder: Encoder[Row] = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
-
-    val splitValue = (value: String) => {
+    def splitValue(value: String): Seq[String] = {
       var split = value.split(separator)
       if (!fromLeft)
         split = split.reverse
@@ -115,6 +113,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
       head :+ tail.mkString(separator)
     }
 
+    val rowEncoder: Encoder[Row] = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
     dataFrame.map(
       row => {
         val index = row.fieldIndex(propertyName)
@@ -122,7 +121,7 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
         val split = splitValue(value)
         Row.fromSeq(row.toSeq ++ split)
       }
-    )
+    )(rowEncoder)
   }
 
   def appendEmptyColumns(dataFrame: Dataset[Row], propertyName: String, numCols: Int): Dataset[Row] = {
