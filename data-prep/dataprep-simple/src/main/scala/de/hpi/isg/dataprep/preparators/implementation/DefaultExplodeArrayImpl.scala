@@ -10,7 +10,6 @@ import org.apache.spark.sql.{Column, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable
-import scala.collection.mutable.WrappedArray
 
 class DefaultExplodeArrayImpl extends PreparatorImpl {
   /**
@@ -26,7 +25,7 @@ class DefaultExplodeArrayImpl extends PreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[ExplodeArray]
     val colToSplit = preparator.propertyName
 
-    val splittedCols = preparator.columnNames match {
+    val splitCols = preparator.columnNames match {
       case Some(names) => names
       case None => (1 to dataFrame.head.getAs[mutable.WrappedArray[_]](colToSplit).length).map(i => colToSplit + s"_$i").toArray
     }
@@ -34,7 +33,7 @@ class DefaultExplodeArrayImpl extends PreparatorImpl {
 
     val newColumns = dataFrame.columns.flatMap(columnName =>
       if (columnName != colToSplit) Seq(col(columnName))
-      else splittedCols.zipWithIndex.map(t => getValueOfSeq(t._2, colToSplit, t._1))
+      else splitCols.zipWithIndex.map(t => getValueOfSeq(t._2, colToSplit, t._1))
     )
 
     new ExecutionContext(dataFrame.select(newColumns: _*), errorAccumulator)

@@ -76,5 +76,4 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
 
 object DefaultSplitAttributeImpl {
   val potentialSeparator = Array(',', '|', ';', '!', '\t', '_', '-')
-
 }

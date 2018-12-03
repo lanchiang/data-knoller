@@ -12,9 +12,23 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ExplodeArray;
 import de.hpi.isg.dataprep.preparators.define.SplitAttribute;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SplitPreparatorTest {
+    private static DataContext dataContext;
+
+    @BeforeClass
+    public static void setUp() {
+        FileLoadDialect dialect = new DialectBuilder()
+                .url("./src/test/resources/splitAttributeTest.csv")
+                .delimiter("~")
+                .buildDialect();
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+    }
 
     @Test
     public void testTrivialSplit() throws Exception {
@@ -38,7 +52,7 @@ public class SplitPreparatorTest {
         pipeline.addPreparation(preparation1);
         pipeline.executePipeline();
 
-        pipeline.getRawData().show();
+        pipeline.getRawData().show(false);
 
     }
 
