@@ -7,7 +7,6 @@ import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -19,25 +18,24 @@ import java.util.stream.Collectors;
 public class FileEncoding extends Metadata {
 
     private static final long serialVersionUID = -5529216369913096740L;
-    private String fileName;
-    private Charset fileEncoding;
+    private String propertyName;
+    private String fileEncoding;
 
     private FileEncoding() {
         super(FileEncoding.class.getSimpleName());
     }
 
-    public FileEncoding(String fileName, Charset fileEncoding) {
+    public FileEncoding(String propertyName, String fileEncoding) {
         this();
-        this.fileName = fileName;
+        this.propertyName = propertyName;
         this.fileEncoding = fileEncoding;
-
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getPropertyName() {
+        return propertyName;
     }
 
-    public Charset getFileEncoding() {
+    public String getFileEncoding() {
         return fileEncoding;
     }
 
@@ -46,7 +44,7 @@ public class FileEncoding extends Metadata {
         List<FileEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof FileEncoding)
                 .map(metadata -> (FileEncoding) metadata)
-                .filter(metadata -> metadata.getFileName().equals(fileName))
+                .filter(metadata -> metadata.getPropertyName().equals(propertyName))
                 .collect(Collectors.toList());
 
         if (matchedInRepo.size() == 0) {
@@ -76,18 +74,18 @@ public class FileEncoding extends Metadata {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FileEncoding that = (FileEncoding) o;
-        return Objects.equals(fileName, that.fileName);
+        return Objects.equals(propertyName, that.propertyName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fileName);
+        return Objects.hash(propertyName);
     }
 
     @Override
     public String toString() {
         return "FileEncoding{" +
-                "fileName='" + fileName + '\'' +
+                "propertyName='" + propertyName + '\'' +
                 ", fileEncoding=" + fileEncoding +
                 '}';
     }

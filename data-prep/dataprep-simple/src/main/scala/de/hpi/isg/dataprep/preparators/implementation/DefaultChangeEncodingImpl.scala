@@ -7,7 +7,9 @@ import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.exceptions.{EncodingNotDetectedException, ImproperTargetEncodingException}
+import de.hpi.isg.dataprep.metadata.FileEncoding
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding
 import org.apache.spark.sql.execution.streaming.FileStreamSource.Timestamp
@@ -32,7 +34,10 @@ class DefaultChangeEncodingImpl extends PreparatorImpl {
                                         errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
         val preparator = abstractPreparator.asInstanceOf[ChangeEncoding]
         val propertyName = preparator.propertyName
-        val convertEncodingFunc = EncodingConversionHelper.conversionFunc(preparator.userSpecifiedSourceEncoding,
+        var sourceEncoding = preparator.userSpecifiedSourceEncoding
+        if (sourceEncoding == null) sourceEncoding = getEncodingFromMetadata(preparator)
+
+        val convertEncodingFunc = EncodingConversionHelper.conversionFunc(sourceEncoding,
                                                                           preparator.userSpecifiedTargetEncoding,
                                                                           errorAccumulator)
 
@@ -40,6 +45,16 @@ class DefaultChangeEncodingImpl extends PreparatorImpl {
         createdDataset.first()  // Spark is lazy => we force it to execute the transformation immediately to populate errorAccumulator
 
         new ExecutionContext(createdDataset, errorAccumulator)
+    }
+
+    private def getEncodingFromMetadata(preparator: ChangeEncoding): String = {
+        val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
+        val mockMetadata = new FileEncoding(preparator.propertyName, null)
+        val metadataOrNull = metadataRepository.getMetadata(mockMetadata)
+        metadataOrNull match {
+            case metadataEncoding: FileEncoding => metadataEncoding.getFileEncoding
+            case null => null
+        }
     }
 }
 

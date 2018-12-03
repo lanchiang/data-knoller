@@ -7,9 +7,13 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
+import de.hpi.isg.dataprep.metadata.FileEncoding;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding;
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl;
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.functions;
@@ -87,6 +91,17 @@ public class ChangeEncodingTest extends PreparatorTest {
         testWorkingPreparator(preparator, Charset.forName(OLD_ENCODING), Charset.forName(NEW_ENCODING));
     }
 
+    // The preparator should use the source encoding from the metadata before trying to detect it
+    // Since we set the wrong encoding, the conversion should fail
+    // (if he hadn't set it, the preparator would detect the correct encoding and succeed)
+    @Test
+    public void testSourceEncodingFromMetadata() throws Exception {
+        Metadata fakeMetadata = new FileEncoding(PROPERTY_NAME, "ASCII");
+        ChangeEncoding preparator = new MockChangeEncoding(PROPERTY_NAME, NEW_ENCODING, fakeMetadata);
+        executePreparator(preparator);
+        assertErrorCount((int) pipeline.getRawData().count());
+    }
+
 
     /* Test I/O errors */
 
@@ -126,18 +141,6 @@ public class ChangeEncodingTest extends PreparatorTest {
         ChangeEncoding preparator = new ChangeEncoding(null, NEW_ENCODING);
         executePreparator(preparator);
     }
-
-//    @Test(expected = ParameterNotSpecifiedException.class)
-//    public void testNullMode() throws Exception {
-//        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, null, NEW_ENCODING);
-//        executePreparator(preparator);
-//    }
-
-//    @Test(expected = ParameterNotSpecifiedException.class)
-//    public void testNullSourceEnc() throws Exception {
-//        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, null, NEW_ENCODING);
-//        executePreparator(preparator);
-//    }
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullDestEnc() throws Exception {
@@ -202,5 +205,21 @@ public class ChangeEncodingTest extends PreparatorTest {
                 .stream()
                 .map(row -> row.getString(0))
                 .toArray(String[]::new);
+    }
+
+    // This class adds fake metadata before executing the preparator
+    private static class MockChangeEncoding extends ChangeEncoding {
+        private Metadata fakeMetadata;
+
+        private MockChangeEncoding(String propertyName,String targetEncoding, Metadata fakeMetadata) {
+            super(propertyName, targetEncoding);
+            this.fakeMetadata = fakeMetadata;
+        }
+
+        @Override
+        public void execute() throws Exception {
+            this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(fakeMetadata);
+            super.execute();
+        }
     }
 }

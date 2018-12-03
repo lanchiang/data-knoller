@@ -33,7 +33,7 @@ class ChangeEncoding(val propertyName: String,
         }
 
         this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-        this.updates.add(new FileEncoding(propertyName, Charset.forName(userSpecifiedTargetEncoding)))
+        this.updates.add(new FileEncoding(propertyName, userSpecifiedTargetEncoding))
     }
 
     private def verifyEncoding(encoding: String, target: Boolean): Unit = {
