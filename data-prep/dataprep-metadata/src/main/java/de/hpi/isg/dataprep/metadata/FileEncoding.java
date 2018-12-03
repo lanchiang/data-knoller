@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author Lukas Behrendt, Lisa Ihde, Oliver Clasen
- * @since 2018/10/29
+ * @author Lan Jiang
+ * @since 2018/8/27
  */
 public class FileEncoding extends Metadata {
 
