@@ -33,7 +33,8 @@ public class PreparatorTest {
         FileLoadDialect dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/pokemon.csv")
+                .url("./src/test/resources/restaurants.tsv")
+                .delimiter("\t")
                 .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()

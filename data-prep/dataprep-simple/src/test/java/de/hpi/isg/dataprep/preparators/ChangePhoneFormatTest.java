@@ -20,17 +20,17 @@ import java.util.List;
 public class ChangePhoneFormatTest extends PreparatorTest {
     @Test
     public void changeFromSourceToTarget() throws Exception {
-        ArrayList<String> areaGroups = new ArrayList<>(); areaGroups.add("areaCode"); areaGroups.add("number");
-        Seq<String> areaGroupsSequence = JavaConversions.asScalaBuffer(areaGroups).toSeq();
-        Regex areaCoded = new Regex("(\\d+) (\\d+)", areaGroupsSequence);
-        DINPhoneNumber targetFormat = new DINPhoneNumber(false, true, false, false, areaCoded);
+        ArrayList<String> sourceGroups = new ArrayList<>(); sourceGroups.add("areaCode"); sourceGroups.add("number"); sourceGroups.add("extensionNumber");
+        Seq<String> sourceGroupsSeq = JavaConversions.asScalaBuffer(sourceGroups).toSeq();
+        Regex sourceRegex = new Regex("(\\d+)\\D+(\\d+)\\D+(\\d*)", sourceGroupsSeq);
+        DINPhoneNumber sourceFormat = new DINPhoneNumber(false, true, false, true, sourceRegex);
 
-        ArrayList<String> specialGroups = new ArrayList<>(); specialGroups.add("areaCode"); specialGroups.add("specialNumber"); specialGroups.add("number");
-        Seq<String> specialGroupsSequence = JavaConversions.asScalaBuffer(specialGroups).toSeq();
-        Regex specialNumbered = new Regex("(\\d+) (\\d) (\\d+)", specialGroupsSequence);
-        DINPhoneNumber sourceFormat = new DINPhoneNumber(false, true, true, false, specialNumbered);
+        ArrayList<String> targetGroups = new ArrayList<>(); targetGroups.add("areaCode"); targetGroups.add("number"); targetGroups.add("extensionNumber");
+        Seq<String> targetGroupsSeq = JavaConversions.asScalaBuffer(targetGroups).toSeq();
+        Regex targetRegex = new Regex("(\\d+) (\\d+)-(\\d+)", targetGroupsSeq);
+        DINPhoneNumber targetFormat = new DINPhoneNumber(false, true, false, true, targetRegex);
 
-        Preparator preparator = new ChangePhoneFormat("phoneNumber", sourceFormat, targetFormat);
+        Preparator preparator = new ChangePhoneFormat("phone", sourceFormat, targetFormat);
 
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -40,7 +40,7 @@ public class ChangePhoneFormatTest extends PreparatorTest {
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-
+        
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
 }

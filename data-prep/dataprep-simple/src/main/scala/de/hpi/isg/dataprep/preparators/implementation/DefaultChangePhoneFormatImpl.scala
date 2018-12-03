@@ -32,9 +32,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
     val rowEncoder = RowEncoder(dataFrame.schema)
 
     val createdDataset = dataFrame.flatMap(row => {
-      val indexTry = Try {
-        row.fieldIndex(propertyName)
-      }
+      val indexTry = Try { row.fieldIndex(propertyName) }
       val index = indexTry match {
         case Failure(content) => throw content
         case Success(content) => content
@@ -42,17 +40,18 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
 
       val operatedValue = row.getAs[String](index)
 
-      val tryConvert = Try {
-        val newSeq = sourceFormat.fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
-        Row.fromSeq(newSeq)
-      }
-      val convertOption = tryConvert match {
-        case Failure(content) =>
-          errorAccumulator.add(new RecordError(operatedValue, content))
-          tryConvert
-        case Success(content) => tryConvert
-      }
-      convertOption.toOption
+      val seq = row.toSeq
+      val forepart = seq.take(index)
+      val backpart = seq.takeRight(row.length-index-1)
+
+      val convertOption = sourceFormat
+        .fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
+        .map(number => Row.fromSeq(forepart ++ Seq(number) ++ backpart))
+
+      if (convertOption.isEmpty) errorAccumulator.add(new RecordError(operatedValue, new IllegalArgumentException))
+
+      convertOption
+
     })(rowEncoder)
 
     createdDataset.persist()
@@ -78,17 +77,19 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   }
 
   object NormalizedPhoneNumber {
-    def fromMeta(meta: DINPhoneNumber)(phoneNumber: String): NormalizedPhoneNumber = {
-      val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
-      val matched = meta.getRegex.findFirstMatchIn(phoneNumber).get
-      val number = matched.group("number")
+    def fromMeta(meta: DINPhoneNumber)(phoneNumber: String): Option[NormalizedPhoneNumber] = {
+      meta.getRegex.findFirstMatchIn(phoneNumber).map { matched =>
 
-      format.filter(_._2).keySet.foldLeft(NormalizedPhoneNumber(number)) {
-        case (normalized, "countryCode") => normalized.copy(optCountryCode = Some(matched.group("countryCode")))
-        case (normalized, "areaCode") => normalized.copy(optAreaCode = Some(matched.group("areaCode")))
-        case (normalized, "specialNumber") => normalized.copy(optSpecialNumber = Some(matched.group("specialNumber")))
-        case (normalized, "extensionNumber") => normalized.copy(optExtensionNumber = Some(matched.group("extensionNumber")))
-        case (normalized, _) => normalized
+        val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
+        val number = matched.group("number")
+
+        format.filter(_._2).keySet.foldLeft(NormalizedPhoneNumber(number)) {
+          case (normalized, "countryCode") => normalized.copy(optCountryCode = Some(matched.group("countryCode")))
+          case (normalized, "areaCode") => normalized.copy(optAreaCode = Some(matched.group("areaCode")))
+          case (normalized, "specialNumber") => normalized.copy(optSpecialNumber = Some(matched.group("specialNumber")))
+          case (normalized, "extensionNumber") => normalized.copy(optExtensionNumber = Some(matched.group("extensionNumber")))
+          case (normalized, _) => normalized
+        }
       }
     }
 
@@ -132,11 +133,11 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   }
   */
 
-  private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): String = {
-    ((NormalizedPhoneNumber.fromMeta(sourceFormat) _) andThen (NormalizedPhoneNumber.toMeta(targetFormat) _))(phoneNumber)
+  private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): Option[String] = {
+    NormalizedPhoneNumber.fromMeta(sourceFormat)(phoneNumber).map(NormalizedPhoneNumber.toMeta(targetFormat))
   }
 
-  private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): String = {
+  private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): Option[String] = {
     val areaCoded = new Regex("""(\d+) (\d+)""", "areaCode", "number")
     val extended = new Regex("""(\d+) (\d+)-(\d+)""", "areaCode", "number", "extension")
     val specialNumbered = new Regex("""(\d+) (\d) (\d+)""", "areaCode", "specialNumber", "number")
