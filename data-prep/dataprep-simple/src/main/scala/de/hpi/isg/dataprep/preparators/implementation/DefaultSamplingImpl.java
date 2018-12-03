@@ -9,7 +9,10 @@ import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.util.CollectionAccumulator;
+import org.apache.spark.sql.functions;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -19,8 +22,16 @@ public class DefaultSamplingImpl extends PreparatorImpl {
     protected ExecutionContext executeLogic(AbstractPreparator abstractPreparator, Dataset<Row> dataFrame, CollectionAccumulator<PreparationError> errorAccumulator) throws Exception {
 
         Sampling sampler = (Sampling) abstractPreparator;
+/*        Set<Integer> sampleIds = new ArrayList<>();
         Random rand = new Random();
-        return new ExecutionContext(dataFrame.filter((Row x) -> rand.nextInt(100) < sampler.getPercentage() *100 ),errorAccumulator); //was wenn ungleichmäßig verteilt?
+
+        while (sampleIds.size() < sampler.getTargetRecordCount())
+        {
+            sampleIds.add(rand.nextInt(dataFrame.count()));
+        }
+      //
+        dataFrame.sample()*/
+        return new ExecutionContext(dataFrame.sample(sampler.isWithReplacement(),sampler.getProbability()),errorAccumulator); //was wenn ungleichmäßig verteilt?
 
         // Order by top 5
         // return new ExecutionContext(dataFrame.head(5),errorAccumulator);
