@@ -4,7 +4,7 @@
 */*/pipelineError.txt
 
 # IDEA
-# *.iml
+*.iml
 .idea/
 
 # eclipse
