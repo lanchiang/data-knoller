@@ -7,22 +7,54 @@ import java.io.Serializable;
 
 public class Sampling extends Preparator implements Serializable {
 
+    private boolean withReplacement;
+    private long targetRecordCount;
+    private String dist;
+    private double probability;
 
-    public double getPercentage() {
-        return percentage;
+
+    public String getDist() {
+        return dist;
     }
 
-    private double percentage;
-
-    public void setPercentage(double percentage)
-    {
-        this.percentage = percentage;
+    public boolean isWithReplacement() {
+        return withReplacement;
     }
 
-    public Sampling(double percentage) throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    public double getProbability() {
+        return probability;
+    }
+
+    public long getTargetRecordCount() {
+        return targetRecordCount;
+    }
+
+
+    public Sampling(long targetRecordCount, boolean withReplacement) throws ClassNotFoundException, IllegalAccessException, InstantiationException
     {
         super();
-        this.percentage = percentage;
+        this.targetRecordCount = targetRecordCount;
+        this.withReplacement = withReplacement;
+    }
+    public Sampling(double probability, boolean withReplacement ) throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        super();
+        this.withReplacement = withReplacement;
+        this.probability = probability;
+
+    }
+//    public Sampling(long expectCount, boolean withReplacement) throws ClassNotFoundException, IllegalAccessException, InstantiationException
+//    {
+//        super();
+//        this.withReplacement = withReplacement;
+//        this.expectCount = expectCount;
+//
+//
+//    }
+    public Sampling(String dist,boolean withReplacement) throws ClassNotFoundException, IllegalAccessException, InstantiationException
+    {
+        this.dist = dist;
+        this.withReplacement = withReplacement;
     }
 
     @Override
