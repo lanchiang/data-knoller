@@ -14,6 +14,10 @@ class StemPreparator(val propertyNames : Set[String]) extends Preparator {
     this(Set(propertyName))
   }
 
+  def this(propertyNames : Array[String]) {
+    this(propertyNames.toSet)
+  }
+
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
     * prerequisite and toChange set.
