@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl
-import de.hpi.isg.dataprep.util.{ChangeEncodingMode, DataType}
+import de.hpi.isg.dataprep.util.DataType
 
 /**
   *
@@ -14,26 +14,21 @@ import de.hpi.isg.dataprep.util.{ChangeEncodingMode, DataType}
   * @since 2018/11/29
   */
 class ChangeEncoding(val propertyName: String,
-                     val mode: ChangeEncodingMode,
                      val userSpecifiedSourceEncoding: String,
                      val userSpecifiedTargetEncoding: String) extends Preparator {
 
-    def this(propertyName: String, mode: ChangeEncodingMode, userSpecifiedTargetEncoding: String) {
-        this(propertyName, mode, null, userSpecifiedTargetEncoding)
+    def this(propertyName: String, userSpecifiedTargetEncoding: String) {
+        this(propertyName, null, userSpecifiedTargetEncoding)
     }
 
     this.impl = new DefaultChangeEncodingImpl
 
     override def buildMetadataSetup(): Unit = {
         if (propertyName == null) throw new ParameterNotSpecifiedException("Column name not specified.")
-        if (mode == null) throw new ParameterNotSpecifiedException("ChangeEncoding mode not specified.")
         if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have to specify at least a target encoding.")
         verifyEncoding(userSpecifiedTargetEncoding, target = true)
 
-        if (mode == ChangeEncodingMode.SOURCEANDTARGET) {
-            if (userSpecifiedSourceEncoding == null) {
-                throw new ParameterNotSpecifiedException("While using SOURCEANDTARGET mode you have to specify a source encoding.")
-            }
+        if (userSpecifiedSourceEncoding != null) {
             verifyEncoding(userSpecifiedSourceEncoding, target = false)
         }
 

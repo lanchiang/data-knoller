@@ -10,7 +10,6 @@ import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding;
-import de.hpi.isg.dataprep.util.ChangeEncodingMode;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.functions;
@@ -78,13 +77,13 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test
     public void testChangeKnownEncoding() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, OLD_ENCODING, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, NEW_ENCODING);
         testWorkingPreparator(preparator, Charset.forName(OLD_ENCODING), Charset.forName(NEW_ENCODING));
     }
 
     @Test
     public void testChangeUnknownEncoding() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.GIVENTARGET, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, NEW_ENCODING);
         testWorkingPreparator(preparator, Charset.forName(OLD_ENCODING), Charset.forName(NEW_ENCODING));
     }
 
@@ -97,7 +96,7 @@ public class ChangeEncodingTest extends PreparatorTest {
         Dataset<Row> newData = oldData.withColumn(PROPERTY_NAME, functions.lit("not a real path"));
         pipeline.setRawData(newData);
 
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, OLD_ENCODING, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, NEW_ENCODING);
         executePreparator(preparator);
         assertErrorCount((int) newData.count());
         pipeline.setRawData(oldData);  // restore actual paths so cleanUp doesn't complain
@@ -106,7 +105,7 @@ public class ChangeEncodingTest extends PreparatorTest {
     @Test
     public void testWrongSourceEncoding() throws Exception {
         String oldEncoding = "ASCII";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, oldEncoding, NEW_ENCODING);
         executePreparator(preparator);
         assertErrorCount((int) pipeline.getRawData().count());
     }
@@ -114,7 +113,7 @@ public class ChangeEncodingTest extends PreparatorTest {
     @Test
     public void testTargetEncodingCannotEncodeSource() throws Exception {
         String newEncoding = "ASCII";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, OLD_ENCODING, newEncoding);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, newEncoding);
         executePreparator(preparator);
         assertErrorCount((int) pipeline.getRawData().count());
     }
@@ -124,45 +123,45 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullProperty() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(null, ChangeEncodingMode.GIVENTARGET, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding(null, NEW_ENCODING);
         executePreparator(preparator);
     }
 
-    @Test(expected = ParameterNotSpecifiedException.class)
-    public void testNullMode() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, null, NEW_ENCODING);
-        executePreparator(preparator);
-    }
+//    @Test(expected = ParameterNotSpecifiedException.class)
+//    public void testNullMode() throws Exception {
+//        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, null, NEW_ENCODING);
+//        executePreparator(preparator);
+//    }
 
-    @Test(expected = ParameterNotSpecifiedException.class)
-    public void testNullSourceEnc() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, null, NEW_ENCODING);
-        executePreparator(preparator);
-    }
+//    @Test(expected = ParameterNotSpecifiedException.class)
+//    public void testNullSourceEnc() throws Exception {
+//        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, null, NEW_ENCODING);
+//        executePreparator(preparator);
+//    }
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullDestEnc() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, OLD_ENCODING, null);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, null);
         executePreparator(preparator);
     }
 
     @Test(expected = IllegalCharsetNameException.class)
     public void testInvalidSourceEnc() throws Exception {
         String oldEncoding = "not a real encoding";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.SOURCEANDTARGET, oldEncoding, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, oldEncoding, NEW_ENCODING);
         executePreparator(preparator);
     }
 
     @Test(expected = IllegalCharsetNameException.class)
     public void testInvalidDestEnc() throws Exception {
         String newEncoding = "not a real encoding";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, ChangeEncodingMode.GIVENTARGET, newEncoding);
+        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, newEncoding);
         executePreparator(preparator);
     }
 
     @Test(expected = PreparationHasErrorException.class)
     public void testInvalidProperty() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding("fake property", ChangeEncodingMode.GIVENTARGET, NEW_ENCODING);
+        ChangeEncoding preparator = new ChangeEncoding("fake property", NEW_ENCODING);
         executePreparator(preparator);
     }
 
