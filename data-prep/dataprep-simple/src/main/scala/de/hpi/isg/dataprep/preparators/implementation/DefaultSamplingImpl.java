@@ -8,12 +8,15 @@ import de.hpi.isg.dataprep.preparators.define.Sampling;
 import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.util.CollectionAccumulator;
 import org.apache.spark.sql.functions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
 public class DefaultSamplingImpl extends PreparatorImpl {
@@ -31,11 +34,40 @@ public class DefaultSamplingImpl extends PreparatorImpl {
         }
       //
         dataFrame.sample()*/
-        return new ExecutionContext(dataFrame.sample(sampler.isWithReplacement(),sampler.getProbability()),errorAccumulator); //was wenn ungleichmäßig verteilt?
-
+        if(sampler.getProbability()>0)
+            return new ExecutionContext(dataFrame.sample(sampler.isWithReplacement(),sampler.getProbability()),errorAccumulator); //was wenn ungleichmäßig verteilt?
+        if(sampler.getTargetRecordCount()>0)
+            return new ExecutionContext(reservoirSampling(dataFrame,(int)sampler.getTargetRecordCount()),errorAccumulator);
         // Order by top 5
         // return new ExecutionContext(dataFrame.head(5),errorAccumulator);
+        throw new Exception("Very insightfull Exception Message :P");
+    }
+    private Dataset<Row> reservoirSampling(Dataset<Row> dataFrame, int sampleSize)
+    {
 
+        List<Row> result = new ArrayList<>();
+        Random random = new Random();
+
+        dataFrame.foreach(
+                (Row row)->
+                {
+                    if(result.size()<sampleSize)
+                    {
+                        result.add(row.copy());
+                        System.out.println("adding");
+                    }
+                    else{
+                        Boolean keep = random.nextInt(sampleSize) == 0;
+                        if(keep)
+                        {
+                            int replaceIndex = random.nextInt(sampleSize);
+                            result.set(replaceIndex,row);
+                        }
+                    }
+                }
+        );
+        System.out.println(result.size());
+        return SparkSession.getActiveSession().get().createDataFrame(result,dataFrame.schema());
     }
 }
 

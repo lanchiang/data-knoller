@@ -68,7 +68,8 @@ public class SamplingTest {
     @Test
     public void testSampling() throws Exception {
 
-        Preparator preparator = new Sampling(.33,false);
+       // Preparator preparator = new Sampling(.33,false);
+        Preparator preparator = new Sampling(5,false);
        // ((Sampling) preparator).setPercentage(0.33);
 
         AbstractPreparation preparation = new Preparation(preparator);
