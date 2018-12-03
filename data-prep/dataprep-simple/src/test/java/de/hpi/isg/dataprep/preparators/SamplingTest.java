@@ -15,12 +15,13 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.Sampling;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.spark.ml.feature.VectorAssembler;
+import org.apache.spark.mllib.stat.Statistics;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class SamplingTest {
         FileLoadDialect dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/pokemon.csv")
+                .url("./src/test/resources/uniformDist.csv")
                 .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
@@ -67,18 +68,23 @@ public class SamplingTest {
     @Test
     public void testSampling() throws Exception {
 
-        Preparator preparator = new Sampling(0.33);
+        Preparator preparator = new Sampling(.33,false);
        // ((Sampling) preparator).setPercentage(0.33);
 
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
+//        VectorAssembler assembler = new VectorAssembler()
+//                .setInputCols("number")
+//                .setOutputCol("number");
+//        assembler.transform(dataContext.getDataFrame()).
+//    new VectorAssembler().transform(dataContext.getDataFrame()).select("number").rdd()
+//        VectorAssembler.assemble(dataContext.getDataFrame().select("number"));
         pipeline.getRawData().show();
-
+//        Statistics.chiSqTest(new VectorAssembler().transform(dataContext.getDataFrame()).select("number").as("Vector")
+//                ,new VectorAssembler().transform(pipeline.getRawData()).select("number").as("Vector").rdd());
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-
         //Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
 }
