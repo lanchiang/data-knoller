@@ -65,8 +65,12 @@ object ConversionHelper extends Serializable {
         .map(x => (x, countSubstring(x.toString(), separator)))
         .maxBy(item => item._2)._1 //gibt mir x Element aus dem tupel
       val indexOfSplitLine = dataList.lastIndexOf(rowWithMaxSeparators)
-      //TODO: Throw error if index <0
+      if(indexOfSplitLine <= 0){
+        return source
+      }
       val resultArray = dataList.subList(0,indexOfSplitLine).toArray
+      //
+      source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
       return source.filter(row => resultArray.contains(row))
     }
 
@@ -81,9 +85,10 @@ object ConversionHelper extends Serializable {
     return (combinedDicts.maxBy(_._2)._1.toString, combinedDicts.maxBy(_._2)._2)
   }
     
-    def splitFileByType(source : DataFrame) : (DataFrame, DataFrame) = {
-      //TODO: split File by different Datatypes in collumns
-      (source, source)
+    def splitFileByType(source : Dataset[Row]) : Dataset[Row] = {
+      //TODO: split File by different Datatypes in columns
+
+      source
     }
     
     def splitFileByEmptyValues(source: Dataset[Row]) : Dataset[Row] = {
@@ -103,7 +108,7 @@ object ConversionHelper extends Serializable {
             }
           }
         }
-
+      source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
       return source.filter(row => indexArray.contains(row))
     }
 
@@ -121,7 +126,7 @@ object ConversionHelper extends Serializable {
             }
           }
        }
-
+      source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
       return source.filter(row => indexArray.contains(row))
     }
 
