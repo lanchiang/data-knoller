@@ -24,17 +24,33 @@ public class PreparatorTest {
     protected static Dataset<Row> dataset;
     protected static AbstractPipeline pipeline;
     protected static DataContext dataContext;
+    protected static FileLoadDialect dialect;
 
     @BeforeClass
     public static void setUp() {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        FileLoadDialect dialect = new DialectBuilder()
+        dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/pokemon.csv")
-//                .url("/Users/Fuga/Documents/HPI/Data/northwind/customers.csv")
+                //.delimiter("\t")
+                //x: works
+                //.url("./src/test/resources/pokemon.csv")//->X
+                //.url("./src/test/resources/restaurants.tsv")//->x
+               //.url("./src/test/resources/test.csv")//->x
+                //.url("./src/test/resources/test2.csv")//->x
+                //.url("./src/test/resources/test21.csv")//->x
+                // .url("./src/test/resources/test3.csv")//->x
+                //.url("./src/test/resources/test4.csv")//->x
+                //.url("./src/test/resources/test5.csv")//->x
+                .url("./src/test/resources/test6.csv")//->x
+                //.url("./src/test/resources/test7.csv")//->x
+                //.url("./src/test/resources/test8.csv")//-> x,
+                //.url("./src/test/resources/test9.csv")//->x
+                //.url("./src/test/resources/test10.csv")//->x
+                //.url("./src/test/resources/test11.csv")//->x
+
                 .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
@@ -46,8 +62,7 @@ public class PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
-
-        dataContext.getDataFrame().show();
+//        dataContext.getDataFrame().show();
         return;
     }
 
