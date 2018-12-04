@@ -88,4 +88,24 @@ public class SamplingTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         //Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
+    @Test
+    public void testSampling2() throws Exception {
+
+        Preparator preparator = new Sampling(.33,false);
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+//        VectorAssembler assembler = new VectorAssembler()
+//                .setInputCols("number")
+//                .setOutputCol("number");
+//        assembler.transform(dataContext.getDataFrame()).
+//    new VectorAssembler().transform(dataContext.getDataFrame()).select("number").rdd()
+//        VectorAssembler.assemble(dataContext.getDataFrame().select("number"));
+        pipeline.getRawData().show();
+//        Statistics.chiSqTest(new VectorAssembler().transform(dataContext.getDataFrame()).select("number").as("Vector")
+//                ,new VectorAssembler().transform(pipeline.getRawData()).select("number").as("Vector").rdd());
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+        //Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+    }
 }
