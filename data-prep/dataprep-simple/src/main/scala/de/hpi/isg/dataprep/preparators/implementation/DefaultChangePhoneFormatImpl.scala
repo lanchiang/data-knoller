@@ -59,8 +59,6 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
 
     createdDataset.persist()
 
-    createdDataset.count()
-
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
@@ -96,7 +94,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
       }.get
     }
 
-    def toMeta(meta: DINPhoneNumber)(normalized: NormalizedPhoneNumber): String = {
+    def toMeta(meta: DINPhoneNumber)(normalized: NormalizedPhoneNumber): Try[String] = Try {
       val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
 
       format.filterNot(_._2).keySet.foldLeft(normalized) {
@@ -137,7 +135,7 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   */
 
   private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): Try[String] = {
-    NormalizedPhoneNumber.fromMeta(sourceFormat)(phoneNumber).map(NormalizedPhoneNumber.toMeta(targetFormat))
+    NormalizedPhoneNumber.fromMeta(sourceFormat)(phoneNumber).flatMap(NormalizedPhoneNumber.toMeta(targetFormat))
   }
 
   private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): Try[String] = {
