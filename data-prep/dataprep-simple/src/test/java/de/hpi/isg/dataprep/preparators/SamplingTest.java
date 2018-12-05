@@ -16,9 +16,11 @@ import de.hpi.isg.dataprep.preparators.define.Sampling;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.ml.feature.VectorAssembler;
+import org.apache.spark.ml.linalg.Vectors;
 import org.apache.spark.mllib.stat.Statistics;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -68,44 +70,23 @@ public class SamplingTest {
     @Test
     public void testSampling() throws Exception {
 
-       // Preparator preparator = new Sampling(.33,false);
-        Preparator preparator = new Sampling(5,false);
-       // ((Sampling) preparator).setPercentage(0.33);
-
+        Preparator preparator = new Sampling(.01,false);
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        VectorAssembler assembler = new VectorAssembler()
-//                .setInputCols("number")
-//                .setOutputCol("number");
-//        assembler.transform(dataContext.getDataFrame()).
-//    new VectorAssembler().transform(dataContext.getDataFrame()).select("number").rdd()
-//        VectorAssembler.assemble(dataContext.getDataFrame().select("number"));
         pipeline.getRawData().show();
-//        Statistics.chiSqTest(new VectorAssembler().transform(dataContext.getDataFrame()).select("number").as("Vector")
-//                ,new VectorAssembler().transform(pipeline.getRawData()).select("number").as("Vector").rdd());
-        List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-        //Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
     @Test
-    public void testSampling2() throws Exception {
-
-        Preparator preparator = new Sampling(.33,false);
+    public void testShuffleSampling() throws Exception {
+        //TODO: do hypothesis-testing to verify, that the distributions of the population and samples are the same
+        int sampleSize = 11;
+        Preparator preparator = new Sampling(sampleSize,false);
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        VectorAssembler assembler = new VectorAssembler()
-//                .setInputCols("number")
-//                .setOutputCol("number");
-//        assembler.transform(dataContext.getDataFrame()).
-//    new VectorAssembler().transform(dataContext.getDataFrame()).select("number").rdd()
-//        VectorAssembler.assemble(dataContext.getDataFrame().select("number"));
         pipeline.getRawData().show();
-//        Statistics.chiSqTest(new VectorAssembler().transform(dataContext.getDataFrame()).select("number").as("Vector")
-//                ,new VectorAssembler().transform(pipeline.getRawData()).select("number").as("Vector").rdd());
-        List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-        //Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+        Assert.assertEquals(pipeline.getRawData().count(), sampleSize);
     }
+
+
 }
