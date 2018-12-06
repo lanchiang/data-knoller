@@ -42,8 +42,16 @@ class ChangeDateFormat(val propertyName : String,
     }
 }
 
-//object ChangeDateFormat {
-//    def apply(propetyName: String, sourceDatePattern: DatePatternEnum, targetDatePattern: DatePatternEnum): ChangeDateFormat = {
-//        new ChangeDateFormat(propetyName, Option(sourceDatePattern), Option(targetDatePattern))
-//    }
-//}
+object ChangeDateFormat {
+    def apply(
+        propertyName: String,
+        sourceDatePattern: DatePatternEnum,
+        targetDatePattern: DatePatternEnum
+    ): ChangeDateFormat = {
+        new ChangeDateFormat(propertyName, Option(sourceDatePattern), Option(targetDatePattern))
+    }
+
+    def apply(propertyName: String, targetDatePattern: DatePatternEnum ): ChangeDateFormat = {
+        new ChangeDateFormat(propertyName, targetDatePattern = Option(targetDatePattern))
+    }
+}

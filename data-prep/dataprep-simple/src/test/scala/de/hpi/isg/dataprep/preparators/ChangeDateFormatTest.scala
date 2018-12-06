@@ -22,7 +22,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
     }
 
     "Date format" should "be changed given source and target format" in {
-        val preparator = new ChangeDateFormat("date", Option(DatePatternEnum.YearMonthDay), Option(DatePatternEnum.DayMonthYear))
+        val preparator = ChangeDateFormat("date", DatePatternEnum.YearMonthDay, DatePatternEnum.DayMonthYear)
         val preparation = new Preparation(preparator)
 
         pipeline.addPreparation(preparation)
@@ -48,7 +48,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
     }
 
     "Date format" should "be changed given only the target format" in {
-        val preparator = new ChangeDateFormat("date", targetDatePattern = Option(DatePatternEnum.DayMonthYear))
+        val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
         val preparation = new Preparation(preparator)
 
         pipeline.addPreparation(preparation)
@@ -58,7 +58,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
         parsedData.count() shouldBe 6
 
         val dates = parsedData.rdd
-            .map(row => row.getString(row.fieldIndex("date")))
+            .map(row => row.getAs[String]("date"))
             .collect()
             .toSet
         dates shouldEqual pokemonDates

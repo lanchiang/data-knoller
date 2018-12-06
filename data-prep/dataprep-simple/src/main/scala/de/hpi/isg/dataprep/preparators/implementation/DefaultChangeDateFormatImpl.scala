@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import java.text.{ParseException, SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
@@ -13,7 +13,7 @@ import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.matching.Regex
@@ -100,7 +100,7 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
     ): Dataset[Row] = {
         val regexValidCount = dataset.rdd
             .flatMap { row =>
-                val date = row.getString(row.fieldIndex(fieldName))
+                val date = row.getAs[String](fieldName)
                 DateRegex.allRegexes.map { regex =>
                     val isValid = regex.validMatch(date)
                     val count = if(isValid) 1 else 0
@@ -109,8 +109,7 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
             }.reduceByKey(_ + _)
             .collect
             .toList
-        val mostMatchedRegex = regexValidCount
-            .maxBy(_._2)._1
+        val mostMatchedRegex = regexValidCount.maxBy(_._2)._1
 
         dataset.flatMap { row =>
             val index = row.fieldIndex(fieldName)
