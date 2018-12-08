@@ -30,12 +30,12 @@ public class ReplaceSubstringTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "identifier" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-        errorLogs.add(pipelineErrorLog);
+//        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
+//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+//                        "propertyName='" + "identifier" + '\'' +
+//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+//                        '}')));
+//        errorLogs.add(pipelineErrorLog);
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         pipeline.getRawData().show();
@@ -52,12 +52,12 @@ public class ReplaceSubstringTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "identifier" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-        errorLogs.add(pipelineErrorLog);
+//        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
+//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+//                        "propertyName='" + "identifier" + '\'' +
+//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+//                        '}')));
+//        errorLogs.add(pipelineErrorLog);
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         pipeline.getRawData().show();
@@ -74,12 +74,12 @@ public class ReplaceSubstringTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "identifier" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-        errorLogs.add(pipelineErrorLog);
+//        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
+//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+//                        "propertyName='" + "identifier" + '\'' +
+//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+//                        '}')));
+//        errorLogs.add(pipelineErrorLog);
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         pipeline.getRawData().show();

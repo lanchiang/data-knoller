@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.AddProperty
 import de.hpi.isg.dataprep.util.DataType.PropertyType
-import de.hpi.isg.dataprep.{ExecutionContext, ConversionHelper, SchemaUtils}
+import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext, SchemaUtils}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.DateType
 import org.apache.spark.sql.{Dataset, Row}

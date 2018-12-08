@@ -47,10 +47,13 @@ public class MovePropertyTest extends PreparatorTest {
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.
@@ -79,11 +82,14 @@ public class MovePropertyTest extends PreparatorTest {
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("base_experience", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.

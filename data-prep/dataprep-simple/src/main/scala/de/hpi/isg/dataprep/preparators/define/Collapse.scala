@@ -16,7 +16,7 @@ import de.hpi.isg.dataprep.util.DataType
   */
 class Collapse(val propertyName : String) extends Preparator {
 
-    this.impl = new DefaultCollapseImpl
+//    override def newImpl = new DefaultCollapseImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both

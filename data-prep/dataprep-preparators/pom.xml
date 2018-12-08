@@ -32,6 +32,28 @@
             <artifactId>dataprep-spark</artifactId>
             <version>0.01-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>de.hpi.isg</groupId>
+            <artifactId>dataprep-simple</artifactId>
+            <version>0.01-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.hpi.isg</groupId>
+            <artifactId>dataprep-io</artifactId>
+            <version>0.01-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.2</version>
+            <classifier>models</classifier>
+        </dependency>
+
     </dependencies>
 
 </project>

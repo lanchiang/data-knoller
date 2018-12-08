@@ -19,6 +19,7 @@ public class FlatFileDataLoader extends SparkDataLoader {
     public DataContext load() {
         DataFrameReader dataFrameReader = super.createDataFrameReader();
         dataFrame = dataFrameReader.csv(dialect.getUrl());
+        // TODO: split file ?
         return new DataContext(dataFrame, dialect);
     }
 

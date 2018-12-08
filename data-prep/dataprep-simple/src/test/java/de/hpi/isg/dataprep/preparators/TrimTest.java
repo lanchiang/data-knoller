@@ -31,13 +31,13 @@ public class TrimTest extends PreparatorTest {
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 
-        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
-                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-                        "propertyName='" + "identifier" + '\'' +
-                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-                        '}')));
-
-        trueErrorlogs.add(pipelineError);
+//        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
+//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
+//                        "propertyName='" + "identifier" + '\'' +
+//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
+//                        '}')));
+//
+//        trueErrorlogs.add(pipelineError);
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();

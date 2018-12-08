@@ -15,15 +15,15 @@ import java.util.Map;
 public class ImportDataWithSparkApp {
 
     public static void main(String[] args) {
-        DatasetConfig datasetConfig = new DatasetConfig();
-        datasetConfig.setAppName("Test pipeline");
-        datasetConfig.setFilePath("/Users/Fuga/Documents/HPI/data/testdata/pokemon.csv");
-        datasetConfig.setMaster(DatasetConfig.Master.local);
-        Map<String, String> options = new HashMap<>();
-        options.put("header", "true");
-        datasetConfig.setOptions(options);
-        Dataset<Row> dataset = DatasetUtil.changeFileEncoding(datasetConfig);
-        dataset.rdd().saveAsTextFile("/Users/Fuga/Documents/HPI/data/testdata/pokemon_output.csv");
+//        DatasetConfig datasetConfig = new DatasetConfig();
+//        datasetConfig.setAppName("Test pipeline");
+//        datasetConfig.setFilePath("/Users/Fuga/Documents/HPI/data/testdata/pokemon.csv");
+//        datasetConfig.setMaster(DatasetConfig.Master.local);
+//        Map<String, String> options = new HashMap<>();
+//        options.put("header", "true");
+//        datasetConfig.setOptions(options);
+//        Dataset<Row> dataset = DatasetUtil.changeFileEncoding(datasetConfig);
+//        dataset.rdd().saveAsTextFile("/Users/Fuga/Documents/HPI/data/testdata/pokemon_output.csv");
         return;
     }
 }
