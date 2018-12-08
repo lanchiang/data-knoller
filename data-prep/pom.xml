@@ -105,12 +105,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.11</artifactId>
+            <version>3.2.0-SNAP10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalacheck</groupId>
+            <artifactId>scalacheck_2.11</artifactId>
+            <version>1.14.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.5</version>
         </dependency>
-
     </dependencies>
-
-
 </project>
