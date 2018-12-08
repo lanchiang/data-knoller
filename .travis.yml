@@ -10,4 +10,4 @@ notifications:
 install: true
 before_script:
   - echo "MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=512m'" >> ~/.mavenrc
-script: cd mdms && mvn clean verify
+script: cd data-prep && mvn clean verify
