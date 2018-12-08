@@ -17,7 +17,7 @@ import de.hpi.isg.dataprep.util.DataType
   */
 class Trim(val propertyName : String) extends Preparator {
 
-    this.impl = new DefaultTrimImpl
+    override def newImpl = new DefaultTrimImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
