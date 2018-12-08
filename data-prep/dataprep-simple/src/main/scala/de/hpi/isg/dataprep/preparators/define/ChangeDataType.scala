@@ -36,7 +36,7 @@ class ChangeDataType(val propertyName : String,
         this(propertyName, null, targetType, sourceDatePattern, targetDatePattern)
     }
 
-    override def newImpl = new DefaultChangeDataTypeImpl
+//    override def newImpl = new DefaultChangeDataTypeImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both

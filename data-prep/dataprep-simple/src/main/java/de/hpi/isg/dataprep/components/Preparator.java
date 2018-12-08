@@ -38,10 +38,15 @@ abstract public class Preparator implements AbstractPreparator {
         invalid = new ArrayList<>();
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
-        impl = newImpl();
+//        impl = newImpl();
+
+        String simpleClassName = this.getClass().getSimpleName();
+
+        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
+        this.impl = Class.forName(preparatorImplClass).asSubclass(PreparatorImpl.class).newInstance();
     }
 
-    protected abstract PreparatorImpl newImpl();
+//    protected abstract PreparatorImpl newImpl();
 
     @Override
     public void execute() throws Exception {

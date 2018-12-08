@@ -11,7 +11,7 @@ class ChangeDelimiter(val tableName : String,
                       val sourceDelimiter: String,
                       val targetDelimiter: String) extends Preparator {
 
-    override def newImpl = new DefaultChangeDelimiterImpl
+//    override def newImpl = new DefaultChangeDelimiterImpl
 
     def this(tableName : String, targetDelimiter: String) {
         this(tableName, null, targetDelimiter)

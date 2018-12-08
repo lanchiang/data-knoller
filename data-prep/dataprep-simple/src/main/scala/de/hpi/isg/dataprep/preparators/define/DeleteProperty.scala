@@ -10,7 +10,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultDeletePropertyImpl
   */
 class DeleteProperty(val propertyName : String) extends Preparator {
 
-    override def newImpl = new DefaultDeletePropertyImpl
+//    override def newImpl = new DefaultDeletePropertyImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both

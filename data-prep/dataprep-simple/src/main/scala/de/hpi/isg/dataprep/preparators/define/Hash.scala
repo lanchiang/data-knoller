@@ -12,7 +12,7 @@ import de.hpi.isg.dataprep.util.HashAlgorithm
 class Hash(val propertyName : String,
            val hashAlgorithm: HashAlgorithm) extends Preparator {
 
-    override def newImpl = new DefaultHashImpl
+//    override def newImpl = new DefaultHashImpl
 
     def this(propertyName: String) {
         this(propertyName, Hash.DEFAULT_ALGORITHM)

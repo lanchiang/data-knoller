@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
@@ -117,7 +118,7 @@ public class SplitPropertyTest extends PreparatorTest {
         pipeline.executePipeline();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = PreparationHasErrorException.class)
     public void testIllegalArgumentExceptionWhenPropertyNameDoNotExist() throws Exception {
         Preparator preparator = new SplitProperty("xyz", "-", 3, true);
         pipeline.addPreparation(new Preparation(preparator));

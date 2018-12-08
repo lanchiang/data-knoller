@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
@@ -86,7 +87,8 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertEquals("  ", emptyStringError.getValue());
     }
 
-    @Test(expected = SparkException.class)
+//    @Test(expected = SparkException.class)
+    @Test(expected = PreparationHasErrorException.class)
     public void testMissingColumn() throws Exception {
         Preparator preparator = new LemmatizePreparator("this_column_does_not_exist");
 

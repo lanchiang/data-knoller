@@ -21,7 +21,7 @@ class ChangeEncoding(val propertyName: String,
         this(propertyName, null, userSpecifiedTargetEncoding)
     }
 
-    override def newImpl = new DefaultChangeEncodingImpl
+//    override def newImpl = new DefaultChangeEncodingImpl
 
     override def buildMetadataSetup(): Unit = {
         if (propertyName == null) throw new ParameterNotSpecifiedException("Column name not specified.")

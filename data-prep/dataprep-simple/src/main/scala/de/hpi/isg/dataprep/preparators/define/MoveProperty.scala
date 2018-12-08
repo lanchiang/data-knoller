@@ -15,7 +15,7 @@ class MoveProperty(val propertyName : String,
         this(propertyName, MoveProperty.DEFAULT_NEW_POSITION)
     }
 
-    override def newImpl = new DefaultMovePropertyImpl
+//    override def newImpl = new DefaultMovePropertyImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both

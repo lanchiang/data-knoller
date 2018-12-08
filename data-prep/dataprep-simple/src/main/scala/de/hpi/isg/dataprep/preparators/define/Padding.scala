@@ -24,7 +24,7 @@ class Padding(val propertyName : String,
         this(propertyName, expectedLength, Padding.DEFAULT_PADDER)
     }
 
-    override def newImpl = new DefaultPaddingImpl
+//    override def newImpl = new DefaultPaddingImpl
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
       * prerequisite and toChange set.
