@@ -14,6 +14,8 @@ import de.hpi.isg.dataprep.preparators.define.RemovePreamble;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -25,6 +27,37 @@ import java.util.List;
  */
 public class RemovePreambleTest extends PreparatorTest {
 
+    @BeforeClass
+    public static void setUp() {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                //.delimiter("\t")
+                //x: works
+                //.url("./src/test/resources/pokemon.csv")//->X
+                //.url("./src/test/resources/restaurants.tsv")//->x
+                //.url("./src/test/resources/test.csv")//->x
+                //.url("./src/test/resources/test2.csv")//->x
+                //.url("./src/test/resources/test21.csv")//->x
+                // .url("./src/test/resources/test3.csv")//->x
+                //.url("./src/test/resources/test4.csv")//->x
+                //.url("./src/test/resources/test5.csv")//->x
+                .url("./src/test/resources/test6.csv")//->x
+                //.url("./src/test/resources/test7.csv")//->x
+                //.url("./src/test/resources/test8.csv")//-> x,
+                //.url("./src/test/resources/test9.csv")//->x
+                //.url("./src/test/resources/test10.csv")//->x
+                //.url("./src/test/resources/test11.csv")//->x
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+
+        return;
+    }
 
     //note: different testfilepaths in Preperatortest
     @Test
@@ -36,19 +69,13 @@ public class RemovePreambleTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//
-//        trueErrorlogs.add(pipelineError);
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();
 
         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
     }
+
     @Test(expected = ParameterNotSpecifiedException.class)
     public void nullHeaderTestPreamble() throws Exception {
 
@@ -58,13 +85,6 @@ public class RemovePreambleTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//
-//        trueErrorlogs.add(pipelineError);
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();
@@ -81,13 +101,6 @@ public class RemovePreambleTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//
-//        trueErrorlogs.add(pipelineError);
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
         pipeline.getRawData().show();
