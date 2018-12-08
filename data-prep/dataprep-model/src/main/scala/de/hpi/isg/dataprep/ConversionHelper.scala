@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep
 
 import java.security.MessageDigest
-import java.text.{ParseException, SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
@@ -14,6 +14,7 @@ import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.types.{StructField, StructType}
 
 import scala.collection.mutable.ListBuffer
+
 import scala.util.{Failure, Success, Try}
 
 /**
