@@ -1,12 +1,11 @@
 package de.hpi.isg.dataprep
 
 import java.security.MessageDigest
-import java.text.{ParseException, SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
-import org.apache.spark.sql.Row
 
 import scala.util.{Failure, Success, Try}
 

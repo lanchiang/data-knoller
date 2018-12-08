@@ -15,12 +15,15 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.Sampling;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.spark.ml.feature.VectorAssembler;
+import org.apache.spark.ml.linalg.Vectors;
+import org.apache.spark.mllib.stat.Statistics;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +31,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/29
  */
-public class PreparatorTest {
+public class SamplingTest {
 
     protected static Dataset<Row> dataset;
     protected static AbstractPipeline pipeline;
@@ -42,7 +45,7 @@ public class PreparatorTest {
         FileLoadDialect dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/pokemon.csv")
+                .url("./src/test/resources/uniformDist.csv")
                 .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
@@ -63,5 +66,27 @@ public class PreparatorTest {
     public void cleanUpPipeline() {
         pipeline = new Pipeline(dataContext);
     }
+
+    @Test
+    public void testSampling() throws Exception {
+
+        Preparator preparator = new Sampling(.01,false);
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+        pipeline.getRawData().show();
+    }
+    @Test
+    public void testShuffleSampling() throws Exception {
+        //TODO: do hypothesis-testing to verify, that the distributions of the population and samples are the same
+        int sampleSize = 11;
+        Preparator preparator = new Sampling(sampleSize,false);
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+        pipeline.getRawData().show();
+        Assert.assertEquals(pipeline.getRawData().count(), sampleSize);
+    }
+
 
 }
