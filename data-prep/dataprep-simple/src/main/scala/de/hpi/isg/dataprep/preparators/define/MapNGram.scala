@@ -11,7 +11,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultMapNGramImpl
 class MapNGram(val propertyName : String,
                val n : Int) extends Preparator {
 
-    this.impl = new DefaultMapNGramImpl
+    override def newImpl = new DefaultMapNGramImpl
 
     def this(propertyName : String) {
         this(propertyName, MapNGram.DEFAULT_N)

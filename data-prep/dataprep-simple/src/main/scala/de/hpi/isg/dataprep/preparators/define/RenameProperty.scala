@@ -11,7 +11,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultRenamePropertyImpl
 class RenameProperty(val propertyName : String,
                      val newPropertyName : String) extends Preparator {
 
-    this.impl = new DefaultRenamePropertyImpl
+    override def newImpl = new DefaultRenamePropertyImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
