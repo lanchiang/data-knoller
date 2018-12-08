@@ -119,12 +119,15 @@ public class PipelineTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.
         Assert.assertEquals(trueSchema, updatedSchema);
         Assert.assertEquals(updated.count(), 7L);
-        Assert.assertEquals(updatedSchema.size(), 9);
+        Assert.assertEquals(updatedSchema.size(), 12);
     }
 
     @Test(expected = PipelineSyntaxErrorException.class)

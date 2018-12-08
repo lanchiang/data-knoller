@@ -37,9 +37,12 @@ public class SplitPropertyTest extends PreparatorTest {
             new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
             new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
             new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+            new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
             new StructField("date1", DataTypes.StringType, true, Metadata.empty()),
             new StructField("date2", DataTypes.StringType, true, Metadata.empty()),
-            new StructField("date3", DataTypes.StringType, true, Metadata.empty())
+            new StructField("date3", DataTypes.StringType, true, Metadata.empty()),
     });
 
     @Test
@@ -71,7 +74,7 @@ public class SplitPropertyTest extends PreparatorTest {
         pipeline.getRawData().foreach(
                 row -> {
                     String[] expectedSplit = row.get(8).toString().split("-");
-                    String[] split = {row.get(9).toString(), row.get(10).toString(), row.get(11).toString()};
+                    String[] split = {row.get(12).toString(), row.get(13).toString(), row.get(14).toString()};
                     if(expectedSplit.length == 1) {
                         String[] singleValueSplit = {expectedSplit[0], "", ""};
                         Assert.assertArrayEquals(singleValueSplit, split);
@@ -96,7 +99,7 @@ public class SplitPropertyTest extends PreparatorTest {
                 row -> {
                     String[] expectedSplit = row.get(8).toString().split("-");
                     ArrayUtils.reverse(expectedSplit); // reverse expectedSplit
-                    String[] split = {row.get(9).toString(), row.get(10).toString(), row.get(11).toString()};
+                    String[] split = {row.get(12).toString(), row.get(13).toString(), row.get(14).toString()};
                     if(expectedSplit.length == 1) {
                         String[] singleValueSplit = {expectedSplit[0], "", ""};
                         Assert.assertArrayEquals(singleValueSplit, split);
