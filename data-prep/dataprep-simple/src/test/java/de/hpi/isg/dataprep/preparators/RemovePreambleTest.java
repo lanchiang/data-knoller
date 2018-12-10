@@ -14,6 +14,7 @@ import de.hpi.isg.dataprep.preparators.define.RemovePreamble;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -25,15 +26,48 @@ import java.util.List;
  */
 public class RemovePreambleTest extends PreparatorTest {
 
+    @BeforeClass
+    public static void setUp() {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .delimiter("\t")
+                //x: works
+                //.url("./src/test/resources/pokemon.csv")//->X
+                .url("./src/test/resources/restaurants.tsv")//->x
+                //.url("./src/test/resources/test.csv")//->x
+                //.url("./src/test/resources/test2.csv")//->x
+                //.url("./src/test/resources/test21.csv")//->x
+                // .url("./src/test/resources/test3.csv")//->x
+                //.url("./src/test/resources/test4.csv")//->x
+                //.url("./src/test/resources/test5.csv")//->x
+                //.url("./src/test/resources/test6.csv")//->x
+                //.url("./src/test/resources/test7.csv")//->x
+                //.url("./src/test/resources/test8.csv")//-> x,
+                //.url("./src/test/resources/test9.csv")//->x
+                //.url("./src/test/resources/test10.csv")//->x
+                //.url("./src/test/resources/test11.csv")//->x
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+
+        return;
+    }
 
     //note: different testfilepaths in Preperatortest
     @Test
     public void testRemovePreamble() throws Exception {
 
-        Preparator preparator = new RemovePreamble(super.dialect.getDelimiter(),super.dialect.getHasHeader());
+        Preparator preparator = new RemovePreamble(this.dialect.getDelimiter(),this.dialect.getHasHeader(),dialect.getUrl());
 
         AbstractPreparation preparation = new Preparation(preparator);
+
         pipeline.addPreparation(preparation);
+        pipeline.buildMetadataSetup();
         pipeline.executePipeline();
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 //        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
@@ -52,7 +86,7 @@ public class RemovePreambleTest extends PreparatorTest {
     @Test(expected = ParameterNotSpecifiedException.class)
     public void nullHeaderTestPreamble() throws Exception {
 
-        Preparator preparator = new RemovePreamble(super.dialect.getDelimiter(),null);
+        Preparator preparator = new RemovePreamble(this.dialect.getDelimiter(),null,dialect.getUrl());
 
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
@@ -75,7 +109,7 @@ public class RemovePreambleTest extends PreparatorTest {
     @Test(expected = ParameterNotSpecifiedException.class)
     public void nullDelimiterTestPreamble() throws Exception {
 
-        Preparator preparator = new RemovePreamble(null,super.dialect.getHasHeader());
+        Preparator preparator = new RemovePreamble(null,this.dialect.getHasHeader(),dialect.getUrl());
 
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);

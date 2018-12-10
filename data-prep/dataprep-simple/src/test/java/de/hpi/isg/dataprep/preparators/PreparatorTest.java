@@ -43,26 +43,15 @@ public class PreparatorTest {
         dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                //.delimiter("\t")
-                //x: works
-                //.url("./src/test/resources/pokemon.csv")//->X
-                //.url("./src/test/resources/restaurants.tsv")//->x
-               //.url("./src/test/resources/test.csv")//->x
-                //.url("./src/test/resources/test2.csv")//->x
-                //.url("./src/test/resources/test21.csv")//->x
-                // .url("./src/test/resources/test3.csv")//->x
-                //.url("./src/test/resources/test4.csv")//->x
-                //.url("./src/test/resources/test5.csv")//->x
-                .url("./src/test/resources/test6.csv")//->x
-                //.url("./src/test/resources/test7.csv")//->x
-                //.url("./src/test/resources/test8.csv")//-> x,
-                //.url("./src/test/resources/test9.csv")//->x
-                //.url("./src/test/resources/test10.csv")//->x
-                //.url("./src/test/resources/test11.csv")//->x
-
-//                 .url("./src/test/resources/restaurants.tsv")
-//                 .delimiter("\t")
+                .url("./src/test/resources/pokemon.csv")
                 .buildDialect();
+
+//        FileLoadDialect dialect = new DialectBuilder()
+//                .hasHeader(true)
+//                .inferSchema(true)
+//                .url("./src/test/resources/restaurants.tsv")
+//                .delimiter("\t")
+//                .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
 //                .hasHeader(true)
@@ -73,6 +62,7 @@ public class PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
+
 //        dataContext.getDataFrame().show();
         return;
     }

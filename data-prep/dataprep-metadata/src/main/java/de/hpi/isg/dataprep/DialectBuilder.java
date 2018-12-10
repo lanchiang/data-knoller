@@ -15,6 +15,7 @@ public class DialectBuilder {
     private String escapeChar = "\\";
     private String lineTerminator = "\r\n";
     private String hasHeader = "false";
+
     private FileLoadDialect.QuoteBehavior quoteBehavior = FileLoadDialect.QuoteBehavior.QUOTE_MINIMAL;
 
     private String sparkAppName = "Default data preparation";
@@ -22,6 +23,10 @@ public class DialectBuilder {
     private String url;
 
     private String inferSchema = "false";
+
+    private String hasPreamble = "true";
+    /*private String commentChar = "";
+    private int rowsToRemove=0;*/
 
     public FileLoadDialect buildDialect() {
         FileLoadDialect dialect = new FileLoadDialect();
@@ -38,6 +43,10 @@ public class DialectBuilder {
         dialect.setUrl(url);
 
         dialect.setInferSchema(inferSchema);
+
+        dialect.setHasPreamble(hasPreamble);
+        /*dialect.setRowsToRemove(rowsToRemove);
+        dialect.setCommentCharacter(commentChar);*/
 
         return dialect;
     }
@@ -91,4 +100,19 @@ public class DialectBuilder {
         this.inferSchema = inferSchema?"true":"false";
         return this;
     }
+
+    public DialectBuilder hasPreamble(boolean hasPreamble) {
+        this.hasPreamble = hasPreamble?"true":"false";
+        return this;
+    }
+
+   /* public DialectBuilder commentChar(String commentChar) {
+        this.commentChar = commentChar;
+        return this;
+    }
+
+    public DialectBuilder rowsToRemove(int rowsToRemove) {
+        this.rowsToRemove = rowsToRemove;
+        return this;
+    }*/
 }

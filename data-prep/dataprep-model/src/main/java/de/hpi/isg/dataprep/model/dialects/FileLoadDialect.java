@@ -21,6 +21,10 @@ public class FileLoadDialect {
 
     private String inferSchema;
 
+    private String commentChar;
+    private String hasPreamble;
+    private int rowsToRemove;
+
     public enum QuoteBehavior {
         QUOTE_ALL,
         QUOTE_MINIMAL,
@@ -118,4 +122,30 @@ public class FileLoadDialect {
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
+
+
+    public String getCommentCharacter() {
+        return commentChar;
+    }
+
+    public void setCommentCharacter(String commentChar) {
+        this.commentChar = commentChar;
+    }
+
+    public String getHasPreamble() {
+        return hasPreamble;
+    }
+
+    public void setHasPreamble(String hasPreamble) {
+        this.hasPreamble = hasPreamble;
+    }
+
+    public int getRowsToRemove() {
+        return rowsToRemove;
+    }
+
+    public void setRowsToRemove(int rowsToRemove) {
+        this.rowsToRemove = rowsToRemove;
+    }
+
 }

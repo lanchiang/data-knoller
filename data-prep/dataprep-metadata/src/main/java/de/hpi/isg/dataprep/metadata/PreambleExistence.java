@@ -19,9 +19,9 @@ public class PreambleExistence extends Metadata {
         super(PreambleExistence.class.getSimpleName());
     }
 
-    public PreambleExistence(boolean preambleExistence/*, MetadataScope scope*/) {
+    public PreambleExistence(boolean preambleExistence, MetadataScope scope) {
         this();
-        //this.scope = scope;
+        this.scope = scope;
         this.preambleExistence = preambleExistence;
     }
 

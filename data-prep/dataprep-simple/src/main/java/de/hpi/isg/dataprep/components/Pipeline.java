@@ -8,6 +8,7 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
+import de.hpi.isg.dataprep.model.target.objects.FileMetadata;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
@@ -17,6 +18,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
+import scala.Console;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,17 +128,23 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void initMetadataRepository() {
         FileLoadDialect dialect = this.dataContext.getDialect();
-
         Delimiter delimiter = new Delimiter(dialect.getDelimiter(), new TableMetadata(dialect.getTableName()));
         QuoteCharacter quoteCharacter = new QuoteCharacter(dialect.getQuoteChar(), new TableMetadata(dialect.getTableName()));
         EscapeCharacter escapeCharacter = new EscapeCharacter(dialect.getEscapeChar(), new TableMetadata(dialect.getTableName()));
         HeaderExistence headerExistence = new HeaderExistence(dialect.getHasHeader().equals("true"), new TableMetadata(dialect.getTableName()));
+        CommentCharacter commentCharacter = new CommentCharacter(dialect.getCommentCharacter(), new FileMetadata(dialect.getUrl()));
+        RowsToRemove rowsToRemove = new RowsToRemove(dialect.getRowsToRemove(), new FileMetadata(dialect.getUrl()));
+        PreambleExistence preambleExistence = new PreambleExistence(dialect.getHasPreamble().equals("true"), new FileMetadata(dialect.getUrl()));
 
         List<Metadata> initMetadata = new ArrayList<>();
         initMetadata.add(delimiter);
         initMetadata.add(quoteCharacter);
         initMetadata.add(escapeCharacter);
         initMetadata.add(headerExistence);
+
+        initMetadata.add(commentCharacter);
+        initMetadata.add(rowsToRemove);
+        initMetadata.add(preambleExistence);
 
         StructType structType = this.rawData.schema();
         Arrays.stream(structType.fields()).forEach(field -> {
