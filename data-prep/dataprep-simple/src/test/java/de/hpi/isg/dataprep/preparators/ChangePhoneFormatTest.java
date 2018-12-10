@@ -1,13 +1,18 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.load.FlatFileDataLoader;
+import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.metadata.DINPhoneNumber;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import scala.collection.JavaConversions;
@@ -18,6 +23,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChangePhoneFormatTest extends PreparatorTest {
+
+    @BeforeClass
+    public static void setUp() {
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url("./src/test/resources/restaurants.tsv")
+                .delimiter("\t")
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+
+//        dataContext.getDataFrame().show();
+        return;
+    }
+
     @Test
     public void changeFromSourceToTarget() throws Exception {
         ArrayList<String> sourceGroups = new ArrayList<>(); sourceGroups.add("areaCode"); sourceGroups.add("number"); sourceGroups.add("extensionNumber");
