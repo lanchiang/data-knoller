@@ -37,11 +37,6 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
       * @throws Exception
       */
     override def buildMetadataSetup(): Unit = {
-
-
-
-
-
         val prerequisites = new util.ArrayList[Metadata]
         val tochanges = new util.ArrayList[Metadata]
 
@@ -54,13 +49,7 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
         prerequisites.add(new HeaderExistence(hasHeader.toBoolean, new FileMetadata("")))
         prerequisites.add(new PreambleExistence(true))
         tochanges.add(new PreambleExistence(false))
-
-
-
-
-
-
-
+        
         this.prerequisites.addAll(prerequisites)
         this.updates.addAll(tochanges)
     }

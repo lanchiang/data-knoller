@@ -25,7 +25,6 @@ class Hash(val propertyName : String,
       * @throws Exception
       */
     override def buildMetadataSetup(): Unit = {
-
     }
 }
 
