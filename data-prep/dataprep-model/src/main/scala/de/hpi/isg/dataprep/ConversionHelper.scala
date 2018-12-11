@@ -1,12 +1,19 @@
 package de.hpi.isg.dataprep
 
 import java.security.MessageDigest
-import java.text.{ParseException, SimpleDateFormat}
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
-import org.apache.spark.sql.Row
+import org.apache.spark.api.java.JavaRDD
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.expressions._
+import org.apache.spark.sql.types.{StructField, StructType}
+
+import scala.collection.mutable.ListBuffer
 
 import scala.util.{Failure, Success, Try}
 
@@ -48,6 +55,80 @@ object ConversionHelper extends Serializable {
                 targetDate
             }
         }
+    }
+
+    def countSubstring( str:String, substr:String ) = substr.r.findAllMatchIn(str).length
+
+
+    def splitFileBySeparator(separator: String, source : Dataset[Row]) : Dataset[Row] = {
+      val dataList = source.collectAsList
+      val rowWithMaxSeparators = dataList.toArray
+        .map(x => (x, countSubstring(x.toString(), separator)))
+        .maxBy(item => item._2)._1 //gibt mir x Element aus dem tupel
+      val indexOfSplitLine = dataList.lastIndexOf(rowWithMaxSeparators)
+      if(indexOfSplitLine <= 0){
+        return source
+      }
+      val resultArray = dataList.subList(0,indexOfSplitLine).toArray
+      //
+      source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
+      return source.filter(row => resultArray.contains(row))
+    }
+
+  def findUnknownFileSeparator(source: Dataset[Row]) : (String, Float) = {
+    val specialCharacters = source.collect.map(row => row.toString().replaceAll("[A-Za-z0-9]",""))
+    val charCountList = specialCharacters.map(row => row.groupBy(c => c).mapValues(v => v.size))
+    val mergedDictionaries = charCountList.map(a => a.toSeq).reduce((a,b) => a ++ b)
+    val groupedDicts = mergedDictionaries.groupBy(_._1)
+    val combinedDicts = groupedDicts
+      .mapValues( li => li.map(_._2).toList)
+      .mapValues( li => li.reduce(_+_).toFloat / (li.size*li.size).toFloat)
+    return (combinedDicts.maxBy(_._2)._1.toString, combinedDicts.maxBy(_._2)._2)
+  }
+    
+    def splitFileByType(source : Dataset[Row]) : Dataset[Row] = {
+      //TODO: split File by different Datatypes in columns
+
+      source
+    }
+    
+    def splitFileByEmptyValues(source: Dataset[Row]) : Dataset[Row] = {
+      val dataArray = source.collect()
+      var indexArray = Array[Row]()
+      var countEmptyValues = 0
+      var countLines = 0
+
+        for (row <- dataArray) {
+          countLines+=1
+          for (i <- Range(0, row.length)) {
+            if(row.get(i) == "") {
+              countEmptyValues+=1
+              if (countEmptyValues == 3) {
+                indexArray = dataArray.slice(0, countLines-countEmptyValues)
+              }
+            }
+          }
+        }
+      source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
+      return source.filter(row => indexArray.contains(row))
+    }
+
+    def splitFileByNewValuesAfterEmpty(source: Dataset[Row]) : Dataset[Row] = {
+      val dataArray = source.collect()
+      var indexArray = Array[Row]()
+      var countEmptyValues = 0
+
+      for(row <- dataArray) {
+          for(i <- Range(0, row.length)) {
+            if(row.get(i) == ""){
+              countEmptyValues+=1
+            } else {
+              indexArray = dataArray.slice(countEmptyValues, 1000) //TODO bis Ende der Row
+            }
+          }
+       }
+      source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
+      return source.filter(row => indexArray.contains(row))
     }
 
     def getDefaultDate(): String = {

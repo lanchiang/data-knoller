@@ -1,0 +1,19 @@
+language: java
+jdk:
+- oraclejdk8
+
+sudo: false
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+cache:
+  directories:
+  - $HOME/.m2/repository
+
+install: true
+before_script:
+  - echo "MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=512m'" >> ~/.mavenrc
+script: cd data-prep && mvn clean verify -DskipTests=true

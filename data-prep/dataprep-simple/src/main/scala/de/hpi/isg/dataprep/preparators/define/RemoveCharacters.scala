@@ -23,7 +23,7 @@ class RemoveCharacters(val propertyName : String,
         this(propertyName, mode, "")
     }
 
-    this.impl = new DefaultRemoveCharactersImpl
+//    override def newImpl = new DefaultRemoveCharactersImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
