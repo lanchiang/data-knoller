@@ -6,7 +6,6 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.util.Encoding;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,25 +17,25 @@ import java.util.stream.Collectors;
  */
 public class FileEncoding extends Metadata {
 
-    private String fileName;
-    private Encoding fileEncoding;
+    private static final long serialVersionUID = -5529216369913096740L;
+    private String propertyName;
+    private String fileEncoding;
 
     private FileEncoding() {
         super(FileEncoding.class.getSimpleName());
     }
 
-    public FileEncoding(String fileName, Encoding fileEncoding) {
+    public FileEncoding(String propertyName, String fileEncoding) {
         this();
-        this.fileName = fileName;
+        this.propertyName = propertyName;
         this.fileEncoding = fileEncoding;
-
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getPropertyName() {
+        return propertyName;
     }
 
-    public Encoding getFileEncoding() {
+    public String getFileEncoding() {
         return fileEncoding;
     }
 
@@ -45,16 +44,16 @@ public class FileEncoding extends Metadata {
         List<FileEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof FileEncoding)
                 .map(metadata -> (FileEncoding) metadata)
-                .filter(metadata -> metadata.getFileName().equals(this.fileName))
+                .filter(metadata -> metadata.getPropertyName().equals(propertyName))
                 .collect(Collectors.toList());
 
         if (matchedInRepo.size() == 0) {
-            throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", this.getClass().getSimpleName()));
+            throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", getClass().getSimpleName()));
         } else if (matchedInRepo.size() > 1) {
-            throw new DuplicateMetadataException(String.format("Multiple pieces of metadata %s found in the repository.", this.getClass().getSimpleName()));
+            throw new DuplicateMetadataException(String.format("Multiple pieces of metadata %s found in the repository.", getClass().getSimpleName()));
         } else {
             FileEncoding metadataInRepo = matchedInRepo.get(0);
-            if (!this.getFileEncoding().equals(metadataInRepo.getFileEncoding())) {
+            if (!getFileEncoding().equals(metadataInRepo.getFileEncoding())) {
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
             }
         }
@@ -75,18 +74,18 @@ public class FileEncoding extends Metadata {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FileEncoding that = (FileEncoding) o;
-        return Objects.equals(fileName, that.fileName);
+        return Objects.equals(propertyName, that.propertyName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fileName);
+        return Objects.hash(propertyName);
     }
 
     @Override
     public String toString() {
         return "FileEncoding{" +
-                "fileName='" + fileName + '\'' +
+                "propertyName='" + propertyName + '\'' +
                 ", fileEncoding=" + fileEncoding +
                 '}';
     }

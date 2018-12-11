@@ -10,7 +10,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultGenerateUnicodeImpl
   */
 class GenerateUnicode(val propertyName :String) extends Preparator {
 
-    this.impl = new DefaultGenerateUnicodeImpl
+//    override def newImpl = new DefaultGenerateUnicodeImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If succeeds, setup the values of metadata into both
