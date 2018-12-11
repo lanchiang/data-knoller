@@ -37,7 +37,7 @@ class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
     pipeline = new Pipeline(dataContext)
   }
 
-  test("de.hpi.isg.dataprep.preparators.AdaptiveChangeDateFormatTest.execute") {
+  test("AdaptiveChangeDateFormatTest.execute") {
     val preparator: Preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
