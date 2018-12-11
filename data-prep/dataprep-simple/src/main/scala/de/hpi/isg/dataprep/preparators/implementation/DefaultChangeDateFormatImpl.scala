@@ -19,8 +19,8 @@ import scala.util.{Failure, Success, Try}
 
 /**
   *
-  * @author Lan Jiang
-  * @since 2018/8/29
+  * @author Hendrik Rätz, Nils Strelow
+  * @since 2018/12/03
   */
 class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
 
@@ -132,9 +132,6 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
             val numGroups = List(groups.head, groups(2), groups(4))
             val separators = List(groups(1), groups(3))
 
-            //print("Numbers:", numGroups)
-            //println("Sep:", separators)
-
             numGroups.find { group =>
                 group.length == 4
             } match {
@@ -152,13 +149,9 @@ class DefaultChangeDateFormatImpl extends PreparatorImpl with Serializable {
 
             if (year != "XXXX" && month != "XX" && day != "XX") {
                 val result = generatePatternAndRegex(groups, separators, year, month, day)
-                //println("Pattern: " + result._2 + " Regex: " + result._1)
                 year = padYearIfNeeded(year)
                 return Option(result._2)
             }
-            //println(s"Date: $date")
-            //println(s"YYYY-MM-DD: $year-$month-$day")
-            //println(s"--------------------------")
             return None
         }
         None
