@@ -8,14 +8,14 @@ import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
 import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparation}
-import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
+import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.util.DatePattern
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Dataset, Row}
 import org.junit.Assert
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
-class ChangeDateFormatTest extends FunSuite with BeforeAndAfter {
+class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
 
   protected var dataset: Dataset[Row] = null
   protected var pipeline: AbstractPipeline = null
@@ -30,8 +30,8 @@ class ChangeDateFormatTest extends FunSuite with BeforeAndAfter {
     pipeline = new Pipeline(dataContext)
   }
 
-  test("ChangeDateFormatTest.execute") {
-    val preparator: Preparator = new ChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
+  test("AdaptiveChangeDateFormatTest.execute") {
+    val preparator: Preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
     pipeline.addPreparation(preparation)

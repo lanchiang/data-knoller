@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
+import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.DataType
 
@@ -15,11 +15,11 @@ import de.hpi.isg.dataprep.util.DataType
   * @author Lan Jiang
   * @since 2018/9/2
   */
-class ChangeDateFormat(val propertyName : String,
-                       val sourceDatePattern : Option[DatePatternEnum] = None,
-                       val targetDatePattern: DatePatternEnum) extends Preparator {
+class AdaptiveChangeDateFormat(val propertyName : String,
+                               val sourceDatePattern : Option[DatePatternEnum] = None,
+                               val targetDatePattern: DatePatternEnum) extends Preparator {
 
-    this.impl = new DefaultChangeDateFormatImpl
+    this.impl = new DefaultAdaptiveChangeDateFormatImpl
 
     /**
       * This method validates the input parameters of a [[Preparator]]. If it succeeds, setup the values of metadata into both
