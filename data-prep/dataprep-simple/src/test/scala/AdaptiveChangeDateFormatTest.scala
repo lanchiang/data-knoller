@@ -15,6 +15,11 @@ import org.apache.spark.sql.{Dataset, Row}
 import org.junit.Assert
 import org.scalatest.{BeforeAndAfter, FunSuite}
 
+/**
+  *
+  * @author Hendrik Rätz, Nils Strelow
+  * @since 2018/12/03
+  */
 class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
 
   protected var dataset: Dataset[Row] = null

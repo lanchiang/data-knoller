@@ -12,8 +12,8 @@ import de.hpi.isg.dataprep.util.DataType
 
 /**
   *
-  * @author Lan Jiang
-  * @since 2018/9/2
+  * @author Hendrik Rätz, Nils Strelow
+  * @since 2018/12/03
   */
 class AdaptiveChangeDateFormat(val propertyName : String,
                                val sourceDatePattern : Option[DatePatternEnum] = None,

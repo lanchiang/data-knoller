@@ -18,7 +18,9 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 /**
-  *
+  * Converts source to target date pattern
+  * If no source pattern is given,
+  * all possible unambiguous date patterns are extracted and applied in order of occurrence
   * @author Hendrik Rätz, Nils Strelow
   * @since 2018/12/03
   */
