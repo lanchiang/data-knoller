@@ -35,12 +35,12 @@ public interface AbstractPreparator extends Executable {
      */
     void postExecConfig();
 
-    /**
-     * This method calculates the applicability score of this preparator on all column(s). The score represents how suitable this preparator is on
-     * the specified column(s), ranging from 0 to 1. A higher score means the preparator is more suitable for the column(s), and vice versa.
-     * @return the score array of this preparator on all the column(s).
-     */
-    Double[] calApplicability();
+//    /**
+//     * This method calculates the applicability score of this preparator on all column(s). The score represents how suitable this preparator is on
+//     * the specified column(s), ranging from 0 to 1. A higher score means the preparator is more suitable for the column(s), and vice versa.
+//     * @return the score array of this preparator on all the column(s).
+//     */
+//    Double[] calApplicability();
 
     /**
      * Execute this preparator.
