@@ -9,6 +9,8 @@ import org.apache.spark.sql.Row;
 import java.util.List;
 
 /**
+ * This interface defines all the common behaviors of every preparator.
+ *
  * @author Lan Jiang
  * @since 2018/9/17
  */
@@ -33,6 +35,17 @@ public interface AbstractPreparator extends Executable {
      */
     void postExecConfig();
 
+    /**
+     * This method calculates the applicability score of this preparator on all column(s). The score represents how suitable this preparator is on
+     * the specified column(s), ranging from 0 to 1. A higher score means the preparator is more suitable for the column(s), and vice versa.
+     * @return the score array of this preparator on all the column(s).
+     */
+    Double[] calApplicability();
+
+    /**
+     * Execute this preparator.
+     * @throws Exception
+     */
     @Override
     void execute() throws Exception;
 
