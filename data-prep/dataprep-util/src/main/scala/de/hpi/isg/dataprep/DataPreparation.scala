@@ -92,13 +92,13 @@ class DataPreparation(df: DataFrame) {
     this
   }
 
-  def replaceConstSubstring(columnName: String, sourceValue: String, targetValue: String, k: Int=0): DataPreparation = {
+  def replaceConstSubstring(columnName: String, sourceValue: String, targetValue: String, k: Int = 0): DataPreparation = {
     // if k is zero, replace all the found substring with the new string
     dataFrame = dataFrame.withColumn(columnName, regexp_replace(col(columnName), sourceValue, targetValue))
     this
   }
 
-  def replaceSubstringWithRegularExpression(columnName: String, pattern: Pattern, targetValue: String, k: Int=0): DataPreparation = {
+  def replaceSubstringWithRegularExpression(columnName: String, pattern: Pattern, targetValue: String, k: Int = 0): DataPreparation = {
     // if k is zero, replace all the found substring with the new string
     dataFrame = dataFrame.withColumn(columnName, regexp_replace(col(columnName), pattern.pattern(), targetValue))
     this

@@ -1,14 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.preparators.define.Trim;
-import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,9 +21,9 @@ public class TrimTest extends PreparatorTest {
 
     @Test
     public void testTrim() throws Exception {
-        Preparator preparator = new Trim("identifier");
+        AbstractPreparator abstractPreparator = new Trim("identifier");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

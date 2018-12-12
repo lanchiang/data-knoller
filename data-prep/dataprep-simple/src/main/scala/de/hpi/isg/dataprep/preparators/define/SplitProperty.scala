@@ -1,13 +1,14 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.components.Preparator
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.util.DataType
 
 
-class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends Preparator{
+class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
   impl = new DefaultSplitPropertyImpl
 
   def this(propertyName: String, separator: String, numCols: Int, fromLeft: Boolean = true) {

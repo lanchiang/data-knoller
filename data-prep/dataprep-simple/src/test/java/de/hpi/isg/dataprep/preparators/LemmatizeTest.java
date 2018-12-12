@@ -1,14 +1,14 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
-import org.apache.spark.SparkException;
 import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,9 +24,9 @@ public class LemmatizeTest extends PreparatorTest {
 
     @Test
     public void testValidColumn() throws Exception {
-        Preparator preparator = new LemmatizePreparator("stemlemma");
+        AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -45,9 +45,9 @@ public class LemmatizeTest extends PreparatorTest {
     public void testMultipleValidColumns() throws Exception {
 
         String[] parameters = new String[]{"stemlemma", "stemlemma2"};
-        Preparator preparator = new LemmatizePreparator(parameters);
+        AbstractPreparator abstractPreparator = new LemmatizePreparator(parameters);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -69,9 +69,9 @@ public class LemmatizeTest extends PreparatorTest {
 
     @Test
     public void testInvalidColumn() throws Exception {
-        Preparator preparator = new LemmatizePreparator("stemlemma_wrong");
+        AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma_wrong");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -87,12 +87,12 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertEquals("  ", emptyStringError.getValue());
     }
 
-//    @Test(expected = SparkException.class)
+    //    @Test(expected = SparkException.class)
     @Test(expected = PreparationHasErrorException.class)
     public void testMissingColumn() throws Exception {
-        Preparator preparator = new LemmatizePreparator("this_column_does_not_exist");
+        AbstractPreparator abstractPreparator = new LemmatizePreparator("this_column_does_not_exist");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

@@ -4,9 +4,10 @@ import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
 import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
@@ -23,7 +24,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by danthe on 26.11.18.
   */
-class DefaultLemmatizePreparatorImpl extends PreparatorImpl with Serializable {
+class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Serializable {
 
   val props = new Properties()
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
@@ -88,7 +89,7 @@ class DefaultLemmatizePreparatorImpl extends PreparatorImpl with Serializable {
 
       val seq = row.toSeq
       val tryConvert = Try {
-        val newSeq = seq.zipWithIndex.map{ case (value:Any, index:Int) =>
+        val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
           if (remappings.isDefinedAt(index))
             lemmatizeString(remappings(index))
           else

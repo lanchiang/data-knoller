@@ -5,6 +5,7 @@ import org.apache.spark.sql.Row;
 
 /**
  * Implementing this interface enables preparator execution.
+ *
  * @author Lan Jiang
  * @since 2018/6/4
  */

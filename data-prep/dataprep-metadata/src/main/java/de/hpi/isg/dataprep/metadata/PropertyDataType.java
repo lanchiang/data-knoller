@@ -68,7 +68,7 @@ public class PropertyDataType extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        return propertyDataType.equals(((PropertyDataType)metadata).getPropertyDataType());
+        return propertyDataType.equals(((PropertyDataType) metadata).getPropertyDataType());
     }
 
     @Override
