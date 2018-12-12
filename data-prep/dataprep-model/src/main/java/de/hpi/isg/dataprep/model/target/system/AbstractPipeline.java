@@ -48,7 +48,6 @@ public interface AbstractPipeline extends Nameable {
     /**
      * Configure the {@link de.hpi.isg.dataprep.model.target.objects.Metadata} prerequisites used when checking metadata, as well as
      * the set of metadata that will be modified after executing a preparator successfully.
-     *
      */
     void buildMetadataSetup();
 

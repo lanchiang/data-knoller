@@ -22,7 +22,7 @@ public interface AbstractPreparation extends Nameable {
 
     void setPipeline(AbstractPipeline pipeline);
 
-    AbstractPreparator getPreparator();
+    AbstractPreparator getAbstractPreparator();
 
     int getPosition();
 

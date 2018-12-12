@@ -1,10 +1,11 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
-import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.metadata.DINPhoneNumber
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
@@ -13,7 +14,7 @@ import org.apache.spark.util.CollectionAccumulator
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
-class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
+class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializable {
   /**
     * The abstract class of preparator implementation.
     *
@@ -32,7 +33,9 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
     val rowEncoder = RowEncoder(dataFrame.schema)
 
     val createdDataset = dataFrame.flatMap(row => {
-      val indexTry = Try { row.fieldIndex(propertyName) }
+      val indexTry = Try {
+        row.fieldIndex(propertyName)
+      }
       val index = indexTry match {
         case Failure(content) => throw content
         case Success(content) => content
@@ -42,18 +45,18 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
 
       val seq = row.toSeq
       val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length-index-1)
+      val backpart = seq.takeRight(row.length - index - 1)
 
-			val convertTry = sourceFormat
-				.fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
-				.flatMap(number => Try(Row.fromSeq(forepart ++ Seq(number) ++ backpart)))
+      val convertTry = sourceFormat
+        .fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
+        .flatMap(number => Try(Row.fromSeq(forepart ++ Seq(number) ++ backpart)))
 
-			convertTry match {
-				case Failure(exception) => errorAccumulator.add(new RecordError(operatedValue, exception))
-				case Success(_) => ()
-			}
+      convertTry match {
+        case Failure(exception) => errorAccumulator.add(new RecordError(operatedValue, exception))
+        case Success(_) => ()
+      }
 
-			convertTry.toOption
+      convertTry.toOption
 
     })(rowEncoder)
 
@@ -63,12 +66,12 @@ class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
   }
 
   final case class NormalizedPhoneNumber(
-    number: String,
-    optCountryCode: Option[String] = None,
-    optAreaCode: Option[String] = None,
-    optSpecialNumber: Option[String] = None,
-    optExtensionNumber: Option[String] = None
-  ) extends {
+                                          number: String,
+                                          optCountryCode: Option[String] = None,
+                                          optAreaCode: Option[String] = None,
+                                          optSpecialNumber: Option[String] = None,
+                                          optExtensionNumber: Option[String] = None
+                                        ) extends {
     override def toString: String = {
       val prefix = List(optCountryCode, optAreaCode, optSpecialNumber).flatten.mkString(" ")
       val postFix = optExtensionNumber.fold("")(extension => s"-$extension")

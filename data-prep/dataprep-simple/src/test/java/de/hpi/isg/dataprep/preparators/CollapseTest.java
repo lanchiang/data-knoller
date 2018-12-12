@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.preparators.define.Collapse;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -19,9 +20,9 @@ public class CollapseTest extends PreparatorTest {
 
     @Test
     public void testCollapse() throws Exception {
-        Preparator preparator = new Collapse("identifier");
+        AbstractPreparator abstractPreparator = new Collapse("identifier");
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

@@ -4,9 +4,10 @@ import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.preparators.define.StemPreparator
 import de.hpi.isg.dataprep.util.Stemmer
 import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
@@ -23,7 +24,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by danthe on 26.11.18.
   */
-class DefaultStemPreparatorImpl extends PreparatorImpl with Serializable {
+class DefaultStemPreparatorImpl extends AbstractPreparatorImpl with Serializable {
 
   val props = new Properties()
   props.setProperty("annotators", "tokenize")
@@ -84,7 +85,7 @@ class DefaultStemPreparatorImpl extends PreparatorImpl with Serializable {
 
       val seq = row.toSeq
       val tryConvert = Try {
-        val newSeq = seq.zipWithIndex.map { case (value:Any, index:Int) =>
+        val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
           if (remappings.isDefinedAt(index))
             stemString(remappings(index))
           else
