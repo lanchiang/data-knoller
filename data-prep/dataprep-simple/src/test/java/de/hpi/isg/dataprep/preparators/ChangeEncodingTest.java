@@ -72,7 +72,8 @@ public class ChangeEncodingTest extends PreparatorTest {
         String[] newPaths = getPaths();
         for (String path : newPaths) {
             if (!Arrays.asList(oldPaths).contains(path)) {
-                if (!new File(path).delete()) Assert.fail("Warning: files created by this test could not be deleted");
+                if (!new File(path).delete())
+                    Assert.fail("Warning: files created by this test could not be deleted, file path=" + path);
             }
         }
     }
@@ -212,7 +213,7 @@ public class ChangeEncodingTest extends PreparatorTest {
     private static class MockChangeEncoding extends ChangeEncoding {
         private Metadata fakeMetadata;
 
-        private MockChangeEncoding(String propertyName,String targetEncoding, Metadata fakeMetadata) {
+        private MockChangeEncoding(String propertyName, String targetEncoding, Metadata fakeMetadata) {
             super(propertyName, targetEncoding);
             this.fakeMetadata = fakeMetadata;
         }

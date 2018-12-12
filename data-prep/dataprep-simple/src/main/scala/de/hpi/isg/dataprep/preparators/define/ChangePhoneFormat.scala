@@ -1,17 +1,19 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.components.Preparator
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{DINPhoneNumber, PropertyDataType}
 import de.hpi.isg.dataprep.util.DataType
 
-class ChangePhoneFormat(val propertyName : String,
-                        val sourceFormat : DINPhoneNumber,
-                        val targetFormat : DINPhoneNumber) extends Preparator {
+class ChangePhoneFormat(val propertyName: String,
+                        val sourceFormat: DINPhoneNumber,
+                        val targetFormat: DINPhoneNumber) extends AbstractPreparator {
 
-  def this(propertyName : String, targetFormat : DINPhoneNumber) {
+  def this(propertyName: String, targetFormat: DINPhoneNumber) {
     this(propertyName, null, targetFormat)
   }
+
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
     * prerequisite and toChange set.

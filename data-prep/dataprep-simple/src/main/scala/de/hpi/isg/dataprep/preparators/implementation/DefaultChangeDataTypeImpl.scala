@@ -2,10 +2,11 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import java.util
 
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.preparators.define.ChangeDataType
 import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.DataType
@@ -21,207 +22,207 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2018/8/19
   */
-class DefaultChangeDataTypeImpl extends PreparatorImpl {
+class DefaultChangeDataTypeImpl extends AbstractPreparatorImpl {
 
-//    @throws(classOf[Exception])
-//    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: DataFrame): ExecutionContext = {
-//        val preparator_ = getPreparatorInstance(preparator, classOf[ChangeDataType])
-//        val errorAccumulator = this.createErrorAccumulator(dataFrame)
-//        executeLogic(preparator_, dataFrame, errorAccumulator)
-//    }
+  //    @throws(classOf[Exception])
+  //    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: DataFrame): ExecutionContext = {
+  //        val preparator_ = getPreparatorInstance(preparator, classOf[ChangeDataType])
+  //        val errorAccumulator = this.createErrorAccumulator(dataFrame)
+  //        executeLogic(preparator_, dataFrame, errorAccumulator)
+  //    }
 
-//    /**
-//      *
-//      * @param preparator the specific [[de.hpi.isg.dataprep.components.Preparator]] invoked.
-//      * @param dataFrame  the operated [[Dataset<Row>]] instance.
-//      * @return an instance of [[ExecutionContext]] that stores all the execution information.
-//      */
-//    protected def executeLogic(preparator: ChangeDataType, dataFrame: DataFrame,
-//                                        errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-//        val fieldName = preparator.propertyName
-//        val targetDataType = preparator.targetType
-//        val sourceDataType = preparator.sourceType
-//        val sourceDatePattern = preparator.sourceDatePattern
-//        val targetDatePattern = preparator.targetDatePattern
-//        // Here the program needs to check the existence of these fields.
-//
-//        val rowEncoder = RowEncoder(SchemaUtils.updateSchema(dataFrame.schema, fieldName, DataType.getSparkTypeFromInnerType(targetDataType)))
-//
-//        val createdDataset = dataFrame.flatMap(row => {
-//            val index = row.fieldIndex(fieldName)
-//            val seq = row.toSeq
-//            val forepart = seq.take(index)
-//            val backpart = seq.takeRight(row.length - index - 1)
-//
-//            val tryRow = Try {
-//                val tryConvert = targetDataType match {
-//                    case PropertyType.INTEGER => {
-//                        sourceDataType match {
-//                            case PropertyType.INTEGER => row.getAs[Int](fieldName)
-//                            case PropertyType.STRING => row.getAs[String](fieldName).toInt
-//                            case PropertyType.DOUBLE => row.getAs[Double](fieldName).toInt
-//                            case PropertyType.DATE => {
-//                                ConversionHelper.toDate(row.getAs[Int](fieldName).toString,
-//                                    sourceDatePattern, targetDatePattern)
-//                            }
-//                        }
-//                    }
-//                    case PropertyType.STRING => {
-//                        sourceDataType match {
-//                            case PropertyType.INTEGER => row.getAs[Int](fieldName).toString
-//                            case PropertyType.STRING => row.getAs[String](fieldName)
-//                            case PropertyType.DOUBLE => row.getAs[Double](fieldName).toString
-//                            case PropertyType.DATE => {
-//                                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
-//                                    sourceDatePattern, targetDatePattern)
-//                            }
-//                        }
-//                    }
-//                    case PropertyType.DOUBLE => {
-//                        sourceDataType match {
-//                            case PropertyType.INTEGER => row.getAs[Int](fieldName).toDouble
-//                            case PropertyType.STRING => row.getAs[String](fieldName).toDouble
-//                            case PropertyType.DOUBLE => row.getAs[Double](fieldName)
-//                            case PropertyType.DATE => {
-//                                ConversionHelper.toDate(row.getAs[Double](fieldName).toString,
-//                                    sourceDatePattern, targetDatePattern)
-//                            }
-//                        }
-//                    }
-//                    case PropertyType.DATE => {
-//                        sourceDataType match {
-//                            case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
-//                            case PropertyType.STRING => row.getAs[String](fieldName).toString
-//                            case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
-//                            case PropertyType.DATE => {
-//                                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
-//                                    sourceDatePattern, targetDatePattern)
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                val newSeq = (forepart :+ tryConvert) ++ backpart
-//                val newRow = Row.fromSeq(newSeq)
-//                newRow
-//            }
-//            val trial = tryRow match {
-//                case Failure(content) => {
-//                    errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
-//                    tryRow
-//                }
-//                case Success(content) => {
-//                    tryRow
-//                }
-//            }
-//            trial.toOption
-//        })(rowEncoder)
-//
-//        // persist
-//        createdDataset.persist()
-//
-//        createdDataset.count()
-//
-//        new ExecutionContext(createdDataset, errorAccumulator)
-//    }
+  //    /**
+  //      *
+  //      * @param preparator the specific [[de.hpi.isg.dataprep.components.AbstractPreparator]] invoked.
+  //      * @param dataFrame  the operated [[Dataset<Row>]] instance.
+  //      * @return an instance of [[ExecutionContext]] that stores all the execution information.
+  //      */
+  //    protected def executeLogic(preparator: ChangeDataType, dataFrame: DataFrame,
+  //                                        errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+  //        val fieldName = preparator.propertyName
+  //        val targetDataType = preparator.targetType
+  //        val sourceDataType = preparator.sourceType
+  //        val sourceDatePattern = preparator.sourceDatePattern
+  //        val targetDatePattern = preparator.targetDatePattern
+  //        // Here the program needs to check the existence of these fields.
+  //
+  //        val rowEncoder = RowEncoder(SchemaUtils.updateSchema(dataFrame.schema, fieldName, DataType.getSparkTypeFromInnerType(targetDataType)))
+  //
+  //        val createdDataset = dataFrame.flatMap(row => {
+  //            val index = row.fieldIndex(fieldName)
+  //            val seq = row.toSeq
+  //            val forepart = seq.take(index)
+  //            val backpart = seq.takeRight(row.length - index - 1)
+  //
+  //            val tryRow = Try {
+  //                val tryConvert = targetDataType match {
+  //                    case PropertyType.INTEGER => {
+  //                        sourceDataType match {
+  //                            case PropertyType.INTEGER => row.getAs[Int](fieldName)
+  //                            case PropertyType.STRING => row.getAs[String](fieldName).toInt
+  //                            case PropertyType.DOUBLE => row.getAs[Double](fieldName).toInt
+  //                            case PropertyType.DATE => {
+  //                                ConversionHelper.toDate(row.getAs[Int](fieldName).toString,
+  //                                    sourceDatePattern, targetDatePattern)
+  //                            }
+  //                        }
+  //                    }
+  //                    case PropertyType.STRING => {
+  //                        sourceDataType match {
+  //                            case PropertyType.INTEGER => row.getAs[Int](fieldName).toString
+  //                            case PropertyType.STRING => row.getAs[String](fieldName)
+  //                            case PropertyType.DOUBLE => row.getAs[Double](fieldName).toString
+  //                            case PropertyType.DATE => {
+  //                                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
+  //                                    sourceDatePattern, targetDatePattern)
+  //                            }
+  //                        }
+  //                    }
+  //                    case PropertyType.DOUBLE => {
+  //                        sourceDataType match {
+  //                            case PropertyType.INTEGER => row.getAs[Int](fieldName).toDouble
+  //                            case PropertyType.STRING => row.getAs[String](fieldName).toDouble
+  //                            case PropertyType.DOUBLE => row.getAs[Double](fieldName)
+  //                            case PropertyType.DATE => {
+  //                                ConversionHelper.toDate(row.getAs[Double](fieldName).toString,
+  //                                    sourceDatePattern, targetDatePattern)
+  //                            }
+  //                        }
+  //                    }
+  //                    case PropertyType.DATE => {
+  //                        sourceDataType match {
+  //                            case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
+  //                            case PropertyType.STRING => row.getAs[String](fieldName).toString
+  //                            case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
+  //                            case PropertyType.DATE => {
+  //                                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
+  //                                    sourceDatePattern, targetDatePattern)
+  //                            }
+  //                        }
+  //                    }
+  //                }
+  //
+  //                val newSeq = (forepart :+ tryConvert) ++ backpart
+  //                val newRow = Row.fromSeq(newSeq)
+  //                newRow
+  //            }
+  //            val trial = tryRow match {
+  //                case Failure(content) => {
+  //                    errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
+  //                    tryRow
+  //                }
+  //                case Success(content) => {
+  //                    tryRow
+  //                }
+  //            }
+  //            trial.toOption
+  //        })(rowEncoder)
+  //
+  //        // persist
+  //        createdDataset.persist()
+  //
+  //        createdDataset.count()
+  //
+  //        new ExecutionContext(createdDataset, errorAccumulator)
+  //    }
 
-    override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-        val preparator = abstractPreparator.asInstanceOf[ChangeDataType]
-        val fieldName = preparator.propertyName
-        val targetDataType = preparator.targetType
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+    val preparator = abstractPreparator.asInstanceOf[ChangeDataType]
+    val fieldName = preparator.propertyName
+    val targetDataType = preparator.targetType
 
-        val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
-        val metadata = new PropertyDataType(fieldName, null)
-        val sourceDataType = Option(preparator.sourceType) match {
-            case None => metadataRepository.getMetadata(metadata).asInstanceOf[PropertyDataType].getPropertyDataType
-            case Some(_) => preparator.sourceType
+    val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
+    val metadata = new PropertyDataType(fieldName, null)
+    val sourceDataType = Option(preparator.sourceType) match {
+      case None => metadataRepository.getMetadata(metadata).asInstanceOf[PropertyDataType].getPropertyDataType
+      case Some(_) => preparator.sourceType
+    }
+
+    val sourceDatePattern = preparator.sourceDatePattern
+    val targetDatePattern = preparator.targetDatePattern
+    // Here the program needs to check the existence of these fields.
+
+    val rowEncoder = RowEncoder(SchemaUtils.updateSchema(dataFrame.schema, fieldName, DataType.getSparkTypeFromInnerType(targetDataType)))
+
+    val createdDataset = dataFrame.flatMap(row => {
+      val index = row.fieldIndex(fieldName)
+      val seq = row.toSeq
+      val forepart = seq.take(index)
+      val backpart = seq.takeRight(row.length - index - 1)
+
+      val tryRow = Try {
+        val tryConvert = targetDataType match {
+          case PropertyType.INTEGER => {
+            sourceDataType match {
+              case PropertyType.INTEGER => row.getAs[Int](fieldName)
+              case PropertyType.STRING => row.getAs[String](fieldName).toInt
+              case PropertyType.DOUBLE => row.getAs[Double](fieldName).toInt
+              case PropertyType.DATE => {
+                ConversionHelper.toDate(row.getAs[Int](fieldName).toString,
+                  sourceDatePattern, targetDatePattern)
+              }
+              case _ => {
+                val metadataInRepo = metadataRepository.getMetadata(metadata)
+
+              }
+            }
+          }
+          case PropertyType.STRING => {
+            sourceDataType match {
+              case PropertyType.INTEGER => row.getAs[Int](fieldName).toString
+              case PropertyType.STRING => row.getAs[String](fieldName)
+              case PropertyType.DOUBLE => row.getAs[Double](fieldName).toString
+              case PropertyType.DATE => {
+                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
+                  sourceDatePattern, targetDatePattern)
+              }
+            }
+          }
+          case PropertyType.DOUBLE => {
+            sourceDataType match {
+              case PropertyType.INTEGER => row.getAs[Int](fieldName).toDouble
+              case PropertyType.STRING => row.getAs[String](fieldName).toDouble
+              case PropertyType.DOUBLE => row.getAs[Double](fieldName)
+              case PropertyType.DATE => {
+                ConversionHelper.toDate(row.getAs[Double](fieldName).toString,
+                  sourceDatePattern, targetDatePattern)
+              }
+            }
+          }
+          case PropertyType.DATE => {
+            sourceDataType match {
+              case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
+              case PropertyType.STRING => row.getAs[String](fieldName).toString
+              case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
+              case PropertyType.DATE => {
+                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
+                  sourceDatePattern, targetDatePattern)
+              }
+            }
+          }
         }
 
-        val sourceDatePattern = preparator.sourceDatePattern
-        val targetDatePattern = preparator.targetDatePattern
-        // Here the program needs to check the existence of these fields.
+        val newSeq = (forepart :+ tryConvert) ++ backpart
+        val newRow = Row.fromSeq(newSeq)
+        newRow
+      }
+      val trial = tryRow match {
+        case Failure(content) => {
+          errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
+          tryRow
+        }
+        case Success(_) => {
+          tryRow
+        }
+      }
+      trial.toOption
+    })(rowEncoder)
 
-        val rowEncoder = RowEncoder(SchemaUtils.updateSchema(dataFrame.schema, fieldName, DataType.getSparkTypeFromInnerType(targetDataType)))
+    // persist
+    createdDataset.persist()
 
-        val createdDataset = dataFrame.flatMap(row => {
-            val index = row.fieldIndex(fieldName)
-            val seq = row.toSeq
-            val forepart = seq.take(index)
-            val backpart = seq.takeRight(row.length - index - 1)
+    createdDataset.count()
 
-            val tryRow = Try {
-                val tryConvert = targetDataType match {
-                    case PropertyType.INTEGER => {
-                        sourceDataType match {
-                            case PropertyType.INTEGER => row.getAs[Int](fieldName)
-                            case PropertyType.STRING => row.getAs[String](fieldName).toInt
-                            case PropertyType.DOUBLE => row.getAs[Double](fieldName).toInt
-                            case PropertyType.DATE => {
-                                ConversionHelper.toDate(row.getAs[Int](fieldName).toString,
-                                    sourceDatePattern, targetDatePattern)
-                            }
-                            case _ => {
-                                val metadataInRepo = metadataRepository.getMetadata(metadata)
-
-                            }
-                        }
-                    }
-                    case PropertyType.STRING => {
-                        sourceDataType match {
-                            case PropertyType.INTEGER => row.getAs[Int](fieldName).toString
-                            case PropertyType.STRING => row.getAs[String](fieldName)
-                            case PropertyType.DOUBLE => row.getAs[Double](fieldName).toString
-                            case PropertyType.DATE => {
-                                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
-                                    sourceDatePattern, targetDatePattern)
-                            }
-                        }
-                    }
-                    case PropertyType.DOUBLE => {
-                        sourceDataType match {
-                            case PropertyType.INTEGER => row.getAs[Int](fieldName).toDouble
-                            case PropertyType.STRING => row.getAs[String](fieldName).toDouble
-                            case PropertyType.DOUBLE => row.getAs[Double](fieldName)
-                            case PropertyType.DATE => {
-                                ConversionHelper.toDate(row.getAs[Double](fieldName).toString,
-                                    sourceDatePattern, targetDatePattern)
-                            }
-                        }
-                    }
-                    case PropertyType.DATE => {
-                        sourceDataType match {
-                            case PropertyType.INTEGER => row.getAs[String](fieldName).toInt
-                            case PropertyType.STRING => row.getAs[String](fieldName).toString
-                            case PropertyType.DOUBLE => row.getAs[String](fieldName).toDouble
-                            case PropertyType.DATE => {
-                                ConversionHelper.toDate(row.getAs[String](fieldName).toString,
-                                    sourceDatePattern, targetDatePattern)
-                            }
-                        }
-                    }
-                }
-
-                val newSeq = (forepart :+ tryConvert) ++ backpart
-                val newRow = Row.fromSeq(newSeq)
-                newRow
-            }
-            val trial = tryRow match {
-                case Failure(content) => {
-                    errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
-                    tryRow
-                }
-                case Success(_) => {
-                    tryRow
-                }
-            }
-            trial.toOption
-        })(rowEncoder)
-
-        // persist
-        createdDataset.persist()
-
-        createdDataset.count()
-
-        new ExecutionContext(createdDataset, errorAccumulator)
-    }
+    new ExecutionContext(createdDataset, errorAccumulator)
+  }
 }

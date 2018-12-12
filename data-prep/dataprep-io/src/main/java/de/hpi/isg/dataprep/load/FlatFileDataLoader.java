@@ -12,7 +12,7 @@ public class FlatFileDataLoader extends SparkDataLoader {
 
     public FlatFileDataLoader(FileLoadDialect dialect) {
         this.dialect = dialect;
-        this.getDialect().setTableName(dialect.getTableName()==null?"Default dataset name":dialect.getTableName());
+        this.getDialect().setTableName(dialect.getTableName() == null ? "Default dataset name" : dialect.getTableName());
     }
 
     @Override

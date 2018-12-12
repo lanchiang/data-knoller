@@ -13,7 +13,9 @@ public class DINPhoneNumber extends Metadata {
     private Boolean extensionNumber;
     private Regex regex;
 
-    private DINPhoneNumber() { super(DINPhoneNumber.class.getSimpleName()); }
+    private DINPhoneNumber() {
+        super(DINPhoneNumber.class.getSimpleName());
+    }
 
     public DINPhoneNumber(Boolean countryCode, Boolean areaCode, Boolean specialNumber, Boolean extensionNumber, Regex regex) {
         this();
@@ -34,11 +36,25 @@ public class DINPhoneNumber extends Metadata {
         return this.equals(metadata);
     }
 
-    public Boolean getCountryCode() { return countryCode; }
-    public Boolean getAreaCode() { return areaCode; }
-    public Boolean getSpecialNumber() { return specialNumber; }
-    public Boolean getExtensionNumber() { return extensionNumber; }
-    public Regex getRegex() { return regex; }
+    public Boolean getCountryCode() {
+        return countryCode;
+    }
+
+    public Boolean getAreaCode() {
+        return areaCode;
+    }
+
+    public Boolean getSpecialNumber() {
+        return specialNumber;
+    }
+
+    public Boolean getExtensionNumber() {
+        return extensionNumber;
+    }
+
+    public Regex getRegex() {
+        return regex;
+    }
 
     @Override
     public String getName() {

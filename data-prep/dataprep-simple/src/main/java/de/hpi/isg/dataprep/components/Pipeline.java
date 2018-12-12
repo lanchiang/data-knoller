@@ -76,7 +76,7 @@ public class Pipeline implements AbstractPipeline {
         preparation.setPipeline(this);
         preparation.setPosition(index++);
 
-//        preparation.getPreparator().buildMetadataSetup();
+//        preparation.getAbstractPreparator().buildMetadataSetup();
         this.preparations.add(preparation);
     }
 
@@ -119,7 +119,7 @@ public class Pipeline implements AbstractPipeline {
 
         initMetadataRepository();
         for (AbstractPreparation preparation : preparations) {
-            preparation.getPreparator().execute();
+            preparation.getAbstractPreparator().execute();
         }
     }
 
@@ -152,7 +152,7 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void buildMetadataSetup() {
         // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
-        this.preparations.stream().forEachOrdered(preparation -> preparation.getPreparator().buildMetadataSetup());
+        this.preparations.stream().forEachOrdered(preparation -> preparation.getAbstractPreparator().buildMetadataSetup());
     }
 
     @Override

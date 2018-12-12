@@ -11,6 +11,7 @@ import java.util.Objects;
 
 /**
  * The error log repository that holds all logs of errors in a preparation pipeline.
+ *
  * @author Lan Jiang
  * @since 2018/8/8
  */

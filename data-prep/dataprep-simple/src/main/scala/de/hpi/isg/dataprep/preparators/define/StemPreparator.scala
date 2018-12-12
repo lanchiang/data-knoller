@@ -1,12 +1,13 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.components.Preparator
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.preparators.implementation.DefaultStemPreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
 
-class StemPreparator(val propertyNames: Set[String]) extends Preparator {
+class StemPreparator(val propertyNames: Set[String]) extends AbstractPreparator {
 
   this.impl = new DefaultStemPreparatorImpl
 
