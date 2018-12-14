@@ -82,7 +82,9 @@ abstract public class AbstractPreparator implements Executable {
      * part of the data
      * @return the applicability matrix
      */
-    abstract public double[][] calApplicability();
+    public double[][] calApplicability() {
+        return null;
+    }
 
     /**
      * The execution of the preparator.
