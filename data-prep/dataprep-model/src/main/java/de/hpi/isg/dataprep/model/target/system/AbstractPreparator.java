@@ -77,6 +77,14 @@ abstract public class AbstractPreparator implements Executable {
     }
 
     /**
+     * Calculate the matrix of preparator applicability to the data. In the matrix, each
+     * row represent a specific signature of the preparator, while each column represent a specific
+     * part of the data
+     * @return the applicability matrix
+     */
+    abstract public double[][] calApplicability();
+
+    /**
      * The execution of the preparator.
      */
     protected void executePreparator() throws Exception {
