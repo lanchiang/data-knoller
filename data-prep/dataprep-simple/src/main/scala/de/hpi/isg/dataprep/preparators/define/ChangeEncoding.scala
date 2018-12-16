@@ -1,11 +1,12 @@
 package de.hpi.isg.dataprep.preparators.define
 
 import java.nio.charset.{Charset, IllegalCharsetNameException}
+import java.{lang, util}
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl
 import de.hpi.isg.dataprep.util.DataType
 
@@ -25,7 +26,7 @@ class ChangeEncoding(val propertyName: String,
   //    override def newImpl = new DefaultChangeEncodingImpl
 
   override def buildMetadataSetup(): Unit = {
-    if (propertyName == null) throw new ParameterNotSpecifiedException("Column name not specified.")
+    if (propertyName == null) throw new ParameterNotSpecifiedException("ColumnCombination name not specified.")
     if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have to specify at least a target encoding.")
     verifyEncoding(userSpecifiedTargetEncoding, target = true)
 
@@ -40,5 +41,17 @@ class ChangeEncoding(val propertyName: String,
   private def verifyEncoding(encoding: String, target: Boolean): Unit = {
     if (!Charset.isSupported(encoding)) throw new EncodingNotSupportedException(s"$encoding is not supported by your JVM.")
     if (target && !Charset.forName(encoding).canEncode) throw new IllegalCharsetNameException(encoding)
+  }
+
+  /**
+    * Calculate the matrix of preparator applicability to the data. In the matrix, each
+    * row represent a specific signature of the preparator, while each column represent a specific
+    * {@link ColumnCombination} of the data
+    *
+    * @return the applicability matrix succinctly represented by a hash map. Each key stands for
+    *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
+    */
+  override def calApplicability(): util.Map[ColumnCombination, lang.Float] = {
+    null
   }
 }

@@ -1,10 +1,12 @@
 package de.hpi.isg.dataprep.preparators.define;
 
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class Sampling extends AbstractPreparator implements Serializable {
 
@@ -60,5 +62,10 @@ public class Sampling extends AbstractPreparator implements Serializable {
     @Override
     public void buildMetadataSetup() throws ParameterNotSpecifiedException {
 
+    }
+
+    @Override
+    public Map<ColumnCombination, Float> calApplicability() {
+        return null;
     }
 }

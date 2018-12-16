@@ -1,9 +1,11 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import java.{lang, util}
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDataTypeImpl
 import de.hpi.isg.dataprep.util.DataType
@@ -92,5 +94,17 @@ class ChangeDataType(val propertyName: String,
 
     this.prerequisites.addAll(prerequisites.toList)
     this.updates.addAll(toChange.toList)
+  }
+
+  /**
+    * Calculate the matrix of preparator applicability to the data. In the matrix, each
+    * row represent a specific signature of the preparator, while each column represent a specific
+    * {@link ColumnCombination} of the data
+    *
+    * @return the applicability matrix succinctly represented by a hash map. Each key stands for
+    *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
+    */
+  override def calApplicability(): util.Map[ColumnCombination, lang.Float] = {
+    null
   }
 }

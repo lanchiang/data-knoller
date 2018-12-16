@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
@@ -15,7 +16,9 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,8 @@ abstract public class AbstractPreparator implements Executable {
     protected List<Metadata> invalid;
     protected Dataset<Row> updatedTable;
 
+    protected Map<ColumnCombination, Float> applicability;
+
     protected AbstractPreparatorImpl impl;
 
 
@@ -42,6 +47,9 @@ abstract public class AbstractPreparator implements Executable {
         invalid = new ArrayList<>();
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
+
+        applicability = new HashMap<>();
+
 //        impl = newImpl();
 
         String simpleClassName = this.getClass().getSimpleName();
@@ -79,12 +87,11 @@ abstract public class AbstractPreparator implements Executable {
     /**
      * Calculate the matrix of preparator applicability to the data. In the matrix, each
      * row represent a specific signature of the preparator, while each column represent a specific
-     * part of the data
-     * @return the applicability matrix
+     * {@link ColumnCombination} of the data
+     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
+     * a {@link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
      */
-    public double[][] calApplicability() {
-        return null;
-    }
+    abstract public Map<ColumnCombination, Float> calApplicability();
 
     /**
      * The execution of the preparator.

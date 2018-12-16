@@ -40,7 +40,7 @@ class DefaultSplitAttributeImpl extends AbstractPreparatorImpl {
     }
 
     if (!dataFrame.columns.contains(propertyName)) {
-      errorAccumulator.add(new PropertyError(propertyName, new PreparationHasErrorException("Column name does not exist.")))
+      errorAccumulator.add(new PropertyError(propertyName, new PreparationHasErrorException("ColumnCombination name does not exist.")))
       new ExecutionContext(dataFrame, errorAccumulator)
     } else {
       split(dataFrame, errorAccumulator, propertyName, separator, startLeft, times)
