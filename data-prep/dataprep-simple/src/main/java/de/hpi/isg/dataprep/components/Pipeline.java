@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
@@ -16,12 +17,10 @@ import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Lan Jiang
@@ -44,6 +43,8 @@ public class Pipeline implements AbstractPipeline {
      * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
      */
     private Dataset<Row> rawData;
+    private Collection<ColumnCombination> columnCombinations;
+
     private DataContext dataContext;
     private String datasetName;
 
@@ -118,6 +119,13 @@ public class Pipeline implements AbstractPipeline {
         // here optimize the pipeline.
 
         initMetadataRepository();
+
+        this.buildColumnCombination();
+        for (AbstractPreparation preparation : preparations) {
+            this.getColumnCombinations()
+                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
+        }
+
         for (AbstractPreparation preparation : preparations) {
             preparation.getAbstractPreparator().execute();
         }
@@ -156,6 +164,17 @@ public class Pipeline implements AbstractPipeline {
     }
 
     @Override
+    public void buildColumnCombination() {
+        columnCombinations = new HashSet<>();
+        StructField[] fields = this.rawData.schema().fields();
+        int fieldSize = fields.length;
+
+        // create permutation
+        for (int i=1;i<Math.pow(2, fieldSize);i++) {
+        }
+    }
+
+    @Override
     public List<AbstractPreparation> getPreparations() {
         return preparations;
     }
@@ -188,6 +207,12 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public String getDatasetName() {
         return this.datasetName;
+    }
+
+    @Override
+    public Collection<ColumnCombination> getColumnCombinations() {
+        // Note: the size of this column combination grows exponentially.
+        return this.columnCombinations;
     }
 
     @Override

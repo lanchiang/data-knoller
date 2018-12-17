@@ -4,6 +4,10 @@ import de.hpi.isg.dataprep.model.target.Target;
 
 import java.util.Arrays;
 
+/**
+ * @author Lan Jiang
+ * @since 2018/12/16
+ */
 public class ColumnCombination extends Target {
 
     private Column[] columns;

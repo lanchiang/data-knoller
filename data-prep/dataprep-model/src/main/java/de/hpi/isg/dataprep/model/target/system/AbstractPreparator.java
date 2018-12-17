@@ -188,6 +188,9 @@ abstract public class AbstractPreparator implements Executable {
         updateDataset();
     }
 
+    public Map<ColumnCombination, Float> getApplicability() {
+        return applicability;
+    }
 
     public List<Metadata> getInvalidMetadata() {
         return invalid;

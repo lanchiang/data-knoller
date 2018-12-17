@@ -4,10 +4,12 @@ import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.util.Nameable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -51,6 +53,11 @@ public interface AbstractPipeline extends Nameable {
      */
     void buildMetadataSetup();
 
+    /**
+     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
+     */
+    void buildColumnCombination();
+
     List<AbstractPreparation> getPreparations();
 
     ErrorRepository getErrorRepository();
@@ -60,6 +67,8 @@ public interface AbstractPipeline extends Nameable {
     ProvenanceRepository getProvenanceRepository();
 
     Dataset<Row> getRawData();
+
+    Collection<ColumnCombination> getColumnCombinations();
 
     String getDatasetName();
 

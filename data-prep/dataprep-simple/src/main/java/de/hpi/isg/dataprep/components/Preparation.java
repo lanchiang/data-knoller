@@ -70,7 +70,7 @@ public class Preparation implements AbstractPreparation {
     }
 
     @Override
-    public de.hpi.isg.dataprep.model.target.system.AbstractPreparator getAbstractPreparator() {
+    public AbstractPreparator getAbstractPreparator() {
         return abstractPreparator;
     }
 
