@@ -63,7 +63,6 @@ public class RemovePreambleTest extends PreparatorTest {
     @Test
     @Ignore("Preamble makes the struct fields bad-defined")
     public void testRemovePreamble() throws Exception {
-
         AbstractPreparator abstractPreparator = new RemovePreamble(super.dialect.getDelimiter(), super.dialect.getHasHeader());
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);

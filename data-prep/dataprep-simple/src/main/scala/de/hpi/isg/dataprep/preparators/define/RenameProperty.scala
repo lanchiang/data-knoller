@@ -3,8 +3,11 @@ package de.hpi.isg.dataprep.preparators.define
 import java.{lang, util}
 
 import de.hpi.isg.dataprep.model.target.data.ColumnCombination
+import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.schema.Schema
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRenamePropertyImpl
+import org.apache.spark.sql.{Dataset, Row}
 
 /**
   *
@@ -34,7 +37,7 @@ class RenameProperty(val propertyName: String,
     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
     *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
     */
-  override def calApplicability(): util.Map[ColumnCombination, lang.Float] = {
+  override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema, targetMetadata: util.Collection[Metadata]): Float = {
     null
   }
 }

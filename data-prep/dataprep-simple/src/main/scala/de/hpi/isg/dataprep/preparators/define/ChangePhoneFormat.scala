@@ -6,7 +6,10 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{DINPhoneNumber, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.data.ColumnCombination
+import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.schema.Schema
 import de.hpi.isg.dataprep.util.DataType
+import org.apache.spark.sql.{Dataset, Row}
 
 class ChangePhoneFormat(val propertyName: String,
                         val sourceFormat: DINPhoneNumber,
@@ -37,7 +40,7 @@ class ChangePhoneFormat(val propertyName: String,
     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
     *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
     */
-  override def calApplicability(): util.Map[ColumnCombination, lang.Float] = {
+  override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema, targetMetadata: util.Collection[Metadata]): Float = {
     null
   }
 }

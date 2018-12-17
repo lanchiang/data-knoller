@@ -169,9 +169,8 @@ public class Pipeline implements AbstractPipeline {
         StructField[] fields = this.rawData.schema().fields();
         int fieldSize = fields.length;
 
-        // create permutation
-        for (int i=1;i<Math.pow(2, fieldSize);i++) {
-        }
+        // create permutation of the columns in the data frame
+
     }
 
     @Override

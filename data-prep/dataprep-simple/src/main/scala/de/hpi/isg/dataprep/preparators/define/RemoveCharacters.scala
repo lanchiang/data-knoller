@@ -8,8 +8,10 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
+import de.hpi.isg.dataprep.model.target.schema.Schema
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemoveCharactersImpl
 import de.hpi.isg.dataprep.util.{DataType, RemoveCharactersMode}
+import org.apache.spark.sql.{Dataset, Row}
 
 /**
   *
@@ -56,7 +58,7 @@ class RemoveCharacters(val propertyName: String,
     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
     *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
     */
-  override def calApplicability(): util.Map[ColumnCombination, lang.Float] = {
+  override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema, targetMetadata: util.Collection[Metadata]): util.Map[ColumnCombination, lang.Float] = {
     null
   }
 }

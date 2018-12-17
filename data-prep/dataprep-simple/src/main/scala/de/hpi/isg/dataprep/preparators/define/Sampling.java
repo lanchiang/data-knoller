@@ -1,12 +1,15 @@
 package de.hpi.isg.dataprep.preparators.define;
 
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Collection;
 
 public class Sampling extends AbstractPreparator implements Serializable {
 
@@ -65,7 +68,7 @@ public class Sampling extends AbstractPreparator implements Serializable {
     }
 
     @Override
-    public Map<ColumnCombination, Float> calApplicability() {
+    public float calApplicability(Dataset<Row> dataset, Schema sourceSchema, Schema targetSchema, Collection<Metadata> targetMetadata) {
         return null;
     }
 }

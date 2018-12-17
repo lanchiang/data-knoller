@@ -11,14 +11,12 @@ import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -38,10 +36,12 @@ abstract public class AbstractPreparator implements Executable {
     protected List<Metadata> invalid;
     protected Dataset<Row> updatedTable;
 
+    /**
+     * This data structure stores the applicability score of this preparator on each {@link ColumnCombination}.
+     */
     protected Map<ColumnCombination, Float> applicability;
 
     protected AbstractPreparatorImpl impl;
-
 
     public AbstractPreparator() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         invalid = new ArrayList<>();
@@ -58,7 +58,6 @@ abstract public class AbstractPreparator implements Executable {
         this.impl = Class.forName(preparatorImplClass).asSubclass(AbstractPreparatorImpl.class).newInstance();
     }
 
-
     /**
      * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
      * prerequisite and toChange set.
@@ -66,7 +65,7 @@ abstract public class AbstractPreparator implements Executable {
      * @throws ParameterNotSpecifiedException
      */
     // TODO: Maybe set it protectected? Check Pipeline implementation @Gerardo
-    public abstract void buildMetadataSetup() throws ParameterNotSpecifiedException;
+    abstract public void buildMetadataSetup() throws ParameterNotSpecifiedException;
 
     @Override
     public void execute() throws Exception {
@@ -88,10 +87,15 @@ abstract public class AbstractPreparator implements Executable {
      * Calculate the matrix of preparator applicability to the data. In the matrix, each
      * row represent a specific signature of the preparator, while each column represent a specific
      * {@link ColumnCombination} of the data
+     *
+     * @param dataset is the input dataset
+     * @param sourceSchema is the schema of the input data
+     * @param targetSchema is the schema of the expected data
+     * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
      * @return the applicability matrix succinctly represented by a hash map. Each key stands for
-     * a {@link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
+     *  a {@link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
      */
-    abstract public Map<ColumnCombination, Float> calApplicability();
+    abstract public float calApplicability(Dataset<Row> dataset, Schema sourceSchema, Schema targetSchema, Collection<Metadata> targetMetadata);
 
     /**
      * The execution of the preparator.
