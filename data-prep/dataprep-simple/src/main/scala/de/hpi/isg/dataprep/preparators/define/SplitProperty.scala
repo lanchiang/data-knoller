@@ -40,15 +40,8 @@ class SplitProperty(val propertyName: String, val separator: Option[String], val
     this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 
-  /**
-    * Calculate the matrix of preparator applicability to the data. In the matrix, each
-    * row represent a specific signature of the preparator, while each column represent a specific
-    * {@link ColumnCombination} of the data
-    *
-    * @return the applicability matrix succinctly represented by a hash map. Each key stands for
-    *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
-    */
-  override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema, targetMetadata: util.Collection[Metadata]): util.Map[ColumnCombination, lang.Float] = {
-    null
+  override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema,
+                                targetMetadata: util.Collection[Metadata]): Float = {
+    0
   }
 }

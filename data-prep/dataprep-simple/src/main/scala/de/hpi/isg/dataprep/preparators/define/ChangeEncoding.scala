@@ -48,6 +48,6 @@ class ChangeEncoding(val propertyName: String,
 
 
   override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema, targetMetadata: util.Collection[Metadata]): Float = {
-    null
+    0
   }
 }

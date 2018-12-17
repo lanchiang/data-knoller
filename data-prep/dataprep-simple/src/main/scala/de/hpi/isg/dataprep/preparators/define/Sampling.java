@@ -69,6 +69,6 @@ public class Sampling extends AbstractPreparator implements Serializable {
 
     @Override
     public float calApplicability(Dataset<Row> dataset, Schema sourceSchema, Schema targetSchema, Collection<Metadata> targetMetadata) {
-        return null;
+        return 0;
     }
 }
