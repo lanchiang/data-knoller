@@ -4,7 +4,7 @@ import java.{lang, util}
 
 import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.model.target.schema.Schema
+import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultGenerateUnicodeImpl
 import org.apache.spark.sql.{Dataset, Row}
@@ -36,8 +36,7 @@ class GenerateUnicode(val propertyName: String) extends AbstractPreparator {
     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
     *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
     */
-  override def calApplicability(dataset: Dataset[Row], sourceSchema: Schema, targetSchema: Schema,
-                                targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     0
   }
 }

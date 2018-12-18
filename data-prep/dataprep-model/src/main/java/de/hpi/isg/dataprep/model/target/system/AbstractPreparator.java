@@ -11,7 +11,7 @@ import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.schema.Schema;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -84,18 +84,15 @@ abstract public class AbstractPreparator implements Executable {
     }
 
     /**
-     * Calculate the matrix of preparator applicability to the data. In the matrix, each
-     * row represent a specific signature of the preparator, while each column represent a specific
-     * {@link ColumnCombination} of the data
+     * Calculate the applicability score of the preparator on the dataset.
      *
+     * @param schemaMapping is the schema of the input data
      * @param dataset is the input dataset
-     * @param sourceSchema is the schema of the input data
-     * @param targetSchema is the schema of the expected data
      * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
      * @return the applicability matrix succinctly represented by a hash map. Each key stands for
      *  a {@link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
      */
-    abstract public float calApplicability(Dataset<Row> dataset, Schema sourceSchema, Schema targetSchema, Collection<Metadata> targetMetadata);
+    abstract public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata);
 
     /**
      * The execution of the preparator.

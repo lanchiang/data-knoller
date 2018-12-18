@@ -13,6 +13,7 @@ import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.model.target.system.DecisionEngine;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -126,6 +127,7 @@ public class Pipeline implements AbstractPipeline {
                     .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
         }
 
+        // execute the pipeline
         for (AbstractPreparation preparation : preparations) {
             preparation.getAbstractPreparator().execute();
         }
@@ -171,6 +173,11 @@ public class Pipeline implements AbstractPipeline {
 
         // create permutation of the columns in the data frame
 
+    }
+
+    @Override
+    public void addRecommendedPreparation() {
+        // Todo: urgent
     }
 
     @Override
