@@ -58,6 +58,6 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
       */
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-      0.0.toFloat
+      0
     }
 }
