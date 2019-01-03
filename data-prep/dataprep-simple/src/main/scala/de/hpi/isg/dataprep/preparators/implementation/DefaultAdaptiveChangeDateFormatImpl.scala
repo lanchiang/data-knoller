@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 import java.text.{ParseException, SimpleDateFormat}
 import java.util.Date
 
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
@@ -24,7 +24,7 @@ import scala.util.{Failure, Success, Try}
   * @author Hendrik Rätz, Nils Strelow
   * @since 2018/12/03
   */
-class DefaultAdaptiveChangeDateFormatImpl extends PreparatorImpl with Serializable {
+class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
 
     override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
         val preparator = abstractPreparator.asInstanceOf[AdaptiveChangeDateFormat]
@@ -226,6 +226,7 @@ class DefaultAdaptiveChangeDateFormatImpl extends PreparatorImpl with Serializab
     def padYearIfNeeded(year: String): String = {
         val currentYear: Int = 18 //TODO compute
         var paddedYear: String = year
+        // TODO
         // The idea is kinda stupid because it won't allow dates which lie in the future
         // However, this leads to the problem that there will no way of determining the full year if only 2 digits are given
         if(year.length == 2 && year.toInt > currentYear) {

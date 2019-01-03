@@ -2,13 +2,15 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.components.Preparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.DataType
+import org.apache.spark.sql.{Dataset, Row}
 
 /**
   *
@@ -17,12 +19,12 @@ import de.hpi.isg.dataprep.util.DataType
   */
 class AdaptiveChangeDateFormat(val propertyName : String,
                                val sourceDatePattern : Option[DatePatternEnum] = None,
-                               val targetDatePattern: DatePatternEnum) extends Preparator {
+                               val targetDatePattern: DatePatternEnum) extends AbstractPreparator {
 
     this.impl = new DefaultAdaptiveChangeDateFormatImpl
 
     /**
-      * This method validates the input parameters of a [[Preparator]]. If it succeeds, setup the values of metadata into both
+      * This method validates the input parameters of a [[AbstractPreparator]]. If it succeeds, setup the values of metadata into both
       * prerequisite and toChange set.
       *
       * @throws Exception
@@ -44,5 +46,18 @@ class AdaptiveChangeDateFormat(val propertyName : String,
 
         this.prerequisites.addAll(prerequisites)
         this.updates.addAll(toChange)
+    }
+
+    /**
+      * Calculate the applicability score of the preparator on the dataset.
+      *
+      * @param schemaMapping  is the schema of the input data
+      * @param dataset        is the input dataset
+      * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
+      * @return the applicability matrix succinctly represented by a hash map. Each key stands for
+      *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
+      */
+    override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+      0.0.toFloat
     }
 }

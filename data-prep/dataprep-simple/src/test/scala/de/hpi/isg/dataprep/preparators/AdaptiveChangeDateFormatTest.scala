@@ -4,7 +4,7 @@ import java.text.ParseException
 import java.util
 
 import de.hpi.isg.dataprep.DialectBuilder
-import de.hpi.isg.dataprep.components.{Pipeline, Preparation, Preparator}
+import de.hpi.isg.dataprep.components.{Pipeline, Preparation}
 import de.hpi.isg.dataprep.context.DataContext
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
@@ -24,9 +24,9 @@ import org.scalatest.{BeforeAndAfter, FunSuite}
   */
 class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
 
-  protected var dataset: Dataset[Row] = null
-  protected var pipeline: AbstractPipeline = null
-  protected var dataContext: DataContext = null
+  protected var dataset: Dataset[Row] = _
+  protected var pipeline: AbstractPipeline = _
+  protected var dataContext: DataContext = _
 
   before {
     Logger.getLogger("org").setLevel(Level.OFF)
@@ -38,7 +38,7 @@ class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
   }
 
   test("AdaptiveChangeDateFormatTest.execute") {
-    val preparator: Preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
+    val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
     pipeline.addPreparation(preparation)
