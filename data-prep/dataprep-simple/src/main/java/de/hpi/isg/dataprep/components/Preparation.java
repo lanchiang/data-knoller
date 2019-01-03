@@ -7,9 +7,9 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 
 import java.util.List;
 
@@ -21,25 +21,25 @@ public class Preparation implements AbstractPreparation {
 
     private String name;
 
-    private AbstractPreparator preparator;
+    private AbstractPreparator abstractPreparator;
     private ExecutionContext executionContext;
 
     private int position;
 
     private AbstractPipeline pipeline;
 
-    public Preparation(Preparator preparator) {
-        this.preparator = preparator;
-        this.preparator.setPreparation(this);
+    public Preparation(AbstractPreparator abstractPreparator) {
+        this.abstractPreparator = abstractPreparator;
+        this.abstractPreparator.setPreparation(this);
 
-        this.name = this.preparator.getClass().getSimpleName();
+        this.name = this.abstractPreparator.getClass().getSimpleName();
     }
 
     @Override
     public void checkPipelineErrorWithPrevious(MetadataRepository metadataRepository) {
         if (position != 0) {
-            // for each metadata in the prerequisite set of this preparator, check whether its value agrees with that in the repository
-            for (Metadata metadata : preparator.getPrerequisiteMetadata()) {
+            // for each metadata in the prerequisite set of this abstractPreparator, check whether its value agrees with that in the repository
+            for (Metadata metadata : abstractPreparator.getPrerequisiteMetadata()) {
                 try {
                     metadata.checkMetadata(metadataRepository);
                 } catch (MetadataNotFoundException e) {
@@ -51,7 +51,7 @@ public class Preparation implements AbstractPreparation {
                 }
             }
         }
-        List<Metadata> toChangeMetadata = preparator.getUpdateMetadata();
+        List<Metadata> toChangeMetadata = abstractPreparator.getUpdateMetadata();
 
         // update metadata repository. This shall be done even if the metadata fail to agree, because the following preparations need to
         // check the pipeline error with this presumably correct metadata.
@@ -70,8 +70,8 @@ public class Preparation implements AbstractPreparation {
     }
 
     @Override
-    public AbstractPreparator getPreparator() {
-        return preparator;
+    public AbstractPreparator getAbstractPreparator() {
+        return abstractPreparator;
     }
 
     @Override

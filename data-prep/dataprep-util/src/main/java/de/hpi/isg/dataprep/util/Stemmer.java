@@ -5,18 +5,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.function.Function;
+
 import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.process.PTBTokenizer;
 
 /**
- *
  * <!---------------- THIS CODE IS GPLv3! -------------------------!>
  * <!---------------- THIS CODE IS GPLv3! -------------------------!>
  * <!---------------- THIS CODE IS GPLv3! -------------------------!>
  * <!---------------- THIS CODE IS GPLv3! -------------------------!>
  * <!---------------- THIS CODE IS GPLv3! -------------------------!>
  * https://github.com/stanfordnlp/CoreNLP/blob/eb43d5d9150de97f8061fa06b838f1d021586789/src/edu/stanford/nlp/process/Stemmer.java
- *
+ * <p>
  * Stemmer, implementing the Porter Stemming Algorithm
  * <p/>
  * The Stemmer class transforms a word into its root form.  The input
@@ -26,7 +26,7 @@ import edu.stanford.nlp.process.PTBTokenizer;
  * @author Sepandar Kamvar (sdkamvar@stanford.edu)
  */
 
-public class Stemmer implements Function<Word,Word> {
+public class Stemmer implements Function<Word, Word> {
     private char[] b;
     private int i,     /* offset into b */
             i_end, /* offset to end of stemmed word */

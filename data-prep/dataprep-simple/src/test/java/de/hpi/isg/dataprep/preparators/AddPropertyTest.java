@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.preparators.define.AddProperty;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
@@ -28,9 +29,9 @@ public class AddPropertyTest extends PreparatorTest {
 
     @Test
     public void testAddIntegerColumn() throws Exception {
-        Preparator preparator = new AddProperty("classic", DataType.PropertyType.INTEGER, 4, 8);
+        AbstractPreparator abstractPreparator = new AddProperty("classic", DataType.PropertyType.INTEGER, 4, 8);
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -43,7 +44,7 @@ public class AddPropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -65,9 +66,9 @@ public class AddPropertyTest extends PreparatorTest {
 
     @Test
     public void testAddDoubleColumn() throws Exception {
-        Preparator preparator = new AddProperty("price", DataType.PropertyType.DOUBLE, 2);
+        AbstractPreparator abstractPreparator = new AddProperty("price", DataType.PropertyType.DOUBLE, 2);
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -80,7 +81,7 @@ public class AddPropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("price", DataTypes.DoubleType, false, Metadata.empty()),
@@ -102,9 +103,9 @@ public class AddPropertyTest extends PreparatorTest {
 
     @Test
     public void testAddStringColumn() throws Exception {
-        Preparator preparator = new AddProperty("name", DataType.PropertyType.STRING, 7);
+        AbstractPreparator abstractPreparator = new AddProperty("name", DataType.PropertyType.STRING, 7);
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -117,7 +118,7 @@ public class AddPropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -139,9 +140,9 @@ public class AddPropertyTest extends PreparatorTest {
 
     @Test
     public void testAddDateColumn() throws Exception {
-        Preparator preparator = new AddProperty("ship", DataType.PropertyType.DATE, 5);
+        AbstractPreparator abstractPreparator = new AddProperty("ship", DataType.PropertyType.DATE, 5);
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -154,7 +155,7 @@ public class AddPropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -176,9 +177,9 @@ public class AddPropertyTest extends PreparatorTest {
 
     @Test
     public void testAddColumnOutOfBound() throws Exception {
-        Preparator preparator = new AddProperty("ship", DataType.PropertyType.DATE, 20);
+        AbstractPreparator abstractPreparator = new AddProperty("ship", DataType.PropertyType.DATE, 20);
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -194,7 +195,7 @@ public class AddPropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),

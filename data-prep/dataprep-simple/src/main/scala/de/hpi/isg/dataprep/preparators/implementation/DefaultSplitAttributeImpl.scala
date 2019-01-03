@@ -1,10 +1,11 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+
 import de.hpi.isg.dataprep.preparators.define.SplitAttribute
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitAttributeImpl._
 import org.apache.spark.sql.DataFrame
@@ -12,7 +13,7 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.util.CollectionAccumulator
 
-class DefaultSplitAttributeImpl extends PreparatorImpl {
+class DefaultSplitAttributeImpl extends AbstractPreparatorImpl {
   /**
     * The abstract class of preparator implementation.
     *
@@ -39,7 +40,7 @@ class DefaultSplitAttributeImpl extends PreparatorImpl {
     }
 
     if (!dataFrame.columns.contains(propertyName)) {
-      errorAccumulator.add(new PropertyError(propertyName, new PreparationHasErrorException("Column name does not exist.")))
+      errorAccumulator.add(new PropertyError(propertyName, new PreparationHasErrorException("ColumnCombination name does not exist.")))
       new ExecutionContext(dataFrame, errorAccumulator)
     } else {
       split(dataFrame, errorAccumulator, propertyName, separator, startLeft, times)

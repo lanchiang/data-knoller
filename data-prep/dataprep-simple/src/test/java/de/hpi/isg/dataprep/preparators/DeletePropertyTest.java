@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.preparators.define.DeleteProperty;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
@@ -28,9 +29,9 @@ public class DeletePropertyTest extends PreparatorTest {
 
     @Test
     public void testDeleteExistingProperty() throws Exception {
-        Preparator preparator = new DeleteProperty("species_id");
+        AbstractPreparator abstractPreparator = new DeleteProperty("species_id");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -43,7 +44,7 @@ public class DeletePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
@@ -63,9 +64,9 @@ public class DeletePropertyTest extends PreparatorTest {
 
     @Test
     public void testDeleteNonExistingProperty() throws Exception {
-        Preparator preparator = new DeleteProperty("nonexist");
+        AbstractPreparator abstractPreparator = new DeleteProperty("nonexist");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -80,7 +81,7 @@ public class DeletePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),

@@ -1,19 +1,18 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.preparators.define.ChangeDataType;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.util.DatePattern;
 import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +24,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToStringErrorLog() throws Exception {
-        Preparator preparator = new ChangeDataType("identifier", DataType.PropertyType.STRING);
+        AbstractPreparator abstractPreparator = new ChangeDataType("identifier", DataType.PropertyType.STRING);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -40,9 +39,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToIntegerErrorLog() throws Exception {
-        Preparator preparator = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
+        AbstractPreparator abstractPreparator = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -64,9 +63,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeToDoubleErrorLog() throws Exception {
-        Preparator preparator = new ChangeDataType("id", DataType.PropertyType.DOUBLE);
+        AbstractPreparator abstractPreparator = new ChangeDataType("id", DataType.PropertyType.DOUBLE);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -87,7 +86,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
 //    @Test
 //    public void testChangeToDateErrorLog() throws Exception {
-//        Preparator preparator = new ChangeDataType("date", DataType.PropertyType.DATE,
+//        AbstractPreparator preparator = new ChangeDataType("date", DataType.PropertyType.DATE,
 //                DatePattern.DatePatternEnum.YearMonthDay, DatePattern.DatePatternEnum.MonthDayYear);
 //
 //        AbstractPreparation preparation = new Preparation(preparator);
@@ -113,9 +112,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test
     public void testChangeFromIntegerToDouble() throws Exception {
-        Preparator preparator = new ChangeDataType("species_id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
+        AbstractPreparator abstractPreparator = new ChangeDataType("species_id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
 
-        Preparation preparation = new Preparation(preparator);
+        Preparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -127,9 +126,9 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
     @Test(expected = PreparationHasErrorException.class)
     public void testChangeToStringSourceTypeSpecifiedWrong() throws Exception {
-        Preparator preparator = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
+        AbstractPreparator abstractPreparator = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

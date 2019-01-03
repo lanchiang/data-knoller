@@ -1,12 +1,18 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.components.Preparator
+import java.{lang, util}
+
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination
+import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
+import org.apache.spark.sql.{Dataset, Row}
 
-class LemmatizePreparator(val propertyNames: Set[String]) extends Preparator {
+class LemmatizePreparator(val propertyNames: Set[String]) extends AbstractPreparator {
 
   this.impl = new DefaultLemmatizePreparatorImpl
 
@@ -36,4 +42,7 @@ class LemmatizePreparator(val propertyNames: Set[String]) extends Preparator {
 
   }
 
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    0
+  }
 }
