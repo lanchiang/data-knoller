@@ -1,0 +1,16 @@
+#file without preamble with header,,
+#file without preamble with header
+#file with preamble with header
+#file with preamble with header
+#
+#
+#
+# preamble file with many comment characters
+#just preamble nothing else
+#only one preamble row with quote-character
+#preamble exists, headerless test
+test00,test01,test02
+test10,test11,test12
+test20,test21,test22
+test30,test31,test32
+test00,test01,test02

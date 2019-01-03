@@ -18,5 +18,7 @@ public enum MetadataEnum {
         this.metadata = string;
     }
 
-    public String getMetadata() { return metadata;}
+    public String getMetadata() {
+        return metadata;
+    }
 }

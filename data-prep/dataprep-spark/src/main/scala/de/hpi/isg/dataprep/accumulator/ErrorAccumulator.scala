@@ -10,23 +10,23 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class ErrorAccumulator(val dataFrame: DataFrame, val errorAccumulatorName: String) {
 
-    private val errorAccumulator = createErrorAccumulator()
+  private val errorAccumulator = createErrorAccumulator()
 
-    def this(dataFrame: DataFrame) {
-        this(dataFrame, ErrorAccumulator.DEFAULT_ACCUMULATOR_NAME)
-    }
+  def this(dataFrame: DataFrame) {
+    this(dataFrame, ErrorAccumulator.DEFAULT_ACCUMULATOR_NAME)
+  }
 
-    private def createErrorAccumulator(): CollectionAccumulator[PreparationError] = {
-        val errorAccumulator = new CollectionAccumulator[PreparationError]
-        dataFrame.sparkSession.sparkContext.register(errorAccumulator, errorAccumulatorName)
-        errorAccumulator
-    }
+  private def createErrorAccumulator(): CollectionAccumulator[PreparationError] = {
+    val errorAccumulator = new CollectionAccumulator[PreparationError]
+    dataFrame.sparkSession.sparkContext.register(errorAccumulator, errorAccumulatorName)
+    errorAccumulator
+  }
 
-    def addErrorLog(error: PreparationError): Unit = {
-        this.errorAccumulator.add(error)
-    }
+  def addErrorLog(error: PreparationError): Unit = {
+    this.errorAccumulator.add(error)
+  }
 }
 
 object ErrorAccumulator {
-    private val DEFAULT_ACCUMULATOR_NAME = "Default error accumulator"
+  private val DEFAULT_ACCUMULATOR_NAME = "Default error accumulator"
 }

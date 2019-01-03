@@ -12,7 +12,7 @@ import org.apache.spark.util.CollectionAccumulator
 class ExecutionContext(val newDataFrame: DataFrame,
                        val errorsAccumulator: CollectionAccumulator[_ <: PreparationError]) {
 
-    def hasError(): Boolean = {
-        return !errorsAccumulator.isZero
-    }
+  def hasError(): Boolean = {
+    return !errorsAccumulator.isZero
+  }
 }

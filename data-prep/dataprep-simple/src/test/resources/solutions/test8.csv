@@ -1,0 +1,6 @@
+GMS_SNMP_MySNMP_Device,SMNP-StringVariable,String,,
+GMS_SNMP_MySNMP_Device,SMNP-IntegerVariable,Int,,
+GMS_SNMP_MySNMP_Device,SMNP-UIntVariable,UInt,,
+GMS_SNMP_MySNMP_Device,SMNP-FloatVariable,Float,,
+GMS_SNMP_MySNMP_Device,SMNP-BoolVariable,Bool,,
+

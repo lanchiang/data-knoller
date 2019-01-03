@@ -8,14 +8,15 @@ package de.hpi.isg.dataprep.cases
 abstract class Language
 
 case class EN() extends Language
+
 case class DE() extends Language
 
 object Language {
 
-    def getLanguage(language: Language): String = {
-        language match {
-            case EN() => "English"
-            case DE() => "Deutsch"
-        }
+  def getLanguage(language: Language): String = {
+    language match {
+      case EN() => "English"
+      case DE() => "Deutsch"
     }
+  }
 }
