@@ -9,6 +9,7 @@ import de.hpi.isg.dataprep.context.DataContext
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
 import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparation}
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.util.DatePattern
@@ -54,5 +55,10 @@ class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
     println(pipeline.getErrorRepository.getPrintedReady)
 
     Assert.assertEquals(errorRepository, pipeline.getErrorRepository)
+  }
+
+  test("ApplicabilityTest") {
+    val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
+    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame,null)
   }
 }

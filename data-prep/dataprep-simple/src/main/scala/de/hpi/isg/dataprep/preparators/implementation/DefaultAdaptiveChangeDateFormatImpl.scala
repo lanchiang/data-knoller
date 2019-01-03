@@ -151,7 +151,6 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
 
             if (year != "XXXX" && month != "XX" && day != "XX") {
                 val result = generatePatternAndRegex(groups, separators, year, month, day)
-                year = padYearIfNeeded(year)
                 return Option(result._2)
             }
             return None
@@ -182,7 +181,6 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
                 case None =>
                     regex = regex + "\\" + groupAsString // TODO: better escaping
             }
-
         }
 
         (regex, pattern)
@@ -221,19 +219,6 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
         }
 
         (year, month, day)
-    }
-
-    def padYearIfNeeded(year: String): String = {
-        val currentYear: Int = 18 //TODO compute
-        var paddedYear: String = year
-        // TODO
-        // The idea is kinda stupid because it won't allow dates which lie in the future
-        // However, this leads to the problem that there will no way of determining the full year if only 2 digits are given
-        if(year.length == 2 && year.toInt > currentYear) {
-            paddedYear = "19" + year
-        }
-
-        paddedYear
     }
 
     def padSingleDigitDates(dates: List[String]): List[String] = {
