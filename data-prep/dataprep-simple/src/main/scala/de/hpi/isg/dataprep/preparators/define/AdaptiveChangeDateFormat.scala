@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
@@ -11,6 +12,8 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateF
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
+
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -58,6 +61,25 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
       */
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+      val preparator = new DefaultAdaptiveChangeDateFormatImpl
+      var scores: Map[String, Float] = Map()
+      val numTotalRows = dataset.count()
+
+      for (columnName <- dataset.columns) {
+        println(columnName)
+        val numAppliedRows = dataset.rdd
+          .map(
+              _.getAs[String](columnName) // TODO: Handle conversion errors
+          )
+          .map(preparator.toPattern)
+          .filter(_.isDefined)
+          .count()
+
+        val score: Float = numAppliedRows.toFloat / numTotalRows
+        println(s"$columnName\nNumber of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
+        scores += (columnName -> score)
+      }
+//      println(scores)
       0
     }
 }
