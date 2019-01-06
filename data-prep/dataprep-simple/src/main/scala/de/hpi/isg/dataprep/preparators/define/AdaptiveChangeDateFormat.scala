@@ -2,18 +2,15 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
-import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.DataType
-import org.apache.spark.sql.{Dataset, Row}
-
-import scala.util.{Failure, Success}
+import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import org.apache.spark.sql.{Dataset, Encoders, Row}
 
 /**
   *
@@ -65,12 +62,25 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       var scores: Map[String, Float] = Map()
       val numTotalRows = dataset.count()
 
+      val dataRDD = dataset.map(row => row.mkString)(Encoders.STRING).rdd
+      dataRDD.collect().foreach(println)
+
+      val numAppliedRows = dataRDD
+        .map(preparator.toPattern)
+        .filter(_.isDefined)
+        .count()
+
+      val score: Float = numAppliedRows.toFloat / numTotalRows
+      println(s"Number of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
+
+      return score
+
+      // Somehow the ID column is not included in the input dataset
+      // I suspect the preparator is only set on the date column and therefore only the date column is available here
       for (columnName <- dataset.columns) {
         println(columnName)
-        val numAppliedRows = dataset.rdd
-          .map(
-              _.getAs[String](columnName) // TODO: Handle conversion errors
-          )
+
+        val numAppliedRows = dataRDD
           .map(preparator.toPattern)
           .filter(_.isDefined)
           .count()
@@ -79,7 +89,7 @@ class AdaptiveChangeDateFormat(val propertyName : String,
         println(s"$columnName\nNumber of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
         scores += (columnName -> score)
       }
-//      println(scores)
+      println(scores)
       0
     }
 }
