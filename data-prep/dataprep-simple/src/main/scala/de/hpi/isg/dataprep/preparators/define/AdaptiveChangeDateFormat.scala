@@ -62,26 +62,14 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       var scores: Map[String, Float] = Map()
       val numTotalRows = dataset.count()
 
-      val dataRDD = dataset.map(row => row.mkString)(Encoders.STRING).rdd
-      dataRDD.collect().foreach(println)
+      val columnNames = dataset.columns
 
-      val numAppliedRows = dataRDD
-        .map(preparator.toPattern)
-        .filter(_.isDefined)
-        .count()
-
-      val score: Float = numAppliedRows.toFloat / numTotalRows
-      println(s"Number of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
-
-      return score
-
-      // Somehow the ID column is not included in the input dataset
-      // I suspect the preparator is only set on the date column and therefore only the date column is available here
-      for (columnName <- dataset.columns) {
+      for (columnName <- columnNames) {
         println(columnName)
 
-        val numAppliedRows = dataRDD
-          .map(preparator.toPattern)
+        val numAppliedRows = dataset.rdd
+          .map(_.getValuesMap[Any](columnNames).getOrElse(columnName, "").toString)
+          .map(x => preparator.toPattern(x))
           .filter(_.isDefined)
           .count()
 
