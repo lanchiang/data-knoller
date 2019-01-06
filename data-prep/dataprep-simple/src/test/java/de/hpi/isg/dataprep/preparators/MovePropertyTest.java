@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.preparators.define.MoveProperty;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -26,9 +27,9 @@ public class MovePropertyTest extends PreparatorTest {
 
     @Test
     public void testMovePropertyToTheFront() throws Exception {
-        Preparator preparator = new MoveProperty("height", 1);
+        AbstractPreparator abstractPreparator = new MoveProperty("height", 1);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -41,7 +42,7 @@ public class MovePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
@@ -51,6 +52,9 @@ public class MovePropertyTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.
@@ -59,9 +63,9 @@ public class MovePropertyTest extends PreparatorTest {
 
     @Test
     public void testMovePropertyToTheBack() throws Exception {
-        Preparator preparator = new MoveProperty("identifier", 8);
+        AbstractPreparator abstractPreparator = new MoveProperty("identifier", 8);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -74,7 +78,7 @@ public class MovePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
@@ -84,6 +88,9 @@ public class MovePropertyTest extends PreparatorTest {
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.

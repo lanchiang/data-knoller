@@ -11,7 +11,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -24,18 +23,26 @@ public class PreparatorTest {
     protected static Dataset<Row> dataset;
     protected static AbstractPipeline pipeline;
     protected static DataContext dataContext;
+    protected static FileLoadDialect dialect;
 
     @BeforeClass
     public static void setUp() {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        FileLoadDialect dialect = new DialectBuilder()
+        dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
                 .url("./src/test/resources/restaurants.tsv")
                 .delimiter("\t")
                 .buildDialect();
+
+//        FileLoadDialect dialect = new DialectBuilder()
+//                .hasHeader(true)
+//                .inferSchema(true)
+//                .url("./src/test/resources/restaurants.tsv")
+//                .delimiter("\t")
+//                .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
 //                .hasHeader(true)
@@ -55,4 +62,5 @@ public class PreparatorTest {
     public void cleanUpPipeline() {
         pipeline = new Pipeline(dataContext);
     }
+
 }

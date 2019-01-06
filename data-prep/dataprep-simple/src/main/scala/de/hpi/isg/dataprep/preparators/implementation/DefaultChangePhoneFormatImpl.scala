@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
-import de.hpi.isg.dataprep.components.PreparatorImpl
 import de.hpi.isg.dataprep.metadata.DINPhoneNumber
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -13,7 +13,7 @@ import org.apache.spark.util.CollectionAccumulator
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
-class DefaultChangePhoneFormatImpl extends PreparatorImpl with Serializable {
+class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializable {
   /**
     * The abstract class of preparator implementation.
     *

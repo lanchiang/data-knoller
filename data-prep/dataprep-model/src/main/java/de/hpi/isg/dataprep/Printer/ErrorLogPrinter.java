@@ -31,7 +31,7 @@ public class ErrorLogPrinter {
         return printed;
     }
 
-    private  <T extends ErrorLog> String printErrorLog(T errorLog) {
+    private <T extends ErrorLog> String printErrorLog(T errorLog) {
         StringBuffer stringBuffer = new StringBuffer();
         if (errorLog.getClass().isAssignableFrom(PipelineErrorLog.class)) {
             PipelineErrorLog casted = (PipelineErrorLog) errorLog;
