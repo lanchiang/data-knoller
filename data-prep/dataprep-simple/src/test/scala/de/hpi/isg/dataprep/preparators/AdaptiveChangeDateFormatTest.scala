@@ -32,30 +32,30 @@ class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
   before {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
-    val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("../dataprep-simple/src/test/resources/dates.csv").buildDialect
+    val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("../dataprep-simple/src/test/resources/dates_aplicability.csv").buildDialect
     val dataLoader = new FlatFileDataLoader(dialect)
     dataContext = dataLoader.load
     pipeline = new Pipeline(dataContext)
   }
 
-//  test("AdaptiveChangeDateFormatTest.execute") {
-//    val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
-//
-//    val preparation: AbstractPreparation = new Preparation(preparator)
-//    pipeline.addPreparation(preparation)
-//    pipeline.executePipeline()
-//
-//    val errorLogs: util.List[ErrorLog] = new util.ArrayList[ErrorLog]
-//    val errorLog: PreparationErrorLog = new PreparationErrorLog(preparation, "1989-01-00", new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1))
-//    errorLogs.add(errorLog)
-//    val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
-//
-//    pipeline.getRawData.show()
-//
-//    println(pipeline.getErrorRepository.getPrintedReady)
-//
-//    Assert.assertEquals(errorRepository, pipeline.getErrorRepository)
-//  }
+  test("AdaptiveChangeDateFormatTest.execute") {
+    val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
+
+    val preparation: AbstractPreparation = new Preparation(preparator)
+    pipeline.addPreparation(preparation)
+    pipeline.executePipeline()
+
+    val errorLogs: util.List[ErrorLog] = new util.ArrayList[ErrorLog]
+    val errorLog: PreparationErrorLog = new PreparationErrorLog(preparation, "1989-01-00", new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1))
+    errorLogs.add(errorLog)
+    val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
+
+    pipeline.getRawData.show()
+
+    println(pipeline.getErrorRepository.getPrintedReady)
+
+    Assert.assertEquals(errorRepository, pipeline.getErrorRepository)
+  }
 
   test("ApplicabilityTest") {
     val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
