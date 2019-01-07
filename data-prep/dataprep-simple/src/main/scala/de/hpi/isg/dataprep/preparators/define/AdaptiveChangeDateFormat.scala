@@ -65,8 +65,6 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       val columnNames = dataset.columns
 
       for (columnName <- columnNames) {
-        println(columnName)
-
         val numAppliedRows = dataset.rdd
           .map(_.getValuesMap[Any](columnNames).getOrElse(columnName, "").toString)
           .map(x => preparator.toPattern(x))
@@ -74,7 +72,6 @@ class AdaptiveChangeDateFormat(val propertyName : String,
           .count()
 
         val score: Float = numAppliedRows.toFloat / numTotalRows
-        println(s"$columnName\nNumber of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
         scores += (columnName -> score)
       }
       println(scores)
