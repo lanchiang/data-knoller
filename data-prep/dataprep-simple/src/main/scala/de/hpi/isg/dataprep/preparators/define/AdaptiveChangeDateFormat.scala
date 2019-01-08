@@ -60,21 +60,17 @@ class AdaptiveChangeDateFormat(val propertyName : String,
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
       val preparator = new DefaultAdaptiveChangeDateFormatImpl
       var scores: Map[String, Float] = Map()
+      val columnName = dataset.columns(0)
       val numTotalRows = dataset.count()
 
-      val columnNames = dataset.columns
+      val numAppliedRows = dataset.rdd
+        .map(_(0).toString())
+        .map(x => preparator.toPattern(x))
+        .filter(_.isDefined)
+        .count()
 
-      for (columnName <- columnNames) {
-        val numAppliedRows = dataset.rdd
-          .map(_.getValuesMap[Any](columnNames).getOrElse(columnName, "").toString)
-          .map(x => preparator.toPattern(x))
-          .filter(_.isDefined)
-          .count()
-
-        val score: Float = numAppliedRows.toFloat / numTotalRows
-        scores += (columnName -> score)
-      }
-      println(scores)
-      0
+      val score: Float = numAppliedRows.toFloat / numTotalRows
+      println(s"$columnName: Number of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
+      score
     }
 }

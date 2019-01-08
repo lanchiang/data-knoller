@@ -17,6 +17,7 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Dataset, Row}
 import org.junit.Assert
 import org.scalatest.{BeforeAndAfter, FunSuite}
+import org.apache.spark.sql.functions.col
 
 /**
   *
@@ -32,13 +33,13 @@ class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
   before {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
-    val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("../dataprep-simple/src/test/resources/dates_aplicability.csv").buildDialect
+    val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("../dataprep-simple/src/test/resources/dates_applicability.csv").buildDialect
     val dataLoader = new FlatFileDataLoader(dialect)
     dataContext = dataLoader.load
     pipeline = new Pipeline(dataContext)
   }
 
-  test("AdaptiveChangeDateFormatTest.execute") {
+  /*test("AdaptiveChangeDateFormatTest.execute") {
     val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
@@ -55,10 +56,17 @@ class AdaptiveChangeDateFormatTest extends FunSuite with BeforeAndAfter {
     println(pipeline.getErrorRepository.getPrintedReady)
 
     Assert.assertEquals(errorRepository, pipeline.getErrorRepository)
+  }*/
+
+  test("ApplicabilityTest.dates") {
+    val columnName = "date"
+    val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
+    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)),null)
   }
 
-  test("ApplicabilityTest") {
-    val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame,null)
+  test("ApplicabilityTest.ids") {
+    val columnName = "id"
+    val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
+    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)),null)
   }
 }
