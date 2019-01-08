@@ -20,7 +20,8 @@ public class FlatFileWriter<T extends PrettyPrintable> extends AbstractWriter<T>
 
 //    private T content;
 
-    public FlatFileWriter() {}
+    public FlatFileWriter() {
+    }
 
     public FlatFileWriter(String path) {
         this.path = path;

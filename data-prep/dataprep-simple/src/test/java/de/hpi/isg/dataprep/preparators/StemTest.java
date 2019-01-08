@@ -1,12 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import de.hpi.isg.dataprep.preparators.define.StemPreparator;
 import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
@@ -23,9 +23,9 @@ public class StemTest extends PreparatorTest {
 
     @Test
     public void testValidColumn() throws Exception {
-        Preparator preparator = new StemPreparator("stemlemma");
+        AbstractPreparator abstractPreparator = new StemPreparator("stemlemma");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -44,9 +44,9 @@ public class StemTest extends PreparatorTest {
     public void testMultipleValidColumns() throws Exception {
 
         String[] parameters = new String[]{"stemlemma", "stemlemma2"};
-        Preparator preparator = new StemPreparator(parameters);
+        AbstractPreparator abstractPreparator = new StemPreparator(parameters);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -68,9 +68,9 @@ public class StemTest extends PreparatorTest {
 
     @Test
     public void testInvalidColumn() throws Exception {
-        Preparator preparator = new StemPreparator("stemlemma_wrong");
+        AbstractPreparator abstractPreparator = new StemPreparator("stemlemma_wrong");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 

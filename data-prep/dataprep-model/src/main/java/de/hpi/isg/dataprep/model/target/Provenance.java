@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.model.target;
 
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 
 /**

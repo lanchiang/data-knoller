@@ -1,28 +1,20 @@
 package de.hpi.isg.dataprep.preparators.implementation;
 
 import de.hpi.isg.dataprep.ExecutionContext;
-import de.hpi.isg.dataprep.components.PreparatorImpl;
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl;
 import de.hpi.isg.dataprep.model.error.PreparationError;
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.preparators.define.Sampling;
-import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.util.CollectionAccumulator;
-import org.apache.spark.sql.functions;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.IntStream;
 
 import static org.apache.spark.sql.functions.*;
 
-public class DefaultSamplingImpl extends PreparatorImpl {
+public class DefaultSamplingImpl extends AbstractPreparatorImpl {
 
 
     /**
@@ -43,7 +35,7 @@ public class DefaultSamplingImpl extends PreparatorImpl {
             return new ExecutionContext(dataFrame.sample(sampler.isWithReplacement(), sampler.getProbability()), errorAccumulator);
         if (sampler.getTargetRecordCount() > 0)
             return new ExecutionContext(shuffleSampling(dataFrame, (int) sampler.getTargetRecordCount()), errorAccumulator);
-            //return new ExecutionContext(reservoirSampling(dataFrame,(int)sampler.getTargetRecordCount()),errorAccumulator);
+        //return new ExecutionContext(reservoirSampling(dataFrame,(int)sampler.getTargetRecordCount()),errorAccumulator);
         throw new Exception("None of the provided apis were used!");
     }
 

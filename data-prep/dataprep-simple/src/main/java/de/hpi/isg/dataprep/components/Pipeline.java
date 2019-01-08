@@ -7,21 +7,21 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.model.target.system.DecisionEngine;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Lan Jiang
@@ -44,6 +44,8 @@ public class Pipeline implements AbstractPipeline {
      * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
      */
     private Dataset<Row> rawData;
+    private Collection<ColumnCombination> columnCombinations;
+
     private DataContext dataContext;
     private String datasetName;
 
@@ -76,7 +78,7 @@ public class Pipeline implements AbstractPipeline {
         preparation.setPipeline(this);
         preparation.setPosition(index++);
 
-//        preparation.getPreparator().buildMetadataSetup();
+//        preparation.getAbstractPreparator().buildMetadataSetup();
         this.preparations.add(preparation);
     }
 
@@ -118,8 +120,16 @@ public class Pipeline implements AbstractPipeline {
         // here optimize the pipeline.
 
         initMetadataRepository();
+
+        this.buildColumnCombination();
         for (AbstractPreparation preparation : preparations) {
-            preparation.getPreparator().execute();
+            this.getColumnCombinations()
+                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
+        }
+
+        // execute the pipeline
+        for (AbstractPreparation preparation : preparations) {
+            preparation.getAbstractPreparator().execute();
         }
     }
 
@@ -152,7 +162,22 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void buildMetadataSetup() {
         // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
-        this.preparations.stream().forEachOrdered(preparation -> preparation.getPreparator().buildMetadataSetup());
+        this.preparations.stream().forEachOrdered(preparation -> preparation.getAbstractPreparator().buildMetadataSetup());
+    }
+
+    @Override
+    public void buildColumnCombination() {
+        columnCombinations = new HashSet<>();
+        StructField[] fields = this.rawData.schema().fields();
+        int fieldSize = fields.length;
+
+        // create permutation of the columns in the data frame
+
+    }
+
+    @Override
+    public void addRecommendedPreparation() {
+        // Todo: urgent
     }
 
     @Override
@@ -188,6 +213,12 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public String getDatasetName() {
         return this.datasetName;
+    }
+
+    @Override
+    public Collection<ColumnCombination> getColumnCombinations() {
+        // Note: the size of this column combination grows exponentially.
+        return this.columnCombinations;
     }
 
     @Override

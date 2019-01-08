@@ -1,10 +1,16 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.components.Preparator
-import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.preparators.implementation.DefaultExplodeArrayImpl
+import java.{lang, util}
 
-class ExplodeArray(val propertyName: String, val columnNames: Option[Array[String]] = None) extends Preparator {
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
+import de.hpi.isg.dataprep.model.target.data.ColumnCombination
+import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
+import de.hpi.isg.dataprep.preparators.implementation.DefaultExplodeArrayImpl
+import org.apache.spark.sql.{Dataset, Row}
+
+class ExplodeArray(val propertyName: String, val columnNames: Option[Array[String]] = None) extends AbstractPreparator {
 
   def this(propertyName: String, columnNames: Array[String]) {
     this(propertyName, Some(columnNames))
@@ -25,5 +31,9 @@ class ExplodeArray(val propertyName: String, val columnNames: Option[Array[Strin
     */
   override def buildMetadataSetup(): Unit = {
 
+  }
+
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    0
   }
 }
