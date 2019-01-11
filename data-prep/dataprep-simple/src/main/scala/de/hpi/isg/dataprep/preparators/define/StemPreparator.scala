@@ -51,4 +51,5 @@ class StemPreparator(val propertyNames: Set[String]) extends AbstractPreparator 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     0
   }
+
 }

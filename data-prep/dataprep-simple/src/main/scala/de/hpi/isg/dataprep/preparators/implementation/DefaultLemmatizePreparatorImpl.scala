@@ -7,10 +7,10 @@ import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
 import edu.stanford.nlp.ling.{CoreAnnotations, CoreLabel}
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
+import edu.stanford.nlp.util.StringUtils
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -28,9 +28,18 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
 
   val props = new Properties()
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
-  @transient var pipeline = new StanfordCoreNLP(props)
 
-  def lemmatizeString(str: String): String = {
+  def lemmatizeString(str: String, language: String): String = {
+
+    var pipeline: StanfordCoreNLP = null
+    if (!(language == "english")){
+      var langProps = StringUtils.argsToProperties("-props", "StanfordCoreNLP-" + language + ".properties")
+      props.stringPropertyNames().asScala.foreach(key => langProps.setProperty(key, props.getProperty(key)))
+      pipeline = new StanfordCoreNLP(langProps)
+    } else {
+      pipeline = new StanfordCoreNLP(props)
+    }
+
     val document = new Annotation(str)
     pipeline.annotate(document)
 
@@ -61,6 +70,10 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
     val realErrors = ListBuffer[PreparationError]()
 
     var df = dataFrame
+
+    // TODO
+//    df.columns.foreach(_)
+
     for (name <- propertyNames) {
       df = df.withColumn(name + "_lemmatized", lit(""))
     }
@@ -91,7 +104,7 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
       val tryConvert = Try {
         val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
           if (remappings.isDefinedAt(index))
-            lemmatizeString(remappings(index))
+            lemmatizeString(remappings(index), "english")
           else
             value
         }
@@ -110,18 +123,6 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
     createdDataset.count()
 
     new ExecutionContext(createdDataset, errorAccumulator)
-  }
-
-  @throws[IOException]
-  private def writeObject(oos: ObjectOutputStream) = {
-    oos.defaultWriteObject()
-  }
-
-  @throws[ClassNotFoundException]
-  @throws[IOException]
-  private def readObject(ois: ObjectInputStream) = {
-    ois.defaultReadObject()
-    this.pipeline = new StanfordCoreNLP(props)
   }
 
 }
