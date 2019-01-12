@@ -52,12 +52,8 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
 
             val indexTry = Try{row.fieldIndex(propertyName)}
             val index = indexTry match {
-                case Failure(content) => {
-                    throw content
-                }
-                case Success(content) => {
-                    content
-                }
+                case Failure(content) => throw content
+                case Success(content) => content
             }
 
             val seq = row.toSeq
