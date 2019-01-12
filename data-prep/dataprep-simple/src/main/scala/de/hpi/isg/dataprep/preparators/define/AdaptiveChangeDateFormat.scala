@@ -67,10 +67,21 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       val preparator = new DefaultAdaptiveChangeDateFormatImpl
       var scores: Map[String, Float] = Map()
       val columnName = dataset.columns(0)
+
       val numTotalRows = dataset.count()
+      // Approximate counting maybe better for runtime
+      // val numTotalRows = dataset.rdd.countApprox(120000).getFinalValue().mean
+
+      val samplePercentage = 0.1
+      val sampleSizeOfRows = Math.ceil(numTotalRows * samplePercentage).toInt
+
+      // Assume that 1000 rows can be checked in a reasonable time, so we don't need to abort early
+      if (numTotalRows > 1000 && noMatchFor(dataset, preparator, sampleSizeOfRows)) {
+        return 0
+      }
 
       val numAppliedRows = dataset.rdd
-        .map(_(0).toString())
+        .map(_(0).toString)
         .map(x => preparator.toPattern(x))
         .filter(_.isDefined)
         .count()
@@ -78,6 +89,21 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       val score: Float = numAppliedRows.toFloat / numTotalRows
       println(s"$columnName: Number of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
       score
+    }
+
+    // Not ideal, as it will apply the Preparator.toPattern twice for sampleSizeOfRows
+    // A sample is better to be sure that not just the first X rows are checked, but not used here
+    // as it would make our test nondeterministic
+    def noMatchFor(dataset: Dataset[Row], preparator: DefaultAdaptiveChangeDateFormatImpl, sampleSizeOfRows: Int): Boolean ={
+      val countNotWorkingRows = dataset.rdd
+        .take(sampleSizeOfRows)
+        //.takeSample(false, sampleSizeOfRows)
+        .map(_(0).toString)
+        .map(x => preparator.toPattern(x))
+        .filter(_.isDefined)
+        .count(_ => true)
+
+      countNotWorkingRows >= sampleSizeOfRows
     }
 
     def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {
