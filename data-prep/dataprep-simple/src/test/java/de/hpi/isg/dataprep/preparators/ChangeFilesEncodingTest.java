@@ -7,12 +7,10 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
-import de.hpi.isg.dataprep.metadata.FileEncoding;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.preparators.define.ChangeEncoding;
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl;
+import de.hpi.isg.dataprep.preparators.define.ChangeFilesEncoding;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -33,7 +31,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ChangeEncodingTest extends PreparatorTest {
+public class ChangeFilesEncodingTest extends PreparatorTest {
     private static final String TEST_DATA_PATH = "./src/test/resources/digimon.csv";
 
     private static final String PROPERTY_NAME = "bio_path";  // property containing the paths to test data
@@ -82,13 +80,13 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test
     public void testChangeKnownEncoding() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, OLD_ENCODING, NEW_ENCODING);
         testWorkingPreparator(preparator, Charset.forName(OLD_ENCODING), Charset.forName(NEW_ENCODING));
     }
 
     @Test
     public void testChangeUnknownEncoding() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, NEW_ENCODING);
         testWorkingPreparator(preparator, Charset.forName(OLD_ENCODING), Charset.forName(NEW_ENCODING));
     }
 
@@ -113,7 +111,7 @@ public class ChangeEncodingTest extends PreparatorTest {
         Dataset<Row> newData = oldData.withColumn(PROPERTY_NAME, functions.lit("not a real path"));
         pipeline.setRawData(newData);
 
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, OLD_ENCODING, NEW_ENCODING);
         executePreparator(preparator);
         assertErrorCount((int) newData.count());
         pipeline.setRawData(oldData);  // restore actual paths so cleanUp doesn't complain
@@ -122,7 +120,7 @@ public class ChangeEncodingTest extends PreparatorTest {
     @Test
     public void testWrongSourceEncoding() throws Exception {
         String oldEncoding = "ASCII";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, oldEncoding, NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, oldEncoding, NEW_ENCODING);
         executePreparator(preparator);
         assertErrorCount((int) pipeline.getRawData().count());
     }
@@ -130,7 +128,7 @@ public class ChangeEncodingTest extends PreparatorTest {
     @Test
     public void testTargetEncodingCannotEncodeSource() throws Exception {
         String newEncoding = "ASCII";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, newEncoding);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, OLD_ENCODING, newEncoding);
         executePreparator(preparator);
         assertErrorCount((int) pipeline.getRawData().count());
     }
@@ -140,40 +138,40 @@ public class ChangeEncodingTest extends PreparatorTest {
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullProperty() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(null, NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(null, NEW_ENCODING);
         executePreparator(preparator);
     }
 
     @Test(expected = ParameterNotSpecifiedException.class)
     public void testNullDestEnc() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, OLD_ENCODING, null);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, OLD_ENCODING, null);
         executePreparator(preparator);
     }
 
     @Test(expected = IllegalCharsetNameException.class)
     public void testInvalidSourceEnc() throws Exception {
         String oldEncoding = "not a real encoding";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, oldEncoding, NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, oldEncoding, NEW_ENCODING);
         executePreparator(preparator);
     }
 
     @Test(expected = IllegalCharsetNameException.class)
     public void testInvalidDestEnc() throws Exception {
         String newEncoding = "not a real encoding";
-        ChangeEncoding preparator = new ChangeEncoding(PROPERTY_NAME, newEncoding);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding(PROPERTY_NAME, newEncoding);
         executePreparator(preparator);
     }
 
     @Test(expected = PreparationHasErrorException.class)
     public void testInvalidProperty() throws Exception {
-        ChangeEncoding preparator = new ChangeEncoding("fake property", NEW_ENCODING);
+        ChangeFilesEncoding preparator = new ChangeFilesEncoding("fake property", NEW_ENCODING);
         executePreparator(preparator);
     }
 
 
     /* Helpers */
 
-    private void testWorkingPreparator(ChangeEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
+    private void testWorkingPreparator(ChangeFilesEncoding preparator, Charset oldCharset, Charset newCharset) throws Exception {
         executePreparator(preparator);
         assertErrorCount(0);
 
@@ -189,7 +187,7 @@ public class ChangeEncodingTest extends PreparatorTest {
         Assert.assertEquals(errorCount, pipeline.getErrorRepository().getErrorLogs().size());
     }
 
-    private void executePreparator(ChangeEncoding preparator) throws Exception {
+    private void executePreparator(ChangeFilesEncoding preparator) throws Exception {
         AbstractPreparation preparation = new Preparation(preparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
@@ -210,10 +208,10 @@ public class ChangeEncodingTest extends PreparatorTest {
     }
 
     // This class adds fake metadata before executing the preparator
-    private static class MockChangeEncoding extends ChangeEncoding {
+    private static class MockChangeFilesEncoding extends ChangeFilesEncoding {
         private Metadata fakeMetadata;
 
-        private MockChangeEncoding(String propertyName, String targetEncoding, Metadata fakeMetadata) {
+        private MockChangeFilesEncoding(String propertyName, String targetEncoding, Metadata fakeMetadata) {
             super(propertyName, targetEncoding);
             this.fakeMetadata = fakeMetadata;
         }

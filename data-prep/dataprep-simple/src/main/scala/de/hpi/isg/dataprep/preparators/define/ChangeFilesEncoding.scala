@@ -1,15 +1,14 @@
 package de.hpi.isg.dataprep.preparators.define
 
 import java.nio.charset.{Charset, IllegalCharsetNameException}
-import java.{lang, util}
+import java.util
 
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeFilesEncodingImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -18,9 +17,9 @@ import org.apache.spark.sql.{Dataset, Row}
   * @author Lukas Behrendt, Lisa Ihde, Oliver Clasen
   * @since 2018/11/29
   */
-class ChangeEncoding(val propertyName: String,
-                     var userSpecifiedSourceEncoding: String,
-                     val userSpecifiedTargetEncoding: String) extends AbstractPreparator {
+class ChangeFilesEncoding(val propertyName: String,
+                          var userSpecifiedSourceEncoding: String,
+                          val userSpecifiedTargetEncoding: String) extends AbstractPreparator {
 
   def this(propertyName: String, userSpecifiedTargetEncoding: String) {
     this(propertyName, null, userSpecifiedTargetEncoding)
