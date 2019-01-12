@@ -1,10 +1,15 @@
 package de.hpi.isg.dataprep.preparators
 
+import java.text.ParseException
 import java.util
 
+import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern
+import de.hpi.isg.dataprep.model.repository.ErrorRepository
+import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.util.DatePattern
 import org.apache.spark.sql.functions.col
@@ -18,7 +23,7 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
 
   override var testFileName = "dates_applicability.csv"
 
-  /*"Date format" should "be changed given source and target format" in {
+  "Dates" should "be formatted given a target format" in {
     val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
 
     val preparation: AbstractPreparation = new Preparation(preparator)
@@ -30,12 +35,10 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     errorLogs.add(errorLog)
     val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
 
-    pipeline.getRawData.show()
-
     println(pipeline.getErrorRepository.getPrintedReady)
 
-    Assert.assertEquals(errorRepository, pipeline.getErrorRepository)
-  }*/
+    pipeline.getErrorRepository should equal(errorRepository)
+  }
 
   "calApplicability on the date column" should "return a score of 0.5" in {
     val columnName = "date"
@@ -69,6 +72,6 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     metadata.add(dateMetadata)
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata) should equal (0)
+    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 }
