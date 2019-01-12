@@ -4,6 +4,8 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
+
+import scala.collection.JavaConverters._
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -58,6 +60,10 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
       */
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+      if (alreadyApplied(targetMetadata)) {
+        return 0
+      }
+
       val preparator = new DefaultAdaptiveChangeDateFormatImpl
       var scores: Map[String, Float] = Map()
       val columnName = dataset.columns(0)
@@ -72,5 +78,12 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       val score: Float = numAppliedRows.toFloat / numTotalRows
       println(s"$columnName: Number of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
       score
+    }
+
+    def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {
+      metadata.asScala.filter(m => m match {
+        case _: PropertyDatePattern => return true
+      })
+      false
     }
 }
