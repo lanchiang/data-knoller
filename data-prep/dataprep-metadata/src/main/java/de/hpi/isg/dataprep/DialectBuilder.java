@@ -16,6 +16,7 @@ public class DialectBuilder {
     private String lineTerminator = "\r\n";
     private String hasHeader = "false";
     private FileLoadDialect.QuoteBehavior quoteBehavior = FileLoadDialect.QuoteBehavior.QUOTE_MINIMAL;
+    private String encoding = "UTF-8";
 
     private String sparkAppName = "Default data preparation";
     private String masterUrl = "local";
@@ -32,6 +33,7 @@ public class DialectBuilder {
         dialect.setLineTerminator(lineTerminator);
         dialect.setHasHeader(hasHeader);
         dialect.setQuoteBehavior(quoteBehavior);
+        dialect.setEncoding(encoding);
 
         dialect.setSparkAppName(sparkAppName);
         dialect.setMasterUrl(masterUrl);
@@ -89,6 +91,11 @@ public class DialectBuilder {
 
     public DialectBuilder inferSchema(boolean inferSchema) {
         this.inferSchema = inferSchema ? "true" : "false";
+        return this;
+    }
+
+    public DialectBuilder encoding(String encoding) {
+        this.encoding = encoding;
         return this;
     }
 }

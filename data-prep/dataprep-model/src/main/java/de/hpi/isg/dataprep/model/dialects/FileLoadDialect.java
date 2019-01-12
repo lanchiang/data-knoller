@@ -20,6 +20,7 @@ public class FileLoadDialect {
     private String url;
 
     private String inferSchema;
+    private String encoding;
 
     public enum QuoteBehavior {
         QUOTE_ALL,
@@ -117,5 +118,13 @@ public class FileLoadDialect {
 
     public void setTableName(String tableName) {
         this.tableName = tableName;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 }

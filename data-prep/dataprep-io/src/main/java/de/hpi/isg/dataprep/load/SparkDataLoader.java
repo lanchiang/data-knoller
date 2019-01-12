@@ -34,6 +34,7 @@ abstract public class SparkDataLoader {
                 .option("quote", dialect.getQuoteChar())
                 .option("escape", dialect.getEscapeChar())
                 .option("header", dialect.getHasHeader())
+                .option("encoding", dialect.getEncoding())
                 .option("inferSchema", dialect.getInferSchema());
 
         return dataFrameReader;
