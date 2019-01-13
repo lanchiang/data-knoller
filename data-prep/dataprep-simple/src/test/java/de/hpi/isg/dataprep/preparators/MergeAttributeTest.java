@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import scala.collection.JavaConversions._
 
 public class MergeAttributeTest {
 	protected static Dataset<Row> dataset;
@@ -65,7 +64,7 @@ public class MergeAttributeTest {
 		List<String> columns = new ArrayList<String>();
 		columns.add("id");
 		columns.add("identifier");
-		AbstractPreparator abstractPreparator = new MergeAttribute(columns.toList.foreach{ node =>   .... }, "|");
+		AbstractPreparator abstractPreparator = new MergeAttribute(columns, "|");
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
 		pipeline.executePipeline();
