@@ -29,4 +29,9 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 		udf((col1: String,col2: String) => {
 			col1 + connector + col2
 	})
+
+	def merge():UserDefinedFunction =
+	udf((col1: String,col2: String) => {
+		if (col1.equals(col2)) col1 else if (col1.trim.nonEmpty) col2 else col1
+	})
 }
