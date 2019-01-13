@@ -36,7 +36,7 @@ public class MergeAttributeTest {
 		FileLoadDialect dialect = new DialectBuilder()
 			.hasHeader(true)
 			.inferSchema(true)
-			.url("./src/test/resources/Pokemon.csv")
+			.url("./src/test/resources/pokemon.csv")
 			.buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
@@ -61,7 +61,7 @@ public class MergeAttributeTest {
 	@Test
 	public void testAttributeMerge() throws Exception {
 
-		List<String> columns = new ArrayList<String>();
+		List<String> columns = new ArrayList<>();
 		columns.add("id");
 		columns.add("identifier");
 		AbstractPreparator abstractPreparator = new MergeAttribute(columns, "|");
