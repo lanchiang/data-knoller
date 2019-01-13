@@ -10,9 +10,20 @@ import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Dataset, Encoder, Row}
 import org.apache.spark.util.CollectionAccumulator
 
+import scala.collection.mutable.ListBuffer
+
 class DefaultSplitPropertyImpl extends PreparatorImpl {
 
   override def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+
+    var testString="Vorname##Nachname#!#Zweiternachname"
+    Console.println(getCandidates(testString))
+    Console.println(getParts(testString))
+
+    testString="123456.78€"
+    Console.println(getCandidates(testString))
+    Console.println(getParts(testString))
+
     val preparator = abstractPreparator.asInstanceOf[SplitProperty]
     val propertyName = preparator.propertyName
 
@@ -131,4 +142,135 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
     }
     result
   }
+
+
+
+  /*
+  Maps each character of the input string to its character class: letter (a), digit (1), whitespace (s) or special sign (the character itself)
+   */
+
+  def toCharacterClasses(input: String):Tuple2[String,String]={
+    val characterClasses=input.map(c=>{
+      if (Character.isDigit(c))'1'
+      else if (Character.isUpperCase(c)) 'a'
+      else if (Character.isLowerCase(c)) 'a'
+      else if (Character.isWhitespace(c)) 's'
+      else '.'//c //
+    })
+
+
+    (characterClasses, input)
+  }
+
+  /*
+  Removes duplicated characters in a row, e.g. fooboo becomes fobo
+   */
+  def reduceCharacterClasses(input: Tuple2[String,String]): Tuple3[String,String,String]={
+    var last=' '
+    val reduced=input._1.map(c=>{
+      var mapped='\0'
+      if(last!=c) mapped=c
+      last=c
+      mapped
+    })
+
+
+    (reduced,input._1,input._2)
+  }
+
+  /*
+  extracts all seperations which can used either used as splitt candidates or resulting splitt elements
+   */
+  def extractSeperatorCandidates(input: Tuple3[String, String, String]):List[String]={
+
+    var erg = new ListBuffer[String]
+    var candidates=input._1.slice(1,input._1.length).distinct.toList
+
+    if(candidates.isEmpty){
+     val start=getOriginCharacters(input._1.charAt(0),input)
+     val end=getOriginCharacters(input._1.charAt(input._1.length-1),input)
+
+      start.foreach(str=>{
+        erg+=str
+      })
+
+      end.foreach(str=>{
+        erg+=str
+      })
+    }
+    else{
+      candidates+input._1.charAt(input._1.length-1).toString
+
+      candidates.foreach(candidate=>{
+        val elems=getOriginCharacters(candidate,input)
+        elems.foreach(str=>{
+          erg+=str
+        })
+      })
+    }
+
+    erg.toList
+  }
+
+  /*
+  returns the origin sequence for mapped and reduced string
+   */
+  def getOriginCharacters(input: Char, array:Tuple3[String,String,String]):Set[String]={
+
+    var results=Set[String]()
+    val intermediate=array._2
+    val origin=array._3
+
+    var index = intermediate.indexOf(input)
+    var allidx= new ListBuffer[Integer]
+    while (index >= 0) {
+      allidx += index
+      index = intermediate.indexOf(input, index + 1)
+    }
+
+    var allidxs=allidx.toList
+
+
+    var erg = ""
+
+    var block = false
+    var i = 0
+    while (i < origin.length) {
+      if (allidx.contains(i)) {
+        erg += origin.charAt(i)
+        if (i == origin.length - 1) results+=erg
+      }
+      else {
+        block = false
+        if (erg.equals("") == false) results+=erg
+        erg = ""
+      }
+
+
+      i += 1; i - 1
+    }
+
+    results
+  }
+
+  def getCandidates(input: String):List[String]={
+    val res=filterFirstAndLastPartOut(extractSeperatorCandidates(reduceCharacterClasses(toCharacterClasses(input))),input)
+    res
+  }
+
+  def getParts(input: String):List[String]={
+    val res=extractSeperatorCandidates(reduceCharacterClasses(toCharacterClasses(input)))
+    res
+  }
+
+  def filterFirstAndLastPartOut(candidates: List[String], input: String):List[String]={
+
+    candidates.filter(candidate=>{
+      input.startsWith(candidate) == false&&input.endsWith(candidate) == false
+    })
+
+  }
+
+
+
 }
