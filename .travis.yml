@@ -16,4 +16,4 @@ cache:
 install: true
 before_script:
   - echo "MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=512m'" >> ~/.mavenrc
-script: cd data-prep && mvn -B -pl dataprep-simple -Dtest=MergeAttributeTest
+script: cd data-prep && mvn test -B -pl dataprep-simple -Dtest=MergeAttributeTest
