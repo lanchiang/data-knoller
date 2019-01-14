@@ -55,9 +55,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
-    NormalizedPhoneNumber.fromMeta(sourceFormat)(phoneNumber) flatMap NormalizedPhoneNumber.toMeta(targetFormat)
-  }
+  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = ???
 
   /**
     * Converting a given phone number

@@ -9,6 +9,7 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.functions._
 
 class ChangePhoneFormat(
   val propertyName: String,
@@ -45,6 +46,7 @@ class ChangePhoneFormat(
     dataset: Dataset[Row],
     targetMetadata: util.Collection[Metadata]
   ): Float = {
-    0
+    if (dataset.columns.contains(propertyName)) 1f
+    else 0f
   }
 }
