@@ -23,7 +23,9 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 	override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 		val preparator = abstractPreparator.asInstanceOf[MergeAttribute];
 		val df = dataFrame.withColumn("__merged", merge(preparator.connector)(col(preparator.attributes(0)),col(preparator.attributes(1))))
-		new ExecutionContext(df,errorAccumulator)
+		val columns = df.columns.filter( c => !preparator.attributes.contains(c)).map(col(_))
+
+		new ExecutionContext(df.select(columns: _*),errorAccumulator)
 	}
 	def merge(connector: String): UserDefinedFunction =
 		udf((col1: String,col2: String) => {
