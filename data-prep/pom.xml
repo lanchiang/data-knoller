@@ -63,6 +63,7 @@
                 </executions>
             </plugin>
 
+
  <!--may be use less-->
             <!--<plugin>-->
                 <!--<artifactId>maven-assembly-plugin</artifactId>-->
@@ -106,6 +107,7 @@
                     <!--</execution>-->
                 <!--</executions>-->
             <!--</plugin>-->
+
         </plugins>
     </build>
 
@@ -148,7 +150,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-
             <groupId>com.googlecode.juniversalchardet</groupId>
             <artifactId>juniversalchardet</artifactId>
             <version>1.0.3</version>
