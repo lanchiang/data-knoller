@@ -60,30 +60,48 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     // what speaks for having a preamble?
     // Dataset only has one row
-    var finalScore = 0.0
+    var finalScore = 1.0
 
     val numberOfColumns = dataset.columns.length
     if(numberOfColumns == 1)
     {
-      finalScore += 0.9
+      finalScore *= 0.99
     }else{
-      finalScore += checkForConsecutiveEmptyRows(dataset)
+      // dataset has one row, where there are missing values and they only occur in consecutive lines
+      finalScore *= checkForConsecutiveEmptyRows(dataset)
     }
-    // dataset has one row, where there are missing values and they only occur in consecutive lines
+
     // Consecutive lines starting with the same character
     // integrating split attribute?
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
-    if(finalScore > 1.0) {
-      1.0F
-    }else{
-      finalScore.toFloat
-    }
+    finalScore.toFloat
   }
   def checkForConsecutiveEmptyRows(dataset: Dataset[Row]): Double = {
-    dataset
+    val emptyGroups = dataset
       .rdd
       .zipWithIndex()
-      .foreach(println(_))
-    0.0
+      .flatMap(row => {
+        val tempRow = row._1.toSeq.zipWithIndex.map(entry =>
+          entry._1.toString match {
+            case "" =>  List(entry._2)
+            case _ => List()
+          }).reduce((a,b) => a.union(b))
+        tempRow.map(e => (e,row._2))
+      })
+      .map(e => (e._1,List(e._2)))
+      .reduceByKey(_.union(_))
+      .map(r => (r._1, r._2.groupBy(k => r._2.indexOf(k) - k)))
+      .map(e => e._2.toList.map(v => v._2))
+      .reduce(_.union(_))
+      .map(l => l.size)
+    val highestNumber = emptyGroups.max
+    val maxCount = emptyGroups.count(e => e == highestNumber)
+    val secondNumber = emptyGroups.filter(e => e < highestNumber).max
+    val decisionBound = (maxCount+secondNumber)/highestNumber
+    decisionBound > 1 match {
+      case true => 0.5
+      case _ => 1 - decisionBound
+    }
+
   }
 }

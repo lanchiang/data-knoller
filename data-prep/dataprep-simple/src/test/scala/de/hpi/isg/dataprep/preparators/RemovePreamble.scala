@@ -18,8 +18,29 @@ class RemovePreamble extends PreparatorScalaTest {
       .master("local[4]") // local, with 4 worker cores
     val spark = sparkBuilder.getOrCreate()
     import spark.implicits._
-    val customDataset = Seq(("1","2"), ("3","4"), ("postamble",""),("postamble",""),("postamble","")).toDF
+    val customDataset = Seq(("1","2"), ("3","4"), ("postamble",""),("postamble",""),("postamble",""), ("","fake")).toDF
     customDataset.columns.length shouldEqual(2)
+    val test = customDataset
+      .rdd
+      .zipWithIndex()
+      .flatMap(row => {
+        val tempRow = row._1.toSeq.zipWithIndex.map(entry =>
+          entry._1.toString match {
+            case "" =>  List(entry._2)
+            case _ => List()
+          }).reduce((a,b) => a.union(b))
+        tempRow.map(e => (e,row._2))
+      })
+      .map(e => (e._1,List(e._2)))
+      .reduceByKey(_.union(_))
+      .map(r => (r._1, r._2.groupBy(k => r._2.indexOf(k) - k)))
+      .map(e => e._2.toList.map(v => v._2))
+      .reduce(_.union(_))
+      .map(l => l.size)
+      //.map(_.toString)
+      //.collect
+      //.reduce( _+ "|" + _)
+    test shouldEqual("ol")
   }
 
   "RemovePreable" should "calculate calApplicability for multiple collumns correctly" in {
