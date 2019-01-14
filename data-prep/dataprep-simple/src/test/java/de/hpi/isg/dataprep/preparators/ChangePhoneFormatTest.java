@@ -34,9 +34,6 @@ public class ChangePhoneFormatTest extends PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
-
-//        dataContext.getDataFrame().show();
-        return;
     }
 
     @Test

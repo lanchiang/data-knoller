@@ -6,17 +6,14 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import scala.util.matching.Regex;
 
 public class DINPhoneNumber extends Metadata {
-
     private Boolean countryCode;
     private Boolean areaCode;
     private Boolean specialNumber;
     private Boolean extensionNumber;
     private Regex regex;
 
-    private DINPhoneNumber() { super(DINPhoneNumber.class.getSimpleName()); }
-
     public DINPhoneNumber(Boolean countryCode, Boolean areaCode, Boolean specialNumber, Boolean extensionNumber, Regex regex) {
-        this();
+        super(DINPhoneNumber.class.getSimpleName());
         this.countryCode = countryCode;
         this.areaCode = areaCode;
         this.specialNumber = specialNumber;
@@ -41,7 +38,5 @@ public class DINPhoneNumber extends Metadata {
     public Regex getRegex() { return regex; }
 
     @Override
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 }
