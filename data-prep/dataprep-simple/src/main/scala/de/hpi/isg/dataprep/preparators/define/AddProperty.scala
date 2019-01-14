@@ -44,7 +44,9 @@ class AddProperty(val targetPropertyName: String,
 
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = 0
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    0
+  }
 }
 
 object AddProperty {

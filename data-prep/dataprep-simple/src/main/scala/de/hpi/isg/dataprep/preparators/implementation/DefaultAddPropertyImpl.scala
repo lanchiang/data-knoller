@@ -21,57 +21,6 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class DefaultAddPropertyImpl extends AbstractPreparatorImpl {
 
-  //    @throws(classOf[Exception])
-  //    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: Dataset[Row]): ExecutionContext = {
-  //        val preparator_ = getPreparatorInstance(preparator, classOf[AddProperty])
-  //        val errorAccumulator = this.createErrorAccumulator(dataFrame)
-  //        executeLogic(preparator_, dataFrame, errorAccumulator)
-  //    }
-
-  //    protected def executeLogic(preparator: AddProperty, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-  //        val targetPropertyName = preparator.targetPropertyName
-  //        val targetType = preparator.targetType
-  //        val positionInSchema = preparator.position
-  //        val filling = Option{preparator.filling}
-  //
-  //        val schema = dataFrame.columns
-  //
-  //        if (schema.contains(targetPropertyName)) {
-  //            val error = new PropertyError(targetPropertyName, new PreparationHasErrorException("ColumnMetadata already exists."))
-  //            errorAccumulator.add(error)
-  //        }
-  //
-  //        if (!SchemaUtils.positionValidation(positionInSchema, schema)) {
-  //            errorAccumulator.add(new PropertyError(targetPropertyName,
-  //                new PreparationHasErrorException(String.format("Position %d is out of bound.", positionInSchema: Integer))))
-  //        }
-  //
-  //        var resultDataFrame = dataFrame
-  //
-  //        if (errorAccumulator.isZero) {
-  //            val value = filling.get
-  //            resultDataFrame = targetType match {
-  //                case PropertyType.INTEGER => {
-  //                    SchemaUtils.lastToNewPosition(dataFrame.withColumn(targetPropertyName,
-  //                        lit(value.toString.toInt)), positionInSchema)
-  //                }
-  //                case PropertyType.DOUBLE => {
-  //                    SchemaUtils.lastToNewPosition(dataFrame.withColumn(targetPropertyName,
-  //                        lit(value.toString.toDouble)), positionInSchema)
-  //                }
-  //                case PropertyType.STRING => {
-  //                    SchemaUtils.lastToNewPosition(dataFrame.withColumn(targetPropertyName,
-  //                        lit(value.toString)), positionInSchema)
-  //                }
-  //                case PropertyType.DATE => {
-  //                    val col = lit(ConversionHelper.getDefaultDate())
-  //                    SchemaUtils.lastToNewPosition(dataFrame.withColumn(targetPropertyName, col.cast(DateType)), positionInSchema)
-  //                }
-  //            }
-  //        }
-  //        new ExecutionContext(resultDataFrame, errorAccumulator)
-  //    }
-
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[AddProperty]
     val targetPropertyName = preparator.targetPropertyName
