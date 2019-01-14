@@ -11,9 +11,6 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
-
-
-
 class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
   private val splitPropertyImpl = this.impl.asInstanceOf[DefaultSplitPropertyImpl]
 
