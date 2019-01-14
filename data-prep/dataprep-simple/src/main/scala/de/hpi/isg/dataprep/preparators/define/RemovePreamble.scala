@@ -114,11 +114,8 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
 
     val reoccuringChars = w2v.fold(w2v.first())((tup1, tup2) => (tup2._1, tup1._2.intersect(tup2._2)))._2.size
     if(reoccuringChars == 0){
-      return 1
+      return 1.0
     }
-    if(reoccuringChars >= 1){
-      return 0
-    }
-
+    0.0
   }
 }
