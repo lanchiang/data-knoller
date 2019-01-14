@@ -1,14 +1,12 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.{lang, util}
+import java.util
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.error.PreparationError
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
 import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.DataType
@@ -17,7 +15,6 @@ import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
-import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable.ListBuffer
 import collection.JavaConverters._
