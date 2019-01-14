@@ -1,13 +1,18 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import de.hpi.isg.dataprep.components.Preparator
+import java.util
+
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
+import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.util.DataType
+import org.apache.spark.sql.{Dataset, Row}
 
 
-class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends Preparator{
+class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
   impl = new DefaultSplitPropertyImpl
 
   def this(propertyName: String, separator: String, numCols: Int, fromLeft: Boolean = true) {
@@ -32,5 +37,9 @@ class SplitProperty(val propertyName: String, val separator: Option[String], val
     }
 
     this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+  }
+
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    0
   }
 }

@@ -1,0 +1,3 @@
+id,name,bio_path
+1,agumon,src/test/resources/bio/agumon_bio.txt
+2,patamon,src/test/resources/bio/patamon_bio.txt

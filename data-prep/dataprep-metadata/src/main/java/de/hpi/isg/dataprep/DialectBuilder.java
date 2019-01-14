@@ -78,7 +78,7 @@ public class DialectBuilder {
     }
 
     public DialectBuilder hasHeader(boolean hasHeader) {
-        this.hasHeader = hasHeader?"true":"false";
+        this.hasHeader = hasHeader ? "true" : "false";
         return this;
     }
 
@@ -88,7 +88,7 @@ public class DialectBuilder {
     }
 
     public DialectBuilder inferSchema(boolean inferSchema) {
-        this.inferSchema = inferSchema?"true":"false";
+        this.inferSchema = inferSchema ? "true" : "false";
         return this;
     }
 }

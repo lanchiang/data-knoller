@@ -43,6 +43,7 @@ public class PreparationErrorLog extends ErrorLog {
         return Objects.equals(preparation, that.preparation) &&
                 Objects.equals(value, that.value) && super.equals(o);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(preparation, value, errorType, errorMessage);

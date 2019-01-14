@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.components.PreparatorImpl
+import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
@@ -12,7 +12,7 @@ import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable.ListBuffer
 
-class DefaultSplitPropertyImpl extends PreparatorImpl {
+class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   override def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
@@ -79,11 +79,11 @@ class DefaultSplitPropertyImpl extends PreparatorImpl {
       val counts = charMaps.map(map => map.withDefaultValue(0)(char)).filter(x => x > 0)
       (counts.forall(_ == counts.head), counts.head, char)
     }
-    val candidates = chars.map(checkSeparatorCondition).filter{case (valid, counts, char) => valid}
+    val candidates = chars.map(checkSeparatorCondition).filter { case (valid, counts, char) => valid }
 
     if (candidates.isEmpty)
       throw new IllegalArgumentException(s"No possible separator found in column $propertyName")
-    candidates.maxBy{case (valid, counts, char) => counts}._3.toString
+    candidates.maxBy { case (valid, counts, char) => counts }._3.toString
   }
 
   def findNumberOfColumns(dataFrame: Dataset[Row], propertyName: String, separator: String): Int = {

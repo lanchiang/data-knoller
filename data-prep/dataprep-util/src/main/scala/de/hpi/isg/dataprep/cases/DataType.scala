@@ -9,6 +9,9 @@ package de.hpi.isg.dataprep.cases
 abstract class DataType
 
 case class INTEGER() extends DataType
+
 case class STRING() extends DataType
+
 case class DOUBLE() extends DataType
+
 case class DATE(datePattern: DatePattern) extends DataType
