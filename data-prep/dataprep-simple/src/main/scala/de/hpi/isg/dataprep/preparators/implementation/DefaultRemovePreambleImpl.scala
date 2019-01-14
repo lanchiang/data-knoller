@@ -1,17 +1,16 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import com.sun.rowset.internal.Row
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.RemovePreamble
 import de.hpi.isg.dataprep.ExecutionContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql
 import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
-
 /**
   *
   * @author Lasse Kohlmeyer
@@ -20,8 +19,13 @@ import org.apache.spark.util.CollectionAccumulator
 class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   private var preambleCharacters = "[!#$%&*+-./:<=>?@^|~].*$"
 
-  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+  //ideas: average distance of characters in line
 
+  override protected def executeLogic(abstractPreparator: AbstractPreparator,
+                                      dataFrame_orig: Dataset[sql.Row],
+                                      errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+
+    val dataFrame = dataFrame_orig.toDF
     val preparator = abstractPreparator.asInstanceOf[RemovePreamble]
     val delimiter = preparator.delimiter
     val hasHeader = preparator.hasHeader.toBoolean
@@ -29,12 +33,12 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     var endPreambleIndex = preparator.rowsToRemove
     val commentCharacter = preparator.commentCharacter
 
-    if (hasPreamble == false) return return new ExecutionContext(dataFrame, errorAccumulator)
+    if (hasPreamble == false) return new ExecutionContext(dataFrame, errorAccumulator)
 
 
     //identifying last preamble row
     if (endPreambleIndex == 0) {
-      endPreambleIndex = findRow(dataFrame)
+      endPreambleIndex = findRow(dataFrame.toDF)
     }
     if (endPreambleIndex == 0 && (hasPreambleInColumn(dataFrame) == false)) {
       return new ExecutionContext(dataFrame, errorAccumulator)
@@ -47,11 +51,11 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     //drop all rows before last preamble row and update column names
 
     //creating new dataframe to frame of original dataframe
-    val filteredDatasetReloaded = newDataFrameToPath(dataFrame.inputFiles(0), endPreambleIndex, dataFrame, delimiter, hasHeader)
-    var filteredDataframe = filteredDatasetReloaded
+    //val filteredDatasetReloaded = newDataFrameToPath(dataFrame.inputFiles(0), endPreambleIndex, dataFrame.toDF, delimiter, hasHeader)
+    var filteredDataframe = dataFrame
 
     try {
-      filteredDataframe = newHeadForDataFrame(removePreambleRecursive(dataFrame, endPreambleIndex), dataFrame)
+      filteredDataframe = newHeadForDataFrame(removePreambleRecursive(dataFrame.toDF, endPreambleIndex), dataFrame)
     } catch {
       case e: Exception =>
 
@@ -59,8 +63,8 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     }
 
     //if column size is identical use modified dataframe, else use new parsed dataframe
-    if (filteredDataframe.columns.length != filteredDatasetReloaded.columns.length) {
-      filteredDataframe = filteredDatasetReloaded
+    if (filteredDataframe.columns.length != dataFrame.columns.length) {
+      filteredDataframe = dataFrame
     }
 
     val ergDataset = filteredDataframe
@@ -102,64 +106,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
     val erg = filteredDataset.count()
     erg.toInt
-  }
-
-
-  //removes all lines starting with commentg-charcter defined above ("-character is excluded)
-  /*def removeAllCommentLikes(dataFrame: DataFrame): DataFrame ={
-      val filteredDataset=dataFrame.filter(row=>row.get(0).toString().matches(preambleCharacters)==false)
-      newHeadForDataFrame(filteredDataset,dataFrame)
-      //filteredDataset
-  }*/
-
-  //creates a new datafram from the original dataframes path
-  def newDataFrameToPath(path: String, skipRows: Integer, oldFrame: DataFrame, delimeter: String, hasHeader: Boolean): DataFrame = {
-    val oldHeader = hasHeader
-    val oldSeperator = delimeter
-
-    val hasPreambleHeader = hasPreambleInColumn(oldFrame)
-    var rowsToRemove = skipRows
-    if (hasPreambleHeader) rowsToRemove += 1
-    if (rowsToRemove == 0) return oldFrame
-
-    val spark = SparkSession.builder.master("local").getOrCreate()
-    val sc = spark.sparkContext
-
-    val textFile = sc.textFile(path).filter(row => row.equals("") == false)
-
-    val rowed: RDD[Row] = textFile.map(_.split(oldSeperator)).map {
-      a: Array[_] => Row(a: _*)
-    }
-
-    val prefiltered = rowed.filter(row => row.size > 0)
-
-    val filteredTextFile = removePreambleOfFile(prefiltered, rowsToRemove)
-
-    try {
-      var head = filteredTextFile.first()
-      if (oldHeader == false) {
-        head = Row.fromSeq(filteredTextFile.first().toSeq.zipWithIndex.map { case (element, index) => "_c" + index }.toSeq)
-      }
-      val schema = this.schemaFromHeaderRow(head)
-      val fileBody = filteredTextFile.filter(row => row.equals(head) == false)
-      val newDF = spark.createDataFrame(fileBody, schema) //.toDF("1","2","3","4","5","6","7","8","9")
-
-      newDF
-    } catch {
-      case e: Exception => return oldFrame;
-    }
-  }
-
-  //creates a schema, assuming the given row as columns
-  def schemaFromHeaderRow(row: Row): StructType = {
-    var schema = new StructType()
-
-    var i = 0
-    for (i <- 0 to row.size - 1) {
-      schema = schema.add(row(i).toString, StringType)
-    }
-
-    schema
   }
 
   //removes all rows up to specified index
@@ -232,5 +178,13 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       0
   }
 
-
+  /**
+    * The abstract class of preparator implementation.
+    *
+    * @param abstractPreparator is the instance of { @link AbstractPreparator}. It needs to be converted to the corresponding subclass in the implementation body.
+    * @param dataFrame        contains the intermediate dataset
+    * @param errorAccumulator is the { @link CollectionAccumulator} to store preparation errors while executing the preparator.
+    * @return an instance of { @link ExecutionContext} that includes the new dataset, and produced errors.
+    * @throws Exception
+    */
 }
