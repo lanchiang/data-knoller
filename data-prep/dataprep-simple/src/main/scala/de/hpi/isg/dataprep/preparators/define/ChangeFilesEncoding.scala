@@ -64,7 +64,7 @@ class ChangeFilesEncoding(val propertyName: String,
     val targetEncoding = targetEncodings.find(e => e.getPropertyName.equals(propertyName)).getOrElse(return 0)
 
     val sourceEncoding = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(targetEncoding).asInstanceOf[FileEncoding]
-    if (targetEncoding.getFileEncoding.equals(sourceEncoding.getFileEncoding)) return 0
+    if (sourceEncoding != null && targetEncoding.getFileEncoding.equals(sourceEncoding.getFileEncoding)) return 0
 
     var errorCounter = 0
     dataset.foreach(row => {
