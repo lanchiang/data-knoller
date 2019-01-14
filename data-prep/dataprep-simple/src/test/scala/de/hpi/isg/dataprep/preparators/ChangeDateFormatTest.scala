@@ -88,4 +88,13 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
 
     an[IllegalArgumentException] should be thrownBy implementation.toDate("1/1/1", DatePatternEnum.DayMonthYear, regex)
   }
+
+  "Score" should "be calculated" in {
+    val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
+    val pokemonData = pipeline.getRawData
+    val total = pokemonData.count()
+    val expectedScore = pokemonDates.size.toFloat / total.toFloat
+    val score = preparator.calApplicability(null, pokemonData, null)
+    score shouldEqual expectedScore
+  }
 }
