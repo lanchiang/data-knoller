@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.io.File
 import java.nio.charset.{Charset, IllegalCharsetNameException}
+import java.nio.file.{Files, Paths}
 import java.util
 
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
@@ -52,26 +53,28 @@ class ChangeFilesEncoding(val propertyName: String,
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]):
   Float = {
-    //TODO: how do I get the fileEncoding? this way i only get a "metadata" object but can't access the fileEncoding :(
-    val sourceEncoding = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(FileEncoding)
-    val targetEncoding = targetMetadata.stream().filter()
-    if (sourceEncoding.equals(targetEncoding))
-      0
-    else {
-      val errorCounter = 0
-      val rows = this.getPreparation.getPipeline.getRawData
-      rows.foreach(
-        row => {
-          try ({
-            //TODO: how can I readFile for each column in one row? Was not able to get the columns and go for each column like it was possible in DDM
-            val content = readFile(row.toString(), sourceEncoding)
-            if (content == null) errorCounter + 1
-          })
-        }
-      )
-      if ((errorCounter / rows.count()) > 0.2) 1
-      else 0
-    }
-  }
+    if (dataset.columns.length != 1) return 0
+    val propertyName = dataset.columns(0)
 
+    val targetEncodings = targetMetadata.toArray(Array[Metadata]()).flatMap({
+      case encoding: FileEncoding => Some(encoding)
+      case _ => None
+    })
+
+    val targetEncodingOpt = targetEncodings.find(_.equals(propertyName))
+    if (targetEncodingOpt.isEmpty) return 0
+    val targetEncoding = targetEncodingOpt.get
+
+    val sourceEncoding = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(targetEncoding).asInstanceOf[FileEncoding]
+    if (targetEncoding.getFileEncoding.equals(sourceEncoding.getFileEncoding)) return 0
+
+    var errorCounter = 0
+    dataset.foreach(row => {
+      val fileName = row.getString(0)
+      if (!Files.exists(Paths.get(fileName))) errorCounter += 1
+    })
+
+    val rows = dataset.count()
+    1 - (errorCounter / rows)
+  }
 }
