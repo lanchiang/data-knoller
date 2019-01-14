@@ -28,14 +28,6 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   override def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
-    var testString="Vorname##Nachname#!#Zweiternachname"
-    Console.println(getCandidates(testString))
-    Console.println(getParts(testString))
-
-    testString="123456.78€"
-    Console.println(getCandidates(testString))
-    Console.println(getParts(testString))
-
     val preparator = abstractPreparator.asInstanceOf[SplitProperty]
     val propertyName = preparator.propertyName
 
