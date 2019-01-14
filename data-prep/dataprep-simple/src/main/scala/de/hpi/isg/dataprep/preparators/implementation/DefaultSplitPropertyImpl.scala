@@ -15,6 +15,17 @@ import scala.util.{Failure, Success, Try}
 
 class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
+  def evaluateSplit(column: Dataset[String], separator: String, numCols: Int): Float = {
+    import column.sparkSession.implicits._
+    val score = column
+      .map(value => value.count(_ == separator) + 1)
+      .map(numSplits => numCols - Math.abs(numCols - numSplits))
+      .map(rowScore => if(rowScore < 0)  0 else rowScore)
+      .collect()
+      .sum / numCols
+    score
+  }
+
   override def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
     var testString="Vorname##Nachname#!#Zweiternachname"

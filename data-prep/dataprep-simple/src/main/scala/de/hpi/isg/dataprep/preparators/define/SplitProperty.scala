@@ -2,18 +2,20 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
 
+
+
 class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
-  impl = new DefaultSplitPropertyImpl
+  private val splitPropertyImpl = this.impl.asInstanceOf[DefaultSplitPropertyImpl]
 
   def this(propertyName: String, separator: String, numCols: Int, fromLeft: Boolean = true) {
     this(propertyName, Some(separator), Some(numCols), fromLeft)
@@ -40,6 +42,15 @@ class SplitProperty(val propertyName: String, val separator: Option[String], val
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    0
+    import dataset.sparkSession.implicits._
+
+    if (!dataset.columns.contains(propertyName)) return 0
+    val numCols = schemaMapping.getTargetBySourceAttributeName(propertyName).size()
+    if (numCols <= 1) return 0
+
+    val separator = this.separator.getOrElse(this.splitPropertyImpl.findSeparator(dataset, propertyName))
+    val column = dataset.select(propertyName).map(row => row.getString(0))
+
+    this.splitPropertyImpl.evaluateSplit(column, separator, numCols)
   }
 }
