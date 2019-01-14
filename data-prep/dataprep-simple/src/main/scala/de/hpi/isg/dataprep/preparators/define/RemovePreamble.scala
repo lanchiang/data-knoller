@@ -74,13 +74,14 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     // Consecutive lines starting with the same character
     checkForSameCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
+
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
     finalScore *= charsInEachLine(dataset)
     finalScore.toFloat
   }
 
   def checkForSameCharacterInConsecutiveRows(dataset: Dataset[Row]): Double = {
-    val dataArray = dataset.drop(0) //TODO drop or collect just for first column??
+    val dataArray = dataset.collect() //TODO drop or collect just for first column??
     var countSameCharacter = 0
     var finalScoreForCharacter = 1.0
 
