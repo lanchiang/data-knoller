@@ -61,9 +61,7 @@ class ChangeFilesEncoding(val propertyName: String,
       case _ => None
     })
 
-    val targetEncodingOpt = targetEncodings.find(_.equals(propertyName))
-    if (targetEncodingOpt.isEmpty) return 0
-    val targetEncoding = targetEncodingOpt.get
+    val targetEncoding = targetEncodings.find(e => e.getPropertyName.equals(propertyName)).getOrElse(return 0)
 
     val sourceEncoding = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(targetEncoding).asInstanceOf[FileEncoding]
     if (targetEncoding.getFileEncoding.equals(sourceEncoding.getFileEncoding)) return 0
