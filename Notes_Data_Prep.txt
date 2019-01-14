@@ -1,0 +1,45 @@
+Protocol of Data Prep Meeting
+
+- Month, year, date -> merge
+
+- Make features to identify which columns to merge:
+
+e.g. 4 digits in range of 19~~ to 20~~ -> year
+e.g. integer beteen 1 and 12 -> month
+
+e.g. header with order_day (substring) -> similarity of header names
+
+e.g. first name, last name
+e.g. age (0-100)
+
+- Don't enumerate all cases you can think of, do it withou specifying a lot of rules
+-> insteadt if pattern looks like this, its a hint that we schould merge this
+
+- Use types to identify generic  features like long for name
+
+- Foreign key is not part
+
+- Use column, data set statistics: distribution, uniquness, max, min, Null values (e.g. Age and age2)(real use case like after a join)(eg Cora, Journal & Conference),
+similarity of values, range of numeric, average length of string
+
+- How dropping assumption can be helpful
+
+- Deriave from the data
+
+Scorring:
+API gives us Schema Mapping and part of the Data set. Data set has 10 columns, each time you get only part of it and you need to calculate the 
+adapbility function for these few columns. How likly do I want to merge this two columns? Pipline ask me repeatly. We need to return values for
+each of repetion. Range from 1 (very likly) to 0 (unlikely).
+
+- How to get the score? For example the collisions (if  two columns are the same data -> no collicsion) Rule to asign the weight, when to merge
+
+- Also use case for merge attribute: same data
+
+Scorring idea in general (maybe not our case): row-vise if merge makes sense (e.g. one row: first name, last name; new row: number,last name
+-> only one of two rows make sense to merge -> score of 0.5
+-> count how many rows make sense to merge
+-> maybe by Sample
+
+- Explore similarity measures
+
+!Don't get to specific, find creative ideas (Our IDEA is important for them)!
