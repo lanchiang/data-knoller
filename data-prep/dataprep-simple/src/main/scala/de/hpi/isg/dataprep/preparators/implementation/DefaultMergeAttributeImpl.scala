@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.MergeAttribute
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, udf}
+import org.apache.spark.sql.functions.{col, udf, max}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
@@ -23,10 +23,11 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 	override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 		val preparator = abstractPreparator.asInstanceOf[MergeAttribute];
 		val newColumnName = findName(preparator.attributes(0),preparator.attributes(1))
-		val df = dataFrame.withColumn(newColumnName, merge(preparator.connector)(col(preparator.attributes(0)),col(preparator.attributes(1))))
+		val mergeFunc = if (preparator.connector.isEmpty) merge else merge(preparator.connector)
+		val df = dataFrame.withColumn(newColumnName, mergeFunc(col(preparator.attributes(0)),col(preparator.attributes(1))))
 		val deleteColumns = preparator.attributes.filter(x => x!= newColumnName)
 		val columns = df.columns.filter( c => !deleteColumns.contains(c)).map(col(_))
-
+		//findMergeCandidates(dataFrame)
 		new ExecutionContext(df.select(columns: _*),errorAccumulator)
 	}
 	def merge(connector: String): UserDefinedFunction =
@@ -34,9 +35,46 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 			col1 + connector + col2
 	})
 
+	def findMergeCandidates( dataset: Dataset[Row]) =
+	{
+		import dataset.sparkSession.implicits._
+		val columns = dataset.columns.toSeq
+
+		columns.flatMap (
+			col => (
+					columns.filter(x => x != col).map(x=>(col,x))
+					)
+		)
+		.map(x => dataset.select(x._1, x._2))
+		.map(colCombo =>
+					colCombo.map(
+						row =>{
+								val a = row.getString(0)
+								val b = row.getString(1)
+								if (a.equals(b))
+									1
+								else if ( a.trim.isEmpty || b.trim.isEmpty)
+									1
+								else
+									0
+					}
+					).reduce(_ + _)
+			).toDF().agg(col("__1"))
+
+	}
+	def isNull(value:String) = value.trim.isEmpty
+	def isGoodToMerge(a:String, b:String):Integer = {
+		if (a.equals(b))
+			1
+		else if ( isNull(a) || isNull(b))
+			1
+		else
+			0
+	}
+
 	def merge():UserDefinedFunction =
 	udf((col1: String,col2: String) => {
-		if (col1.equals(col2)) col1 else if (col1.trim.nonEmpty) col2 else col1
+		if (col1.equals(col2)) col1 else if (col2.trim.nonEmpty) col2 else col1
 	})
 
 	def getAllSubstrings(str: String): Set[String] = {
