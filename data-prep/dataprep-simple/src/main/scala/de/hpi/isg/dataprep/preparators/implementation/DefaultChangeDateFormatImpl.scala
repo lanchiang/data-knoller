@@ -51,8 +51,8 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     val sourcePatternOpt = preparator.sourceDatePattern
 
     val createdDataset = sourcePatternOpt match {
-      case Some(pattern) => convertDateInDataset(dataFrame, rowEncoder, errorAccumulator, fieldName, pattern, targetPattern)
-      case None => convertDateInDataset(dataFrame, rowEncoder, errorAccumulator, fieldName, targetPattern)
+      case Some(pattern) => convertDateInDataset(dataFrame, rowEncoder, Option(errorAccumulator), fieldName, pattern, targetPattern)
+      case None => convertDateInDataset(dataFrame, rowEncoder, Option(errorAccumulator), fieldName, targetPattern)
     }
 
     createdDataset.persist()
@@ -66,11 +66,12 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
   def convertDateInDataset(
                             dataset: Dataset[Row],
                             rowEncoder: ExpressionEncoder[Row],
-                            errorAccumulator: CollectionAccumulator[PreparationError],
+                            errorAccumulatorOption: Option[CollectionAccumulator[PreparationError]],
                             fieldName: String,
                             sourcePattern: DatePatternEnum,
                             targetPattern: DatePatternEnum
                           ): Dataset[Row] = {
+    val errorAccumulator = errorAccumulatorOption.getOrElse(this.createErrorAccumulator(dataset))
     dataset.flatMap { row =>
       val index = row.fieldIndex(fieldName)
       val seq = row.toSeq
@@ -97,7 +98,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
   def convertDateInDataset(
                             dataset: Dataset[Row],
                             rowEncoder: ExpressionEncoder[Row],
-                            errorAccumulator: CollectionAccumulator[PreparationError],
+                            errorAccumulatorOption: Option[CollectionAccumulator[PreparationError]],
                             fieldName: String,
                             targetPattern: DatePatternEnum
                           ): Dataset[Row] = {
@@ -114,6 +115,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
       .toList
     val mostMatchedRegex = regexValidCount.maxBy(_._2)._1
 
+    val errorAccumulator = errorAccumulatorOption.getOrElse(this.createErrorAccumulator(dataset))
     dataset.flatMap { row =>
       val index = row.fieldIndex(fieldName)
       val seq = row.toSeq

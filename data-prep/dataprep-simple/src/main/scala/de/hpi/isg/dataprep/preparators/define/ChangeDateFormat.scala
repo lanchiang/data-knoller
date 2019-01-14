@@ -5,12 +5,19 @@ import java.{lang, util}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
+import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
+import de.hpi.isg.dataprep.schema.SchemaUtils
+import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable.ListBuffer
 import collection.JavaConverters._
@@ -48,7 +55,39 @@ class ChangeDateFormat(val propertyName: String,
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    0
+    // THIS IS A PLACEHOLDER IMPLEMENTATION (for task 3 of Axel Stebner, Jan Ehmueller)
+    val impl = this.impl.asInstanceOf[DefaultChangeDateFormatImpl]
+    val schema = dataset.schema
+    val maxCount = dataset.count.toFloat
+
+    // try to convert every column and find the one with the highest score
+    val results = schema.toList.map { column =>
+      val columnName = column.name
+      column.dataType match {
+        // we can only convert string columns
+        case StringType =>
+          val rowEncoder = RowEncoder(
+            SchemaUtils.updateSchema(schema, columnName, DataType.getSparkTypeFromInnerType(PropertyType.STRING))
+          )
+          val converted = impl.convertDateInDataset(
+            dataset,
+            rowEncoder,
+            None,
+            columnName,
+            this.targetDatePattern.getOrElse(DatePatternEnum.DayMonthYear)
+          )
+          converted.count
+        // any other column type results in a score of 0
+        case _ => 0
+      }
+    }
+
+    // choose the highest score and normalize it with the number of rows in the original dataset
+    if (results.nonEmpty && maxCount > 0) {
+      results.max.toFloat / maxCount
+    } else {
+      0.0f
+    }
   }
 }
 
