@@ -75,10 +75,22 @@ public class MergeAttributeTest {
 
 		List<String> columns = new ArrayList<>();
 		columns.add("id");
-		columns.add("identifier");
-		AbstractPreparator abstractPreparator = new MergeAttribute(columns, "|");
+		columns.add("species_id");
+
+		List<String> columns2 = new ArrayList<>();
+		columns2.add("stemlemma");
+		columns2.add("stemlemma2");
+
+		List<String> columns3 = new ArrayList<>();
+		columns3.add("stemlemma");
+		columns3.add("stemlemma_wrong");
+
+
+		AbstractPreparator abstractPreparator = new MergeAttribute(columns,"");
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
+		pipeline.addPreparation(new Preparation(new MergeAttribute(columns2, "")));
+		pipeline.addPreparation(new Preparation(new MergeAttribute(columns3, "")));
 		pipeline.executePipeline();
 		pipeline.getRawData().show();
 	}
