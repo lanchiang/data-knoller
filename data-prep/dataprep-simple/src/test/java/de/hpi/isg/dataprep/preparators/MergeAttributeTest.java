@@ -28,6 +28,8 @@ public class MergeAttributeTest {
 	protected static AbstractPipeline pipeline;
 	protected static DataContext dataContext;
 
+	protected static  DataContext restaurantsContext;
+
 	@BeforeClass
 	public static void setUp() {
 		Logger.getLogger("org").setLevel(Level.OFF);
@@ -39,6 +41,13 @@ public class MergeAttributeTest {
 			.url("./src/test/resources/pokemon.csv")
 			.buildDialect();
 
+		FileLoadDialect restaurants = new DialectBuilder()
+			.hasHeader(true)
+			.delimiter("\t")
+			.inferSchema(true)
+			.url("./src/test/resources/restaurants.tsv")
+			.buildDialect();
+
 //        FileLoadDialect dialect = new DialectBuilder()
 //                .hasHeader(true)
 //                .delimiter("\t")
@@ -48,6 +57,9 @@ public class MergeAttributeTest {
 
 		SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
 		dataContext = dataLoader.load();
+
+		SparkDataLoader dataLoader1 = new FlatFileDataLoader(restaurants);
+		restaurantsContext = dataLoader1.load();
 
 //        dataContext.getDataFrame().show();
 		return;
@@ -69,6 +81,30 @@ public class MergeAttributeTest {
 		pipeline.addPreparation(preparation);
 		pipeline.executePipeline();
 		pipeline.getRawData().show();
+	}
+	@Test
+	public void mergeAdressTest() throws Exception{
+		pipeline = new Pipeline(restaurantsContext);
+		List<String> columns = new ArrayList<>();
+		columns.add("address");
+		columns.add("city");
+		AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
+		AbstractPreparation preparation = new Preparation(abstractPreparator);
+		pipeline.addPreparation(preparation);
+		pipeline.executePipeline();
+		pipeline.getRawData().show();
+	}
+
+	@Test
+	public void testAttributeMergeWithInt() throws Exception {
+
+//		List<Integer> columns = new ArrayList<>();
+//		columns.add(0);
+//		columns.add(1);
+//		AbstractPreparator abstractPreparator = new MergeAttribute(columns, "|");
+//		AbstractPreparation preparation = new Preparation(abstractPreparator);
+////		pipeline.executePipeline();
+	//	pipeline.getRawData().show();
 	}
 
 }
