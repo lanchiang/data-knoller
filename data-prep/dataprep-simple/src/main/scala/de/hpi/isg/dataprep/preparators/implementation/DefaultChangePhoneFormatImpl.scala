@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.metadata.PhoneNumberFormat
+import de.hpi.isg.dataprep.metadata.{DINPhoneNumberFormat, DINPhoneNumberFormatComponent, PhoneNumberFormat}
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat
@@ -13,6 +13,9 @@ import org.apache.spark.util.CollectionAccumulator
 import scala.util.{Failure, Success, Try}
 
 class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializable {
+  import PhoneNumberNormalizerInstances._
+  import PhoneNumberNormalizerSyntax._
+
   /**
     * The abstract class of preparator implementation.
     *
@@ -55,7 +58,12 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = ???
+  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
+    (sourceFormat, targetFormat) match {
+      case (dinSF: DINPhoneNumberFormat, dinTF: DINPhoneNumberFormat) =>
+        PhoneNumberNormalizer.fromMeta(dinSF)(phoneNumber)(DINNormalizer) flatMap PhoneNumberNormalizer.toMeta(dinTF)
+    }
+  }
 
   /**
     * Converting a given phone number
