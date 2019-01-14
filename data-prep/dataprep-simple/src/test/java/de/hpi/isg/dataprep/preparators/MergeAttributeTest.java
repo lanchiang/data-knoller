@@ -82,6 +82,7 @@ public class MergeAttributeTest {
 		pipeline.executePipeline();
 		pipeline.getRawData().show();
 	}
+
 	@Test
 	public void mergeAdressTest() throws Exception{
 		pipeline = new Pipeline(restaurantsContext);
@@ -93,6 +94,16 @@ public class MergeAttributeTest {
 		pipeline.addPreparation(preparation);
 		pipeline.executePipeline();
 		pipeline.getRawData().show();
+	}
+
+	@Test
+	public void testAplicabilityFunc() throws Exception{
+		//Dataset<Row> dataset = restaurantsContext.getDataFrame();
+		//List<String> columns = new ArrayList<>();
+		//columns.add("address");
+		//columns.add("city");
+		//AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
+		//System.out.println(abstractPreparator.calApplicability(null,dataset,null));
 	}
 
 	@Test
