@@ -104,4 +104,21 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     }
 
   }
+
+  def charsInEachLine(dataset: Dataset[Row]): Double = {
+    val w2v = dataset
+      .rdd
+      .zipWithIndex()
+      .map( e => (e._2, e._1.toString().toList.groupBy(e => e).toList.map(tup => (tup._1, tup._2.size))
+      ))
+
+    val reoccuringChars = w2v.fold(w2v.first())((tup1, tup2) => (tup2._1, tup1._2.intersect(tup2._2)))._2.size
+    if(reoccuringChars == 0){
+      return 1
+    }
+    if(reoccuringChars >= 1){
+      return 0
+    }
+
+  }
 }
