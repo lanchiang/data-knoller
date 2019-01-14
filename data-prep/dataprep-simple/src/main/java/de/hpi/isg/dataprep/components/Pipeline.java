@@ -13,6 +13,7 @@ import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.DecisionEngine;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
@@ -36,6 +37,10 @@ public class Pipeline implements AbstractPipeline {
     private ErrorRepository errorRepository;
 
     private List<AbstractPreparation> preparations;
+
+    private DecisionEngine decisionEngine;
+
+    //
 
     private int index = 0;
 
@@ -178,6 +183,7 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void addRecommendedPreparation() {
         // Todo: urgent
+        // collect the scores from the preparators.
     }
 
     @Override

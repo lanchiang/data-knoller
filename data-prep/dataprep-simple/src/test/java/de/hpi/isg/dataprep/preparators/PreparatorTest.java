@@ -34,6 +34,7 @@ public class PreparatorTest {
                 .hasHeader(true)
                 .inferSchema(true)
                 .url("./src/test/resources/pokemon.csv")
+//                .url("/Users/Fuga/Downloads/tempt.csv")
                 .buildDialect();
 
 //        FileLoadDialect dialect = new DialectBuilder()
@@ -53,7 +54,7 @@ public class PreparatorTest {
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
 
-//        dataContext.getDataFrame().show();
+        dataContext.getDataFrame().show();
         return;
     }
 
