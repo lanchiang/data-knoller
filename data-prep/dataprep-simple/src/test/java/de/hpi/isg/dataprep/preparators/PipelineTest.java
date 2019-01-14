@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
@@ -33,27 +34,27 @@ public class PipelineTest extends PreparatorTest {
 //    public void testPipelineOnRestaurants() throws Exception {
 //        pipeline.getRawData().show();
 //
-//        Preparator prep1 = new ReplaceSubstring("phone", "/", "-");
+//        AbstractPreparator prep1 = new ReplaceSubstring("phone", "/", "-");
 //        AbstractPreparation preparation1 = new Preparation(prep1);
 //        pipeline.addPreparation(preparation1);
 //
-//        Preparator prep2 = new ReplaceSubstring("type", "[(\\s[0-9]+/[0-9]+-[0-9]+\\s)]", "");
+//        AbstractPreparator prep2 = new ReplaceSubstring("type", "[(\\s[0-9]+/[0-9]+-[0-9]+\\s)]", "");
 //        AbstractPreparation preparation2 = new Preparation(prep2);
 //        pipeline.addPreparation(preparation2);
 //
-//        Preparator prep3 = new MoveProperty("id", 0);
+//        AbstractPreparator prep3 = new MoveProperty("id", 0);
 //        AbstractPreparation preparation3 = new Preparation(prep3);
 //        pipeline.addPreparation(preparation3);
 //
-//        Preparator prep4 = new MoveProperty("type", 1);
+//        AbstractPreparator prep4 = new MoveProperty("type", 1);
 //        AbstractPreparation preparation4 = new Preparation(prep4);
 //        pipeline.addPreparation(preparation4);
 //
-//        Preparator prep5 = new DeleteProperty("merged_values");
+//        AbstractPreparator prep5 = new DeleteProperty("merged_values");
 //        AbstractPreparation preparation5 = new Preparation(prep5);
 //        pipeline.addPreparation(preparation5);
 //
-//        Preparator prep6 = new ChangeDelimiter(pipeline.getDatasetName(), ";");
+//        AbstractPreparator prep6 = new ChangeDelimiter(pipeline.getDatasetName(), ";");
 //        AbstractPreparation preparation6 = new Preparation(prep6);
 //        pipeline.addPreparation(preparation6);
 //
@@ -67,11 +68,11 @@ public class PipelineTest extends PreparatorTest {
         pipeline.getRawData().show();
         pipeline.getRawData().printSchema();
 
-        Preparator prep1 = new ReplaceSubstring("identifier", "[(\\s)+]", "");
+        AbstractPreparator prep1 = new ReplaceSubstring("identifier", "[(\\s)+]", "");
         AbstractPreparation preparation1 = new Preparation(prep1);
         pipeline.addPreparation(preparation1);
 
-        Preparator prep2 = new ReplaceSubstring("id", "three", "3");
+        AbstractPreparator prep2 = new ReplaceSubstring("id", "three", "3");
         AbstractPreparation preparation2 = new Preparation(prep2);
         pipeline.addPreparation(preparation2);
 
@@ -82,12 +83,12 @@ public class PipelineTest extends PreparatorTest {
 
     @Test
     public void testShortPipeline() throws Exception {
-        Preparator preparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
-        Preparation preparation1 = new Preparation(preparator1);
+        AbstractPreparator abstractPreparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
+        Preparation preparation1 = new Preparation(abstractPreparator1);
         pipeline.addPreparation(preparation1);
 
-        Preparator preparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
-        Preparation preparation2 = new Preparation(preparator2);
+        AbstractPreparator abstractPreparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
+        Preparation preparation2 = new Preparation(abstractPreparator2);
         pipeline.addPreparation(preparation2);
 
         pipeline.executePipeline();
@@ -109,7 +110,7 @@ public class PipelineTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -119,26 +120,29 @@ public class PipelineTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.
         Assert.assertEquals(trueSchema, updatedSchema);
         Assert.assertEquals(updated.count(), 7L);
-        Assert.assertEquals(updatedSchema.size(), 9);
+        Assert.assertEquals(updatedSchema.size(), 12);
     }
 
     @Test(expected = PipelineSyntaxErrorException.class)
     public void testShortPipelineWithMetadataNotMatch() throws Exception {
-        Preparator preparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
-        Preparation preparation1 = new Preparation(preparator1);
+        AbstractPreparator abstractPreparator1 = new ChangeDataType("id", DataType.PropertyType.STRING, DataType.PropertyType.INTEGER);
+        Preparation preparation1 = new Preparation(abstractPreparator1);
         pipeline.addPreparation(preparation1);
 
-        Preparator preparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
-        Preparation preparation2 = new Preparation(preparator2);
+        AbstractPreparator abstractPreparator2 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
+        Preparation preparation2 = new Preparation(abstractPreparator2);
         pipeline.addPreparation(preparation2);
 
-        Preparator preparator3 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
-        Preparation preparation3 = new Preparation(preparator3);
+        AbstractPreparator abstractPreparator3 = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.DOUBLE);
+        Preparation preparation3 = new Preparation(abstractPreparator3);
         pipeline.addPreparation(preparation3);
 
         pipeline.executePipeline();
@@ -165,7 +169,7 @@ public class PipelineTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -175,6 +179,9 @@ public class PipelineTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty())
         });
 
         // Second test whether the schema is correctly updated.

@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.preparators.define.RenameProperty;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
@@ -25,9 +26,9 @@ public class RenamePropertyTest extends PreparatorTest {
 
     @Test
     public void testRenameExistingProperty() throws Exception {
-        Preparator preparator = new RenameProperty("id", "ID");
+        AbstractPreparator abstractPreparator = new RenameProperty("id", "ID");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -40,7 +41,7 @@ public class RenamePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("ID", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -50,6 +51,9 @@ public class RenamePropertyTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.
@@ -63,9 +67,9 @@ public class RenamePropertyTest extends PreparatorTest {
      */
     @Test
     public void testRenameNonExistingProperty() throws Exception {
-        Preparator preparator = new RenameProperty("Gaodu", "gaodu");
+        AbstractPreparator abstractPreparator = new RenameProperty("Gaodu", "gaodu");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -80,7 +84,7 @@ public class RenamePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -90,6 +94,9 @@ public class RenamePropertyTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.
@@ -98,9 +105,9 @@ public class RenamePropertyTest extends PreparatorTest {
 
     @Test
     public void testRenamePropertyToExistingName() throws Exception {
-        Preparator preparator = new RenameProperty("order", "weight");
+        AbstractPreparator abstractPreparator = new RenameProperty("order", "weight");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -115,7 +122,7 @@ public class RenamePropertyTest extends PreparatorTest {
         Dataset<Row> updated = pipeline.getRawData();
         StructType updatedSchema = updated.schema();
 
-        StructType trueSchema = new StructType(new StructField[] {
+        StructType trueSchema = new StructType(new StructField[]{
                 new StructField("id", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
@@ -125,6 +132,9 @@ public class RenamePropertyTest extends PreparatorTest {
                 new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("date", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
+                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
         });
 
         // Second test whether the schema is correctly updated.

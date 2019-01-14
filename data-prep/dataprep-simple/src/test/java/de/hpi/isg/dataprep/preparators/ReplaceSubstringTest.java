@@ -1,14 +1,12 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.preparators.define.ReplaceSubstring;
-import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,9 +21,9 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
     @Test
     public void testReplaceAllNormalString() throws Exception {
-        Preparator preparator = new ReplaceSubstring("identifier", "cha", "CT");
+        AbstractPreparator abstractPreparator = new ReplaceSubstring("identifier", "cha", "CT");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -45,9 +43,9 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
     @Test
     public void testReplaceFirstSomeNormalString() throws Exception {
-        Preparator preparator = new ReplaceSubstring("identifier", "b", "mam", 1);
+        AbstractPreparator abstractPreparator = new ReplaceSubstring("identifier", "b", "mam", 1);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -67,9 +65,9 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
     @Test
     public void testReplaceAllWithRegex() throws Exception {
-        Preparator preparator = new ReplaceSubstring("identifier", "(\\s+)([a-z]+)(\\s+)", "REP");
+        AbstractPreparator abstractPreparator = new ReplaceSubstring("identifier", "(\\s+)([a-z]+)(\\s+)", "REP");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -89,7 +87,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
 
 //    @Test
 //    public void testFirstSomeParameterIllegal() throws Exception {
-//        Preparator preparator = new ReplaceSubstring(new DefaultReplaceSubstringImpl());
+//        AbstractPreparator preparator = new ReplaceSubstring(new DefaultReplaceSubstringImpl());
 //        ((ReplaceSubstring) preparator).setPropertyName("identifier");
 //        ((ReplaceSubstring) preparator).setSource("(\\s+)([a-z]+)(\\s+)");
 //        ((ReplaceSubstring) preparator).setReplacement("REP");

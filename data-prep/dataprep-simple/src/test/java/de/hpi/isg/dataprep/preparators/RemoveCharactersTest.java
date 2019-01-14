@@ -1,7 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+        ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.components.Preparator;
 import de.hpi.isg.dataprep.preparators.define.RemoveCharacters;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -21,9 +22,9 @@ public class RemoveCharactersTest extends PreparatorTest {
 
     @Test
     public void testRemoveNumeric() throws Exception {
-        Preparator preparator = new RemoveCharacters("id", RemoveCharactersMode.NUMERIC);
+        AbstractPreparator abstractPreparator = new RemoveCharacters("id", RemoveCharactersMode.NUMERIC);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -37,9 +38,9 @@ public class RemoveCharactersTest extends PreparatorTest {
 
     @Test
     public void testRemoveNonAlphanumeric() throws Exception {
-        Preparator preparator = new RemoveCharacters("base_experience", RemoveCharactersMode.NONALPHANUMERIC);
+        AbstractPreparator abstractPreparator = new RemoveCharacters("base_experience", RemoveCharactersMode.NONALPHANUMERIC);
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
@@ -53,9 +54,9 @@ public class RemoveCharactersTest extends PreparatorTest {
 
     @Test
     public void testRemoveCustom() throws Exception {
-        Preparator preparator = new RemoveCharacters("id", RemoveCharactersMode.CUSTOM, "ee");
+        AbstractPreparator abstractPreparator = new RemoveCharacters("id", RemoveCharactersMode.CUSTOM, "ee");
 
-        AbstractPreparation preparation = new Preparation(preparator);
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
