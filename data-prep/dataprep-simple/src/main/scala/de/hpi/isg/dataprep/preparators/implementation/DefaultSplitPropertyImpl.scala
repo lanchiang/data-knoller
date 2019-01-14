@@ -11,6 +11,7 @@ import org.apache.spark.sql.{Dataset, Encoder, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable.ListBuffer
+import scala.util.{Failure, Success, Try}
 
 class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
@@ -27,34 +28,37 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[SplitProperty]
     val propertyName = preparator.propertyName
 
-    val (separator, numCols) = try {
-      val separator = preparator.separator match {
-        case Some(s) => s
-        case _ => findSeparator(dataFrame, propertyName)
-      }
+    val parameters = for {
+      separator <- Try(
+        preparator.separator.getOrElse(
+          findSeparator(dataFrame, propertyName)
+        )
+      )
+      numCols <- Try(
+        preparator.numCols.getOrElse(
+          findNumberOfColumns(dataFrame, propertyName, separator)
+        )
+      )
+    } yield (separator, numCols)
 
-      val numCols = preparator.numCols match {
-        case Some(n) => n
-        case _ => findNumberOfColumns(dataFrame, propertyName, separator)
-      }
-
-      (separator, numCols)
-    } catch {
-      case e: IllegalArgumentException =>
+    val returnDataFrame = parameters match {
+      case Success((separator, numCols)) =>
+        val splitDataFrame = createSplitValuesDataFrame(
+          dataFrame,
+          propertyName,
+          separator,
+          numCols,
+          preparator.fromLeft
+        )
+        splitDataFrame.count()
+        splitDataFrame
+      case Failure(e: IllegalArgumentException) =>
         errorAccumulator.add(new RecordError(propertyName, e))
-        return new ExecutionContext(dataFrame, errorAccumulator)
+        dataFrame
+      case Failure(e) => throw e
     }
 
-    val splitValuesDataFrame = createSplitValuesDataFrame(
-      dataFrame,
-      propertyName,
-      separator,
-      numCols,
-      preparator.fromLeft
-    )
-
-    splitValuesDataFrame.count()
-    new ExecutionContext(splitValuesDataFrame, errorAccumulator)
+    new ExecutionContext(returnDataFrame, errorAccumulator)
   }
 
   def findSeparator(dataFrame: Dataset[Row], propertyName: String): String = {
@@ -69,8 +73,8 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     val charMaps = dataFrame.select(propertyName).collect().map(
       row => {
         val value = row.getAs[String](0)
-        value.groupBy(identity).filter{
-          case(char, string) => !char.isLetterOrDigit
+        value.groupBy(identity).filter {
+          case (char, string) => !char.isLetterOrDigit
         }.mapValues(_.length)
       })
     val chars = charMaps.flatMap(map => map.keys).distinct
