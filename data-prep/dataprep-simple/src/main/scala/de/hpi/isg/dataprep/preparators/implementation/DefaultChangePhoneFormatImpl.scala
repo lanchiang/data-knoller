@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.metadata.{DINPhoneNumberFormat, PhoneNumberFormat}
+import de.hpi.isg.dataprep.metadata.PhoneNumberFormat
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat
@@ -35,7 +35,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
 
       val convertTry = Option(preparator.sourceFormat)
         .fold(convert(operatedValue, preparator.targetFormat))(convert(operatedValue, _, preparator.targetFormat))
-        .flatMap(number => Try(Row.fromSeq(start ++ Seq(number) ++ end)))
+        .flatMap(phoneNumber => Try(Row.fromSeq(start ++ Seq(phoneNumber) ++ end)))
 
       convertTry match {
         case Failure(exception) => errorAccumulator.add(new RecordError(operatedValue, exception))
@@ -58,11 +58,8 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
-    (sourceFormat, targetFormat) match {
-      case (dinSF: DINPhoneNumberFormat, dinTF: DINPhoneNumberFormat) => phoneNumber.converted(dinSF, dinTF)
-      case _ => Failure(new IllegalArgumentException())
-    }
+  def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
+    phoneNumber.converted(sourceFormat, targetFormat)
   }
 
   /**
@@ -71,10 +68,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  private def convert(phoneNumber: String, targetFormat: PhoneNumberFormat): Try[String] = {
-    targetFormat match {
-      case dinTF: DINPhoneNumberFormat => phoneNumber.converted(dinTF)
-      case _ => Failure(new IllegalArgumentException())
-    }
+  def convert(phoneNumber: String, targetFormat: PhoneNumberFormat): Try[String] = {
+    phoneNumber.converted(targetFormat)
   }
 }
