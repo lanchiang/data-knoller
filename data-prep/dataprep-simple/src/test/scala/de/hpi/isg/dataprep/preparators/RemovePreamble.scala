@@ -47,4 +47,27 @@ class RemovePreamble extends PreparatorScalaTest {
     1 shouldEqual(1)
   }
 
+  "RemovePreable" should "find the correct first char in each line" in {
+    val sparkBuilder = SparkSession
+      .builder()
+      .appName("SparkTutorial")
+      .master("local[4]") // local, with 4 worker cores
+    val spark = sparkBuilder.getOrCreate()
+    import spark.implicits._
+    val customDataset = Seq(("1","2"), ("3","4"), ("postamble",""),("postamble",""),("postamble",""),("1", "3"), ("","fake")).toDF
+    customDataset.columns.length shouldEqual(2)
+
+    val test = customDataset
+      .rdd
+      .zipWithIndex()
+      .map(e => (e._1.toString().charAt(1),List(e._2)))
+      .reduceByKey(_.union(_))
+      .flatMap(row => row._2.groupBy(k => k - row._2.indexOf(k)).toList.map(group => (row._1, group._2.size)))
+      .filter(row => row._1.toString.matches("[^0-9]"))
+    .map(_.toString)
+    .collect
+    .reduce( _+ "|" + _)
+    test shouldEqual("ol")
+  }
+
 }

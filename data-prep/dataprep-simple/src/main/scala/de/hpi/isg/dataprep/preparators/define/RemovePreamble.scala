@@ -72,7 +72,7 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     }
 
     // Consecutive lines starting with the same character
-    checkForSameCharacterInConsecutiveRows(dataset)
+    finalScore *= checkFirstCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
 
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
@@ -80,29 +80,24 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     finalScore.toFloat
   }
 
-  def checkForSameCharacterInConsecutiveRows(dataset: Dataset[Row]): Double = {
-    val dataArray = dataset.collect() //TODO drop or collect just for first column??
-    var countSameCharacter = 0
-    var finalScoreForCharacter = 1.0
+  def checkFirstCharacterInConsecutiveRows(dataset: Dataset[Row]): Double = {
 
-    for (row <- dataArray) {
-      for (i <- Range(1, row.length)) {
-        //get first value in first line
-        var firstValue = row.get(0)
-        //get first character of the value
-        var firstCharacterOfFirstValue = firstValue.charAt(0)
+    val charOccurence = dataset
+      .rdd
+      .zipWithIndex()
+      .map(e => (e._1.toString().charAt(1),List(e._2)))
+      .reduceByKey(_.union(_))
+      .flatMap(row => row._2.groupBy(k => k - row._2.indexOf(k)).toList.map(group => (row._1, group._2.size)))
+      .filter(row => row._1.toString.matches("[^0-9]"))
+      .collect
 
-        //check match of the same character in next lines
-        if(firstCharacterOfFirstValue == row.get(i).charAt(0)){
-          //add +1 if the consecutive line has the same first character
-          countSameCharacter+=1
-        }
-        //check countSameCharacter and calculate score
-        if (countSameCharacter == 3) {
-          finalScoreForCharacter *= 0.99
-        }
-        //check if countSameCharacter is higher than 3
-      }
+    val longestSeq = charOccurence.maxBy(a => a._2)
+    val secondSeq = charOccurence.filter(e => e._2 < longestSeq._2).maxBy(a => a._2)
+    val numberOfLongestSeq = charOccurence.count(e => e._2 == longestSeq._2)
+    val decisionBound = (numberOfLongestSeq+secondSeq._2)/longestSeq._2
+    decisionBound > 1 match {
+      case true => 0.5
+      case _ => 1 - decisionBound
     }
   }
 
