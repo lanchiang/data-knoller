@@ -1,6 +1,5 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.io.File
 import java.nio.charset.{Charset, IllegalCharsetNameException}
 import java.nio.file.{Files, Paths}
 import java.util
@@ -12,8 +11,6 @@ import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
-
-import scala.io.{Codec, Source}
 
 /**
   *
@@ -47,9 +44,6 @@ class ChangeFilesEncoding(val propertyName: String,
     if (!Charset.isSupported(encoding)) throw new EncodingNotSupportedException(s"$encoding is not supported by your JVM.")
     if (target && !Charset.forName(encoding).canEncode) throw new IllegalCharsetNameException(encoding)
   }
-
-  private def readFile(file: String, inputEncoding: Charset): String = Source.fromFile(new File(file))(new Codec(inputEncoding)).mkString
-
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]):
   Float = {
