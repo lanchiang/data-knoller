@@ -42,10 +42,8 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     val fieldName = preparator.propertyName
     // Here the program needs to check the existence of these fields.
 
-    val rowEncoder = RowEncoder(SchemaUtils.updateSchema(
-      dataFrame.schema,
-      fieldName,
-      DataType.getSparkTypeFromInnerType(PropertyType.STRING)))
+    // since we only work on string columns and output strings we can use the input schema
+    val rowEncoder = RowEncoder(dataFrame.schema)
 
     val targetPattern = preparator.targetDatePattern.get
     val sourcePatternOpt = preparator.sourceDatePattern

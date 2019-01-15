@@ -63,12 +63,9 @@ class ChangeDateFormat(val propertyName: String,
       column.dataType match {
         // we can only convert string columns
         case StringType =>
-          val rowEncoder = RowEncoder(
-            SchemaUtils.updateSchema(schema, columnName, DataType.getSparkTypeFromInnerType(PropertyType.STRING))
-          )
           val converted = impl.convertDateInDataset(
             dataset,
-            rowEncoder,
+            RowEncoder(schema),
             None,
             columnName,
             this.targetDatePattern.getOrElse(DatePatternEnum.DayMonthYear)
