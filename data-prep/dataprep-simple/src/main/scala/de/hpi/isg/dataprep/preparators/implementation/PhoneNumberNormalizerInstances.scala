@@ -16,7 +16,7 @@ object PhoneNumberNormalizerInstances {
 			override def convert(to: DINPhoneNumberFormat)(value: String): Try[String] = {
 				fromValue(value) flatMap toMeta(to)
 			}
-			
+
 			private def fromMeta(meta: DINPhoneNumberFormat)(value: String): Try[Map[DINPhoneNumberFormatComponent, String]] =
 				Try {
 					(meta.components zip """\d+""".r.findAllIn(value).toList).toMap
