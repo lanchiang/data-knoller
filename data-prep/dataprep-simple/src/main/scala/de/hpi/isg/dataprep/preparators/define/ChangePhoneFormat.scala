@@ -57,11 +57,7 @@ class ChangePhoneFormat(
         case StringType =>
           val samples = dataset.sample(false, 0.01)
           val total = samples.count()
-          val convertible = samples
-            .map(_.getAs[String](column.name))
-            .filter { phoneNumber =>
-              """\d+""".r.findAllIn(phoneNumber).forall { part => part.matchesFormat(CountryCode) }
-            }.count()
+          val convertible = samples.map(_.getAs[String](column.name)).filter(_.matchesFormat(targetFormat)).count()
 
           convertible.toFloat / total.toFloat
         case _ => 0f

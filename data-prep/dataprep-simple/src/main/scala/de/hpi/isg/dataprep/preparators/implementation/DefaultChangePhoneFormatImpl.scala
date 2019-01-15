@@ -58,7 +58,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
+  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
     phoneNumber.converted(sourceFormat, targetFormat)
   }
 
@@ -68,7 +68,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  def convert(phoneNumber: String, targetFormat: PhoneNumberFormat): Try[String] = {
+  private def convert(phoneNumber: String, targetFormat: PhoneNumberFormat): Try[String] = {
     phoneNumber.converted(targetFormat)
   }
 }

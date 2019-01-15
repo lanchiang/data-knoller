@@ -32,9 +32,14 @@ object PhoneNumberNormalizerInstances {
 
 			private def fromValue(value: String): Try[Map[PhoneNumberFormatComponent, String]] =
 				Try {
-					"""\d+""".r.findAllIn(value).foldLeft(Map[PhoneNumberFormatComponent, String]()) {
-						case (components, part) if part.matchesFormat(CountryCode) => components + (CountryCode -> part)
-						case (components, part) if part.matchesFormat(AreaCode) => components + (AreaCode -> part)
+					val allComponents = List[PhoneNumberFormatComponent](CountryCode, AreaCode)
+					val parts = """\d+""".r.findAllIn(value)
+
+					allComponents.foldLeft(Map[PhoneNumberFormatComponent, String]()) { case (components, component) =>
+						parts
+							.find(_.matchesFormat(component))
+							.map(component -> _)
+							.fold(components)(components + _)
 					}
 				}
 		}
