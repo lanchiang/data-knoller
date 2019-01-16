@@ -109,6 +109,7 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void executePipeline() throws Exception {
+        // first time initialize metadata repository to check pipeline syntax errors.
         initMetadataRepository();
 
         buildMetadataSetup();
@@ -124,6 +125,7 @@ public class Pipeline implements AbstractPipeline {
 
         // here optimize the pipeline.
 
+        // second time initialize metadata repository for preparation to execute the pipeline.
         initMetadataRepository();
 
         this.buildColumnCombination();

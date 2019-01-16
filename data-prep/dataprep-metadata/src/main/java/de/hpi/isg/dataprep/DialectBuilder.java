@@ -10,6 +10,7 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
  */
 public class DialectBuilder {
 
+    // at some point, implement the functions to guess delimiter.
     private String delimiter = ",";
     private String quoteChar = "\"";
     private String escapeChar = "\\";
