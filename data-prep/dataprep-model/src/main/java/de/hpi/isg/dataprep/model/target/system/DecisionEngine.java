@@ -11,11 +11,16 @@ public class DecisionEngine {
 
     private static DecisionEngine instance;
 
+    private final static int MAX_ITERATION = 100;
+
+    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
+            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"}; // specifies the preparator candidates that the decision engine may call.
+
     // private avoid being initialized
     private DecisionEngine() {}
 
     // get the instance of the class only by this method
-    public DecisionEngine getInstance() {
+    public static DecisionEngine getInstance() {
         if (instance == null) {
             instance = new DecisionEngine();
         }

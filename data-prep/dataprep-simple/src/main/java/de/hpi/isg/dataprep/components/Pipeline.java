@@ -38,7 +38,7 @@ public class Pipeline implements AbstractPipeline {
 
     private List<AbstractPreparation> preparations;
 
-    private DecisionEngine decisionEngine;
+    private DecisionEngine decisionEngine = DecisionEngine.getInstance();
 
     //
 
@@ -183,7 +183,7 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void addRecommendedPreparation() {
         // Todo: urgent
-        // collect the scores from the preparators.
+        // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
     }
 
     @Override
