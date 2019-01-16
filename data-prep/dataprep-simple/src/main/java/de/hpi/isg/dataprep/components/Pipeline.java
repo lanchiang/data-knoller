@@ -13,13 +13,10 @@ import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
-import de.hpi.isg.dataprep.model.target.system.DecisionEngine;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
-import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 import java.util.*;
@@ -31,6 +28,12 @@ import java.util.*;
 public class Pipeline implements AbstractPipeline {
 
     private String name = "default-pipeline";
+
+    /**
+     * Specifies the maximum cardinality of a column combination that is passed as the parameter to preparators. Could be moved to the controller.
+     * Allows use all columns if the value is Integer.MIN_VALUE.
+     */
+    private final static int MAX_CARDINALITY = Integer.MIN_VALUE;
 
     private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;
@@ -128,7 +131,7 @@ public class Pipeline implements AbstractPipeline {
         // second time initialize metadata repository for preparation to execute the pipeline.
         initMetadataRepository();
 
-        this.buildColumnCombination();
+//        this.buildColumnCombination();
         for (AbstractPreparation preparation : preparations) {
             this.getColumnCombinations()
                     .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
@@ -170,16 +173,6 @@ public class Pipeline implements AbstractPipeline {
     public void buildMetadataSetup() {
         // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
         this.preparations.stream().forEachOrdered(preparation -> preparation.getAbstractPreparator().buildMetadataSetup());
-    }
-
-    @Override
-    public void buildColumnCombination() {
-        columnCombinations = new HashSet<>();
-        StructField[] fields = this.rawData.schema().fields();
-        int fieldSize = fields.length;
-
-        // create permutation of the columns in the data frame
-
     }
 
     @Override

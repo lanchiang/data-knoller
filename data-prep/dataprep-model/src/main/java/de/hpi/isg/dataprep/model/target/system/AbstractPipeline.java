@@ -53,10 +53,10 @@ public interface AbstractPipeline extends Nameable {
      */
     void buildMetadataSetup();
 
-    /**
-     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
-     */
-    void buildColumnCombination();
+//    /**
+//     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
+//     */
+//    void buildColumnCombination();
 
     /**
      * Add the preparation that recommended by the {@link DecisionEngine} at the end of the pipeline.
