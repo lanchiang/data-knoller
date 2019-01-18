@@ -6,6 +6,7 @@ import java.util.Properties
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.metadata.LanguageMetadata
+import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
@@ -28,21 +29,18 @@ import scala.util.{Failure, Success, Try}
   */
 class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Serializable {
 
-  val props = new Properties()
-  props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
-
   def lemmatizeString(str: String, language: Class[_ <: Language]): String = {
     val lt = new JLanguageTool(language.newInstance())
     val analyzedSentences = lt.analyzeText(str).asScala
 
     val tokens = analyzedSentences.map(
       _.getTokensWithoutWhitespace
-    ).reduceOption((a, b) => a ++ b).getOrElse(Array[AnalyzedTokenReadings]())
-    if (tokens.size < 1)
+    ).reduceOption((a, b) => a ++ b).getOrElse(Array[AnalyzedTokenReadings]()).filter(t => !t.isNonWord && !t.isWhitespace)
+    if (tokens.length < 1)
       throw new Exception("Empty field")
 
     val lemmatized = tokens.map(
-      t => if (t.getReadingsLength > 0) t.getReadings.get(0).getLemma else t.getToken
+      t => if (t.getReadings.size() > 0) t.getReadings.get(0).getLemma else t.getToken
     ).mkString(" ")
     lemmatized
   }
@@ -60,14 +58,17 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
     val propertyNames = preparator.propertyNames
 
+    var propLang = new mutable.HashMap[String, Class[_ <: Language]]()
+    propertyNames.foreach(propertyName => {
+      // TODO: This is so broken...
+      val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
+        new LanguageMetadata(propertyName, LanguageMetadata.LanguageEnum.ANY)).asInstanceOf[LanguageMetadata]
+      val language = if(langMeta.getLanguage == null) LanguageEnum.ENGLISH.getType else langMeta.getLanguage.getType
+      propLang.put(propertyName, language)
+    })
+
     val realErrors = ListBuffer[PreparationError]()
-
-    // TODO: This is completely broken
-    val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(new LanguageMetadata()).asInstanceOf[LanguageMetadata]
-    val language = langMeta.getLanguage.getType
-
     var df = dataFrame
-
     for (name <- propertyNames) {
       df = df.withColumn(name + "_lemmatized", lit(""))
     }
@@ -94,11 +95,23 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
         (index, operatedValue)
       }).toMap
 
+      var langMapping = new mutable.HashMap[Int, Class[_ <: Language]]()
+      propertyNames.foreach(propertyName => {
+        val indexTry = Try {
+          row.fieldIndex(propertyName + "_lemmatized")
+        }
+        val index = indexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+        langMapping.put(index, propLang(propertyName))
+      })
+
       val seq = row.toSeq
       val tryConvert = Try {
         val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
           if (remappings.isDefinedAt(index))
-            lemmatizeString(remappings(index), language)
+            lemmatizeString(remappings(index), langMapping(index))
           else
             value
         }

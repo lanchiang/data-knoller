@@ -12,7 +12,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparator
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
-class LemmatizePreparator(val propertyNames: Set[String]) extends AbstractPreparator {
+class LemmatizePreparator(val propertyNames: Set[String]) extends AbstractPreparator with Serializable {
 
   this.impl = new DefaultLemmatizePreparatorImpl
 

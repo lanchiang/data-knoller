@@ -35,7 +35,7 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
     val detector = new LanguageIdentifier(2000)
     // TODO: Chunk df with randomSplit()
     propertyNames.foreach(propName => {
-      val colStr = dataFrame.select(propName).map(_.getString(0)).collect().mkString(" ")
+      val colStr = dataFrame.select(propName).collect().map(p => p.getAs[String](0)).mkString(" ")
       val lang = detector.detectLanguage(colStr)
 
       try{
