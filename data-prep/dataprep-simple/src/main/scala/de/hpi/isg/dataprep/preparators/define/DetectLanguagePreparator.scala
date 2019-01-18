@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, Language}
+import de.hpi.isg.dataprep.metadata.{PropertyDataType, LanguageMetadata}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -46,7 +46,7 @@ class DetectLanguagePreparator(val propertyNames: Set[String]) extends AbstractP
     val propertyName = "demo"
     val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
 
-    val metadata = new Language(propertyName, null)
+    val metadata = new LanguageMetadata(propertyName, null)
     val check = metadataRepository.getMetadata(metadata)
     if (check == null || !metadata.equalsByValue(check)) {
       0

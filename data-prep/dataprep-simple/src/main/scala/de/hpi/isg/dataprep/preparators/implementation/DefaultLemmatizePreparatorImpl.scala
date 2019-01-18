@@ -5,6 +5,7 @@ import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
+import de.hpi.isg.dataprep.metadata.LanguageMetadata
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
@@ -15,6 +16,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.sql.functions.lit
+import org.languagetool.{AnalyzedToken, AnalyzedTokenReadings, JLanguageTool, Language}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -29,28 +31,19 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
   val props = new Properties()
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma")
 
-  def lemmatizeString(str: String, language: String): String = {
+  def lemmatizeString(str: String, language: Class[_ <: Language]): String = {
+    val lt = new JLanguageTool(language.newInstance())
+    val analyzedSentences = lt.analyzeText(str).asScala
 
-    var pipeline: StanfordCoreNLP = null
-    if (!(language == "english")){
-      var langProps = StringUtils.argsToProperties("-props", "StanfordCoreNLP-" + language + ".properties")
-      props.stringPropertyNames().asScala.foreach(key => langProps.setProperty(key, props.getProperty(key)))
-      pipeline = new StanfordCoreNLP(langProps)
-    } else {
-      pipeline = new StanfordCoreNLP(props)
-    }
-
-    val document = new Annotation(str)
-    pipeline.annotate(document)
-
-    val sentences = document.get(classOf[CoreAnnotations.SentencesAnnotation])
-    val sentenceTokens = sentences.asScala.map(
-      _.get(classOf[CoreAnnotations.TokensAnnotation]).asScala
-    ).reduceOption((a, b) => a ++ b).getOrElse(mutable.Buffer[CoreLabel]())
-
-    if (sentenceTokens.size < 1)
+    val tokens = analyzedSentences.map(
+      _.getTokensWithoutWhitespace
+    ).reduceOption((a, b) => a ++ b).getOrElse(Array[AnalyzedTokenReadings]())
+    if (tokens.size < 1)
       throw new Exception("Empty field")
-    val lemmatized = sentenceTokens.map(_.get(classOf[CoreAnnotations.LemmaAnnotation])).mkString(" ")
+
+    val lemmatized = tokens.map(
+      t => if (t.getReadingsLength > 0) t.getReadings.get(0).getLemma else t.getToken
+    ).mkString(" ")
     lemmatized
   }
 
@@ -69,10 +62,11 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
 
     val realErrors = ListBuffer[PreparationError]()
 
-    var df = dataFrame
+    // TODO: This is completely broken
+    val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(new LanguageMetadata()).asInstanceOf[LanguageMetadata]
+    val language = langMeta.getLanguage.getType
 
-    // TODO
-//    df.columns.foreach(_)
+    var df = dataFrame
 
     for (name <- propertyNames) {
       df = df.withColumn(name + "_lemmatized", lit(""))
@@ -104,7 +98,7 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
       val tryConvert = Try {
         val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
           if (remappings.isDefinedAt(index))
-            lemmatizeString(remappings(index), "english")
+            lemmatizeString(remappings(index), language)
           else
             value
         }

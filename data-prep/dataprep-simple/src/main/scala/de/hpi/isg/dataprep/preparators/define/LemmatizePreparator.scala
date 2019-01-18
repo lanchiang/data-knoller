@@ -4,7 +4,8 @@ import java.util
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDataType
+import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
+import de.hpi.isg.dataprep.metadata.{LanguageMetadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparatorImpl
@@ -37,6 +38,7 @@ class LemmatizePreparator(val propertyNames: Set[String]) extends AbstractPrepar
       if (propertyName == null)
         throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
       this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+      this.prerequisites.add(new LanguageMetadata(propertyName, LanguageEnum.ANY))
     }
 
   }
