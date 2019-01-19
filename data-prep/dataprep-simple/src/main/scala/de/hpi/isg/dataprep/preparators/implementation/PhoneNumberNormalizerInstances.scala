@@ -1,25 +1,38 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PhoneNumberFormatCheckerInstances, PhoneNumberFormatCheckerSyntax, PhoneNumberFormatComponent}
+import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PhoneNumberFormatComponent}
 
 import scala.util.{Failure, Success, Try}
 
 object PhoneNumberNormalizerInstances {
-	implicit val DINNormalizer: PhoneNumberNormalizer[PhoneNumberFormat] =
-		new PhoneNumberNormalizer[PhoneNumberFormat] {
-			import PhoneNumberFormatComponent._
-			import PhoneNumberFormatCheckerInstances._
-			import PhoneNumberFormatCheckerSyntax._
+	import PhoneNumberFormatComponent._
+	import PhoneNumberTaggerSyntax._
 
+	def defaultNormalizer(implicit tagger: PhoneNumberTagger): PhoneNumberNormalizer[PhoneNumberFormat] =
+		new PhoneNumberNormalizer[PhoneNumberFormat] {
 			override def convert(from: PhoneNumberFormat, to: PhoneNumberFormat)(value: String): Try[String] =
 				fromMeta(from)(value) flatMap toMeta(to)
 
 			override def convert(to: PhoneNumberFormat)(value: String): Try[String] =
-				fromValue(value) flatMap toMeta(to)
+				fromUnknown(value) flatMap toMeta(to)
+
+			private def split(value: String): List[String] =
+				"""\d+""".r.findAllIn(value).toList
 
 			private def fromMeta(meta: PhoneNumberFormat)(value: String): Try[Map[PhoneNumberFormatComponent, String]] =
+				Try((meta.components zip split(value)).toMap)
+
+			private def fromUnknown(value: String): Try[Map[PhoneNumberFormatComponent, String]] =
 				Try {
-					(meta.components zip """\d+""".r.findAllIn(value).toList).toMap
+					val components = split(value).tagged
+
+					val defaultComponents = components.keys.filterNot(components.contains).flatMap {
+						case CountryCode(Some(defaultValue)) => Some(CountryCode(Some(defaultValue)) -> defaultValue)
+						case AreaCode(Some(defaultValue)) => Some(AreaCode(Some(defaultValue)) -> defaultValue)
+						case _ => None
+					}
+
+					components ++ defaultComponents
 				}
 
 			private def toMeta(meta: PhoneNumberFormat)(components: Map[PhoneNumberFormatComponent, String]): Try[String] = {
@@ -29,18 +42,5 @@ object PhoneNumberNormalizerInstances {
 					case (None, _) => None
 				}.fold[Try[String]](Failure(new IllegalArgumentException()))(Success.apply)
 			}
-
-			private def fromValue(value: String): Try[Map[PhoneNumberFormatComponent, String]] =
-				Try {
-					val allComponents = List[PhoneNumberFormatComponent](CountryCode, AreaCode)
-					val parts = """\d+""".r.findAllIn(value)
-
-					allComponents.foldLeft(Map[PhoneNumberFormatComponent, String]()) { case (components, component) =>
-						parts
-							.find(_.matchesFormat(component))
-							.map(component -> _)
-							.fold(components)(components + _)
-					}
-				}
 		}
 }

@@ -15,6 +15,7 @@ import scala.util.{Failure, Success, Try}
 class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializable {
   import PhoneNumberNormalizerInstances._
   import PhoneNumberNormalizerSyntax._
+  import PhoneNumberTaggerInstances._
 
   /**
     * The abstract class of preparator implementation.
@@ -27,6 +28,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[ChangePhoneFormat]
+    implicit val normalizer = defaultNormalizer(defaultTagger)
 
     val createdDataset = dataFrame.flatMap { row =>
       val index = row.fieldIndex(preparator.propertyName)
@@ -58,7 +60,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  private def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat): Try[String] = {
+  def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat)(implicit normalizer: PhoneNumberNormalizer[PhoneNumberFormat]): Try[String] = {
     phoneNumber.converted(sourceFormat, targetFormat)
   }
 
@@ -68,7 +70,7 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @param targetFormat
     * @return
     */
-  private def convert(phoneNumber: String, targetFormat: PhoneNumberFormat): Try[String] = {
+  def convert(phoneNumber: String, targetFormat: PhoneNumberFormat)(implicit normalizer: PhoneNumberNormalizer[PhoneNumberFormat]): Try[String] = {
     phoneNumber.converted(targetFormat)
   }
 }

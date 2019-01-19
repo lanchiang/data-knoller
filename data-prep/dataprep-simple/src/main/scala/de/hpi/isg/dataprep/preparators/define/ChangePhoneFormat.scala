@@ -4,12 +4,16 @@ import java.util
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PhoneNumberFormatComponent, PhoneNumberFormatCheckerInstances, PhoneNumberFormatCheckerSyntax, PropertyDataType}
+import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangePhoneFormatImpl
+import de.hpi.isg.dataprep.preparators.implementation.{PhoneNumberNormalizerInstances, PhoneNumberTaggerInstances}
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
+
+import collection.JavaConverters._
 
 class ChangePhoneFormat(
   val propertyName: String,
@@ -21,9 +25,8 @@ class ChangePhoneFormat(
     this(propertyName, null, targetFormat)
   }
 
-  import PhoneNumberFormatCheckerInstances._
-  import PhoneNumberFormatCheckerSyntax._
-  import PhoneNumberFormatComponent._
+  import PhoneNumberNormalizerInstances._
+  import PhoneNumberTaggerInstances._
 
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
@@ -52,16 +55,25 @@ class ChangePhoneFormat(
   ): Float = {
     import dataset.sparkSession.implicits._
 
-    dataset.schema.toList.map { column =>
-      column.dataType match {
-        case StringType =>
-          val samples = dataset.sample(false, 0.01)
-          val total = samples.count()
-          val convertible = samples.map(_.getAs[String](column.name)).filter(_.matchesFormat(targetFormat)).count()
+    val impl = this.impl.asInstanceOf[DefaultChangePhoneFormatImpl]
+    implicit val normalizer = defaultNormalizer(defaultTagger)
 
-          convertible.toFloat / total.toFloat
-        case _ => 0f
+    targetMetadata
+      .asScala
+      .toSet
+      .foldLeft[Option[PhoneNumberFormat]](None) {
+        case (_, metadata: PhoneNumberFormat) => Some(metadata)
+        case (optTargetFormat, _) => optTargetFormat
+      }.fold(0.0f) { format =>
+        dataset.schema.toList.map { column =>
+          column.dataType match {
+            case StringType =>
+              val samples = dataset.sample(false, 0.01)
+              val convertibles = samples.map(_.getAs[String](column.name)).flatMap(number => impl.convert(number, format).toOption)
+              convertibles.count().toFloat / samples.count().toFloat
+            case _ => 0f
+          }
+        }.max
       }
-    }.max
   }
 }
