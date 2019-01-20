@@ -63,13 +63,7 @@ public class CSVSourcePath extends Metadata {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (this.csvSourcePath == o.toString()) {
-            return true;
-        }
-        return false;
+        return o != null && getClass() == o.getClass();
     }
 
     @Override

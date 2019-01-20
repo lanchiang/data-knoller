@@ -30,9 +30,9 @@ class ChangeTableEncoding(val propertyName: String,
 
   private def countErrorsInFile(csvPath: String): Int = {
     val replacementChar = new Array[Byte](3)
-    replacementChar(0) = Byte(0xEF)
-    replacementChar(1) = Byte(0xBF)
-    replacementChar(0) = Byte(0xBD)
+    replacementChar(0) = 0xEF.toByte
+    replacementChar(1) = 0xBF.toByte
+    replacementChar(0) = 0xBD.toByte
 
     var errorCount = 0
 
@@ -45,27 +45,28 @@ class ChangeTableEncoding(val propertyName: String,
     val inStream = Files.newInputStream(Paths.get(csvPath))
 
     // read the csv byte by byte and search for the byte combination of the replacement char
-    var byteRead = inStream.read(buf)
+    var byteRead = inStream.read(buf).toByte
     while (byteRead > 0) {
       bytesRead(0) = bytesRead(1)
       bytesRead(1) = bytesRead(2)
-      bytesRead(2) = Byte(byteRead)
+      bytesRead(2) = byteRead
       if (bytesRead.equals(replacementChar)) {
         errorCount += 1
       }
-      byteRead = inStream.read(buf)
+      byteRead = inStream.read(buf).toByte
     }
     errorCount
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     val replacementChar = new Array[Byte](3)
-    replacementChar(0) = Byte(0xEF)
-    replacementChar(1) = Byte(0xBF)
-    replacementChar(0) = Byte(0xBD)
+    replacementChar(0) = 0xEF.toByte
+    replacementChar(1) = 0xBF.toByte
+    replacementChar(2) = 0xBD.toByte
     var errorCounter = 0
 
-    val csvPath = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(CSVSourcePath).toString
+    val csvMetadata = new CSVSourcePath("")
+    val csvPath = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(csvMetadata).toString
     val csvFile = new File(csvPath)
 
     // Right now we can only handle the complete table. If we don't get it, return 0
