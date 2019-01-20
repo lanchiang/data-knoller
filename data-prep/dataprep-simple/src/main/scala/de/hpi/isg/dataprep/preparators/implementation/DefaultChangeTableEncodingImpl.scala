@@ -29,7 +29,7 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     val dataLoader = new FlatFileDataLoader(dialect)
     val createdDataset = dataLoader.load().getDataFrame
 
-    // TODO build new metadata
+    pipeline.initMetadataRepository()
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
