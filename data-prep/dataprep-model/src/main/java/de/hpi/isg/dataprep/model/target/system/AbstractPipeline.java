@@ -59,9 +59,15 @@ public interface AbstractPipeline extends Nameable {
 //    void buildColumnCombination();
 
     /**
-     * Add the preparation that recommended by the {@link DecisionEngine} at the end of the pipeline.
+     * Add the preparation that recommended by the decision engine at the end of the pipeline.
      */
     void addRecommendedPreparation();
+
+    /**
+     * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
+     * and other dynamic information must be updated.
+     */
+    void executeRecommendedPreparation();
 
     List<AbstractPreparation> getPreparations();
 

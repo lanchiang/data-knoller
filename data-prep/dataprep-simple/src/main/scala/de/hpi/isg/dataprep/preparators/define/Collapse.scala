@@ -17,7 +17,14 @@ import org.apache.spark.sql.{Dataset, Row}
   * @author Lan Jiang
   * @since 2018/8/31
   */
-class Collapse(val propertyName: String) extends AbstractPreparator {
+class Collapse extends AbstractPreparator {
+
+  var propertyName : String = _
+
+  def this(_propertyName : String) {
+    this()
+    propertyName = _propertyName
+  }
 
   //    override def newImpl = new DefaultCollapseImpl
 

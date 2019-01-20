@@ -13,6 +13,7 @@ import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -177,8 +178,24 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void addRecommendedPreparation() {
-        // Todo: urgent
         // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
+        // now the process terminates when the selectBestPreparator method return null.
+        AbstractPreparator recommendedPreparator = this.decisionEngine.selectBestPreparator(rawData);
+
+        // Note: the traditional control flow is to add the preparations first and then execute the batch.
+        // But in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
+        // can be updated.
+        AbstractPreparation preparation = new Preparation(recommendedPreparator);
+        preparations.add(preparation);
+    }
+
+    @Override
+    public void executeRecommendedPreparation() {
+        //execute the added preparation
+
+        // updated the dataset, metadata
+
+        // update the schemaMapping
     }
 
     @Override

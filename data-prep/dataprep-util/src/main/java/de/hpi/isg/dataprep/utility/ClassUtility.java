@@ -33,4 +33,11 @@ public class ClassUtility {
             throw new RuntimeException("Classes " + missingClasses.toString() + " cannot be found.");
         }
     }
+
+    public static String getPackagePath(String className, String packagePath) {
+        if (!packagePath.endsWith(".")) {
+            packagePath += ".";
+        }
+        return packagePath + className;
+    }
 }

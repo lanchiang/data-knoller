@@ -237,4 +237,21 @@ abstract public class AbstractPreparator implements Executable {
         this.preparation = preparation;
     }
 
+    /**
+     * The preparator is equal to another only when they belong to the same kind of preparator.
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractPreparator that = (AbstractPreparator) o;
+        return Objects.equals(this.getClass().getSimpleName(), that.getClass().getSimpleName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getClass().getSimpleName());
+    }
 }

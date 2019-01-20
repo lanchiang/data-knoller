@@ -20,6 +20,40 @@ import scala.util.{Failure, Success, Try}
   */
 class DefaultCollapseImpl extends AbstractPreparatorImpl {
 
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+    val preparator = abstractPreparator.asInstanceOf[Collapse]
+    val propertyName = preparator.propertyName
+
+    val rowEncoder = RowEncoder(dataFrame.schema)
+
+    val resultDF = dataFrame.flatMap(row => {
+      val index = row.fieldIndex(propertyName)
+      val seq = row.toSeq
+      val forepart = seq.take(index)
+      val backpart = seq.takeRight(row.length - index - 1)
+
+      val tryConvert = Try {
+        val newSeq = (forepart :+ ConversionHelper.collapse(row.getAs[String](propertyName))) ++ backpart
+        val newRow = Row.fromSeq(newSeq)
+        newRow
+      }
+      val trial = tryConvert match {
+        case Failure(content) => {
+          errorAccumulator.add(new RecordError(row.getAs[String](propertyName), content))
+          tryConvert
+        }
+        case Success(content) => {
+          tryConvert
+        }
+      }
+      trial.toOption
+    })(rowEncoder)
+
+    resultDF.count()
+
+    new ExecutionContext(resultDF, errorAccumulator)
+  }
+
   //    @throws(classOf[Exception])
   //    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: DataFrame): ExecutionContext = {
   //        val preparator_ = this.getPreparatorInstance(preparator, classOf[Collapse])
@@ -60,37 +94,4 @@ class DefaultCollapseImpl extends AbstractPreparatorImpl {
   //
   //        new ExecutionContext(resultDF, errorAccumulator)
   //    }
-  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[Collapse]
-    val propertyName = preparator.propertyName
-
-    val rowEncoder = RowEncoder(dataFrame.schema)
-
-    val resultDF = dataFrame.flatMap(row => {
-      val index = row.fieldIndex(propertyName)
-      val seq = row.toSeq
-      val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length - index - 1)
-
-      val tryConvert = Try {
-        val newSeq = (forepart :+ ConversionHelper.collapse(row.getAs[String](propertyName))) ++ backpart
-        val newRow = Row.fromSeq(newSeq)
-        newRow
-      }
-      val trial = tryConvert match {
-        case Failure(content) => {
-          errorAccumulator.add(new RecordError(row.getAs[String](propertyName), content))
-          tryConvert
-        }
-        case Success(content) => {
-          tryConvert
-        }
-      }
-      trial.toOption
-    })(rowEncoder)
-
-    resultDF.count()
-
-    new ExecutionContext(resultDF, errorAccumulator)
-  }
 }
