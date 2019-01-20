@@ -50,9 +50,13 @@ public class DecisionEngine implements Engine {
     AbstractPreparator selectBestPreparator(Dataset<Row> dataset) {
         ClassUtility.checkClassesExistence(preparatorCandidates, "de.hpi.isg.dataprep.preparators.define");
 
+        // proceed if all the classes exist
+
+        // first the column combinations need to be generated.
         StructField[] fields = dataset.schema().fields();
         List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
+        // using this permutation iterator cannot specify the maximal number of columns.
         PermutationIterator<String> iterator = new PermutationIterator<>(fieldName);
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
@@ -67,4 +71,6 @@ public class DecisionEngine implements Engine {
 
         return null;
     }
+
+    // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.
 }

@@ -101,6 +101,20 @@ abstract public class AbstractPreparator implements Executable {
     abstract public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata);
 
     /**
+     * Return a new parameter-free preparator instance.
+     *
+     * @param clazz specifies the concrete preparator that should be returned.
+     * @return the parameter-free concrete preparator.
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    public static AbstractPreparator getPreparatorInstance(Class<? extends AbstractPreparator> clazz)
+            throws IllegalAccessException, InstantiationException {
+        AbstractPreparator preparator = clazz.newInstance();
+        return preparator;
+    }
+
+    /**
      * The execution of the preparator.
      */
     protected void executePreparator() throws Exception {
