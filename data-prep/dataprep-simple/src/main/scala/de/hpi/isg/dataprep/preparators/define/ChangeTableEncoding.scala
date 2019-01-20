@@ -28,7 +28,7 @@ class ChangeTableEncoding(val propertyName: String,
     // TODO
   }
 
-  private def countErrorsInFile(): Int = {
+  private def countErrorsInFile(csvPath: String): Int = {
     val replacementChar = new Array[Byte](3)
     replacementChar(0) = Byte(0xEF)
     replacementChar(1) = Byte(0xBF)
@@ -42,8 +42,9 @@ class ChangeTableEncoding(val propertyName: String,
     bytesRead(2) = 0x00
 
     val buf = new Array[Byte](1)
-    val inStream = Files.newInputStream(Paths.get(this.getPreparation.getPipeline.getMetadataRepository.getMetadata(CSVSourcePath).toString))
+    val inStream = Files.newInputStream(Paths.get(csvPath))
 
+    // read the csv byte by byte and search for the byte combination of the replacement char
     var byteRead = inStream.read(buf)
     while (byteRead > 0) {
       bytesRead(0) = bytesRead(1)
@@ -64,16 +65,20 @@ class ChangeTableEncoding(val propertyName: String,
     replacementChar(0) = Byte(0xBD)
     var errorCounter = 0
 
-    val csvFile = new File(this.getPreparation.getPipeline.getMetadataRepository.getMetadata(CSVSourcePath).toString)
+    val csvPath = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(CSVSourcePath).toString
+    val csvFile = new File(csvPath)
 
+    // Right now we can only handle the complete table. If we don't get it, return 0
     if (dataset != this.getPreparation.getPipeline.getRawData) {
       return 0
     }
 
+    // count replacement chars in every row
     dataset.foreach(row => {
       errorCounter = errorCounter + row.toString().count(p => p == Unicode.bytesToChar(replacementChar))
     })
-    errorCounter = errorCounter - countErrorsInFile()
+    // make sure the replacement chars were added through decoding and were not already written in the csv
+    errorCounter = errorCounter - countErrorsInFile(csvPath)
     errorCounter / csvFile.length()
   }
 }
