@@ -50,7 +50,7 @@ public class Pipeline implements AbstractPipeline {
     private Dataset<Row> rawData;
     private Collection<ColumnCombination> columnCombinations;
 
-    private DataContext dataContext;
+    private FileLoadDialect dialect;
     private String datasetName;
 
     private Pipeline() {
@@ -72,7 +72,7 @@ public class Pipeline implements AbstractPipeline {
 
     public Pipeline(DataContext dataContext) {
         this();
-        this.dataContext = dataContext;
+        this.dialect = dataContext.getDialect();
         this.rawData = dataContext.getDataFrame();
         this.datasetName = dataContext.getDialect().getTableName();
     }
@@ -139,8 +139,6 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void initMetadataRepository() {
-        FileLoadDialect dialect = this.dataContext.getDialect();
-
         CSVSourcePath csvPath = new CSVSourcePath(dialect.getUrl());
         UsedEncoding usedEncoding = new UsedEncoding(dialect.getEncoding());
 
@@ -218,6 +216,16 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void setRawData(Dataset<Row> rawData) {
         this.rawData = rawData;
+    }
+
+    @Override
+    public FileLoadDialect getDialect() {
+        return this.dialect;
+    }
+
+    @Override
+    public void setDialect(FileLoadDialect dialect) {
+        this.dialect = dialect;
     }
 
     @Override
