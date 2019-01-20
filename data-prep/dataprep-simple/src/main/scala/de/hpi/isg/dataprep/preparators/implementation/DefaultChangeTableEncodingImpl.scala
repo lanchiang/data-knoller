@@ -20,7 +20,7 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
                                       dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[ChangeTableEncoding]
-    val actualEncoding = detectEncoding(dataFrame)
+    val actualEncoding = detectEncoding()
 
     val pipeline = preparator.getPreparation.getPipeline
     val dialect = pipeline.getDialect
@@ -33,8 +33,8 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
-  private def detectEncoding(value: Dataset[Row]): String = {
-    // TODO
+  private def detectEncoding(): String = {
+    // TODO get CSV path from metadata, detect encoding
     "UTF-8"
   }
 }
