@@ -16,13 +16,7 @@ import org.apache.spark.sql.{Dataset, Row}
   * @author Lukas Behrendt, Lisa Ihde, Oliver Clasen
   * @since 2018/11/29
   */
-class ChangeTableEncoding(val propertyName: String,
-                          var userSpecifiedSourceEncoding: String,
-                          val userSpecifiedTargetEncoding: String) extends AbstractPreparator {
-
-  def this(propertyName: String, userSpecifiedTargetEncoding: String) {
-    this(propertyName, null, userSpecifiedTargetEncoding)
-  }
+class ChangeTableEncoding() extends AbstractPreparator {
 
   override def buildMetadataSetup(): Unit = {
     // TODO
