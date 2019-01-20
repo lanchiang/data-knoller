@@ -9,6 +9,7 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import org.apache.directory.api.util.Unicode
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.{Dataset, Row}
 
 /**
@@ -57,11 +58,13 @@ class ChangeTableEncoding() extends AbstractPreparator {
     replacementChar(0) = 0xEF.toByte
     replacementChar(1) = 0xBF.toByte
     replacementChar(2) = 0xBD.toByte
-    var errorCounter = 0
 
-    val csvMetadata = new CSVSourcePath("")
-    val csvPath = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(csvMetadata).toString
-    val csvFile = new File(csvPath)
+    val dummyMetadata = new CSVSourcePath("")
+    val csvMetadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[CSVSourcePath]
+    if (csvMetadata == null) {
+      return 0
+    }
+    val csvFile = new File(csvMetadata.getPath)
 
     // Right now we can only handle the complete table. If we don't get it, return 0
     if (dataset != this.getPreparation.getPipeline.getRawData) {
@@ -69,11 +72,13 @@ class ChangeTableEncoding() extends AbstractPreparator {
     }
 
     // count replacement chars in every row
+    val errorCounter = SparkContext.getOrCreate.longAccumulator
     dataset.foreach(row => {
-      errorCounter = errorCounter + row.toString().count(p => p == Unicode.bytesToChar(replacementChar))
+      errorCounter.add(row.toString().count(_ == Unicode.bytesToChar(replacementChar)))
     })
     // make sure the replacement chars were added through decoding and were not already written in the csv
-    errorCounter = errorCounter - countErrorsInFile(csvPath)
-    errorCounter / csvFile.length()
+    dataset.show()
+    val errors = errorCounter.value - countErrorsInFile(csvMetadata.getPath)
+    errors.toFloat / csvFile.length()
   }
 }

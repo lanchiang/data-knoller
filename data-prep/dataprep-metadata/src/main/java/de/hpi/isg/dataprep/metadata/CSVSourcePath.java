@@ -71,8 +71,7 @@ public class CSVSourcePath extends Metadata {
         return Objects.hash(csvSourcePath);
     }
 
-    @Override
-    public String toString() {
+    public String getPath() {
         return csvSourcePath;
     }
 }

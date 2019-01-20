@@ -46,41 +46,41 @@ public class ChangeTableEncodingTest extends PreparatorTest {
 
     @Test
     public void testNoErrors() throws Exception {
-        Pipeline pipeline = load(NO_ERRORS_URL);
-        Assert.assertEquals(0, calApplicability(pipeline), 0);
+        DataContext context = load(NO_ERRORS_URL);
+        Assert.assertEquals(0, calApplicability(context), 0);
     }
 
     @Test
     public void testErrorCharsAlreadyInCSV() {
-        Pipeline pipeline = load(IN_CSV_URL);
-        Assert.assertEquals(0, calApplicability(pipeline), 0);
+        DataContext context = load(IN_CSV_URL);
+        Assert.assertEquals(0, calApplicability(context), 0);
     }
 
     @Test
     public void testWithErrors() {
-        Pipeline pipeline = load(ERRORS_URL);
-        Assert.assertTrue(calApplicability(pipeline) > 0);
+        DataContext context = load(ERRORS_URL);
+        Assert.assertTrue(calApplicability(context) > 0);
     }
 
     @Test
     public void testErrorsAndAlreadyInCSV() {
-        Pipeline pipeline = load(ERRORS_AND_IN_CSV_URL);
-        Assert.assertTrue(calApplicability(pipeline) > 0);
+        DataContext context = load(ERRORS_AND_IN_CSV_URL);
+        Assert.assertTrue(calApplicability(context) > 0);
     }
 
-    private float calApplicability(Pipeline pipeline) {
+    private float calApplicability(DataContext context) {
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+
         AbstractPreparator preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
         return preparator.calApplicability(null, pipeline.getRawData(), null);
     }
 
-    private Pipeline load(String url) {
+    private DataContext load(String url) {
         FileLoadDialect dialect = dialectBuilder.url(url).buildDialect();
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
-        DataContext context = dataLoader.load();
-
-        Pipeline pipeline = new Pipeline(context);
-        pipeline.initMetadataRepository();
-        return pipeline;
+        return dataLoader.load();
     }
 
     @Override
