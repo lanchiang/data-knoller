@@ -16,69 +16,69 @@ import java.util.stream.Collectors;
  * @since 2019/01/19
  */
 public class UsedEncoding extends Metadata {
-	
-	private String usedEncoding;
-	
-	private UsedEncoding() {
-		super(UsedEncoding.class.getSimpleName());
-	}
-	
-	public UsedEncoding(String encoding) {
-		this();
-		usedEncoding = encoding;
-	}
-	
-	private String getUsedEncoding() {
-		return usedEncoding;
-	}
-	
-	@Override
-	public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
-		List<UsedEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
-				.filter(metadata -> metadata instanceof UsedEncoding)
-				.map(metadata -> (UsedEncoding) metadata)
-				.collect(Collectors.toList());
-		
-		if (matchedInRepo.size() == 0) {
-			throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", getClass().getSimpleName()));
-		} else if (matchedInRepo.size() > 1) {
-			throw new DuplicateMetadataException(String.format("Multiple pieces of metadata %s found in the repository.", getClass().getSimpleName()));
-		} else {
-			UsedEncoding metadataInRepo = matchedInRepo.get(0);
-			if (!getUsedEncoding().equals(metadataInRepo.getUsedEncoding())) {
-				throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
-			}
-		}
-	}
-	
-	@Override
-	public boolean equalsByValue(Metadata metadata) {
-		return false;
-	}
-	
-	@Override
-	public String getName() {
-		return scope.getName();
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		if (this.usedEncoding == o.toString()) {
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(usedEncoding);
-	}
-	
-	@Override
-	public String toString() {
-		return usedEncoding;
-	}
+
+    private String usedEncoding;
+
+    private UsedEncoding() {
+        super(UsedEncoding.class.getSimpleName());
+    }
+
+    public UsedEncoding(String encoding) {
+        this();
+        usedEncoding = encoding;
+    }
+
+    private String getUsedEncoding() {
+        return usedEncoding;
+    }
+
+    @Override
+    public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
+        List<UsedEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
+                .filter(metadata -> metadata instanceof UsedEncoding)
+                .map(metadata -> (UsedEncoding) metadata)
+                .collect(Collectors.toList());
+
+        if (matchedInRepo.size() == 0) {
+            throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", getClass().getSimpleName()));
+        } else if (matchedInRepo.size() > 1) {
+            throw new DuplicateMetadataException(String.format("Multiple pieces of metadata %s found in the repository.", getClass().getSimpleName()));
+        } else {
+            UsedEncoding metadataInRepo = matchedInRepo.get(0);
+            if (!getUsedEncoding().equals(metadataInRepo.getUsedEncoding())) {
+                throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
+            }
+        }
+    }
+
+    @Override
+    public boolean equalsByValue(Metadata metadata) {
+        return false;
+    }
+
+    @Override
+    public String getName() {
+        return scope.getName();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (this.usedEncoding == o.toString()) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(usedEncoding);
+    }
+
+    @Override
+    public String toString() {
+        return usedEncoding;
+    }
 }
