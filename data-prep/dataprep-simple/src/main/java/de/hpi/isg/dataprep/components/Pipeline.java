@@ -132,10 +132,10 @@ public class Pipeline implements AbstractPipeline {
         initMetadataRepository();
 
 //        this.buildColumnCombination();
-        for (AbstractPreparation preparation : preparations) {
-            this.getColumnCombinations()
-                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
-        }
+//        for (AbstractPreparation preparation : preparations) {
+//            this.getColumnCombinations()
+//                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
+//        }
 
         // execute the pipeline
         for (AbstractPreparation preparation : preparations) {

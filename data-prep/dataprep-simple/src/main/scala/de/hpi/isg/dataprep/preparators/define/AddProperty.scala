@@ -18,40 +18,83 @@ import scala.runtime.Nothing$
   * @author Lan Jiang
   * @since 2018/8/31
   */
-class AddProperty(val targetPropertyName: String,
-                  val targetType: PropertyType,
-                  val position: Int,
-                  val filling: Any) extends AbstractPreparator {
+//class AddProperty(val targetPropertyName: String,
+//                  val targetType: PropertyType,
+//                  val position: Int,
+//                  val filling: Any) extends AbstractPreparator {
+//
+//  def this(targetPropertyName: String, targetType: PropertyType) {
+//    this(targetPropertyName, targetType, AddProperty.DEFAULT_POSITION, AddProperty.DEFAULT_VALUE(targetType))
+//  }
+//
+//  def this(targetPropertyName: String, targetType: PropertyType, position: Int) {
+//    this(targetPropertyName, targetType, position, AddProperty.DEFAULT_VALUE(targetType))
+//  }
+//
+//  //    override def newImpl = new DefaultAddPropertyImpl
+//
+//  /**
+//    * This method validates the input parameters of a [[AbstractPreparator]]. If succeeds, setup the values of metadata into both
+//    * prerequisite and toChange set.
+//    *
+//    * @throws ParameterNotSpecifiedException
+//    */
+//  @throws(classOf[ParameterNotSpecifiedException])
+//  override def buildMetadataSetup(): Unit = {
+//
+//  }
+//
+//  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+//    0
+//  }
+//}
+
+class AddProperty extends AbstractPreparator {
+
+  private var _targetPropertyName : String = _
+  private var _targetType : PropertyType = _
+  private var _position : Int = _
+  private var _filling : Any = _
+
+  def this(targetPropertyName: String,
+           targetType: PropertyType,
+           position: Int,
+           filling: Any) {
+    this()
+    _targetPropertyName = targetPropertyName
+    _targetType = targetType
+    _position = position
+    _filling = filling
+  }
 
   def this(targetPropertyName: String, targetType: PropertyType) {
-    this(targetPropertyName, targetType, AddProperty.DEFAULT_POSITION, AddProperty.DEFAULT_VALUE(targetType))
-  }
-
-  def this(targetPropertyName: String, targetType: PropertyType, position: Int) {
-    this(targetPropertyName, targetType, position, AddProperty.DEFAULT_VALUE(targetType))
-  }
-
-  //    override def newImpl = new DefaultAddPropertyImpl
-
-  /**
-    * This method validates the input parameters of a [[AbstractPreparator]]. If succeeds, setup the values of metadata into both
-    * prerequisite and toChange set.
-    *
-    * @throws ParameterNotSpecifiedException
-    */
-  @throws(classOf[ParameterNotSpecifiedException])
-  override def buildMetadataSetup(): Unit = {
+      this(targetPropertyName, targetType, AddProperty.DEFAULT_POSITION, AddProperty.DEFAULT_VALUE(targetType))
 
   }
+
+    def this(targetPropertyName: String, targetType: PropertyType, position: Int) {
+        this(targetPropertyName, targetType, position, AddProperty.DEFAULT_VALUE(targetType))
+      }
+
+  override def buildMetadataSetup(): Unit = {}
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     0
   }
+
+    def targetPropertyName : String = this._targetPropertyName
+    def targetType : PropertyType = this._targetType
+    def position : Int = this._position
+    def filling : Any = this._filling
 }
 
 object AddProperty {
 
   private val DEFAULT_POSITION = 0
+
+  val DEFAULT_PROPERTY_NAME = null
+
+  val DEFAULT_FILLING = "0"
 
   val DEFAULT_VALUE = (targetType: PropertyType) => {
     targetType match {
