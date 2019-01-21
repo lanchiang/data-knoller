@@ -1,11 +1,11 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.Engine;
 import de.hpi.isg.dataprep.utility.ClassUtility;
-import de.hpi.isg.dataprep.utility.CollectionUtility;
-import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -30,6 +30,8 @@ public class DecisionEngine implements Engine {
 
     private static DecisionEngine instance;
 
+    private AbstractPipeline pipeline;
+
     /**
      * specifies the preparator candidates that the decision engine may call. Could be moved to the controller.
      */
@@ -37,17 +39,16 @@ public class DecisionEngine implements Engine {
 //            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
     private final static String[] preparatorCandidates = {"AddProperty", "Collapse"};
 
-
     private Set<AbstractPreparator> preparators;
     private Map<AbstractPreparator, Float> scores;
 
-    private DecisionEngine() {}
+    private DecisionEngine() {
+    }
 
     // get the instance of the class only by this method
     public static DecisionEngine getInstance() {
         if (instance == null) {
             instance = new DecisionEngine();
-            // the instantiation terminates if something goes wrong and causes an exception.
         }
         return instance;
     }
@@ -80,12 +81,15 @@ public class DecisionEngine implements Engine {
     }
 
     /**
-     * Returns the most suitable parameterized preparator recommended for the current step
-     * in the pipeline according to the applicability scores of all the candidate preparators.
+     * Returns the most suitable parameterized preparator recommended for the current step in the pipeline according to the applicability scores
+     * of all the candidate preparators.
+     *
+     * @param pipeline the pipeline on which the decision engine process
      *
      * @return the most suitable parameterized preparator. Returning null indicates the termination of the process
      */
-    public AbstractPreparator selectBestPreparator(Dataset<Row> dataset) {
+//    public AbstractPreparator selectBestPreparator(Dataset<Row> dataset, Collection<Metadata> targetMetadata) {
+    public AbstractPreparator selectBestPreparator(AbstractPipeline pipeline) {
         if (stopProcess()) {
             return null;
         }
@@ -93,12 +97,13 @@ public class DecisionEngine implements Engine {
         // every time this method is called, instantiate all the preparator candidates again.
         initDecisionEngine();
 
-        // proceed if all the classes exist
-
+        Dataset<Row> dataset = pipeline.getRawData();
         // first the column combinations need to be generated.
         StructField[] fields = dataset.schema().fields();
         List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
+        // Todo: this is wrong now. It is not target metadata, but current ones. Put here as a placeholder to allow compilation.
+        Collection<Metadata> targetMetadata = pipeline.getMetadataRepository().getMetadataPool();
         // using this permutation iterator cannot specify the maximal number of columns.
         SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 5);
         while (iterator.hasNext()) {
@@ -111,7 +116,7 @@ public class DecisionEngine implements Engine {
 
             Dataset<Row> dataSlice = dataset.select(columnArr);
             for (AbstractPreparator preparator : preparators) {
-                float score = preparator.calApplicability(null, dataSlice, null);
+                float score = preparator.calApplicability(null, dataSlice, targetMetadata);
                 // the same preparator: only with the same class name
                 float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
                 if (currentScore==Float.MIN_VALUE) {
@@ -122,7 +127,6 @@ public class DecisionEngine implements Engine {
                         scores.put(preparator, score);
                     }
                 }
-//                scores.putIfAbsent(preparator, score);
             }
         }
 

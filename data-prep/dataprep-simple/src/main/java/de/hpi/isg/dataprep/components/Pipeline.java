@@ -53,7 +53,6 @@ public class Pipeline implements AbstractPipeline {
      * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
      */
     private Dataset<Row> rawData;
-    private Collection<ColumnCombination> columnCombinations;
 
     private DataContext dataContext;
     private String datasetName;
@@ -76,10 +75,18 @@ public class Pipeline implements AbstractPipeline {
     }
 
     public Pipeline(DataContext dataContext) {
-        this();
+        this(dataContext.getDataFrame());
         this.dataContext = dataContext;
-        this.rawData = dataContext.getDataFrame();
         this.datasetName = dataContext.getDialect().getTableName();
+
+        // initialize and configure the pipeline.
+        initPipeline();
+    }
+
+    @Override
+    public void initPipeline() {
+        // calculate metadata and populate the metadata repository with them.
+        initMetadataRepository();
     }
 
     @Override
@@ -177,16 +184,22 @@ public class Pipeline implements AbstractPipeline {
     }
 
     @Override
-    public void addRecommendedPreparation() {
+    public boolean addRecommendedPreparation() {
         // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
         // now the process terminates when the selectBestPreparator method return null.
-        AbstractPreparator recommendedPreparator = this.decisionEngine.selectBestPreparator(rawData);
+        AbstractPreparator recommendedPreparator = decisionEngine.selectBestPreparator(this);
+
+        // return a null means the decision engine determines to stop the process
+        if (recommendedPreparator == null) {
+            return false;
+        }
 
         // Note: the traditional control flow is to add the preparations first and then execute the batch.
         // But in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
         // can be updated.
         AbstractPreparation preparation = new Preparation(recommendedPreparator);
         preparations.add(preparation);
+        return true;
     }
 
     @Override
@@ -231,12 +244,6 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public String getDatasetName() {
         return this.datasetName;
-    }
-
-    @Override
-    public Collection<ColumnCombination> getColumnCombinations() {
-        // Note: the size of this column combination grows exponentially.
-        return this.columnCombinations;
     }
 
     @Override

@@ -14,6 +14,7 @@ public class DecisionEngineTest extends PreparatorTest {
     public void selectBestPreparatorTest() {
         // imperfect test. Now the test is done step-by-step in debugging mode.
         DecisionEngine decisionEngine = DecisionEngine.getInstance();
-        decisionEngine.selectBestPreparator(dataContext.getDataFrame());
+//        decisionEngine.selectBestPreparator(dataContext.getDataFrame(), pipeline.getMetadataRepository().getMetadataPool());
+        decisionEngine.selectBestPreparator(pipeline);
     }
 }

@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.framework;
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.preparators.PreparatorTest;
 import de.hpi.isg.dataprep.preparators.define.AddProperty;
 import org.junit.Test;
 
@@ -8,11 +9,15 @@ import org.junit.Test;
  * @author lan.jiang
  * @since 1/20/19
  */
-public class AddRecommendedPreparatorTest {
+public class AddRecommendedPreparatorTest extends PreparatorTest {
 
     @Test
-    public void getPreparatorInstanceTest() throws InstantiationException, IllegalAccessException {
-        AbstractPreparator preparator = AbstractPreparator.getPreparatorInstance(AddProperty.class);
-        preparator.calApplicability(null, null, null);
+    public void addRecommendedPreparationTest() {
+        while (true) {
+            boolean succeed = pipeline.addRecommendedPreparation();
+            if (!succeed) {
+                break;
+            }
+        }
     }
 }
