@@ -7,10 +7,12 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.RemovePreamble
 import de.hpi.isg.dataprep.ExecutionContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql
+import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
+import org.apache.spark.ml.clustering.KMeans
+import org.apache.spark.ml.feature.RFormula
 /**
   *
   * @author Lasse Kohlmeyer
@@ -70,6 +72,41 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val ergDataset = filteredDataframe
     new ExecutionContext(ergDataset, errorAccumulator)
   }
+
+
+  def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={
+
+    val sparkBuilder = SparkSession
+      .builder()
+      .appName("SparkTutorial")
+      .master("local[4]")
+    val sparkContext = sparkBuilder.getOrCreate()
+    import sparkContext.implicits._
+
+    val separatorOcc = dataframe
+      .rdd
+      .zipWithIndex()
+      .map(row => (Vector(row._2),row._1.mkString.r.findAllIn(separator).length))
+      .toDF
+      .withColumnRenamed("_1","dependent_var")
+      .withColumnRenamed("_2", "ind_var_d")
+
+    val formula = new RFormula()
+      .setFormula("dependent_var ~ ind_var_d")
+      .setFeaturesCol("features")
+      .setLabelCol("label")
+
+    val train = formula.fit(separatorOcc).transform(separatorOcc)
+    val kmeans = new KMeans().setK(2).setSeed(1L)
+    val model = kmeans.fit(train)
+
+    val predictions = model.transform(train)
+    predictions
+  }
+
+
+
+  // ------------------------------------------------------------- OLD CODE --------------------------------------------
 
 
   def removePreambleRecursive(dataFrame: DataFrame, line: Int): DataFrame = {

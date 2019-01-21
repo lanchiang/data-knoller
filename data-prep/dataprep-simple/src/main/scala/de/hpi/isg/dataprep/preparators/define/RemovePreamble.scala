@@ -91,6 +91,7 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
       .filter(row => row._1.toString.matches("[^0-9]"))
       .collect
 
+    // score chsrs less if the occur often with different streaks
     val longestSeq = charOccurence.maxBy(a => a._2)
     val secondSeq = charOccurence.filter(e => e._2 < longestSeq._2).maxBy(a => a._2)
     val numberOfLongestSeq = charOccurence.count(e => e._2 == longestSeq._2)
