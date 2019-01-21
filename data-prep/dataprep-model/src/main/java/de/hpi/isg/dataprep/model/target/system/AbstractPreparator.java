@@ -238,7 +238,7 @@ abstract public class AbstractPreparator implements Executable {
     }
 
     /**
-     * The preparator is equal to another only when they belong to the same kind of preparator.
+     * The preparator is equal to another only when they belong to the same kind of preparator, i.e., having the same preparator name.
      * @param o
      * @return
      */

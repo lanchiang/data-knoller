@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.iterator.SubsetIterator;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.Engine;
 import de.hpi.isg.dataprep.utility.ClassUtility;
+import de.hpi.isg.dataprep.utility.CollectionUtility;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
@@ -111,18 +112,40 @@ public class DecisionEngine implements Engine {
             Dataset<Row> dataSlice = dataset.select(columnArr);
             for (AbstractPreparator preparator : preparators) {
                 float score = preparator.calApplicability(null, dataSlice, null);
-                // the same preparator: only with the same class name or with the same signature?
-                scores.putIfAbsent(preparator, score);
+                // the same preparator: only with the same class name
+                float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
+                if (currentScore==Float.MIN_VALUE) {
+                    scores.put(preparator, score);
+                }
+                else {
+                    if (score > currentScore) {
+                        scores.put(preparator, score);
+                    }
+                }
+//                scores.putIfAbsent(preparator, score);
+            }
+        }
+
+        // Find the preparator with the highest score.
+        float highest = Float.MIN_VALUE;
+        AbstractPreparator bestPreparator = null;
+        Iterator<Map.Entry<AbstractPreparator, Float>> entryIterator = scores.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<AbstractPreparator, Float> next = entryIterator.next();
+            if (next.getValue() > highest) {
+                bestPreparator = next.getKey();
+                highest = next.getValue();
             }
         }
 
         iteration_count++;
-        return null;
+        return bestPreparator;
     }
 
     /**
+     * When one of the termination conditions is met, return true to tell the decision engine stop the automation process.
      *
-     * @return
+     * @return true if one of the termination conditions is met, otherwise false.
      */
     private boolean stopProcess() {
         if (iteration_count == MAX_ITERATION) {

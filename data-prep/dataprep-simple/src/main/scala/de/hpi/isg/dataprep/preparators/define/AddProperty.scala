@@ -10,6 +10,8 @@ import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.util.Random
+
 /**
   *
   * @author Lan Jiang
@@ -45,7 +47,8 @@ class AddProperty extends AbstractPreparator {
   override def buildMetadataSetup(): Unit = {}
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    0
+    val score = Random.nextFloat()
+    score
   }
 }
 

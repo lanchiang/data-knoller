@@ -12,6 +12,8 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultCollapseImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.util.Random
+
 /**
   *
   * @author Lan Jiang
@@ -48,6 +50,7 @@ class Collapse extends AbstractPreparator {
   }
 
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-      0
+      val score = Random.nextFloat()
+      score
     }
 }
