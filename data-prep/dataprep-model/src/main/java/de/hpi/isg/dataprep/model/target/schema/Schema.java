@@ -1,7 +1,5 @@
 package de.hpi.isg.dataprep.model.target.schema;
 
-import org.apache.spark.sql.types.StructField;
-
 /**
  * This class represents the schema of the processed data.
  *
@@ -10,13 +8,13 @@ import org.apache.spark.sql.types.StructField;
  */
 public class Schema {
 
-    private StructField[] schema;
+    private Attribute[] schema;
 
-    public Schema(StructField[] schema) {
+    public Schema(Attribute[] schema) {
         this.schema = schema;
     }
 
-    public StructField[] getSchema() {
+    public Attribute[] getSchema() {
         return schema;
     }
 }

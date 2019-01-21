@@ -12,12 +12,21 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultCollapseImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.util.Random
+
 /**
   *
   * @author Lan Jiang
   * @since 2018/8/31
   */
-class Collapse(val propertyName: String) extends AbstractPreparator {
+class Collapse extends AbstractPreparator {
+
+  var propertyName : String = _
+
+  def this(_propertyName : String) {
+    this()
+    propertyName = _propertyName
+  }
 
   //    override def newImpl = new DefaultCollapseImpl
 
@@ -41,6 +50,7 @@ class Collapse(val propertyName: String) extends AbstractPreparator {
   }
 
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-      0
+      val score = Random.nextFloat()
+      score
     }
 }
