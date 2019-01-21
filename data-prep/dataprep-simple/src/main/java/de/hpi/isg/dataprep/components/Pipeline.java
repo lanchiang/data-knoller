@@ -13,12 +13,11 @@ import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.model.target.system.DecisionEngine;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
-import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
 import java.util.*;
@@ -31,11 +30,21 @@ public class Pipeline implements AbstractPipeline {
 
     private String name = "default-pipeline";
 
+    /**
+     * Specifies the maximum cardinality of a column combination that is passed as the parameter to preparators. Could be moved to the controller.
+     * Allows use all columns if the value is Integer.MIN_VALUE.
+     */
+    private final static int MAX_CARDINALITY = Integer.MIN_VALUE;
+
     private MetadataRepository metadataRepository;
     private ProvenanceRepository provenanceRepository;
     private ErrorRepository errorRepository;
 
     private List<AbstractPreparation> preparations;
+
+    private DecisionEngine decisionEngine = DecisionEngine.getInstance();
+
+    //
 
     private int index = 0;
 
@@ -44,7 +53,6 @@ public class Pipeline implements AbstractPipeline {
      * i.e., each instance has only one attribute that represent the whole line, including content and utility characters.
      */
     private Dataset<Row> rawData;
-    private Collection<ColumnCombination> columnCombinations;
 
     private DataContext dataContext;
     private String datasetName;
@@ -67,10 +75,18 @@ public class Pipeline implements AbstractPipeline {
     }
 
     public Pipeline(DataContext dataContext) {
-        this();
+        this(dataContext.getDataFrame());
         this.dataContext = dataContext;
-        this.rawData = dataContext.getDataFrame();
         this.datasetName = dataContext.getDialect().getTableName();
+
+        // initialize and configure the pipeline.
+        initPipeline();
+    }
+
+    @Override
+    public void initPipeline() {
+        // calculate metadata and populate the metadata repository with them.
+        initMetadataRepository();
     }
 
     @Override
@@ -104,6 +120,7 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void executePipeline() throws Exception {
+        // first time initialize metadata repository to check pipeline syntax errors.
         initMetadataRepository();
 
         buildMetadataSetup();
@@ -119,13 +136,14 @@ public class Pipeline implements AbstractPipeline {
 
         // here optimize the pipeline.
 
+        // second time initialize metadata repository for preparation to execute the pipeline.
         initMetadataRepository();
 
-        this.buildColumnCombination();
-        for (AbstractPreparation preparation : preparations) {
-            this.getColumnCombinations()
-                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
-        }
+//        this.buildColumnCombination();
+//        for (AbstractPreparation preparation : preparations) {
+//            this.getColumnCombinations()
+//                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
+//        }
 
         // execute the pipeline
         for (AbstractPreparation preparation : preparations) {
@@ -166,18 +184,31 @@ public class Pipeline implements AbstractPipeline {
     }
 
     @Override
-    public void buildColumnCombination() {
-        columnCombinations = new HashSet<>();
-        StructField[] fields = this.rawData.schema().fields();
-        int fieldSize = fields.length;
+    public boolean addRecommendedPreparation() {
+        // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
+        // now the process terminates when the selectBestPreparator method return null.
+        AbstractPreparator recommendedPreparator = decisionEngine.selectBestPreparator(this);
 
-        // create permutation of the columns in the data frame
+        // return a null means the decision engine determines to stop the process
+        if (recommendedPreparator == null) {
+            return false;
+        }
 
+        // Note: the traditional control flow is to add the preparations first and then execute the batch.
+        // But in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
+        // can be updated.
+        AbstractPreparation preparation = new Preparation(recommendedPreparator);
+        preparations.add(preparation);
+        return true;
     }
 
     @Override
-    public void addRecommendedPreparation() {
-        // Todo: urgent
+    public void executeRecommendedPreparation() {
+        //execute the added preparation
+
+        // updated the dataset, metadata
+
+        // update the schemaMapping
     }
 
     @Override
@@ -213,12 +244,6 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public String getDatasetName() {
         return this.datasetName;
-    }
-
-    @Override
-    public Collection<ColumnCombination> getColumnCombinations() {
-        // Note: the size of this column combination grows exponentially.
-        return this.columnCombinations;
     }
 
     @Override
