@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
 import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Row, SparkSession}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
 
 import scala.collection.JavaConverters._
@@ -83,7 +83,7 @@ class RemovePreamble extends PreparatorScalaTest {
   "Clustering" should "find correct clusters in dataset with separators" in {
     val localContext = sparkContext
     import localContext.implicits._
-    val customDataset = Seq("1,2", "3,4", "postamble ", "postamble ","postamble ","1,3", " fake").toDF
+    val customDataset = Seq("1,2", "3,4", "postamble ", "postamble ","postamble ","1,3", "7,8,").toDF
     customDataset.columns.length shouldEqual(1)
 
     val testPreparator = new DefaultRemovePreambleImpl

@@ -13,6 +13,8 @@ import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.ml.clustering.KMeans
 import org.apache.spark.ml.feature.RFormula
+import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
 /**
   *
   * @author Lasse Kohlmeyer
@@ -86,22 +88,35 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val separatorOcc = dataframe
       .rdd
       .zipWithIndex()
-      .map(row => (Vector(row._2),row._1.mkString.r.findAllIn(separator).length))
-      .toDF
-      .withColumnRenamed("_1","dependent_var")
-      .withColumnRenamed("_2", "ind_var_d")
+      .map(row => (Vectors.dense(separator.r.findAllIn(row._1.mkString).length), row._2))
+      .toDF("features", "rownumber")
 
-    val formula = new RFormula()
-      .setFormula("dependent_var ~ ind_var_d")
-      .setFeaturesCol("features")
-      .setLabelCol("label")
 
-    val train = formula.fit(separatorOcc).transform(separatorOcc)
     val kmeans = new KMeans().setK(2).setSeed(1L)
-    val model = kmeans.fit(train)
+    val model = kmeans.fit(separatorOcc)
 
-    val predictions = model.transform(train)
-    predictions
+    val predictions = model.transform(separatorOcc)
+
+    val maxCluster = predictions
+      .groupBy("prediction")
+      .count()
+      .collect
+      .maxBy(row => row.getLong(1))
+      .getInt(0)
+
+    val filteredLines = predictions
+      .filter(row => row.getAs("prediction") == maxCluster)
+      .select("rownumber")
+      .map(row => row.getLong(0))
+      .collect
+
+    val resultRDD = dataframe
+      .rdd.zipWithIndex()
+      .filter(row => filteredLines contains row._2)
+      .map(row => row._1)
+      .persist
+
+    sparkContext.createDataFrame(resultRDD, dataframe.schema)
   }
 
 
