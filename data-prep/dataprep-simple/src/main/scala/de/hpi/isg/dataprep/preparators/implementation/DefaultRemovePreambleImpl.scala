@@ -101,7 +101,11 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val model = kmeans.fit(train)
 
     val predictions = model.transform(train)
+
+    model.clusterCenters.foreach(cluster => calculateMedian(cluster))
+
     predictions
+
   }
 
   def calculateMedian(inputList: List[Double]): Double = {
