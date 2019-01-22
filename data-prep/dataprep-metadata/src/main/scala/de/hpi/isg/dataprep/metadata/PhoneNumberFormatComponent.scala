@@ -1,11 +1,10 @@
 package de.hpi.isg.dataprep.metadata
 
-sealed trait PhoneNumberFormatComponent
+sealed trait PhoneNumberFormatComponent {
+	val componentType: PhoneNumberFormatComponentType
+}
 
 object PhoneNumberFormatComponent {
-	case class CountryCode(defaultValue: Option[String] = None) extends PhoneNumberFormatComponent
-	case class AreaCode(defaultValue: Option[String] = None) extends PhoneNumberFormatComponent
-	case object SpecialNumber extends PhoneNumberFormatComponent
-	case object Number extends PhoneNumberFormatComponent
-	case object ExtensionNumber extends PhoneNumberFormatComponent
+	case class Required(componentType: PhoneNumberFormatComponentType) extends PhoneNumberFormatComponent
+	case class Optional(componentType: PhoneNumberFormatComponentType, defaultValue: String) extends PhoneNumberFormatComponent
 }

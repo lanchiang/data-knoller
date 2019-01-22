@@ -1,26 +1,28 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.metadata.PhoneNumberFormatComponent
+import de.hpi.isg.dataprep.metadata.PhoneNumberFormatComponentType
 
 object PhoneNumberTaggerInstances {
-	import PhoneNumberFormatComponent._
+	import PhoneNumberFormatComponentType._
 
 	val defaultTagger: PhoneNumberTagger =
 		new PhoneNumberTagger {
 
-			val components = List(
-				CountryCode(),
-				AreaCode(),
-				SpecialNumber,
-				Number,
-				ExtensionNumber
-			)
-
-			override def tag(parts: List[String]): Map[PhoneNumberFormatComponent, String] = {
-				parts.foldLeft[(List[PhoneNumberFormatComponent], Map[PhoneNumberFormatComponent, String])]((components, Map())) {
-					case ((component :: cs, tagged), part) if part.matchesFormat(component) => (cs, tagged + (component -> part))
-					case ((cs, tagged), _) => (cs, tagged)
+			override def tag(parts: List[String]): Map[PhoneNumberFormatComponentType, String] = {
+				PhoneNumberFormatComponentType.ordered.foldLeft[(List[String], Map[PhoneNumberFormatComponentType, String])]((parts, Map())) {
+					case ((part :: ps, tagged), component) if matches(component)(part) => (ps, tagged + (component -> part))
+					case (state, _) => state
 				}._2
+			}
+
+			private def matches(component: PhoneNumberFormatComponentType)(part: String): Boolean = {
+				component match {
+					case CountryCode => part.matches("""(\+|00)1""")
+					case AreaCode => part.matches("[2-9][0-9][0-9]")
+					case CentralOfficeCode => part.matches("[2-9][0-9][0-9]")
+					case LineNumber => part.matches("[0-9]{4}")
+					case _ => false
+				}
 			}
 		}
 }

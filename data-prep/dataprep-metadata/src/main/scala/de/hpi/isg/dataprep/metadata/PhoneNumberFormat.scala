@@ -7,8 +7,3 @@ case class PhoneNumberFormat(components: List[PhoneNumberFormatComponent]) exten
 	override def checkMetadata(metadataRepository: MetadataRepository): Unit = ()
 	override def equalsByValue(metadata: Metadata): Boolean = this.equals(metadata)
 }
-
-object PhoneNumberFormat {
-	def check[A](value: String)(format: A)(implicit c: PhoneNumberFormatChecker[A]): Boolean =
-		c.check(value)(format)
-}
