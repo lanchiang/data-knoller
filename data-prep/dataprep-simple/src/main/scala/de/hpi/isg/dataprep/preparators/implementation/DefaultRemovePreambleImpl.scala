@@ -8,11 +8,12 @@ import de.hpi.isg.dataprep.preparators.define.RemovePreamble
 import de.hpi.isg.dataprep.ExecutionContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, sql}
-import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.ml.clustering.KMeans
 import org.apache.spark.ml.feature.RFormula
+import org.apache.spark.ml.linalg.{Vector, VectorUDT}
+
 /**
   *
   * @author Lasse Kohlmeyer
@@ -101,21 +102,25 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val model = kmeans.fit(train)
 
     val predictions = model.transform(train)
+    val clusterIndexAssignments = predictions.collect()
+    val clusterCenters = model.clusterCenters
 
-    model.clusterCenters.foreach(cluster => calculateMedian(cluster))
+    //TODO get scoring of each cluster
+    clusterCenters.foreach(cluster => calculateMedian(null))
 
     predictions
 
   }
 
-  def calculateMedian(inputList: List[Double]): Double = {
-    val count = inputList.size
+  def calculateMedian(inputListOfClusterScores: List[Double]): Double = {
+
+    val count = inputListOfClusterScores.size
     if (count % 2 == 0) {
       val l = count / 2 - 1
       val r = l + 1
-      (inputList(l) + inputList(r)).toDouble / 2
+      (inputListOfClusterScores(l) + inputListOfClusterScores(r)).toDouble / 2
     } else
-      inputList(count / 2).toDouble
+      inputListOfClusterScores(count / 2).toDouble
   }
 
 
