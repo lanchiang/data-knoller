@@ -8,11 +8,12 @@ import de.hpi.isg.dataprep.preparators.define.RemovePreamble
 import de.hpi.isg.dataprep.ExecutionContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, sql}
-import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.ml.clustering.KMeans
 import org.apache.spark.ml.feature.RFormula
+import org.apache.spark.ml.linalg.{Vector, VectorUDT}
+
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
 /**
@@ -119,6 +120,16 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     sparkContext.createDataFrame(resultRDD, dataframe.schema)
   }
 
+  def calculateMedian(inputListOfClusterScores: List[Double]): Double = {
+
+    val count = inputListOfClusterScores.size
+    if (count % 2 == 0) {
+      val l = count / 2 - 1
+      val r = l + 1
+      (inputListOfClusterScores(l) + inputListOfClusterScores(r)).toDouble / 2
+    } else
+      inputListOfClusterScores(count / 2).toDouble
+  }
 
 
   // ------------------------------------------------------------- OLD CODE --------------------------------------------
