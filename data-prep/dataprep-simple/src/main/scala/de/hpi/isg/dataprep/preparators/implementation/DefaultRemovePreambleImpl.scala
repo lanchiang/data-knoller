@@ -104,6 +104,15 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     predictions
   }
 
+  def calculateMedian(inputList: List[Double]): Double = {
+    val count = inputList.size
+    if (count % 2 == 0) {
+      val l = count / 2 - 1
+      val r = l + 1
+      (inputList(l) + inputList(r)).toDouble / 2
+    } else
+      inputList(count / 2).toDouble
+  }
 
 
   // ------------------------------------------------------------- OLD CODE --------------------------------------------
