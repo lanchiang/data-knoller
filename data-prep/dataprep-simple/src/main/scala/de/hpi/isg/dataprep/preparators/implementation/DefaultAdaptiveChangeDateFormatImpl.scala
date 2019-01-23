@@ -100,8 +100,8 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     dateFormat.parse(s)
   }
 
-  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, extractedRegex: Map[String, Long]): String = {
-    for((pattern, count) <- extractedRegex) {
+  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, extractedPatterns: Map[String, Long]): String = {
+    for((pattern, count) <- extractedPatterns) {
       breakable {
         println(s"DateString: $date")
         println(s"Try pattern: $pattern")
