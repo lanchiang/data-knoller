@@ -162,19 +162,29 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     origString.replaceAll(".", placeholder)
   }
 
-  def generatePattern(fullGroup:List[String], year: String, month: String, day: String): String = {
+  def generatePattern(fullGroup:List[String], separators: List[String], startsWithSeperator: Boolean, year: String, month: String, day: String): String = {
     //TODO: Fix generation for now separators are missing
-    println(s"generatePattern: $fullGroup, $year, $month, $day")
+    println(s"generatePattern: $fullGroup, $separators, $year, $month, $day")
     var newGroup = fullGroup.updated(fullGroup.indexOf(year), generatePlaceholder(year, "y"))
     newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
     newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "d"))
 
+    val separatorsBuffer: ListBuffer[String] = separators.to[ListBuffer]
+
     var pattern: String = ""
+
+    if (startsWithSeperator) {
+      // Pop first element
+      pattern = separatorsBuffer.remove(0)
+      println(separators)
+    }
 
     for(group <- newGroup) {
       val groupAsString = group.toString
 
-      pattern = pattern + groupAsString
+      val seperator = if(separatorsBuffer.nonEmpty) separatorsBuffer.remove(0) else ""
+
+      pattern = pattern + groupAsString + seperator
     }
 
     pattern
@@ -184,12 +194,19 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     var year: Option[String] = None
     var month: Option[String] = None
     var day: Option[String] = None
+    println(s"Date: $date")
 
     var splitDate: List[String] = date.split("[^0-9a-zA-z]{1,}").toList
-    print(s"Splits: $splitDate")
+    println(s"Splits: $splitDate")
     if (splitDate.length > 3) {
       return None // Assumption that date only contains day, month and year
     }
+
+    val separatorPattern: Regex = "[^0-9a-zA-z]{1,}".r
+    val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
+    val startsWithSeparator: Boolean = date.matches(startsWithSeparatorPattern)
+    val separators: List[String] = separatorPattern.findAllMatchIn(date).map(_.toString).toList
+    println("Separators: " + separators + " starts with separator: " + startsWithSeparator)
 
     val result: (List[String], Option[String]) = convertMonthNames(splitDate)
     splitDate = padSingleDigitDates(result._1)
@@ -240,7 +257,7 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
 
     println(s"$year, $month, $day")
     if (year.isDefined && month.isDefined && day.isDefined) {
-      val resultingPattern = generatePattern(splitDate, year.get, month.get, day.get)
+      val resultingPattern = generatePattern(splitDate, separators, startsWithSeparator, year.get, month.get, day.get)
       println(s"Result: $resultingPattern\n")
       return Some(resultingPattern)
     }
