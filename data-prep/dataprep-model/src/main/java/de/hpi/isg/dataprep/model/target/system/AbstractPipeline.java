@@ -21,6 +21,11 @@ import java.util.List;
 public interface AbstractPipeline extends Nameable {
 
     /**
+     * Before doing anything in the pipeline, this method is called to initialize the pipeline, configuring such as calculating the initial metadata.
+     */
+    void initPipeline();
+
+    /**
      * Add a {@link AbstractPreparation} to this pipeline.
      *
      * @param preparation
@@ -43,7 +48,8 @@ public interface AbstractPipeline extends Nameable {
     void executePipeline() throws Exception;
 
     /**
-     * Insert the metadata whose values are already known into the {@link MetadataRepository}
+     * Insert the metadata whose values are already known into the {@link MetadataRepository}.
+     * This should be done when initializing the pipeline, before calling the executePipeline method.
      */
     void initMetadataRepository();
 
@@ -53,15 +59,23 @@ public interface AbstractPipeline extends Nameable {
      */
     void buildMetadataSetup();
 
-    /**
-     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
-     */
-    void buildColumnCombination();
+//    /**
+//     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
+//     */
+//    void buildColumnCombination();
 
     /**
-     * Add the preparation that recommended by the {@link DecisionEngine} at the end of the pipeline.
+     * Add the preparation that recommended by the decision engine at the end of the pipeline.
+     *
+     * @return true if a preparator is added to the pipeline and executed, false if the decision engine determines to stop the process.
      */
-    void addRecommendedPreparation();
+    boolean addRecommendedPreparation();
+
+    /**
+     * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
+     * and other dynamic information must be updated.
+     */
+    void executeRecommendedPreparation();
 
     List<AbstractPreparation> getPreparations();
 
@@ -72,8 +86,6 @@ public interface AbstractPipeline extends Nameable {
     ProvenanceRepository getProvenanceRepository();
 
     Dataset<Row> getRawData();
-
-    Collection<ColumnCombination> getColumnCombinations();
 
     String getDatasetName();
 

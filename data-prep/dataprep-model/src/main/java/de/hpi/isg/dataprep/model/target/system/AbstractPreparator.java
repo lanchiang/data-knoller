@@ -101,6 +101,20 @@ abstract public class AbstractPreparator implements Executable {
     abstract public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata);
 
     /**
+     * Return a new parameter-free preparator instance.
+     *
+     * @param clazz specifies the concrete preparator that should be returned.
+     * @return the parameter-free concrete preparator.
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    public static AbstractPreparator getPreparatorInstance(Class<? extends AbstractPreparator> clazz)
+            throws IllegalAccessException, InstantiationException {
+        AbstractPreparator preparator = clazz.newInstance();
+        return preparator;
+    }
+
+    /**
      * The execution of the preparator.
      */
     protected void executePreparator() throws Exception {
@@ -223,4 +237,21 @@ abstract public class AbstractPreparator implements Executable {
         this.preparation = preparation;
     }
 
+    /**
+     * The preparator is equal to another only when they belong to the same kind of preparator, i.e., having the same preparator name.
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractPreparator that = (AbstractPreparator) o;
+        return Objects.equals(this.getClass().getSimpleName(), that.getClass().getSimpleName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getClass().getSimpleName());
+    }
 }
