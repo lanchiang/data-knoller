@@ -21,7 +21,6 @@ object PhoneNumberTaggerInstances {
 					case AreaCode => part.matches("[2-9][0-9][0-9]")
 					case CentralOfficeCode => part.matches("[2-9][0-9][0-9]")
 					case LineNumber => part.matches("[0-9]{4}")
-					case _ => false
 				}
 			}
 		}
