@@ -11,9 +11,8 @@ import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.ml.clustering.KMeans
-import org.apache.spark.ml.feature.RFormula
+import org.apache.spark.ml.feature.{RFormula, Tokenizer, Word2Vec}
 import org.apache.spark.ml.linalg.{Vector, VectorUDT}
-
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
 /**
@@ -76,6 +75,23 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     new ExecutionContext(ergDataset, errorAccumulator)
   }
 
+  def outlierWordToVec(dataframe:DataFrame): DataFrame = {
+    val sparkBuilder = SparkSession
+      .builder()
+      .appName("SparkTutorial")
+      .master("local[4]")
+    val sparkContext = sparkBuilder.getOrCreate()
+    import sparkContext.implicits._
+
+    val transformedDataframe = dataframe
+      .map(row => row.getString(0).map(c => (c.toString,true)).toArray)
+
+    val inputColumn = transformedDataframe.columns.toList.head
+    val tokenizer = new Tokenizer().setInputCol(inputColumn).setOutputCol("result")
+    val word2vec = new Word2Vec().setInputCol("result")
+    val w2vdataframe = word2vec.fit(transformedDataframe)
+    w2vdataframe.getVectors
+  }
 
   def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={
 
