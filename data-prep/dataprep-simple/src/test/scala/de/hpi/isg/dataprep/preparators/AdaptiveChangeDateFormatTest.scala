@@ -48,7 +48,7 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     val metadata = new util.ArrayList[Metadata]()
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata
+    preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata
     ) should equal(0.6.toFloat)
   }
 
@@ -58,7 +58,7 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     val metadata = new util.ArrayList[Metadata]()
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
+    preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 
   "calApplicability" should "return a score of 0 for a column with metadata of a previous date formatting" in {
@@ -74,6 +74,6 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     metadata.add(dateMetadata)
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
+    preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 }
