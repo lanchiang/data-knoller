@@ -8,7 +8,6 @@ import de.hpi.isg.dataprep.metadata.PropertyDatePattern
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
 import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.util.DatePattern
@@ -39,7 +38,7 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
 
     println(pipeline.getErrorRepository.getPrintedReady)
 
-//    pipeline.getErrorRepository should equal(errorRepository)
+    pipeline.getErrorRepository should equal(errorRepository)
   }
 
   "calApplicability on the date column" should "return a score of 0.6" in {

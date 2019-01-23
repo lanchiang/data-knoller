@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import java.text.{ParseException, SimpleDateFormat}
-import java.util.Date
+import java.util.{Date, Locale}
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
@@ -89,13 +89,15 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
   }
 
   def getDateAsString(d: Date, pattern: String): String = {
-    val dateFormat = new SimpleDateFormat(pattern)
+    // TODO(ns): Set locale to US, need to find a way to parse multiple languages
+    val dateFormat = new SimpleDateFormat(pattern, Locale.US)
     dateFormat.setLenient(false)
     dateFormat.format(d)
   }
 
   def convertStringToDate(s: String, pattern: String): Date = {
-    val dateFormat = new SimpleDateFormat(pattern)
+    // TODO(ns): Set locale to US, need to find a way to parse multiple languages
+    val dateFormat = new SimpleDateFormat(pattern, Locale.US)
     dateFormat.setLenient(false)
     dateFormat.parse(s)
   }
@@ -180,7 +182,12 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     }
 
     for(group <- newGroup) {
-      val groupAsString = group.toString
+      var groupAsString = group.toString
+
+      // Full text pattern for month is MMMM
+      if (groupAsString.startsWith("MMMM")) {
+        groupAsString = "MMMM"
+      }
 
       val seperator = if(separatorsBuffer.nonEmpty) separatorsBuffer.remove(0) else ""
 
@@ -191,12 +198,12 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
   }
 
   def toPattern(date: String): Option[String] = {
-    var year: Option[String] = None
-    var month: Option[String] = None
-    var day: Option[String] = None
+    var yearOption: Option[String] = None
+    var monthOption: Option[String] = None
+    var dayOption: Option[String] = None
     println(s"Date: $date")
 
-    var splitDate: List[String] = date.split("[^0-9a-zA-z]{1,}").toList
+    val splitDate: List[String] = date.split("[^0-9a-zA-z]{1,}").toList
     println(s"Splits: $splitDate")
     if (splitDate.length > 3) {
       return None // Assumption that date only contains day, month and year
@@ -208,15 +215,17 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     val separators: List[String] = separatorPattern.findAllMatchIn(date).map(_.toString).toList
     println("Separators: " + separators + " starts with separator: " + startsWithSeparator)
 
-    val result: (List[String], Option[String]) = convertMonthNames(splitDate)
-    splitDate = padSingleDigitDates(result._1)
+    val (leftoverBlocks, convertedMonth) = convertMonthNames(splitDate)
+    var undeterminedBlocks: List[String] = padSingleDigitDates(leftoverBlocks)
 
-    month = result._2
-    println(s"-> Month: $month")
+    // Used for patternGeneration later
+    val monthText: Option[String] =  splitDate.find(!leftoverBlocks.contains(_))
 
-    var undeterminedBlocks: List[String] = splitDate
-    if (month.isDefined) {
-      undeterminedBlocks = undeterminedBlocks.filter(_ != month.get)
+    monthOption = convertedMonth
+    println(s"-> Month: $monthOption")
+
+    if (monthOption.isDefined) {
+      undeterminedBlocks = undeterminedBlocks.filter(_ != monthOption.get)
     }
 
     def applyRules(_undeterminedBlocks: List[String]): Unit = {
@@ -228,11 +237,11 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
           if (block.toInt <= 0) {
             break
           }
-          if (year.isEmpty && (block.length == 4 || block.toInt > 31 || (day.isDefined && block.toInt > 12))) {
-            year = Some(block)
-          } else if (day.isEmpty && (block.toInt > 12 && block.toInt <= 31 ||
-            (month.isDefined && block.toInt > 0 && block.toInt <= 31))) {
-            day = Some(block)
+          if (yearOption.isEmpty && (block.length == 4 || block.toInt > 31 || (dayOption.isDefined && block.toInt > 12))) {
+            yearOption = Some(block)
+          } else if (dayOption.isEmpty && (block.toInt > 12 && block.toInt <= 31 ||
+            (monthOption.isDefined && block.toInt > 0 && block.toInt <= 31))) {
+            dayOption = Some(block)
           } else {
             break
           }
@@ -243,21 +252,25 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
       // assign leftover block if there is any
       if (leftoverBlocks.length == 1) {
         println("Check")
-        if (year.isEmpty) {
-          year = Some(leftoverBlocks.head)
-        } else if (month.isEmpty) {
-          month = Some(leftoverBlocks.head)
-        } else if (day.isEmpty) {
-          day = Some(leftoverBlocks.head)
+        if (yearOption.isEmpty) {
+          yearOption = Some(leftoverBlocks.head)
+        } else if (monthOption.isEmpty) {
+          monthOption = Some(leftoverBlocks.head)
+        } else if (dayOption.isEmpty) {
+          dayOption = Some(leftoverBlocks.head)
         }
       }
     }
 
     applyRules(undeterminedBlocks)
 
-    println(s"$year, $month, $day")
-    if (year.isDefined && month.isDefined && day.isDefined) {
-      val resultingPattern = generatePattern(splitDate, separators, startsWithSeparator, year.get, month.get, day.get)
+    println(s"$yearOption, $monthOption, $dayOption")
+    if (yearOption.isDefined && monthOption.isDefined && dayOption.isDefined) {
+
+      // Use textual month, if provided, to generate correct pattern
+      val month = monthText.getOrElse(monthOption.get)
+
+      val resultingPattern = generatePattern(splitDate, separators, startsWithSeparator, yearOption.get, month, dayOption.get)
       println(s"Result: $resultingPattern\n")
       return Some(resultingPattern)
     }
