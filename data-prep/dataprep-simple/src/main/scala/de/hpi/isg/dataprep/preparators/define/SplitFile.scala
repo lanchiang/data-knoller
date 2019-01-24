@@ -18,7 +18,7 @@ class SplitFile(val fileSeparator: String = "") extends AbstractPreparator {
     val prerequisites = ListBuffer[Metadata]()
     val toChange = ListBuffer[Metadata]()
 
-    prerequisites += new PropertyDataType(fileSeparator, PropertyType.STRING)
+//    prerequisites += new PropertyDataType(fileSeparator, PropertyType.STRING)
 
     if (fileSeparator == null) {
       throw new ParameterNotSpecifiedException("If you dont wont to use the separator please just leave out the field.")
