@@ -95,19 +95,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
   def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={
 
-    val sparkBuilder = SparkSession
-      .builder()
-      .appName("SparkTutorial")
-      .master("local[4]")
-    val sparkContext = sparkBuilder.getOrCreate()
-    import sparkContext.implicits._
-
-    val separatorOcc = dataframe
-      .rdd
-      .zipWithIndex()
-      .map(row => (Vectors.dense(separator.r.findAllIn(row._1.mkString).length), row._2))
-      .toDF("features", "rownumber")
-
+    val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
 
     val kmeans = new KMeans().setK(2).setSeed(1L)
     val model = kmeans.fit(separatorOcc)
@@ -136,16 +124,51 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     sparkContext.createDataFrame(resultRDD, dataframe.schema)
   }
 
-  def calculateMedian(inputListOfClusterScores: List[Double]): Double = {
+  private def createBuilderAndFindSeparator(dataframe: DataFrame, separator: String) = {
+    val sparkBuilder = SparkSession
+      .builder()
+      .appName("SparkTutorial")
+      .master("local[4]")
+    val sparkContext = sparkBuilder.getOrCreate()
+    import sparkContext.implicits._
 
-    val count = inputListOfClusterScores.size
-    if (count % 2 == 0) {
-      val l = count / 2 - 1
-      val r = l + 1
-      (inputListOfClusterScores(l) + inputListOfClusterScores(r)).toDouble / 2
-    } else
-      inputListOfClusterScores(count / 2).toDouble
+    val separatorOcc = dataframe
+      .rdd
+      .zipWithIndex()
+      .map(row => (Vectors.dense(separator.r.findAllIn(row._1.mkString).length), row._2))
+      .toDF("features", "rownumber")
+    (sparkContext, separatorOcc)
   }
+
+  def findPreambleByMedian(dataframe: DataFrame, separator: String): DataFrame ={
+
+    val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
+
+    val kmeans = new KMeans().setK(2).setSeed(1L)
+    val model = kmeans.fit(separatorOcc)
+
+    val predictions = model.transform(separatorOcc)
+
+    val maxCluster = predictions
+      .groupBy("prediction")
+      .count()
+      .collect
+      .maxBy(row => row.getLong(1))
+      .getInt(0)
+
+    val clusterScore = maxCluster.size
+    if (clusterScore % 2 == 0) {
+      val l = clusterScore / 2 - 1
+      val r = l + 1
+      (maxCluster(l) + maxCluster(r)).toDouble / 2
+    } else
+      maxCluster(clusterScore / 2).toDouble
+
+    null
+
+
+  }
+
 
 
   // ------------------------------------------------------------- OLD CODE --------------------------------------------
