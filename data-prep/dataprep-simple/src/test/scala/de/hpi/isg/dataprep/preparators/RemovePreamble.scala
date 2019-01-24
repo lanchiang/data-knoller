@@ -110,28 +110,53 @@ class RemovePreamble extends PreparatorScalaTest {
       .setVectorSize(100)
       .setMinCount(0)
 
-    val adaptedDataset = customDataset
-      .select("f")
-      .map(r => Tuple1(r.getString(0).split("")))
-      .withColumnRenamed("_1", "value")
+    val zippedDataset = customDataset
+      .rdd
+      .zipWithIndex()
+      .flatMap(row => row._1.toSeq.map( v => (v.toString.split(""), row._2, row._1.toSeq.indexOf(v))))
+      .toDF("value", "line", "column")
 
-    val model = word2Vec.fit(adaptedDataset)
-    val result = model.transform(adaptedDataset)
+    val oneColumnDataset = zippedDataset.filter(r => r.getInt(2) == 0)
+
+    val model = word2Vec.fit(oneColumnDataset)
+    val result = model.transform(oneColumnDataset)
     val bkm = new BisectingKMeans().setK(2).setSeed(1)
     val modelBM = bkm.fit(result)
+
+    modelBM.transform(result).collect() shouldEqual("intermediate")
 
     val clusteredVecs = modelBM
       .transform(result)
         .toDF
         .rdd
         .map { r =>
-          (r.getAs[mutable.WrappedArray[String]](0), r.getAs[Int](2))
+          (r.getAs[mutable.WrappedArray[String]](0), r.getInt(1), r.getAs[Int](2), r.getInt(4))
         }
       .persist
-      .toDF("value", "cluster")
+      .toDF("value","line", "column", "cluster")
 
     val largestCluster = clusteredVecs.stat.approxQuantile("cluster",Array(0.5),0.1).head
     val filteredClusters = clusteredVecs.filter(row => row.getInt(1) == largestCluster).map(row => row.getString(0))
+
+    clusteredVecs.collect() shouldEqual "DataFrame"
+  }
+  "Word2Vec" should "identify special values in each column in preparator" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val customDataset = Seq(("0.01","2"), ("0.03","4"),("0.1", "3"), ("something","fake"),("postamble","wsdf")).toDF("f","s")
+    customDataset.columns.length shouldEqual(2)
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val zippedDataset = customDataset
+      .rdd
+      .zipWithIndex()
+      .flatMap(row => row._1.toSeq.map( v => (v.toString.split(""), row._2, row._1.toSeq.indexOf(v))))
+      .toDF("value", "line", "column")
+
+    val oneColumnDataset = zippedDataset.filter(r => r.getInt(2) == 0)
+
+    val clusteredVecs = testPreparator.findPreableForColumn(oneColumnDataset, localContext)
 
     clusteredVecs.collect() shouldEqual "DataFrame"
   }

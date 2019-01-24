@@ -10,11 +10,13 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
-import org.apache.spark.ml.clustering.KMeans
+import org.apache.spark.ml.clustering.{BisectingKMeans, KMeans}
 import org.apache.spark.ml.feature.{RFormula, Tokenizer, Word2Vec}
 import org.apache.spark.ml.linalg.{Vector, VectorUDT}
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
+
+import scala.collection.mutable
 /**
   *
   * @author Lasse Kohlmeyer
@@ -83,20 +85,49 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val sparkContext = sparkBuilder.getOrCreate()
     import sparkContext.implicits._
 
-    val transformedDataframe = dataframe
-      .map(row => row.getString(0).map(c => (c.toString,true)).toArray)
+    val zippedDataset = dataframe
+      .rdd
+      .zipWithIndex()
+      .flatMap(row => row._1.toSeq.map( v => (v.toString.split(""), row._2, row._1.toSeq.indexOf(v))))
+      .toDF("value", "line", "column")
 
-    val inputColumn = transformedDataframe.columns.toList.head
-    val tokenizer = new Tokenizer().setInputCol(inputColumn).setOutputCol("result")
-    val word2vec = new Word2Vec().setInputCol("result")
-    val w2vdataframe = word2vec.fit(transformedDataframe)
-    w2vdataframe.getVectors
+    for(columnIndex <- dataframe.columns.indices){
+      findPreableForColumn(zippedDataset.filter(r => r.getInt(2) == columnIndex), sparkContext)
+    }
+    dataframe
+  }
+
+  def findPreableForColumn(dataframe:DataFrame, sparkContext: SparkSession): DataFrame  = {
+
+    import sparkContext.implicits._
+    val word2Vec = new Word2Vec()
+      .setInputCol("value")
+      .setOutputCol("features")
+      .setVectorSize(100)
+      .setMinCount(0)
+    val model = word2Vec.fit(dataframe)
+    val result = model.transform(dataframe)
+    val bkm = new BisectingKMeans().setK(2).setSeed(1)
+    val modelBM = bkm.fit(result)
+
+    val clusteredVecs = modelBM
+      .transform(result)
+      .rdd
+      .map { r =>
+        (r.getAs[mutable.WrappedArray[String]](0), r.getAs[Int](2))
+      }
+      .persist
+      .toDF("value", "cluster")
+
+    val largestCluster = clusteredVecs.stat.approxQuantile("cluster",Array(0.5),0.1).head
+
+    clusteredVecs
   }
 
   def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={
 
     val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
-
+    import sparkContext.implicits._
     val kmeans = new KMeans().setK(2).setSeed(1L)
     val model = kmeans.fit(separatorOcc)
 
@@ -154,15 +185,14 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .count()
       .collect
       .maxBy(row => row.getLong(1))
-      .getInt(0)
 
     val clusterScore = maxCluster.size
     if (clusterScore % 2 == 0) {
       val l = clusterScore / 2 - 1
       val r = l + 1
-      (maxCluster(l) + maxCluster(r)).toDouble / 2
+      (maxCluster(l) + maxCluster(r).toString).toDouble / 2
     } else
-      maxCluster(clusterScore / 2).toDouble
+      maxCluster(clusterScore / 2).toString.toDouble
 
     null
 
