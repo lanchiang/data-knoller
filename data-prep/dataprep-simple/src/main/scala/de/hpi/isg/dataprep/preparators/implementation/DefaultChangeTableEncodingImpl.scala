@@ -34,7 +34,8 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
   }
 
   private def detectEncoding(pipeline: AbstractPipeline): String = {
-    val csvPath = pipeline.getMetadataRepository.getMetadata(CSVSourcePath).toString
+    val csvPathMeta = new CSVSourcePath("")
+    val csvPath = pipeline.getMetadataRepository.getMetadata(csvPathMeta).asInstanceOf[CSVSourcePath].getPath
     val bufferedSource = scala.io.Source.fromFile(csvPath)
     val encoding = bufferedSource.reader.getEncoding
     bufferedSource.close
