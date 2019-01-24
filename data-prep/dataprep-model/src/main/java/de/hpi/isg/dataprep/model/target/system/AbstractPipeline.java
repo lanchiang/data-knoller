@@ -4,13 +4,15 @@ import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.util.Nameable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The abstract class of a data preparation pipeline.
@@ -65,7 +67,7 @@ public interface AbstractPipeline extends Nameable {
 //    void buildColumnCombination();
 
     /**
-     * Add the preparation that recommended by the decision engine at the end of the pipeline.
+     * Add the preparation that recommended by the decision engine to the end of the pipeline, and execute it. Finally update metadata, dataset, and schema mapping.
      *
      * @return true if a preparator is added to the pipeline and executed, false if the decision engine determines to stop the process.
      */
@@ -75,7 +77,7 @@ public interface AbstractPipeline extends Nameable {
      * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
      * and other dynamic information must be updated.
      */
-    void executeRecommendedPreparation();
+//    void executeRecommendedPreparation();
 
     List<AbstractPreparation> getPreparations();
 
@@ -84,6 +86,10 @@ public interface AbstractPipeline extends Nameable {
     MetadataRepository getMetadataRepository();
 
     ProvenanceRepository getProvenanceRepository();
+
+    SchemaMapping getSchemaMapping();
+
+    Set<Metadata> getTargetMetadata();
 
     Dataset<Row> getRawData();
 

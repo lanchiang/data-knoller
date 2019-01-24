@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.framework;
 
 import de.hpi.isg.dataprep.components.DecisionEngine;
 import de.hpi.isg.dataprep.preparators.PreparatorTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -10,11 +11,11 @@ import org.junit.Test;
  */
 public class DecisionEngineTest extends PreparatorTest {
 
+    @Ignore
     @Test
     public void selectBestPreparatorTest() {
         // imperfect test. Now the test is done step-by-step in debugging mode.
         DecisionEngine decisionEngine = DecisionEngine.getInstance();
-//        decisionEngine.selectBestPreparator(dataContext.getDataFrame(), pipeline.getMetadataRepository().getMetadataPool());
         decisionEngine.selectBestPreparator(pipeline);
     }
 }

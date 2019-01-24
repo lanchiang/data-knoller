@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.framework;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.PreparatorTest;
 import de.hpi.isg.dataprep.preparators.define.AddProperty;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -11,6 +12,7 @@ import org.junit.Test;
  */
 public class AddRecommendedPreparatorTest extends PreparatorTest {
 
+    @Ignore
     @Test
     public void addRecommendedPreparationTest() {
         while (true) {

@@ -1,6 +1,10 @@
 package de.hpi.isg.dataprep;
 
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
+
+import java.util.Set;
 
 /**
  * The builder of a {@link FileLoadDialect}
@@ -23,6 +27,9 @@ public class DialectBuilder {
     private String url;
 
     private String inferSchema = "false";
+
+    private Set<Metadata> targetMetadata;
+    private SchemaMapping schemaMapping;
 
     public FileLoadDialect buildDialect() {
         FileLoadDialect dialect = new FileLoadDialect();
@@ -90,6 +97,16 @@ public class DialectBuilder {
 
     public DialectBuilder inferSchema(boolean inferSchema) {
         this.inferSchema = inferSchema ? "true" : "false";
+        return this;
+    }
+
+    public DialectBuilder targetMetadata(Set<Metadata> targetMetadata) {
+        this.targetMetadata = targetMetadata;
+        return this;
+    }
+
+    public DialectBuilder schemaMapping(SchemaMapping schemaMapping) {
+        this.schemaMapping = schemaMapping;
         return this;
     }
 }

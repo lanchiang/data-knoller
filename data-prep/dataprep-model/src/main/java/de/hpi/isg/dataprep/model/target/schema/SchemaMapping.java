@@ -1,47 +1,25 @@
 package de.hpi.isg.dataprep.model.target.schema;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * This class represents the schema mapping from the current schema to the target schema. It is used by
- * the decision engine to calculate the applicability score
- * for preparator suggestion.
+ * This interface provides the methods that a concrete schema mapping class must implement. It is used by the decision engine
+ * to calculate the applicability score for preparator suggestion.
  *
  * @author lan.jiang
  * @since 12/18/18
  */
-public class SchemaMapping {
+public interface SchemaMapping {
 
-    private Schema sourceSchema;
-    private Schema targetSchema;
+    Schema getSourceSchema();
 
-    /**
-     * Each key represents a particular attribute in the source schema, its value is a set of attributes
-     * in the target schema that are derived from the attribute in the key.
-     */
-    private Map<Attribute, Set<Attribute>> mapping;
+    Schema getTargetSchema();
 
-    public SchemaMapping(Schema sourceSchema, Schema targetSchema,
-                         Map<Attribute, Set<Attribute>> mapping) {
-        this.sourceSchema = sourceSchema;
-        this.targetSchema = targetSchema;
-        this.mapping = mapping;
-    }
+    Schema getCurrentSchema();
 
-    public Schema getSourceSchema() {
-        return sourceSchema;
-    }
-
-    public Schema getTargetSchema() {
-        return targetSchema;
-    }
-
-    public Map<Attribute, Set<Attribute>> getMapping() {
-        return mapping;
-    }
+    Map<Attribute, Set<Attribute>> getMapping();
 
     /**
      * Get the set of attributes in the target schema that are derived from the given {@link Attribute}.
@@ -50,17 +28,9 @@ public class SchemaMapping {
      * @return the set of attributes in the target schema that are derived from the given attribute. If
      * the given attribute does not exist in the source schema, return null.
      */
-    public Set<Attribute> getTargetBySourceAttribute(Attribute attribute) {
-        return mapping.getOrDefault(attribute, null);
-    }
+    Set<Attribute> getTargetBySourceAttribute(Attribute attribute);
 
-    public Set<Attribute> getTargetBySourceAttributeName(String attributeName) {
-        Optional<Set<Attribute>> oTargetAttributes = mapping.entrySet().stream()
-                .filter(attrMapping -> attrMapping.getKey().getName().equals(attributeName))
-                .map(attrMapping -> attrMapping.getValue())
-                .findFirst();
-        return oTargetAttributes.orElse(null);
-    }
+    Set<Attribute> getTargetBySourceAttributeName(String attributeName);
 
     /**
      * Get the set of attributes in the source schema that derive the given target {@link Attribute}.
@@ -69,23 +39,18 @@ public class SchemaMapping {
      * @return the set of attributes in the source schema that derive the given target attribute. If the
      * given attribute is not derived from any attribute in the source schema, return null.
      */
-    public Set<Attribute> getSourceByTargetAttribute(Attribute attribute) {
-        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
-                .filter(attrMapping -> attrMapping.getValue().contains(attribute))
-                .map(attrMapping -> attrMapping.getKey())
-                .collect(Collectors.toSet());
-        return sourceAttributes.size()==0?null:sourceAttributes;
-    }
+    Set<Attribute> getSourceByTargetAttribute(Attribute attribute);
 
-    public Set<Attribute> getSourceByTargetAttributeName(String attributeName) {
-        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
-                .filter(attrMapping -> {
-                    long countAttr = attrMapping.getValue().stream()
-                            .filter(attribute -> attribute.getName().equals(attributeName)).count();
-                    return countAttr>0?true:false;
-                })
-                .map(attrMapping -> attrMapping.getKey())
-                .collect(Collectors.toSet());
-        return sourceAttributes.size()==0?null:sourceAttributes;
-    }
+    Set<Attribute> getSourceByTargetAttributeName(String attributeName);
+
+    /**
+     * Construct the mapping of each attributes in this schema with the given ordered list of transforms.
+     *
+     * @param transforms the list of transformations used to construct the mapping.
+     */
+    void constructSchemaMapping(List<Transform> transforms);
+
+    void updateMapping(Attribute sourceAttribute, Attribute targetAttribute);
+
+    void updateSchema(Schema latestSchema);
 }

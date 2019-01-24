@@ -7,10 +7,11 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Schema;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
@@ -20,6 +21,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -44,9 +46,11 @@ public class Pipeline implements AbstractPipeline {
 
     private DecisionEngine decisionEngine = DecisionEngine.getInstance();
 
-    //
-
     private int index = 0;
+
+    // Note: just for the grand task test. Ideally, the schema mapping instance should not be held by something else, such as a higher level sand box.
+    private SchemaMapping schemaMapping;
+    private Set<Metadata> targetMetadata;
 
     /**
      * The raw data contains a set of {@link Row} instances. Each instance represent a line in a tabular data without schema definition,
@@ -62,6 +66,8 @@ public class Pipeline implements AbstractPipeline {
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
         this.preparations = new LinkedList<>();
+
+//        this.schemaMapping = new SimpleSchemaMapping(null);
     }
 
     public Pipeline(Dataset<Row> rawData) {
@@ -77,6 +83,9 @@ public class Pipeline implements AbstractPipeline {
     public Pipeline(DataContext dataContext) {
         this(dataContext.getDataFrame());
         this.dataContext = dataContext;
+        this.schemaMapping = dataContext.getSchemaMapping();
+        this.targetMetadata = dataContext.getTargetMetadata();
+
         this.datasetName = dataContext.getDialect().getTableName();
 
         // initialize and configure the pipeline.
@@ -139,12 +148,6 @@ public class Pipeline implements AbstractPipeline {
         // second time initialize metadata repository for preparation to execute the pipeline.
         initMetadataRepository();
 
-//        this.buildColumnCombination();
-//        for (AbstractPreparation preparation : preparations) {
-//            this.getColumnCombinations()
-//                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
-//        }
-
         // execute the pipeline
         for (AbstractPreparation preparation : preparations) {
             preparation.getAbstractPreparator().execute();
@@ -199,16 +202,27 @@ public class Pipeline implements AbstractPipeline {
         // can be updated.
         AbstractPreparation preparation = new Preparation(recommendedPreparator);
         preparations.add(preparation);
+
+        executeRecommendedPreparation(preparation);
+        
         return true;
     }
 
-    @Override
-    public void executeRecommendedPreparation() {
+    /**
+     * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
+     * and other dynamic information must be updated.
+     */
+    private void executeRecommendedPreparation(AbstractPreparation preparation) {
         //execute the added preparation
-
-        // updated the dataset, metadata
+        try {
+            preparation.getAbstractPreparator().execute();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         // update the schemaMapping
+        Schema latestSchema = new Schema(this.rawData.schema());
+        this.schemaMapping.updateSchema(latestSchema);
     }
 
     @Override
@@ -249,6 +263,16 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public SchemaMapping getSchemaMapping() {
+        return this.schemaMapping;
+    }
+
+    @Override
+    public Set<Metadata> getTargetMetadata() {
+        return this.targetMetadata;
     }
 
     @Override

@@ -1,12 +1,12 @@
 package de.hpi.isg.dataprep.preparators.define
 
+import java.util.Optional
 import java.{lang, util}
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
+import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.schema.{Attribute, SchemaMapping}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -47,6 +47,31 @@ class AddProperty extends AbstractPreparator {
   override def buildMetadataSetup(): Unit = {}
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+//    val targetSchema = schemaMapping.getTargetSchema
+//    val currentSchema = schemaMapping.getCurrentSchema
+//
+//    val attribute : Optional[Attribute] = targetSchema.getAttributes.stream()
+//            .filter(attribute => !currentSchema.getAttributes.contains(attribute)).findFirst()
+//
+//    if (attribute.isPresent) {
+//      targetPropertyName = attribute.get().getName
+//
+//      targetMetadata.forEach(metadata => {
+//        if (metadata.isInstanceOf[PropertyDataType]) {
+//          val dataType : PropertyDataType = metadata.asInstanceOf[PropertyDataType]
+//        }
+//      })
+//
+//      targetMetadata.stream.
+//              filter((metadata: Metadata) => metadata.isInstanceOf[PropertyDataType])
+//              .map((metadata: Metadata) => metadata.asInstanceOf[PropertyDataType])
+//                      .forEach((metadata: PropertyDataType) => metadata.getPropertyDataType)
+//
+//      targetMetadata.stream()
+//              .filter(metadata => metadata.isInstanceOf[PropertyDataType])
+//              .map(metadata => metadata.asInstanceOf[PropertyDataType])
+//    }
+
     val score = Random.nextFloat()
     score
   }

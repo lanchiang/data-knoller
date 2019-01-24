@@ -1,14 +1,15 @@
 package de.hpi.isg.dataprep.load;
 
 import de.hpi.isg.dataprep.context.DataContext;
-import de.hpi.isg.dataprep.metadata.Delimiter;
-import de.hpi.isg.dataprep.metadata.QuoteCharacter;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import org.apache.spark.sql.DataFrameReader;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+
+import java.util.Set;
 
 /**
  * @author Lan Jiang
@@ -20,6 +21,9 @@ abstract public class SparkDataLoader {
 
     protected FileLoadDialect dialect;
     protected Dataset<Row> dataFrame;
+
+    protected Set<Metadata> targetMetadata;
+    protected SchemaMapping schemaMapping;
 
     public SparkDataLoader() {
     }

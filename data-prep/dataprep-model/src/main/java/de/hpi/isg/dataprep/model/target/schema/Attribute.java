@@ -6,6 +6,8 @@ import org.apache.spark.sql.types.StructField;
 import java.util.Objects;
 
 /**
+ * A wrapper of {@link StructField}. Two such instances equals each other when and only when the name, data type, and nullable of them are the same.
+ *
  * @author lan.jiang
  * @since 1/13/19
  */
