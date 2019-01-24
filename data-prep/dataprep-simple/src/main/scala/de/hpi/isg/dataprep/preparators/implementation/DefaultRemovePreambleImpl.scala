@@ -112,16 +112,17 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
     val clusteredVecs = modelBM
       .transform(result)
+      .toDF
       .rdd
       .map { r =>
-        (r.getAs[mutable.WrappedArray[String]](0), r.getAs[Int](2))
+        (r.getAs[mutable.WrappedArray[String]](0), r.getLong(1), r.getAs[Int](2), r.getInt(4))
       }
       .persist
-      .toDF("value", "cluster")
+      .toDF("value","line", "column", "cluster")
 
     val largestCluster = clusteredVecs.stat.approxQuantile("cluster",Array(0.5),0.1).head
 
-    clusteredVecs
+    clusteredVecs.filter(r => r.getAs("cluster") == largestCluster)
   }
 
   def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={

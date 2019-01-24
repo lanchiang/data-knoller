@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
 import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
 import org.apache.spark.ml.clustering.BisectingKMeans
 import org.apache.spark.ml.feature.Word2Vec
@@ -123,14 +123,12 @@ class RemovePreamble extends PreparatorScalaTest {
     val bkm = new BisectingKMeans().setK(2).setSeed(1)
     val modelBM = bkm.fit(result)
 
-    modelBM.transform(result).collect() shouldEqual("intermediate")
-
     val clusteredVecs = modelBM
       .transform(result)
         .toDF
         .rdd
         .map { r =>
-          (r.getAs[mutable.WrappedArray[String]](0), r.getInt(1), r.getAs[Int](2), r.getInt(4))
+          (r.getAs[mutable.WrappedArray[String]](0), r.getLong(1), r.getAs[Int](2), r.getInt(4))
         }
       .persist
       .toDF("value","line", "column", "cluster")
@@ -158,6 +156,41 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val clusteredVecs = testPreparator.findPreableForColumn(oneColumnDataset, localContext)
 
-    clusteredVecs.collect() shouldEqual "DataFrame"
+    clusteredVecs.collect().length shouldEqual 3
+  }
+
+  "Word2Vec" should "combine columns correctly" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+    val customDataset = fileData
+    val customDataset1 = Seq(("0.01","2", "wow"),
+                            ("0.03","4", "well"),
+                            ("0.1", "3", "watson"),
+                            ("something","fake", "shit"),
+                            ("postamble","wsdf", "lsjkd")).toDF("f","s", "d")
+    customDataset.columns.length shouldEqual(3)
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val zippedDataset = customDataset
+      .rdd
+      .zipWithIndex()
+      .flatMap(row => row._1.toSeq.map( v => (v.toString.split(""), row._2, row._1.toSeq.indexOf(v))))
+      .toDF("value", "line", "column")
+
+    var emptyDataFrame:DataFrame = Seq(Tuple2("a","b")).toDF("a", "b").filter(r => r.getString(0) != "a")
+
+    for(columnIndex <- customDataset.columns.indices){
+      val colResult = testPreparator
+        .findPreableForColumn(zippedDataset.filter(r => r.getInt(2) == columnIndex), sparkContext)
+        .select("line", "column")
+        emptyDataFrame = emptyDataFrame.union(colResult)
+
+    }
+
+    emptyDataFrame.collect() shouldEqual(2)
   }
 }
