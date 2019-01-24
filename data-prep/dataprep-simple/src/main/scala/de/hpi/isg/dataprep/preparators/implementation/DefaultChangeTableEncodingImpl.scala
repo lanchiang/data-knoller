@@ -1,14 +1,14 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.{DialectBuilder, ExecutionContext}
+import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
+import de.hpi.isg.dataprep.metadata.CSVSourcePath
 import de.hpi.isg.dataprep.model.error.PreparationError
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.define.ChangeTableEncoding
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
-
 
 /**
   *
@@ -20,9 +20,9 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
                                       dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[ChangeTableEncoding]
-    val actualEncoding = detectEncoding()
-
     val pipeline = preparator.getPreparation.getPipeline
+
+    val actualEncoding = detectEncoding(pipeline)
     val dialect = pipeline.getDialect
     dialect.setEncoding(actualEncoding)
 
@@ -33,8 +33,11 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
-  private def detectEncoding(): String = {
-    // TODO get CSV path from metadata, detect encoding
-    "UTF-8"
+  private def detectEncoding(pipeline: AbstractPipeline): String = {
+    val csvPath = pipeline.getMetadataRepository.getMetadata(CSVSourcePath).toString
+    val bufferedSource = scala.io.Source.fromFile(csvPath)
+    val encoding = bufferedSource.reader.getEncoding
+    bufferedSource.close
+    encoding
   }
 }
