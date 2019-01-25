@@ -42,10 +42,11 @@ public class TransMergeAttribute extends Transform {
             schemaMapping.updateMapping(attribute, targetAttribute);
         }
         for (Attribute attribute : currentSchema.getAttributes()) {
-            System.out.println(attribute.getName());
+//            System.out.println(attribute.getName());
             schemaMapping.updateMapping(attribute, attribute);
         }
-        schemaMapping.updateSchemaMappingNodes();
-        schemaMapping.updateSchema();
+        schemaMapping.finalizeUpdate();
+//        schemaMapping.updateSchemaMappingNodes();
+//        schemaMapping.updateSchema();
     }
 }

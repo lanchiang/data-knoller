@@ -55,7 +55,9 @@ public interface SchemaMapping {
 //     */
 //    void constructSchemaMapping(List<Transform> transforms);
 
-    void updateSchemaMappingNodes();
+//    void updateSchemaMappingNodes();
+
+    void finalizeUpdate();
 
     /**
      * Create a new schema mapping instance using the parameters of this instance.
@@ -68,4 +70,6 @@ public interface SchemaMapping {
     void updateSchema(Schema latestSchema);
 
     void updateSchema();
+
+    void print();
 }

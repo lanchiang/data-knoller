@@ -30,24 +30,27 @@ public class SimpleSchemaMapping implements SchemaMapping {
 
     private List<SchemaMappingNode> mappingNodes;
 
+    private SchemaMappingNode root;
+
     public SimpleSchemaMapping(Schema sourceSchema, Schema targetSchema,
-                               List<SchemaMappingNode> mappingNodes) {
+                               SchemaMappingNode root) {
         this(sourceSchema);
         this.targetSchema = targetSchema;
-//        this.mapping = mapping;
-        this.mappingNodes = mappingNodes;
+        this.root = root;
     }
 
     public SimpleSchemaMapping(Schema sourceSchema) {
         this.sourceSchema = sourceSchema;
         this.currentSchema = sourceSchema;
 
-        this.mappingNodes = new LinkedList<>();
+        this.root = new SchemaMappingNode(null, 0);
+        List<SchemaMappingNode> sourceSchemaLayer = new LinkedList<>();
         for (Attribute attribute : this.currentSchema.getAttributes()) {
             SchemaMappingNode node = new SchemaMappingNode(attribute);
             node.update();
-            mappingNodes.add(node);
+            sourceSchemaLayer.add(node);
         }
+        this.root.next = sourceSchemaLayer;
     }
 
     @Override
@@ -118,9 +121,16 @@ public class SimpleSchemaMapping implements SchemaMapping {
 //        }
 //    }
 
+
     @Override
-    public void updateSchemaMappingNodes() {
-        mappingNodes.stream()
+    public void finalizeUpdate() {
+        updateSchemaMappingNodes();
+        updateSchema();
+    }
+
+    //    @Override
+    private void updateSchemaMappingNodes() {
+        root.next.stream()
                 .map(node -> findLastNodesOfChain(node))
                 .flatMap(lastNodes -> lastNodes.stream())
                 .forEach(node -> {
@@ -133,25 +143,37 @@ public class SimpleSchemaMapping implements SchemaMapping {
     @Override
     public void updateMapping(Attribute sourceAttribute, Attribute targetAttribute) {
         if (sourceAttribute == null) {
-            throw new RuntimeException("Source attribute can not be found in the current schema.");
-        }
-        if (targetAttribute != null) {
+//            throw new RuntimeException("Source attribute can not be found in the current schema.");
 
-            List<SchemaMappingNode> tails = mappingNodes.stream()
-                    .map(node -> findLastUpdatedNodesOfChain(node))
-                    .flatMap(lastNodes -> lastNodes.stream())
-                    .collect(Collectors.toList());
-            SchemaMappingNode sourceNode = tails.stream()
-                    .filter(node -> node.attribute.equals(sourceAttribute))
-                    .findFirst()
-                    .get();
-            if (sourceNode.next == null) {
-                sourceNode.next = new LinkedList<>();
+            // source attribute is null means this is a add attribute transform.
+            if (targetAttribute == null) {
+                throw new RuntimeException("Unexpected argument setting.");
+            } else {
+                List<SchemaMappingNode> tails = root.next.stream().map(node -> findLastUpdatedNodesOfChain(node))
+                        .flatMap(lastNodes -> lastNodes.stream())
+                        .collect(Collectors.toList());
+                int currentMaxLayer = currentMaxLayer(tails);
+                root.next.add(new SchemaMappingNode(targetAttribute, currentMaxLayer+1));
             }
-            sourceNode.next.add(new SchemaMappingNode(targetAttribute, sourceNode.getLayer()+1));
-        } else {
-            // target is null, saying that a delete transform was just executed.
-            // pass
+        }
+        else {
+            if (targetAttribute != null) {
+                List<SchemaMappingNode> tails = root.next.stream().map(node -> findLastUpdatedNodesOfChain(node))
+                        .flatMap(lastNodes -> lastNodes.stream())
+                        .collect(Collectors.toList());
+                tails = excludeNodeInPreviousLayer(tails);
+                SchemaMappingNode sourceNode = tails.stream()
+                        .filter(node -> node.attribute.equals(sourceAttribute))
+                        .findFirst()
+                        .get();
+                if (sourceNode.next == null) {
+                    sourceNode.next = new LinkedList<>();
+                }
+                sourceNode.next.add(new SchemaMappingNode(targetAttribute, sourceNode.getLayer()+1));
+            } else {
+                // target is null, saying that a delete transform was just executed.
+                // pass
+            }
         }
     }
 
@@ -162,13 +184,12 @@ public class SimpleSchemaMapping implements SchemaMapping {
 
     @Override
     public void updateSchema() {
-        List<SchemaMappingNode> tails = mappingNodes.stream()
+        List<SchemaMappingNode> tails = root.next.stream()
                 .map(node -> findLastUpdatedNodesOfChain(node))
                 .flatMap(lastNodes -> lastNodes.stream())
                 .distinct()
                 .collect(Collectors.toList());
-        int maxLayer = tails.stream().max(Comparator.comparingInt(node -> node.getLayer())).get().getLayer();
-        tails = tails.stream().filter(node -> node.getLayer()==maxLayer).collect(Collectors.toList());
+        tails = excludeNodeInPreviousLayer(tails);
 
         List<Attribute> latestAttribute = new LinkedList<>();
         tails.stream().forEachOrdered(node -> {
@@ -179,8 +200,24 @@ public class SimpleSchemaMapping implements SchemaMapping {
 
     @Override
     public SchemaMapping createSchemaMapping() {
-        SchemaMapping newInstance = new SimpleSchemaMapping(this.sourceSchema, this.currentSchema, mappingNodes);
+        SchemaMapping newInstance = new SimpleSchemaMapping(this.sourceSchema, this.currentSchema, root);
         return newInstance;
+    }
+
+    @Override
+    public void print() {
+        System.out.println(this.sourceSchema);
+        System.out.println(this.targetSchema);
+    }
+
+    private List<SchemaMappingNode> excludeNodeInPreviousLayer(List<SchemaMappingNode> schemaMappingNodes) {
+        int maxLayer = currentMaxLayer(schemaMappingNodes);
+        schemaMappingNodes = schemaMappingNodes.stream().filter(node -> node.getLayer() == maxLayer).collect(Collectors.toList());
+        return schemaMappingNodes;
+    }
+
+    private int currentMaxLayer(List<SchemaMappingNode> schemaMappingNodes) {
+        return schemaMappingNodes.stream().max(Comparator.comparingInt(node -> node.getLayer())).get().getLayer();
     }
 
     private static List<SchemaMappingNode> findLastUpdatedNodesOfChain(SchemaMappingNode node) {
@@ -226,12 +263,12 @@ public class SimpleSchemaMapping implements SchemaMapping {
     }
 
     public class SchemaMappingNode {
-
         private Attribute attribute;
 
         private List<SchemaMappingNode> next;
 
-        private int layer = 0;
+        // actual data starts from layer 1, layer 0 is preserved for only the root node.
+        private int layer = 1;
 
         private boolean updated = false;
 

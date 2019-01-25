@@ -5,6 +5,7 @@ import org.apache.spark.sql.types.StructType;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class represents the attributes of the processed data.
@@ -37,5 +38,26 @@ public class Schema {
 
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+
+    @Override
+    public String toString() {
+        return "Schema{" +
+                "attributes=" + attributes.toString() +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Schema schema = (Schema) o;
+        return Objects.equals(attributes, schema.attributes);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(attributes);
     }
 }

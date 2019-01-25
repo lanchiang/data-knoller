@@ -57,4 +57,12 @@ public class Attribute {
     public int hashCode() {
         return Objects.hash(name, dataType, nullable);
     }
+
+    @Override
+    public String toString() {
+        return "Attribute{" +
+                "name='" + name + '\'' +
+                ", dataType=" + dataType +
+                '}';
+    }
 }

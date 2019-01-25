@@ -36,10 +36,10 @@ public class TransSplitAttribute extends Transform {
             schemaMapping.updateMapping(sourceAttribute, targetAttribute);
         }
         for (Attribute attribute : currentSchema.getAttributes()) {
-            System.out.println(attribute.getName());
             schemaMapping.updateMapping(attribute, attribute);
         }
-        schemaMapping.updateSchemaMappingNodes();
-        schemaMapping.updateSchema();
+        schemaMapping.finalizeUpdate();
+//        schemaMapping.updateSchemaMappingNodes();
+//        schemaMapping.updateSchema();
     }
 }
