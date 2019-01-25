@@ -1,7 +1,6 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
-import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
@@ -112,9 +111,9 @@ public class DecisionEngine implements Engine {
         SchemaMapping schemaMapping = pipeline.getSchemaMapping();
         Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
 
-        if (stopProcess()) {
-            return null;
-        }
+//        if (forceStop()) {
+//            return null;
+//        }
 
         // every time this method is called, instantiate all the preparator candidates again.
         initDecisionEngine();
@@ -169,12 +168,19 @@ public class DecisionEngine implements Engine {
         return bestPreparator;
     }
 
+    public boolean stopProcess(AbstractPipeline pipeline) {
+        if (pipeline.getSchemaMapping().hasMapped()) { // also the metadata are met
+            return true;
+        }
+        return forceStop();
+    }
+
     /**
      * When one of the termination conditions is met, return true to tell the decision engine stop the automation process.
      *
      * @return true if one of the termination conditions is met, otherwise false.
      */
-    private boolean stopProcess() {
+    private boolean forceStop() {
         if (iteration_count == MAX_ITERATION) {
             return true;
         }

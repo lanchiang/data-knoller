@@ -15,11 +15,16 @@ public interface SchemaMapping {
 
     Schema getSourceSchema();
 
-    Schema getTargetSchema();
-
     Schema getCurrentSchema();
 
-    Map<Attribute, Set<Attribute>> getMapping();
+    Schema getTargetSchema();
+
+    /**
+     * Judge whether the current schema is equal to the target schema.
+     *
+     * @return true if the current schema is equal to the target schema, false otherwise.
+     */
+    boolean hasMapped();
 
     /**
      * Get the set of attributes in the target schema that are derived from the given {@link Attribute}.
@@ -43,14 +48,24 @@ public interface SchemaMapping {
 
     Set<Attribute> getSourceByTargetAttributeName(String attributeName);
 
+//    /**
+//     * Construct the mapping of each attributes in this schema with the given ordered list of transforms.
+//     *
+//     * @param transforms the list of transformations used to construct the mapping.
+//     */
+//    void constructSchemaMapping(List<Transform> transforms);
+
+    void updateSchemaMappingNodes();
+
     /**
-     * Construct the mapping of each attributes in this schema with the given ordered list of transforms.
-     *
-     * @param transforms the list of transformations used to construct the mapping.
+     * Create a new schema mapping instance using the parameters of this instance.
+     * @return
      */
-    void constructSchemaMapping(List<Transform> transforms);
+    SchemaMapping createSchemaMapping();
 
     void updateMapping(Attribute sourceAttribute, Attribute targetAttribute);
 
     void updateSchema(Schema latestSchema);
+
+    void updateSchema();
 }

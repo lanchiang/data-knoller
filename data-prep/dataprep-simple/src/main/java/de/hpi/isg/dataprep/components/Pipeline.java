@@ -188,13 +188,18 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public boolean addRecommendedPreparation() {
+        if (decisionEngine.stopProcess(this)) {
+            return false;
+        }
+
         // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
         // now the process terminates when the selectBestPreparator method return null.
         AbstractPreparator recommendedPreparator = decisionEngine.selectBestPreparator(this);
 
         // return a null means the decision engine determines to stop the process
         if (recommendedPreparator == null) {
-            return false;
+            throw new RuntimeException("Inner error. Decision engine cannot select the best preparator.");
+//            return false;
         }
 
         // Note: the traditional control flow is to add the preparations first and then execute the batch.
@@ -202,6 +207,8 @@ public class Pipeline implements AbstractPipeline {
         // can be updated.
         AbstractPreparation preparation = new Preparation(recommendedPreparator);
         preparations.add(preparation);
+
+        schemaMapping.getCurrentSchema();
 
         executeRecommendedPreparation(preparation);
         

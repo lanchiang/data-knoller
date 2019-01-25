@@ -9,12 +9,12 @@ import de.hpi.isg.dataprep.model.target.schema.Transform;
  * @author lan.jiang
  * @since 1/22/19
  */
-public class SplitAttribute extends Transform {
+public class TransSplitAttribute extends Transform {
 
     private Attribute sourceAttribute;
     private Attribute[] targetAttributes;
 
-    public SplitAttribute(Attribute sourceAttribute, Attribute[] targetAttributes) {
+    public TransSplitAttribute(Attribute sourceAttribute, Attribute[] targetAttributes) {
         this.sourceAttribute = sourceAttribute;
         this.targetAttributes = targetAttributes;
     }
@@ -32,10 +32,14 @@ public class SplitAttribute extends Transform {
 
         Schema currentSchema = schemaMapping.getCurrentSchema();
         // here ready to execute this transform
-        for (Attribute attribute : targetAttributes) {
-            schemaMapping.updateMapping(sourceAttribute, attribute);
-            currentSchema.addAttribute(attribute);
+        for (Attribute targetAttribute : targetAttributes) {
+            schemaMapping.updateMapping(sourceAttribute, targetAttribute);
         }
-        schemaMapping.updateSchema(currentSchema);
+        for (Attribute attribute : currentSchema.getAttributes()) {
+            System.out.println(attribute.getName());
+            schemaMapping.updateMapping(attribute, attribute);
+        }
+        schemaMapping.updateSchemaMappingNodes();
+        schemaMapping.updateSchema();
     }
 }

@@ -12,12 +12,12 @@ import java.util.Optional;
  * @author lan.jiang
  * @since 1/22/19
  */
-public class MergeAttribute extends Transform {
+public class TransMergeAttribute extends Transform {
 
     private Attribute[] sourceAttributes;
     private Attribute targetAttribute;
 
-    public MergeAttribute(Attribute[] sourceAttributes, Attribute targetAttribute) {
+    public TransMergeAttribute(Attribute[] sourceAttributes, Attribute targetAttribute) {
         this.sourceAttributes = sourceAttributes;
         this.targetAttribute = targetAttribute;
     }
@@ -41,7 +41,11 @@ public class MergeAttribute extends Transform {
         for (Attribute attribute : sourceAttributes) {
             schemaMapping.updateMapping(attribute, targetAttribute);
         }
-        currentSchema.addAttribute(targetAttribute);
-        schemaMapping.updateSchema(currentSchema);
+        for (Attribute attribute : currentSchema.getAttributes()) {
+            System.out.println(attribute.getName());
+            schemaMapping.updateMapping(attribute, attribute);
+        }
+        schemaMapping.updateSchemaMappingNodes();
+        schemaMapping.updateSchema();
     }
 }
