@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
+import de.hpi.isg.dataprep.schema.SimpleSchemaMapping;
 
 /**
  * @author lan.jiang
@@ -21,8 +22,9 @@ public class TransSplitAttribute extends Transform {
 
     @Override
     public void reformSchema(SchemaMapping schemaMapping) {
+        SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
         // check whether the sourceAttribute exists in the schema
-        if (!schemaMapping.getCurrentSchema().attributeExist(sourceAttribute)) {
+        if (!simpleSchemaMapping.getCurrentSchema().attributeExist(sourceAttribute)) {
             throw new RuntimeException("Attribute does not exist.");
         }
 
@@ -30,16 +32,14 @@ public class TransSplitAttribute extends Transform {
 //            throw new RuntimeException("Attribute(s) already exist in the schema.");
 //        }
 
-        Schema currentSchema = schemaMapping.getCurrentSchema();
+        Schema currentSchema = simpleSchemaMapping.getCurrentSchema();
         // here ready to execute this transform
         for (Attribute targetAttribute : targetAttributes) {
-            schemaMapping.updateMapping(sourceAttribute, targetAttribute);
+            simpleSchemaMapping.updateMapping(sourceAttribute, targetAttribute);
         }
         for (Attribute attribute : currentSchema.getAttributes()) {
-            schemaMapping.updateMapping(attribute, attribute);
+            simpleSchemaMapping.updateMapping(attribute, attribute);
         }
-        schemaMapping.finalizeUpdate();
-//        schemaMapping.updateSchemaMappingNodes();
-//        schemaMapping.updateSchema();
+        simpleSchemaMapping.finalizeUpdate();
     }
 }

@@ -14,21 +14,24 @@ import java.util.List;
  * @author lan.jiang
  * @since 1/24/19
  */
-public class SchemaGenerator {
+public class SchemaMappingGenerator {
 
     private Schema sourceSchema;
     private Schema targetSchema;
     private List<Transform> transforms;
 
-    private SchemaMapping schemaMapping;
+    private SimpleSchemaMapping schemaMapping;
 
-    public SchemaGenerator(Schema sourceSchema, List<Transform> transforms) {
+    public SchemaMappingGenerator(Schema sourceSchema, List<Transform> transforms) {
         this.sourceSchema = sourceSchema;
         this.transforms = transforms;
 
         schemaMapping = new SimpleSchemaMapping(this.sourceSchema);
     }
 
+    /**
+     * Derive the targetSchema and the mapping between source and it, by using the source schema and transforms.
+     */
     public void constructTargetSchema() {
         for (Transform transform : transforms) {
             transform.reformSchema(schemaMapping);
@@ -36,6 +39,10 @@ public class SchemaGenerator {
         targetSchema = schemaMapping.getCurrentSchema();
     }
 
+    /**
+     * Create a schema mapping instance with the parameters from this schemaMapping instance.
+     * @return
+     */
     public SchemaMapping createSchemaMapping() {
         return schemaMapping.createSchemaMapping();
     }

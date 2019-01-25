@@ -28,7 +28,7 @@ import java.util.List;
  * @author lan.jiang
  * @since 1/24/19
  */
-public class SchemaGeneratorTest {
+public class SchemaMappingGeneratorTest {
 
     private final static String dataPath = "./src/test/resources/pokemon.csv";
 
@@ -84,10 +84,10 @@ public class SchemaGeneratorTest {
         transforms.add(addAttr);
 
         Schema sourceSchema = new Schema(dataset.schema());
-        SchemaGenerator schemaGenerator = new SchemaGenerator(sourceSchema, transforms);
-        schemaGenerator.constructTargetSchema();
+        SchemaMappingGenerator schemaMappingGenerator = new SchemaMappingGenerator(sourceSchema, transforms);
+        schemaMappingGenerator.constructTargetSchema();
 
-        SchemaMapping schemaMapping = schemaGenerator.createSchemaMapping();
+        SchemaMapping schemaMapping = schemaMappingGenerator.createSchemaMapping();
 //        schemaMapping.print();
 
         List<Attribute> targetSchemaAttributes = new LinkedList<>();
@@ -123,10 +123,10 @@ public class SchemaGeneratorTest {
         transforms.add(addAttr2);
 
         Schema sourceSchema = new Schema(dataset.schema());
-        SchemaGenerator schemaGenerator = new SchemaGenerator(sourceSchema, transforms);
-        schemaGenerator.constructTargetSchema();
+        SchemaMappingGenerator schemaMappingGenerator = new SchemaMappingGenerator(sourceSchema, transforms);
+        schemaMappingGenerator.constructTargetSchema();
 
-        SchemaMapping schemaMapping = schemaGenerator.createSchemaMapping();
+        SchemaMapping schemaMapping = schemaMappingGenerator.createSchemaMapping();
 
         List<Attribute> targetSchemaAttributes = new LinkedList<>();
         targetSchemaAttributes.add(new Attribute(new StructField("id", DataTypes.StringType, true, Metadata.empty())));
@@ -159,10 +159,10 @@ public class SchemaGeneratorTest {
         transforms.add(deleteAttr2);
 
         Schema sourceSchema = new Schema(dataset.schema());
-        SchemaGenerator schemaGenerator = new SchemaGenerator(sourceSchema, transforms);
-        schemaGenerator.constructTargetSchema();
+        SchemaMappingGenerator schemaMappingGenerator = new SchemaMappingGenerator(sourceSchema, transforms);
+        schemaMappingGenerator.constructTargetSchema();
 
-        SchemaMapping schemaMapping = schemaGenerator.createSchemaMapping();
+        SchemaMapping schemaMapping = schemaMappingGenerator.createSchemaMapping();
 
         List<Attribute> targetSchemaAttributes = new LinkedList<>();
         targetSchemaAttributes.add(new Attribute(new StructField("id", DataTypes.StringType, true, Metadata.empty())));
@@ -205,10 +205,10 @@ public class SchemaGeneratorTest {
         transforms.add(splitAttr2);
 
         Schema sourceSchema = new Schema(dataset.schema());
-        SchemaGenerator schemaGenerator = new SchemaGenerator(sourceSchema, transforms);
-        schemaGenerator.constructTargetSchema();
+        SchemaMappingGenerator schemaMappingGenerator = new SchemaMappingGenerator(sourceSchema, transforms);
+        schemaMappingGenerator.constructTargetSchema();
 
-        SchemaMapping schemaMapping = schemaGenerator.createSchemaMapping();
+        SchemaMapping schemaMapping = schemaMappingGenerator.createSchemaMapping();
 
         List<Attribute> targetSchemaAttributes = new LinkedList<>();
         targetSchemaAttributes.add(new Attribute(new StructField("id", DataTypes.StringType, true, Metadata.empty())));
@@ -259,10 +259,10 @@ public class SchemaGeneratorTest {
         transforms.add(mergeAttr2);
 
         Schema sourceSchema = new Schema(dataset.schema());
-        SchemaGenerator schemaGenerator = new SchemaGenerator(sourceSchema, transforms);
-        schemaGenerator.constructTargetSchema();
+        SchemaMappingGenerator schemaMappingGenerator = new SchemaMappingGenerator(sourceSchema, transforms);
+        schemaMappingGenerator.constructTargetSchema();
 
-        SchemaMapping schemaMapping = schemaGenerator.createSchemaMapping();
+        SchemaMapping schemaMapping = schemaMappingGenerator.createSchemaMapping();
 
         List<Attribute> targetSchemaAttributes = new LinkedList<>();
         targetSchemaAttributes.add(new Attribute(new StructField("merge", DataTypes.StringType, true, Metadata.empty())));

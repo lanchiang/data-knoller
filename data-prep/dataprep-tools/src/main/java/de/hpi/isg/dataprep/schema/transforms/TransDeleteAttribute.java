@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.schema.transforms;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
+import de.hpi.isg.dataprep.schema.SimpleSchemaMapping;
 
 /**
  * @author lan.jiang
@@ -20,17 +21,16 @@ public class TransDeleteAttribute extends Transform {
 
     @Override
     public void reformSchema(SchemaMapping schemaMapping) {
-        if (!schemaMapping.getCurrentSchema().attributeExist(sourceAttribute)) {
+        SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
+        if (!simpleSchemaMapping.getCurrentSchema().attributeExist(sourceAttribute)) {
             throw new RuntimeException("Attribute does not exist.");
         }
-        schemaMapping.updateMapping(sourceAttribute, targetAttribute);
-        for (Attribute attribute : schemaMapping.getCurrentSchema().getAttributes()) {
+        simpleSchemaMapping.updateMapping(sourceAttribute, targetAttribute);
+        for (Attribute attribute : simpleSchemaMapping.getCurrentSchema().getAttributes()) {
             if (!attribute.equals(sourceAttribute)) {
-                schemaMapping.updateMapping(attribute, attribute);
+                simpleSchemaMapping.updateMapping(attribute, attribute);
             }
         }
-        schemaMapping.finalizeUpdate();
-//        schemaMapping.updateSchemaMappingNodes();
-//        schemaMapping.updateSchema();
+        simpleSchemaMapping.finalizeUpdate();
     }
 }

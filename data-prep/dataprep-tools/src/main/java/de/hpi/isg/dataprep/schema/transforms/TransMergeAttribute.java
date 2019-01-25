@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
+import de.hpi.isg.dataprep.schema.SimpleSchemaMapping;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -24,11 +25,12 @@ public class TransMergeAttribute extends Transform {
 
     @Override
     public void reformSchema(SchemaMapping schemaMapping) {
-        Schema currentSchema = schemaMapping.getCurrentSchema();
+        SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
+        Schema currentSchema = simpleSchemaMapping.getCurrentSchema();
 
         // check whether the source attributes exist in the schema
         Optional<Attribute> hasNonExist =  Arrays.stream(sourceAttributes)
-                .filter(attribute -> !schemaMapping.getCurrentSchema().attributeExist(attribute))
+                .filter(attribute -> !simpleSchemaMapping.getCurrentSchema().attributeExist(attribute))
                 .findFirst();
         if (hasNonExist.isPresent()) {
             throw new RuntimeException("Some source attributes do not exist.");
@@ -39,13 +41,13 @@ public class TransMergeAttribute extends Transform {
 
         // here ready to execute this transformation
         for (Attribute attribute : sourceAttributes) {
-            schemaMapping.updateMapping(attribute, targetAttribute);
+            simpleSchemaMapping.updateMapping(attribute, targetAttribute);
         }
         for (Attribute attribute : currentSchema.getAttributes()) {
 //            System.out.println(attribute.getName());
-            schemaMapping.updateMapping(attribute, attribute);
+            simpleSchemaMapping.updateMapping(attribute, attribute);
         }
-        schemaMapping.finalizeUpdate();
+        simpleSchemaMapping.finalizeUpdate();
 //        schemaMapping.updateSchemaMappingNodes();
 //        schemaMapping.updateSchema();
     }

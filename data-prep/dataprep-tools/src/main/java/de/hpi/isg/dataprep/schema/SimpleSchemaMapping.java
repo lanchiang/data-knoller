@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  * @author lan.jiang
  * @since 12/18/18
  */
-public class SimpleSchemaMapping implements SchemaMapping {
+public class SimpleSchemaMapping extends SchemaMapping {
 
-    private Schema sourceSchema;
+    private final Schema sourceSchema;
     private Schema currentSchema;
     private Schema targetSchema;
 
@@ -28,8 +28,9 @@ public class SimpleSchemaMapping implements SchemaMapping {
      */
     private Map<Attribute, Set<Attribute>> mapping;
 
-    private List<SchemaMappingNode> mappingNodes;
-
+    /**
+     * Maps from the currentSchema to the targetSchema.
+     */
     private SchemaMappingNode root;
 
     public SimpleSchemaMapping(Schema sourceSchema, Schema targetSchema,
@@ -73,6 +74,21 @@ public class SimpleSchemaMapping implements SchemaMapping {
         return currentSchema.equals(targetSchema);
     }
 
+    @Override
+    public boolean isInSource(Attribute attribute) {
+        return currentSchema.attributeExist(attribute);
+    }
+
+    @Override
+    public boolean isInSource(Attribute[] attributes) {
+        for (Attribute attribute : attributes) {
+            if (!currentSchema.attributeExist(attribute)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /**
      * Get the set of attributes in the target schema that are derived from the given {@link Attribute}.
      *
@@ -81,38 +97,54 @@ public class SimpleSchemaMapping implements SchemaMapping {
      * the given attribute does not exist in the source schema, return null.
      */
     public Set<Attribute> getTargetBySourceAttribute(Attribute attribute) {
-        return mapping.getOrDefault(attribute, null);
+        if (attribute == null) {
+            throw new RuntimeException(new NullPointerException("The specified attribute is null."));
+        }
+        return getTargetBySourceAttributeName(attribute.getName());
     }
 
     @Override
     public Set<Attribute> getTargetBySourceAttributeName(String attributeName) {
-        Optional<Set<Attribute>> oTargetAttributes = mapping.entrySet().stream()
-                .filter(attrMapping -> attrMapping.getKey().getName().equals(attributeName))
-                .map(attrMapping -> attrMapping.getValue())
-                .findFirst();
-        return oTargetAttributes.orElse(null);
+        if (attributeName == null) {
+            throw new IllegalArgumentException("Attribute name is not set.");
+        }
+        Attribute attribute = currentSchema.getAttributes().stream()
+                .filter(attributeInSchema -> attributeInSchema.getName().equals(attributeName)).findFirst().orElse(null);
+        if (attribute == null) {
+            throw new RuntimeException("The specified attribute does not exist.");
+        }
+
+        SchemaMappingNode attributeNode = root.next.stream()
+                .filter(node -> node.getAttribute().getName().equals(attributeName)).findFirst().orElse(null);
+
+        if (attributeNode == null) {
+            throw new RuntimeException("The attribute node does not exist.");
+        }
+        List<SchemaMappingNode> resultNodes = excludeNodeInPreviousLayer(findLastNodesOfChain(attributeNode));
+
+        return resultNodes.stream().map(node -> node.getAttribute()).collect(Collectors.toSet());
     }
 
-    @Override
-    public Set<Attribute> getSourceByTargetAttribute(Attribute attribute) {
-        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
-                .filter(attrMapping -> attrMapping.getValue().contains(attribute))
-                .map(attrMapping -> attrMapping.getKey())
-                .collect(Collectors.toSet());
-        return sourceAttributes.size()==0?null:sourceAttributes;
-    }
-
-    public Set<Attribute> getSourceByTargetAttributeName(String attributeName) {
-        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
-                .filter(attrMapping -> {
-                    long countAttr = attrMapping.getValue().stream()
-                            .filter(attribute -> attribute.getName().equals(attributeName)).count();
-                    return countAttr>0?true:false;
-                })
-                .map(attrMapping -> attrMapping.getKey())
-                .collect(Collectors.toSet());
-        return sourceAttributes.size()==0?null:sourceAttributes;
-    }
+//    @Override
+//    public Set<Attribute> getSourceByTargetAttribute(Attribute attribute) {
+//        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
+//                .filter(attrMapping -> attrMapping.getValue().contains(attribute))
+//                .map(attrMapping -> attrMapping.getKey())
+//                .collect(Collectors.toSet());
+//        return sourceAttributes.size()==0?null:sourceAttributes;
+//    }
+//
+//    public Set<Attribute> getSourceByTargetAttributeName(String attributeName) {
+//        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
+//                .filter(attrMapping -> {
+//                    long countAttr = attrMapping.getValue().stream()
+//                            .filter(attribute -> attribute.getName().equals(attributeName)).count();
+//                    return countAttr>0?true:false;
+//                })
+//                .map(attrMapping -> attrMapping.getKey())
+//                .collect(Collectors.toSet());
+//        return sourceAttributes.size()==0?null:sourceAttributes;
+//    }
 
 //    @Override
 //    public void constructSchemaMapping(List<Transform> transforms) {
@@ -200,7 +232,8 @@ public class SimpleSchemaMapping implements SchemaMapping {
 
     @Override
     public SchemaMapping createSchemaMapping() {
-        SchemaMapping newInstance = new SimpleSchemaMapping(this.sourceSchema, this.currentSchema, root);
+        this.targetSchema = currentSchema;
+        SchemaMapping newInstance = new SimpleSchemaMapping(this.sourceSchema, this.targetSchema, root);
         return newInstance;
     }
 

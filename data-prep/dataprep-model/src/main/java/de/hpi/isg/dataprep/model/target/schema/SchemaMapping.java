@@ -11,20 +11,35 @@ import java.util.Set;
  * @author lan.jiang
  * @since 12/18/18
  */
-public interface SchemaMapping {
+abstract public class SchemaMapping {
 
-    Schema getSourceSchema();
+    abstract public Schema getSourceSchema();
 
-    Schema getCurrentSchema();
+    abstract public Schema getCurrentSchema();
 
-    Schema getTargetSchema();
+    abstract public Schema getTargetSchema();
 
     /**
      * Judge whether the current schema is equal to the target schema.
      *
      * @return true if the current schema is equal to the target schema, false otherwise.
      */
-    boolean hasMapped();
+    abstract public boolean hasMapped();
+
+    /**
+     * Check whether the given attribute is in the source schema.
+     *
+     * @param attribute the attribute to be checked.
+     * @return
+     */
+    abstract public boolean isInSource(Attribute attribute);
+
+    /**
+     * Check whether each of the given attributes is in the source schema.
+     * @param attributes the array of attributes to be checked.
+     * @return
+     */
+    abstract public boolean isInSource(Attribute[] attributes);
 
     /**
      * Get the set of attributes in the target schema that are derived from the given {@link Attribute}.
@@ -33,20 +48,20 @@ public interface SchemaMapping {
      * @return the set of attributes in the target schema that are derived from the given attribute. If
      * the given attribute does not exist in the source schema, return null.
      */
-    Set<Attribute> getTargetBySourceAttribute(Attribute attribute);
+    abstract public Set<Attribute> getTargetBySourceAttribute(Attribute attribute);
 
-    Set<Attribute> getTargetBySourceAttributeName(String attributeName);
+    abstract public Set<Attribute> getTargetBySourceAttributeName(String attributeName);
 
-    /**
-     * Get the set of attributes in the source schema that derive the given target {@link Attribute}.
-     *
-     * @param attribute in the target schema
-     * @return the set of attributes in the source schema that derive the given target attribute. If the
-     * given attribute is not derived from any attribute in the source schema, return null.
-     */
-    Set<Attribute> getSourceByTargetAttribute(Attribute attribute);
+//    /**
+//     * Get the set of attributes in the source schema that derive the given target {@link Attribute}.
+//     *
+//     * @param attribute in the target schema
+//     * @return the set of attributes in the source schema that derive the given target attribute. If the
+//     * given attribute is not derived from any attribute in the source schema, return null.
+//     */
+//    Set<Attribute> getSourceByTargetAttribute(Attribute attribute);
 
-    Set<Attribute> getSourceByTargetAttributeName(String attributeName);
+//    Set<Attribute> getSourceByTargetAttributeName(String attributeName);
 
 //    /**
 //     * Construct the mapping of each attributes in this schema with the given ordered list of transforms.
@@ -55,21 +70,20 @@ public interface SchemaMapping {
 //     */
 //    void constructSchemaMapping(List<Transform> transforms);
 
-//    void updateSchemaMappingNodes();
 
-    void finalizeUpdate();
+    abstract protected void finalizeUpdate();
 
     /**
      * Create a new schema mapping instance using the parameters of this instance.
      * @return
      */
-    SchemaMapping createSchemaMapping();
+    abstract protected SchemaMapping createSchemaMapping();
 
-    void updateMapping(Attribute sourceAttribute, Attribute targetAttribute);
+    abstract protected void updateMapping(Attribute sourceAttribute, Attribute targetAttribute);
 
-    void updateSchema(Schema latestSchema);
+    abstract protected void updateSchema(Schema latestSchema);
 
-    void updateSchema();
+    abstract protected void updateSchema();
 
-    void print();
+    abstract public void print();
 }

@@ -4,6 +4,7 @@ import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
+import de.hpi.isg.dataprep.schema.SimpleSchemaMapping;
 
 /**
  * @author lan.jiang
@@ -19,21 +20,22 @@ public class TransAddAttribute extends Transform {
         this.sourceAttribute = null;
     }
 
-    @Override
+        @Override
     public void reformSchema(SchemaMapping schemaMapping) {
+        SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
         if (this.sourceAttribute != null) {
             throw new RuntimeException(new IllegalArgumentException("Unexpected value in field: sourceAttribute"));
         }
-        Schema currentSchema = schemaMapping.getCurrentSchema();
+        Schema currentSchema = simpleSchemaMapping.getCurrentSchema();
         if (currentSchema.attributeExist(targetAttribute)) {
             throw new RuntimeException("Attribute already exists.");
         }
-        schemaMapping.updateMapping(sourceAttribute, targetAttribute);
+            simpleSchemaMapping.updateMapping(sourceAttribute, targetAttribute);
         for (Attribute attribute : currentSchema.getAttributes()) {
             if (!attribute.equals(targetAttribute)) {
-                schemaMapping.updateMapping(attribute, attribute);
+                simpleSchemaMapping.updateMapping(attribute, attribute);
             }
         }
-        schemaMapping.finalizeUpdate();
+        simpleSchemaMapping.finalizeUpdate();
     }
 }
