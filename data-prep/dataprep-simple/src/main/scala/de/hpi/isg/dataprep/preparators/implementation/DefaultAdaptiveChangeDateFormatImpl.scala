@@ -27,6 +27,40 @@ import scala.util.{Failure, Success, Try}
   */
 class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
 
+  class SimpleDate(var originalDate: String, var yearOption: Option[String] = None, var monthOption: Option[String] = None,
+                   var dayOption: Option[String] = None, var separators: List[String] = List()) {
+
+    def isYearDefined: Boolean = {
+      yearOption.isDefined
+    }
+
+    def isMonthDefined: Boolean = {
+      monthOption.isDefined
+    }
+
+    def isDayDefined: Boolean = {
+      dayOption.isDefined
+    }
+
+    def isDefined: Boolean = {
+      dayOption.isDefined && monthOption.isDefined && yearOption.isDefined
+    }
+
+    def startsWithSeparator: Boolean = {
+      val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
+      originalDate.matches(startsWithSeparatorPattern)
+    }
+
+    def getSeparators: List[String] = {
+      val separatorPattern: Regex = "[^0-9a-zA-z]{1,}".r
+      separatorPattern.findAllMatchIn(originalDate).map(_.toString).toList
+    }
+
+    override def toString: String ={
+      s"$yearOption, $monthOption, $dayOption"
+    }
+  }
+
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[AdaptiveChangeDateFormat]
     val propertyName = preparator.propertyName
@@ -160,25 +194,63 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     (newDate, None)
   }
 
+  def applyRules(undeterminedBlocks: List[String], date: SimpleDate): SimpleDate = {
+    // TODO: If multiple blocks are the same, it wouldn't matter which is which
+    var leftoverBlocks: List[String] = undeterminedBlocks
+    var updatedDate: SimpleDate = date
+
+    for (block <- undeterminedBlocks) { // if no there are no undetermined parts left, function will return
+      breakable {
+        if (block.toInt <= 0) {
+          break
+        }
+        if (!date.isYearDefined && (block.length == 4 || block.toInt > 31 || (date.isDayDefined && block.toInt > 12))) {
+          updatedDate.yearOption = Some(block)
+        } else if (!date.isDayDefined && (block.toInt > 12 && block.toInt <= 31 ||
+          (date.isMonthDefined && block.toInt > 0 && block.toInt <= 31))) {
+          updatedDate.dayOption = Some(block)
+        } else {
+          break
+        }
+        leftoverBlocks = leftoverBlocks.filter(_ != block)
+      }
+    }
+
+    // assign leftover block if there is any
+    if (leftoverBlocks.length == 1) {
+      println("Check")
+      if (!date.isYearDefined) {
+        updatedDate.yearOption = Some(leftoverBlocks.head)
+      } else if (!date.isMonthDefined) {
+        updatedDate.monthOption = Some(leftoverBlocks.head)
+      } else if (!date.isDayDefined) {
+        updatedDate.dayOption = Some(leftoverBlocks.head)
+      }
+    }
+    updatedDate
+  }
+
   def generatePlaceholder(origString:String, placeholder:String):String = {
     origString.replaceAll(".", placeholder)
   }
 
-  def generatePattern(fullGroup:List[String], separators: List[String], startsWithSeperator: Boolean, year: String, month: String, day: String): String = {
-    //TODO: Fix generation for now separators are missing
-    println(s"generatePattern: $fullGroup, $separators, $year, $month, $day")
+  def generatePattern(fullGroup:List[String], date: SimpleDate,
+                      month: String): String = {
+    var pattern: String = ""
+    val year = date.yearOption.get
+    val day = date.dayOption.get
+    println(s"generatePattern: $fullGroup, ${date.getSeparators}, $year, $month, $day")
+
     var newGroup = fullGroup.updated(fullGroup.indexOf(year), generatePlaceholder(year, "y"))
     newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
     newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "d"))
 
-    val separatorsBuffer: ListBuffer[String] = separators.to[ListBuffer]
+    val separatorsBuffer: ListBuffer[String] = date.getSeparators.to[ListBuffer]
 
-    var pattern: String = ""
-
-    if (startsWithSeperator) {
+    if (date.startsWithSeparator) {
       // Pop first element
       pattern = separatorsBuffer.remove(0)
-      println(separators)
+      println(date.getSeparators)
     }
 
     for(group <- newGroup) {
@@ -197,23 +269,18 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     pattern
   }
 
-  def toPattern(date: String): Option[String] = {
-    var yearOption: Option[String] = None
-    var monthOption: Option[String] = None
-    var dayOption: Option[String] = None
-    println(s"Date: $date")
+  def toPattern(originalDate: String): Option[String] = {
+    var date = new SimpleDate(originalDate)
+    println(s"Date: $originalDate")
 
-    val splitDate: List[String] = date.split("[^0-9a-zA-z]{1,}").toList
+    // Extract from function, maybe move to constructor of Simple Date
+    val splitDate: List[String] = originalDate.split("[^0-9a-zA-z]{1,}").toList
     println(s"Splits: $splitDate")
     if (splitDate.length > 3) {
       return None // Assumption that date only contains day, month and year
     }
 
-    val separatorPattern: Regex = "[^0-9a-zA-z]{1,}".r
-    val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
-    val startsWithSeparator: Boolean = date.matches(startsWithSeparatorPattern)
-    val separators: List[String] = separatorPattern.findAllMatchIn(date).map(_.toString).toList
-    println("Separators: " + separators + " starts with separator: " + startsWithSeparator)
+    println("Separators: " + date.getSeparators + " starts with separator: " + date.startsWithSeparator)
 
     val (leftoverBlocks, convertedMonth) = convertMonthNames(splitDate)
     var undeterminedBlocks: List[String] = padSingleDigitDates(leftoverBlocks)
@@ -221,56 +288,22 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     // Used for patternGeneration later
     val monthText: Option[String] =  splitDate.find(!leftoverBlocks.contains(_))
 
-    monthOption = convertedMonth
-    println(s"-> Month: $monthOption")
+    date.monthOption = convertedMonth
+    println(s"-> Month: $date.monthOption")
 
-    if (monthOption.isDefined) {
-      undeterminedBlocks = undeterminedBlocks.filter(_ != monthOption.get)
+    if (date.isMonthDefined) {
+      undeterminedBlocks = undeterminedBlocks.filter(_ != date.monthOption.get)
     }
+    // until here
 
-    def applyRules(_undeterminedBlocks: List[String]): Unit = {
-      // TODO: If multiple blocks are the same, it wouldn't matter which is which
-      var leftoverBlocks: List[String] = _undeterminedBlocks
+    date = applyRules(undeterminedBlocks, date)
 
-      for (block <- _undeterminedBlocks) { // if no there are no undetermined parts left, function will return
-        breakable {
-          if (block.toInt <= 0) {
-            break
-          }
-          if (yearOption.isEmpty && (block.length == 4 || block.toInt > 31 || (dayOption.isDefined && block.toInt > 12))) {
-            yearOption = Some(block)
-          } else if (dayOption.isEmpty && (block.toInt > 12 && block.toInt <= 31 ||
-            (monthOption.isDefined && block.toInt > 0 && block.toInt <= 31))) {
-            dayOption = Some(block)
-          } else {
-            break
-          }
-          leftoverBlocks = leftoverBlocks.filter(_ != block)
-        }
-      }
-
-      // assign leftover block if there is any
-      if (leftoverBlocks.length == 1) {
-        println("Check")
-        if (yearOption.isEmpty) {
-          yearOption = Some(leftoverBlocks.head)
-        } else if (monthOption.isEmpty) {
-          monthOption = Some(leftoverBlocks.head)
-        } else if (dayOption.isEmpty) {
-          dayOption = Some(leftoverBlocks.head)
-        }
-      }
-    }
-
-    applyRules(undeterminedBlocks)
-
-    println(s"$yearOption, $monthOption, $dayOption")
-    if (yearOption.isDefined && monthOption.isDefined && dayOption.isDefined) {
-
+    println(s"$date")
+    if (date.isDefined) {
       // Use textual month, if provided, to generate correct pattern
-      val month = monthText.getOrElse(monthOption.get)
+      val month = monthText.getOrElse(date.monthOption.get)
 
-      val resultingPattern = generatePattern(splitDate, separators, startsWithSeparator, yearOption.get, month, dayOption.get)
+      val resultingPattern = generatePattern(splitDate, date, month)
       println(s"Result: $resultingPattern\n")
       return Some(resultingPattern)
     }
