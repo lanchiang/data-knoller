@@ -5,11 +5,11 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
-import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.SingleValueSeparator
+import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{MultiValueSeparator, SingleValueSeparator}
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable.ListBuffer
@@ -36,7 +36,7 @@ object DefaultSplitPropertyImpl {
     override def executeSplit(value: String): Vector[String] = {
       val (separatorValue, _) = SplitPropertyUtils
         .bestStringSeparatorCandidates(value, numCols)
-        .maxBy { case (candidate, count) => globalDistribution(candidate) }
+        .maxBy { case (candidate, _) => globalDistribution(candidate) }
 
       value.split(separatorValue).toVector
     }
@@ -44,7 +44,7 @@ object DefaultSplitPropertyImpl {
     override def merge(split: Vector[String], original: String): String = {
       val (separatorValue, _) = SplitPropertyUtils
         .bestStringSeparatorCandidates(original, numCols)
-        .maxBy { case (candidate, count) => globalDistribution(candidate) }
+        .maxBy { case (candidate, _) => globalDistribution(candidate) }
 
       split.mkString(separatorValue)
     }
@@ -74,20 +74,22 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   }
 
   def executeSplitProperty(dataFrame: DataFrame, parameters: SplitProperty): DataFrame = {
+
     val propertyName = parameters.propertyName
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"No column $propertyName found!")
+    val column = dataFrame.select(propertyName).as(Encoders.STRING)
 
     val (separator, numCols) = (parameters.separator, parameters.numCols) match {
       case (None, None) =>
-        val sep = findSeparator(dataFrame, propertyName)
-        val num = findNumCols(dataFrame, propertyName, sep)
+        val sep = findSeparator(column)
+        val num = findNumCols(column, sep)
         (sep, num)
       case (Some(sep), None) =>
-        val num = findNumCols(dataFrame, propertyName, sep)
+        val num = findNumCols(column, sep)
         (sep, num)
       case (None, Some(num)) =>
-        val sep = findSeparator(dataFrame, propertyName, num)
+        val sep = findSeparator(column, num)
         (sep, num)
       case (Some(sep), Some(num)) =>
         (sep, num)
@@ -102,54 +104,63 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     )
   }
 
-  def findSeparator(dataFrame: DataFrame, propertyName: String): Separator = {
-    // Given a column name, this method returns the character that is most likely the separator.
-    // Possible separators are non-alphanumeric characters that are evenly distributed over all rows.
-    // Rows where the character does not appear at all are ignored.
-    // If multiple characters fulfill this condition, the most common character is selected.
-    // TODO: Implement multi-char separator
-    val charMaps = dataFrame.select(propertyName).collect().map(
-      row => {
-        val value = row.getAs[String](0)
-        value.groupBy(identity).filter {
-          case (char, string) => !char.isLetterOrDigit
-        }.mapValues(_.length)
-      })
-    val chars = charMaps.flatMap(map => map.keys).distinct
+  def findSeparator(column: Dataset[String]): Separator = {
+    val stringSeparatorDistribution = SplitPropertyUtils.globalStringSeparatorDistribution(column)
+    val separatorCandidates =
+      stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
+    //TODO: ++ instances of all possible CharacterClassSeparators
 
-    val checkSeparatorCondition = (char: Char) => {
-      val counts = charMaps.map(map => map.withDefaultValue(0)(char)).filter(x => x > 0)
-      (counts.forall(_ == counts.head), counts.head, char)
-    }
-    val candidates = chars.map(checkSeparatorCondition).filter { case (valid, _, _) => valid }
-
-    if (candidates.isEmpty)
-      throw new IllegalArgumentException(s"No possible separator found in column $propertyName")
-
-    val separatorValue = candidates.maxBy { case (_, counts, _) => counts }._3.toString
-    SingleValueSeparator(separatorValue)
+    separatorCandidates.maxBy(evaluateSplit(column, _))
   }
 
-  def findSeparator(dataFrame: DataFrame, propertyName: String, numCols: Int): Separator = ???
+  def findSeparator(column: Dataset[String], numCols: Int): Separator = {
+    val stringSeparatorDistribution = SplitPropertyUtils.globalStringSeparatorDistribution(column, numCols)
+    val separatorCandidates =
+      MultiValueSeparator(numCols, stringSeparatorDistribution) ::
+        stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
+    //TODO: ++ instances of all possible CharacterClassSeparators
 
-  def findNumCols(dataFrame: DataFrame, propertyName: String, separator: Separator): Int = {
-    // Given a column name, and a separator, this method returns the number of columns that should be
-    // created by a split. This number is the maximum of the number of split parts over all rows.
+    separatorCandidates.maxBy(evaluateSplit(column, _, numCols))
+  }
 
-    val counts = dataFrame
-      .select(propertyName)
-      .collect()
-      .map(row =>
-        separator.getNumSplits(row.getAs[String](0))
-      )
+  def findNumCols(column: Dataset[String], separator: Separator): Int = {
+    // Given a column a separator, this method returns the number of columns that should be created by a split.
+    // This number is the most common number of splits created by this separator throughout all rows
+    import column.sparkSession.implicits._
+    val numsSplits = column
+      .map(separator.getNumSplits)
       .filter(x => x > 1)
 
-    if (counts.isEmpty)
-      throw new IllegalArgumentException(s"Separator not found in column $propertyName")
-    counts.max
+    if (numsSplits.count() == 0)
+      throw new IllegalArgumentException(s"Separator could not split any value.")
+
+    numsSplits
+      .groupByKey(identity)
+      .mapGroups { case (numSplits, occurrences) => (numSplits, occurrences.length) }
+      .collect
+      .maxBy{case (_, numOccurrences) => numOccurrences}
+      ._1
   }
 
-  def createSplitValuesDataFrame(dataFrame: Dataset[Row], propertyName: String, separator: Separator, times: Int, fromLeft: Boolean): Dataset[Row] = {
+  def evaluateSplit(column: Dataset[String], separator: Separator): Float = {
+    import column.sparkSession.implicits._
+    column
+      .map(separator.getNumSplits)
+      .groupByKey(identity)
+      .mapGroups { case (_, occurrences) => occurrences.length }
+      .collect.max.toFloat / column.count()
+  }
+
+  def evaluateSplit(column: Dataset[String], separator: Separator, numCols: Int): Float = {
+    import column.sparkSession.implicits._
+    column
+      .map(separator.getNumSplits)
+      .map(numSplits => numCols - Math.abs(numCols - numSplits))
+      .map(rowScore => if (rowScore < 0) 0 else rowScore)
+      .collect.sum.toFloat / numCols / column.count()
+  }
+
+  def createSplitValuesDataFrame(dataFrame: DataFrame, propertyName: String, separator: Separator, times: Int, fromLeft: Boolean): Dataset[Row] = {
     implicit val rowEncoder: Encoder[Row] = RowEncoder(appendEmptyColumns(dataFrame, propertyName, times).schema)
     dataFrame.map(
       row => {
@@ -161,7 +172,7 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     )
   }
 
-  def appendEmptyColumns(dataFrame: Dataset[Row], propertyName: String, numCols: Int): Dataset[Row] = {
+  def appendEmptyColumns(dataFrame: DataFrame, propertyName: String, numCols: Int): Dataset[Row] = {
     var result = dataFrame
     for (i <- 1 to numCols) {
       result = result.withColumn(s"$propertyName$i", lit(""))
@@ -169,16 +180,6 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     result
   }
 
-  def evaluateSplit(column: Dataset[String], separator: Separator, numCols: Int): Float = {
-    import column.sparkSession.implicits._
-    column
-      .map(separator.getNumSplits)
-      .map(numSplits => numCols - Math.abs(numCols - numSplits))
-      .map(rowScore => if (rowScore < 0) 0 else rowScore)
-      .collect()
-      .sum.toFloat / numCols / column.count()
-  }
-  
   /*
   Maps each character of the input string to its character class: letter (a), digit (1), whitespace (s) or special sign (the character itself)
    */

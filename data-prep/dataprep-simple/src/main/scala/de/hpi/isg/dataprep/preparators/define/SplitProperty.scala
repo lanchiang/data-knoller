@@ -10,11 +10,9 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
 import de.hpi.isg.dataprep.util.DataType
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Encoders}
 
 class SplitProperty(val propertyName: String, val separator: Option[Separator], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
-  private val splitPropertyImpl = this.impl.asInstanceOf[DefaultSplitPropertyImpl]
-
   def this(propertyName: String, separator: Separator, numCols: Int, fromLeft: Boolean = true) {
     this(propertyName, Some(separator), Some(numCols), fromLeft)
   }
@@ -40,19 +38,18 @@ class SplitProperty(val propertyName: String, val separator: Option[Separator], 
       case _ =>
     }
 
-    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    import dataset.sparkSession.implicits._
-
-    if (!dataset.columns.contains(propertyName)) return 0
+  override def calApplicability(schemaMapping: SchemaMapping, dataFrame: DataFrame, targetMetadata: util.Collection[Metadata]): Float = {
+    if (dataFrame.columns.length != 1) return 0
+    val propertyName = dataFrame.columns(0)
     val numCols = schemaMapping.getTargetBySourceAttributeName(propertyName).size()
     if (numCols <= 1) return 0
 
-    val separator = this.separator.getOrElse(this.splitPropertyImpl.findSeparator(dataset, propertyName))
-    val column = dataset.select(propertyName).map(row => row.getString(0))
-
-    this.splitPropertyImpl.evaluateSplit(column, separator, numCols)
+    val column = dataFrame.select(propertyName).as(Encoders.STRING)
+    val splitPropertyImpl = impl.asInstanceOf[DefaultSplitPropertyImpl]
+    val separator = splitPropertyImpl.findSeparator(column, numCols)
+    splitPropertyImpl.evaluateSplit(column, separator, numCols)
   }
 }

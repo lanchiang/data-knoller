@@ -67,7 +67,6 @@ public class SplitPropertyTest extends PreparatorTest {
     @Test
     public void testApplicabilityScore() {
         SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
-        AbstractPreparator abstractPreparator = new SplitProperty("date", separator);
         DefaultSplitPropertyImpl impl = new DefaultSplitPropertyImpl();
         Dataset<String> column = pipeline.getRawData().select("date").as(Encoders.STRING());
         Assert.assertEquals(impl.evaluateSplit(column, separator, 3), 0.9333, 0.0001);

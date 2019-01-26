@@ -3,8 +3,8 @@ package de.hpi.isg.dataprep.preparators.implementation
 import org.apache.spark.sql.Dataset
 
 object SplitPropertyUtils {
-  private val nonAlpaLong = """[^a-zA-Z\d]+""".r
   private val nonAlpaShort = """[^a-zA-Z\d]""".r
+  private val nonAlpaLong = """[^a-zA-Z\d]{2,}""".r
 
   def allStringSeparatorCandidates(value: String): Vector[(String, Int)] = {
     (nonAlpaLong.findAllIn(value) ++ nonAlpaShort.findAllIn(value))
@@ -16,8 +16,8 @@ object SplitPropertyUtils {
 
   def bestStringSeparatorCandidates(value: String, numCols: Int): Vector[(String, Int)] = {
     allStringSeparatorCandidates(value)
-      .groupBy { case (candidate, count) => Math.abs(count + 1 - numCols) }
-      .minBy { case (diff, candidates) => diff }
+      .groupBy { case (_, count) => Math.abs(count + 1 - numCols) }
+      .minBy { case (diff, _) => diff }
       ._2
   }
 
@@ -26,11 +26,21 @@ object SplitPropertyUtils {
     dataFrame
       .flatMap(value =>
         bestStringSeparatorCandidates(value, numCols)
-          .filter{case (candidate, count) => count + 1 == numCols}
-          .map{case (candidate, count) => candidate}
+          .filter { case (_, count) => count + 1 == numCols }
+          .map { case (candidate, _) => candidate }
       )
       .groupByKey(identity)
-      .mapGroups{case (candidate, occurences) => (candidate, occurences.length)}
+      .mapGroups { case (candidate, occurrences) => (candidate, occurrences.length) }
+      .collect()
+      .toMap
+  }
+
+  def globalStringSeparatorDistribution(dataFrame: Dataset[String]): Map[String, Int] = {
+    import dataFrame.sparkSession.implicits._
+    dataFrame
+      .flatMap(value => allStringSeparatorCandidates(value).map { case (candidate, _) => candidate })
+      .groupByKey(identity)
+      .mapGroups { case (candidate, occurrences) => (candidate, occurrences.length) }
       .collect()
       .toMap
   }
@@ -43,7 +53,7 @@ object SplitPropertyUtils {
     def executeSplit(value: String): Vector[String]
 
     def split(value: String, times: Int, fromLeft: Boolean): Vector[String] = {
-      var split = this.executeSplit(value)
+      var split = executeSplit(value)
       if (!fromLeft)
         split = split.reverse
 
@@ -57,8 +67,7 @@ object SplitPropertyUtils {
       if (!fromLeft) {
         tail = tail.reverse
       }
-      head :+ this.merge(tail, original = value)
+      head :+ merge(tail, original = value)
     }
   }
-
 }
