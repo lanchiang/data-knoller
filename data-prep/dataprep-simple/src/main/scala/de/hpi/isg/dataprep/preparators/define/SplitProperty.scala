@@ -8,18 +8,23 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
+import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
-class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
+class SplitProperty(val propertyName: String, val separator: Option[Separator], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
   private val splitPropertyImpl = this.impl.asInstanceOf[DefaultSplitPropertyImpl]
 
-  def this(propertyName: String, separator: String, numCols: Int, fromLeft: Boolean = true) {
+  def this(propertyName: String, separator: Separator, numCols: Int, fromLeft: Boolean = true) {
     this(propertyName, Some(separator), Some(numCols), fromLeft)
   }
 
-  def this(propertyName: String, separator: String) {
+  def this(propertyName: String, separator: Separator) {
     this(propertyName, Some(separator), None, true)
+  }
+
+  def this(propertyName: String, numCols: Int) {
+    this(propertyName, None, Some(numCols), true)
   }
 
   def this(propertyName: String) {

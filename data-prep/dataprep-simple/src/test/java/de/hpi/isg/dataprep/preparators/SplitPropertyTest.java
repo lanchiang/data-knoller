@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.preparators.define.SplitProperty;
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl;
+import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
@@ -45,13 +46,15 @@ public class SplitPropertyTest extends PreparatorTest {
 
     @Test
     public void testSplitPropertyWithAllParameters() throws Exception {
-        AbstractPreparator abstractPreparator = new SplitProperty("date", "-", 3, true);
+        SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
+        AbstractPreparator abstractPreparator = new SplitProperty("date", separator, 3, true);
         assertTest(abstractPreparator);
     }
 
     @Test
     public void testSplitPropertyWithPropertyAndSeparator() throws Exception {
-        AbstractPreparator abstractPreparator = new SplitProperty("date", "-");
+        SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
+        AbstractPreparator abstractPreparator = new SplitProperty("date", separator);
         assertTest(abstractPreparator);
     }
 
@@ -63,10 +66,11 @@ public class SplitPropertyTest extends PreparatorTest {
 
     @Test
     public void testApplicabilityScore() {
-        AbstractPreparator abstractPreparator = new SplitProperty("date", "-");
+        SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
+        AbstractPreparator abstractPreparator = new SplitProperty("date", separator);
         DefaultSplitPropertyImpl impl = new DefaultSplitPropertyImpl();
         Dataset<String> column = pipeline.getRawData().select("date").as(Encoders.STRING());
-        Assert.assertEquals(impl.evaluateSplit(column, "-", 3), 0.9333, 0.0001);
+        Assert.assertEquals(impl.evaluateSplit(column, separator, 3), 0.9333, 0.0001);
     }
 
     private void assertTest(AbstractPreparator abstractPreparator) throws Exception {
@@ -93,7 +97,8 @@ public class SplitPropertyTest extends PreparatorTest {
 
     @Test
     public void testSplitPropertyWithFromLeftIsFalse() throws Exception {
-        AbstractPreparator abstractPreparator = new SplitProperty("date", "-", 3, false);
+        SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
+        AbstractPreparator abstractPreparator = new SplitProperty("date", separator, 3, false);
         pipeline.addPreparation(new Preparation(abstractPreparator));
         pipeline.executePipeline();
 
@@ -118,14 +123,16 @@ public class SplitPropertyTest extends PreparatorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentExceptionWhenNumColsIs1() throws Exception {
-        AbstractPreparator abstractPreparator = new SplitProperty("date", "-", 1, true);
+        SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
+        AbstractPreparator abstractPreparator = new SplitProperty("date", separator, 1, true);
         pipeline.addPreparation(new Preparation(abstractPreparator));
         pipeline.executePipeline();
     }
 
     @Test(expected = PreparationHasErrorException.class)
     public void testIllegalArgumentExceptionWhenPropertyNameDoNotExist() throws Exception {
-        AbstractPreparator abstractPreparator = new SplitProperty("xyz", "-", 3, true);
+        SplitPropertyUtils.Separator separator = new DefaultSplitPropertyImpl.SingleValueSeparator("-");
+        AbstractPreparator abstractPreparator = new SplitProperty("xyz", separator, 3, true);
         pipeline.addPreparation(new Preparation(abstractPreparator));
         pipeline.executePipeline();
     }
