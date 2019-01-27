@@ -21,14 +21,26 @@ import collection.JavaConversions._
   * @author Lan Jiang
   * @since 2018/8/31
   */
-class ChangeDataType(val propertyName: String,
-                     val sourceType: PropertyType,
-                     val targetType: PropertyType,
-                     val sourceDatePattern: DatePatternEnum,
-                     val targetDatePattern: DatePatternEnum) extends AbstractPreparator {
+class ChangeDataType extends AbstractPreparator {
+
+  var propertyName : String = _
+  var sourceType : PropertyType = _
+  var targetType : PropertyType = _
+  var sourceDatePattern : DatePatternEnum = _
+  var targetDatePattern : DatePatternEnum = _
+
+  def this(_propertyName : String, _sourceType : PropertyType, _targetType : PropertyType,
+           _sourceDatePattern : DatePatternEnum, _targetDatePattern : DatePatternEnum) {
+    this()
+    propertyName = _propertyName
+    sourceType = _sourceType
+    targetType = _targetType
+    sourceDatePattern = _sourceDatePattern
+    targetDatePattern = _targetDatePattern
+  }
 
   def this(propertyName: String, targetType: PropertyType) {
-    this(propertyName, null, targetType = targetType, null, null)
+    this(propertyName, null, targetType, null, null)
   }
 
   def this(propertyName: String, sourceType: PropertyType, targetType: PropertyType) {

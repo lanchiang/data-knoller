@@ -17,10 +17,12 @@ import org.apache.spark.sql.{Dataset, Row}
 class Hash(val propertyName: String,
            val hashAlgorithm: HashAlgorithm) extends AbstractPreparator {
 
-  //    override def newImpl = new DefaultHashImpl
-
   def this(propertyName: String) {
     this(propertyName, Hash.DEFAULT_ALGORITHM)
+  }
+
+  def this() {
+    this(null, null)
   }
 
   /**
