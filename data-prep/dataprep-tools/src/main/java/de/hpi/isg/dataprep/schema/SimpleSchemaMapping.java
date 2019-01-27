@@ -9,9 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * This class represents the schema mapping from the current schema to the target schema. It is used by
- * the decision engine to calculate the applicability score
- * for preparator suggestion.
+ * This class represents the schema mapping from the current schema to the target schema. It is used by the decision engine
+ * to calculate the applicability score for preparator suggestion.
  *
  * @author lan.jiang
  * @since 12/18/18
@@ -21,12 +20,6 @@ public class SimpleSchemaMapping extends SchemaMapping {
     private final Schema sourceSchema;
     private Schema currentSchema;
     private Schema targetSchema;
-
-    /**
-     * Each key represents a particular attribute in the source schema, its value is a set of attributes
-     * in the target schema that are derived from the attribute in the key.
-     */
-    private Map<Attribute, Set<Attribute>> mapping;
 
     /**
      * Maps from the currentSchema to the targetSchema.
@@ -55,13 +48,13 @@ public class SimpleSchemaMapping extends SchemaMapping {
     }
 
     @Override
-    public Schema getSourceSchema() {
-        return sourceSchema;
+    public Schema getCurrentSchema() {
+        return currentSchema;
     }
 
     @Override
-    public Schema getCurrentSchema() {
-        return currentSchema;
+    public void setCurrentSchema(Schema schema) {
+        this.currentSchema = schema;
     }
 
     @Override
@@ -70,32 +63,16 @@ public class SimpleSchemaMapping extends SchemaMapping {
     }
 
     @Override
+    public boolean hasMapped(Attribute attribute) {
+        return targetSchema.getAttributes().contains(attribute);
+    }
+
+    @Override
     public boolean hasMapped() {
-        return currentSchema.equals(targetSchema);
+        return targetSchema.equals(currentSchema);
     }
 
     @Override
-    public boolean isInSource(Attribute attribute) {
-        return currentSchema.attributeExist(attribute);
-    }
-
-    @Override
-    public boolean isInSource(Attribute[] attributes) {
-        for (Attribute attribute : attributes) {
-            if (!currentSchema.attributeExist(attribute)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Get the set of attributes in the target schema that are derived from the given {@link Attribute}.
-     *
-     * @param attribute in the source schema
-     * @return the set of attributes in the target schema that are derived from the given attribute. If
-     * the given attribute does not exist in the source schema, return null.
-     */
     public Set<Attribute> getTargetBySourceAttribute(Attribute attribute) {
         if (attribute == null) {
             throw new RuntimeException(new NullPointerException("The specified attribute is null."));
@@ -121,38 +98,11 @@ public class SimpleSchemaMapping extends SchemaMapping {
             throw new RuntimeException("The attribute node does not exist.");
         }
         List<SchemaMappingNode> resultNodes = excludeNodeInPreviousLayer(findLastNodesOfChain(attributeNode));
+        // if the current schema contains the attributes to be returned, do not return them (because they have been processed).
+        resultNodes = resultNodes.stream().filter(node -> currentSchema.getAttributes().contains(node.attribute)).collect(Collectors.toList());
 
         return resultNodes.stream().map(node -> node.getAttribute()).collect(Collectors.toSet());
     }
-
-//    @Override
-//    public Set<Attribute> getSourceByTargetAttribute(Attribute attribute) {
-//        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
-//                .filter(attrMapping -> attrMapping.getValue().contains(attribute))
-//                .map(attrMapping -> attrMapping.getKey())
-//                .collect(Collectors.toSet());
-//        return sourceAttributes.size()==0?null:sourceAttributes;
-//    }
-//
-//    public Set<Attribute> getSourceByTargetAttributeName(String attributeName) {
-//        Set<Attribute> sourceAttributes = mapping.entrySet().stream()
-//                .filter(attrMapping -> {
-//                    long countAttr = attrMapping.getValue().stream()
-//                            .filter(attribute -> attribute.getName().equals(attributeName)).count();
-//                    return countAttr>0?true:false;
-//                })
-//                .map(attrMapping -> attrMapping.getKey())
-//                .collect(Collectors.toSet());
-//        return sourceAttributes.size()==0?null:sourceAttributes;
-//    }
-
-//    @Override
-//    public void constructSchemaMapping(List<Transform> transforms) {
-//        for (Transform transform : transforms) {
-//            transform.reformSchema(this);
-//        }
-//    }
-
 
     @Override
     public void finalizeUpdate() {
@@ -160,7 +110,6 @@ public class SimpleSchemaMapping extends SchemaMapping {
         updateSchema();
     }
 
-    //    @Override
     private void updateSchemaMappingNodes() {
         root.next.stream()
                 .map(node -> findLastNodesOfChain(node))
@@ -210,12 +159,7 @@ public class SimpleSchemaMapping extends SchemaMapping {
     }
 
     @Override
-    public void updateSchema(Schema latestSchema) {
-        this.currentSchema = latestSchema;
-    }
-
-    @Override
-    public void updateSchema() {
+    protected void updateSchema() {
         List<SchemaMappingNode> tails = root.next.stream()
                 .map(node -> findLastUpdatedNodesOfChain(node))
                 .flatMap(lastNodes -> lastNodes.stream())
@@ -296,8 +240,8 @@ public class SimpleSchemaMapping extends SchemaMapping {
     }
 
     public class SchemaMappingNode {
-        private Attribute attribute;
 
+        private Attribute attribute;
         private List<SchemaMappingNode> next;
 
         // actual data starts from layer 1, layer 0 is preserved for only the root node.

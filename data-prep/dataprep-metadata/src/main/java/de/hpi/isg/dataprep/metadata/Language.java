@@ -5,41 +5,39 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
 import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 import de.hpi.isg.dataprep.model.target.objects.ColumnMetadata;
-import de.hpi.isg.dataprep.util.DataType;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Lan Jiang
- * @since 2018/8/25
+ * @author lan.jiang
+ * @since 1/26/19
  */
-public class PropertyDataType extends Metadata {
+public class Language extends Metadata {
 
-    private DataType.PropertyType propertyDataType;
+    private de.hpi.isg.dataprep.util.Language language;
 
-    private PropertyDataType() {
-        super(PropertyDataType.class.getSimpleName());
+    private Language() {
+        super(Language.class.getSimpleName());
     }
 
-    public PropertyDataType(String propertyName, DataType.PropertyType propertyDataType) {
+    public Language(String propertyName, de.hpi.isg.dataprep.util.Language language) {
         this();
         this.scope = new ColumnMetadata(propertyName);
-        this.propertyDataType = propertyDataType;
+        this.language = language;
     }
 
-    public DataType.PropertyType getPropertyDataType() {
-        return propertyDataType;
+    public de.hpi.isg.dataprep.util.Language getLanguage() {
+        return language;
     }
 
     @Override
     public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
-        List<PropertyDataType> matchedInRepo = metadataRepository.getMetadataPool().stream()
-                .filter(metadata -> metadata instanceof PropertyDataType)
-                .map(metadata -> (PropertyDataType) metadata)
+        List<Language> matchedInRepo = metadataRepository.getMetadataPool().stream()
+                .filter(metadata -> metadata instanceof Language)
+                .map(metadata -> (Language) metadata)
                 .filter(metadata -> metadata.equals(this))
                 .collect(Collectors.toList());
 
@@ -49,7 +47,7 @@ public class PropertyDataType extends Metadata {
             throw new DuplicateMetadataException(String.format("Metadata %s has multiple data type for property: %s",
                     this.getClass().getSimpleName(), this.scope.getName()));
         } else {
-            PropertyDataType metadataInRepo = matchedInRepo.get(0);
+            Language metadataInRepo = matchedInRepo.get(0);
             if (!this.equalsByValue(metadataInRepo)) {
                 // value of this metadata does not match that in the repository.
                 throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
@@ -59,14 +57,6 @@ public class PropertyDataType extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        return propertyDataType.equals(((PropertyDataType) metadata).getPropertyDataType());
-    }
-
-    @Override
-    public String toString() {
-        return "PropertyDataType{" +
-                "propertyName='" + scope.getName() + '\'' +
-                ", propertyDataType=" + propertyDataType +
-                '}';
+        return ((Language)metadata).getLanguage().equals(this.language);
     }
 }

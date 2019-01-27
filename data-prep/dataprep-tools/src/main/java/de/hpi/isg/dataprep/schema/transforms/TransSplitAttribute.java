@@ -21,7 +21,7 @@ public class TransSplitAttribute extends Transform {
     }
 
     @Override
-    public void reformSchema(SchemaMapping schemaMapping) {
+    public void buildStep(SchemaMapping schemaMapping) {
         SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
         // check whether the sourceAttribute exists in the schema
         if (!simpleSchemaMapping.getCurrentSchema().attributeExist(sourceAttribute)) {

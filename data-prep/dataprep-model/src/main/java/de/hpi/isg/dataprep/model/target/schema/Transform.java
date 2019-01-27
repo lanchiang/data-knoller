@@ -6,5 +6,9 @@ package de.hpi.isg.dataprep.model.target.schema;
  */
 abstract public class Transform {
 
-    abstract public void reformSchema(SchemaMapping schemaMapping);
+    /**
+     * Using this transform to build a step in the given schema mapping.
+     * @param schemaMapping
+     */
+    abstract public void buildStep(SchemaMapping schemaMapping);
 }

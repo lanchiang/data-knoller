@@ -24,7 +24,7 @@ public class TransMergeAttribute extends Transform {
     }
 
     @Override
-    public void reformSchema(SchemaMapping schemaMapping) {
+    public void buildStep(SchemaMapping schemaMapping) {
         SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
         Schema currentSchema = simpleSchemaMapping.getCurrentSchema();
 

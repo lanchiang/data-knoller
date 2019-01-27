@@ -37,8 +37,4 @@ public class EscapeCharacter extends Metadata {
         return escapeCharacter;
     }
 
-    @Override
-    public String getName() {
-        return scope.getName();
-    }
 }

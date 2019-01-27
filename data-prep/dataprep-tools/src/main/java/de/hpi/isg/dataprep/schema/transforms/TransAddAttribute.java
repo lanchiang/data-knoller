@@ -20,8 +20,8 @@ public class TransAddAttribute extends Transform {
         this.sourceAttribute = null;
     }
 
-        @Override
-    public void reformSchema(SchemaMapping schemaMapping) {
+    @Override
+    public void buildStep(SchemaMapping schemaMapping) {
         SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
         if (this.sourceAttribute != null) {
             throw new RuntimeException(new IllegalArgumentException("Unexpected value in field: sourceAttribute"));
@@ -30,7 +30,8 @@ public class TransAddAttribute extends Transform {
         if (currentSchema.attributeExist(targetAttribute)) {
             throw new RuntimeException("Attribute already exists.");
         }
-            simpleSchemaMapping.updateMapping(sourceAttribute, targetAttribute);
+
+        simpleSchemaMapping.updateMapping(sourceAttribute, targetAttribute);
         for (Attribute attribute : currentSchema.getAttributes()) {
             if (!attribute.equals(targetAttribute)) {
                 simpleSchemaMapping.updateMapping(attribute, attribute);

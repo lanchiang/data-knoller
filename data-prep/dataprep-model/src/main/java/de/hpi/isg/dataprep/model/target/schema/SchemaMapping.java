@@ -1,7 +1,5 @@
 package de.hpi.isg.dataprep.model.target.schema;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -13,43 +11,44 @@ import java.util.Set;
  */
 abstract public class SchemaMapping {
 
-    abstract public Schema getSourceSchema();
-
     abstract public Schema getCurrentSchema();
+
+    abstract public void setCurrentSchema(Schema schema);
 
     abstract public Schema getTargetSchema();
 
     /**
-     * Judge whether the current schema is equal to the target schema.
+     * Check whether the given attribute has been mapped in the target schema.
      *
      * @return true if the current schema is equal to the target schema, false otherwise.
+     */
+    abstract protected boolean hasMapped(Attribute attribute);
+
+    /**
+     * Check whether the target schema is the same as the current schema. Maybe not keep.
+     * @return
      */
     abstract public boolean hasMapped();
 
     /**
-     * Check whether the given attribute is in the source schema.
+     * Get the set of attributes in the target schema that are derived from the given {@link Attribute}. This method can be used
+     * in calApplicability to get the attributes in targetSchema that the given column combination still need to be mapped.
      *
-     * @param attribute the attribute to be checked.
-     * @return
-     */
-    abstract public boolean isInSource(Attribute attribute);
-
-    /**
-     * Check whether each of the given attributes is in the source schema.
-     * @param attributes the array of attributes to be checked.
-     * @return
-     */
-    abstract public boolean isInSource(Attribute[] attributes);
-
-    /**
-     * Get the set of attributes in the target schema that are derived from the given {@link Attribute}.
-     *
-     * @param attribute in the source schema
-     * @return the set of attributes in the target schema that are derived from the given attribute. If
-     * the given attribute does not exist in the source schema, return null.
+     * @param attribute the attribute in the current schema
+     * @return the set of attributes in the target schema that are derived from the given attribute. If the given attribute
+     * does not exist in the source schema, return null.
      */
     abstract public Set<Attribute> getTargetBySourceAttribute(Attribute attribute);
 
+    /**
+     * Get the set of attributes in the target schema that are derived from the given {@link Attribute}, which is specified
+     * by its attribute name. This method can be used in calApplicability to get the attributes in targetSchema that the given
+     * column combination still need to be mapped.
+     *
+     * @param attributeName the name of the attribute in the current schema.
+     * @return the set of attributes in the target schema that are derived from the given attribute. If the given attribute
+     * does not exist in the source schema, return null.
+     */
     abstract public Set<Attribute> getTargetBySourceAttributeName(String attributeName);
 
 //    /**
@@ -63,14 +62,6 @@ abstract public class SchemaMapping {
 
 //    Set<Attribute> getSourceByTargetAttributeName(String attributeName);
 
-//    /**
-//     * Construct the mapping of each attributes in this schema with the given ordered list of transforms.
-//     *
-//     * @param transforms the list of transformations used to construct the mapping.
-//     */
-//    void constructSchemaMapping(List<Transform> transforms);
-
-
     abstract protected void finalizeUpdate();
 
     /**
@@ -81,9 +72,7 @@ abstract public class SchemaMapping {
 
     abstract protected void updateMapping(Attribute sourceAttribute, Attribute targetAttribute);
 
-    abstract protected void updateSchema(Schema latestSchema);
-
     abstract protected void updateSchema();
 
-    abstract public void print();
+    abstract protected void print();
 }

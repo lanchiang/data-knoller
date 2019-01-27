@@ -20,7 +20,7 @@ public class TransDeleteAttribute extends Transform {
     }
 
     @Override
-    public void reformSchema(SchemaMapping schemaMapping) {
+    public void buildStep(SchemaMapping schemaMapping) {
         SimpleSchemaMapping simpleSchemaMapping = (SimpleSchemaMapping) schemaMapping;
         if (!simpleSchemaMapping.getCurrentSchema().attributeExist(sourceAttribute)) {
             throw new RuntimeException("Attribute does not exist.");

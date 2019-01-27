@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
@@ -110,10 +111,6 @@ public class DecisionEngine implements Engine {
         checkPipelineConfiguaration(pipeline);
         SchemaMapping schemaMapping = pipeline.getSchemaMapping();
         Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
-
-//        if (forceStop()) {
-//            return null;
-//        }
 
         // every time this method is called, instantiate all the preparator candidates again.
         initDecisionEngine();

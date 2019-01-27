@@ -56,8 +56,4 @@ public class DINPhoneNumber extends Metadata {
         return regex;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
 }

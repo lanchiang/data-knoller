@@ -30,8 +30,6 @@ public class PreparatorTest {
         dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .targetMetadata(null)
-                .schemaMapping(null)
                 .url("./src/test/resources/pokemon.csv")
                 .buildDialect();
 

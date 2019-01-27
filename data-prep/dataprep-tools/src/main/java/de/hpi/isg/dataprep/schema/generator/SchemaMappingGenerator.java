@@ -1,6 +1,5 @@
 package de.hpi.isg.dataprep.schema.generator;
 
-import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
@@ -34,7 +33,7 @@ public class SchemaMappingGenerator {
      */
     public void constructTargetSchema() {
         for (Transform transform : transforms) {
-            transform.reformSchema(schemaMapping);
+            transform.buildStep(schemaMapping);
         }
         targetSchema = schemaMapping.getCurrentSchema();
     }

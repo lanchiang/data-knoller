@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.util.Nameable;
+import de.hpi.isg.dataprep.util.Printable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -20,7 +21,7 @@ import java.util.Set;
  * @author Lan Jiang
  * @since 2018/9/10
  */
-public interface AbstractPipeline extends Nameable {
+public interface AbstractPipeline extends Nameable, Printable {
 
     /**
      * Before doing anything in the pipeline, this method is called to initialize the pipeline, configuring such as calculating the initial metadata.
@@ -90,6 +91,8 @@ public interface AbstractPipeline extends Nameable {
     SchemaMapping getSchemaMapping();
 
     Set<Metadata> getTargetMetadata();
+
+    void updateTargetMetadata(Collection<Metadata> coming);
 
     Dataset<Row> getRawData();
 

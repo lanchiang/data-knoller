@@ -10,18 +10,17 @@ import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.utils.UpdateUtils;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -198,20 +197,15 @@ public class Pipeline implements AbstractPipeline {
 
         // return a null means the decision engine determines to stop the process
         if (recommendedPreparator == null) {
-            throw new RuntimeException("Inner error. Decision engine cannot select the best preparator.");
-//            return false;
+            throw new RuntimeException("Internal error. Decision engine fails to select the best preparator.");
         }
 
         // Note: the traditional control flow is to add the preparations first and then execute the batch.
-        // But in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
+        // While in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
         // can be updated.
         AbstractPreparation preparation = new Preparation(recommendedPreparator);
         preparations.add(preparation);
-
-        schemaMapping.getCurrentSchema();
-
         executeRecommendedPreparation(preparation);
-        
         return true;
     }
 
@@ -227,9 +221,9 @@ public class Pipeline implements AbstractPipeline {
             throw new RuntimeException(e);
         }
 
-        // update the schemaMapping
-        Schema latestSchema = new Schema(this.rawData.schema());
-        this.schemaMapping.updateSchema(latestSchema);
+        // update the schemaMapping and target metadata
+        UpdateUtils.updateSchemaMapping(schemaMapping, preparation.getExecutionContext());
+        UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
     }
 
     @Override
@@ -280,6 +274,21 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public Set<Metadata> getTargetMetadata() {
         return this.targetMetadata;
+    }
+
+    @Override
+    public void updateTargetMetadata(Collection<Metadata> coming) {
+        coming.stream().forEach(metadata -> {
+            if (targetMetadata.contains(metadata)) {
+                targetMetadata.remove(metadata);
+            }
+            targetMetadata.add(metadata);
+        });
+    }
+
+    @Override
+    public void print() {
+        System.out.println(this.preparations);
     }
 
     @Override
