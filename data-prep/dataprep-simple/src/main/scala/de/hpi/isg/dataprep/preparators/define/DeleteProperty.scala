@@ -46,21 +46,20 @@ class DeleteProperty extends AbstractPreparator {
     this.updates.addAll(toChange)
   }
 
-  /**
-    * Calculate the matrix of preparator applicability to the data. In the matrix, each row represent a specific signature of
-    * the preparator, while each column represent a specific column combinationof the data
-    *
-    * @return the applicability matrix succinctly represented by a hash map. Each key stands for a column combination in the dataset,
-    *         and its value the applicability score of this preparator signature.
-    */
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     val schema = dataset.schema
     val score : Float = schema.size match {
       case value if value > 1 => 0
-      case value if value == 0 => throw new RuntimeException("Illegal schema size.")
+      case value if value == 0 => {
+//        throw new RuntimeException("Illegal schema size.")
+        val e : Exception = new RuntimeException(new IllegalArgumentException("Illegal schema size."))
+        e.printStackTrace()
+        0
+      }
       case 1 => {
-        val targetAttributes : util.Set[Attribute] = schemaMapping.getTargetBySourceAttributeName(dataset.schema.fields(0).name)
-        val score = targetAttributes.size() match {
+        this.propertyName = schema.fields(0).name
+        val targetAttributes : util.Set[Attribute] = schemaMapping.getTargetBySourceAttributeName(schema.fields(0).name)
+        val score = targetAttributes.size().toFloat match {
           case 0 => {
             // this attribute corresponds to nothing in the target schema, meaning that it is deleted at some point, therefore
             // return 1 as the score
@@ -68,8 +67,8 @@ class DeleteProperty extends AbstractPreparator {
           }
           case length if length > 0 => {
             // if this attribute corresponds to any other attributes in the target schema, it should not be deleted now.
-            // the current implementation give lower score to the more such attributes it corresponds to.
-            1/length
+            // the current implementation give lower score to the attribute that corresponds to more attributes in the target schema.
+            1/(length+1)
           }
         }
         score

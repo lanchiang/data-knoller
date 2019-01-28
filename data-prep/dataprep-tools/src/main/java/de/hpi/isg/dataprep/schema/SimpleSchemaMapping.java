@@ -91,6 +91,7 @@ public class SimpleSchemaMapping extends SchemaMapping {
             throw new RuntimeException("The specified attribute does not exist.");
         }
 
+        // this cannot find the attributes created in the previous steps.
         SchemaMappingNode attributeNode = root.next.stream()
                 .filter(node -> node.getAttribute().getName().equals(attributeName)).findFirst().orElse(null);
 
@@ -98,6 +99,9 @@ public class SimpleSchemaMapping extends SchemaMapping {
             throw new RuntimeException("The attribute node does not exist.");
         }
         List<SchemaMappingNode> resultNodes = excludeNodeInPreviousLayer(findLastNodesOfChain(attributeNode));
+        if (resultNodes == null) {
+            return new HashSet<>();
+        }
         // if the current schema contains the attributes to be returned, do not return them (because they have been processed).
         resultNodes = resultNodes.stream().filter(node -> currentSchema.getAttributes().contains(node.attribute)).collect(Collectors.toList());
 
@@ -188,12 +192,18 @@ public class SimpleSchemaMapping extends SchemaMapping {
     }
 
     private List<SchemaMappingNode> excludeNodeInPreviousLayer(List<SchemaMappingNode> schemaMappingNodes) {
+        if (schemaMappingNodes.size() == 0) {
+            return null;
+        }
         int maxLayer = currentMaxLayer(schemaMappingNodes);
         schemaMappingNodes = schemaMappingNodes.stream().filter(node -> node.getLayer() == maxLayer).collect(Collectors.toList());
         return schemaMappingNodes;
     }
 
     private int currentMaxLayer(List<SchemaMappingNode> schemaMappingNodes) {
+        if (schemaMappingNodes.size()==0) {
+            return 0;
+        }
         return schemaMappingNodes.stream().max(Comparator.comparingInt(node -> node.getLayer())).get().getLayer();
     }
 
@@ -224,6 +234,10 @@ public class SimpleSchemaMapping extends SchemaMapping {
 
     private static List<SchemaMappingNode> findLastNodesOfChain(SchemaMappingNode node) {
         List<SchemaMappingNode> lastNodes = new LinkedList<>();
+        if (node.next == null) {
+            return lastNodes;
+        }
+
         Queue<SchemaMappingNode> iterator = new LinkedList<>();
         iterator.offer(node);
         while (!iterator.isEmpty()) {

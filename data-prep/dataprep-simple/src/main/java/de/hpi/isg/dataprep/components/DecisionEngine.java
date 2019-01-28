@@ -121,7 +121,7 @@ public class DecisionEngine implements Engine {
         List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
         // using this permutation iterator cannot specify the maximal number of columns.
-        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 5);
+        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 1);
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
             List<Column> columns = colNameCombination.stream().map(colName -> new Column(colName)).collect(Collectors.toList());

@@ -43,40 +43,7 @@ public class DataLoadingConfig {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        // generate schema mapping
-        transforms = new ArrayList<>();
-
-        Attribute sourceAttribute = new Attribute(new StructField("date", DataTypes.StringType, true, emptyMetadata));
-        Attribute targetAttribute1 = new Attribute(new StructField("date1", DataTypes.StringType, true, emptyMetadata));
-        Attribute targetAttribute2 = new Attribute(new StructField("date2", DataTypes.StringType, true, emptyMetadata));
-        Attribute targetAttribute3 = new Attribute(new StructField("date3", DataTypes.StringType, true, emptyMetadata));
-        Attribute[] targetAttributes = new Attribute[3];
-        targetAttributes[0] = targetAttribute1;
-        targetAttributes[1] = targetAttribute2;
-        targetAttributes[2] = targetAttribute3;
-
-        Transform splitAttr = new TransSplitAttribute(sourceAttribute, targetAttributes);
-        transforms.add(splitAttr);
-
-        Attribute sourceAttribute1 = new Attribute(new StructField("id", DataTypes.StringType, true, emptyMetadata));
-        Attribute sourceAttribute2 = new Attribute(new StructField("date3", DataTypes.StringType, true, emptyMetadata));
-        Attribute sourceAttribute3 = new Attribute(new StructField("base_experience", DataTypes.StringType, true, emptyMetadata));
-        Attribute targetAttribute = new Attribute(new StructField("merge", DataTypes.StringType, true, emptyMetadata));
-        Attribute[] sourceAttributes = new Attribute[3];
-        sourceAttributes[0] = sourceAttribute1;
-        sourceAttributes[1] = sourceAttribute2;
-        sourceAttributes[2] = sourceAttribute3;
-
-        Transform mergeAttr = new TransMergeAttribute(sourceAttributes, targetAttribute);
-        transforms.add(mergeAttr);
-
-        sourceAttribute = new Attribute(new StructField("date", DataTypes.StringType, true, emptyMetadata));
-        Transform deleteAttr = new TransDeleteAttribute(sourceAttribute);
-        transforms.add(deleteAttr);
-
-        targetAttribute = new Attribute(new StructField("added", DataTypes.IntegerType, true, emptyMetadata));
-        Transform addAttr = new TransAddAttribute(targetAttribute);
-        transforms.add(addAttr);
+        transforms = createTransformsManually();
 
         // generate target metadata
         Set<Metadata> targetMetadata = createTargetMetadata();
@@ -112,10 +79,33 @@ public class DataLoadingConfig {
         return targetMetadata;
     }
 
-    private static List<Transform> createRandomTransform() {
+    private static List<Transform> createRandomTransforms() {
         List<Transform> transforms = new LinkedList<>();
 
         // SchemaMappingGenerator creates random transform list and stores it in variable transforms.
+        return transforms;
+    }
+
+    private static List<Transform> createTransformsManually() {
+        // generate schema mapping
+        List<Transform> transforms = new ArrayList<>();
+
+//        Attribute sourceAttribute = new Attribute(new StructField("date", DataTypes.StringType, true, emptyMetadata));
+//        Attribute targetAttribute1 = new Attribute(new StructField("date1", DataTypes.StringType, true, emptyMetadata));
+//        Attribute targetAttribute2 = new Attribute(new StructField("date2", DataTypes.StringType, true, emptyMetadata));
+//        Attribute targetAttribute3 = new Attribute(new StructField("date3", DataTypes.StringType, true, emptyMetadata));
+//        Attribute[] targetAttributes = new Attribute[3];
+//        targetAttributes[0] = targetAttribute1;
+//        targetAttributes[1] = targetAttribute2;
+//        targetAttributes[2] = targetAttribute3;
+//
+//        Transform splitAttr = new TransSplitAttribute(sourceAttribute, targetAttributes);
+//        transforms.add(splitAttr);
+
+        Attribute sourceAttribute = new Attribute(new StructField("date", DataTypes.StringType, true, emptyMetadata));
+        Transform deleteAttr = new TransDeleteAttribute(sourceAttribute);
+        transforms.add(deleteAttr);
+
         return transforms;
     }
 }

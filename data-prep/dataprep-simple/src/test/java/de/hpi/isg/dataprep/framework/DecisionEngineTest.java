@@ -2,7 +2,9 @@ package de.hpi.isg.dataprep.framework;
 
 import de.hpi.isg.dataprep.components.DecisionEngine;
 import de.hpi.isg.dataprep.config.DataLoadingConfig;
-import org.junit.Ignore;
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.preparators.define.DeleteProperty;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -15,6 +17,10 @@ public class DecisionEngineTest extends DataLoadingConfig {
     public void selectBestPreparatorTest() {
         // imperfect test. Now the test is done step-by-step in debugging mode.
         DecisionEngine decisionEngine = DecisionEngine.getInstance();
-        decisionEngine.selectBestPreparator(pipeline);
+        AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
+
+        AbstractPreparator expectedPreparator = new DeleteProperty("date");
+
+        Assert.assertEquals(expectedPreparator, actualPreparator);
     }
 }
