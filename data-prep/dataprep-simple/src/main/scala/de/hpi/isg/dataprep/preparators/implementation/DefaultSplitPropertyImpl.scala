@@ -75,6 +75,17 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   def executeSplitProperty(dataFrame: DataFrame, parameters: SplitProperty): DataFrame = {
 
+    val test_input0="camelCaseTest"
+    val test_input1="CamelCaseTest"
+    val test_input2="112,83$"
+    val test_input3="$77,75"
+
+
+    Console.println(getCharacterClassSplitts(test_input0));
+    Console.println(getCharacterClassSplitts(test_input1));
+    Console.println(getCharacterClassSplitts(test_input2));
+    Console.println(getCharacterClassSplitts(test_input3));
+
     val propertyName = parameters.propertyName
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"No column $propertyName found!")
@@ -187,10 +198,10 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   def toCharacterClasses(input: String): Tuple2[String, String] = {
     val characterClasses = input.map(c => {
       if (Character.isDigit(c)) '1'
-      else if (Character.isUpperCase(c)) 'a'
+      else if (Character.isUpperCase(c)) 'A'
       else if (Character.isLowerCase(c)) 'a'
       else if (Character.isWhitespace(c)) 's'
-      else '.' //c //
+      else c //
     })
 
 
@@ -202,13 +213,13 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
    */
   def reduceCharacterClasses(input: Tuple2[String, String]): Tuple3[String, String, String] = {
     var last = ' '
-    val reduced = input._1.map(c => {
+    var reduced = input._1.map(c => {
       var mapped = '\0'
       if (last != c) mapped = c
       last = c
       mapped
     })
-
+    reduced=reduced.replace("\0", "");
 
     (reduced, input._1, input._2)
   }
@@ -216,7 +227,9 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   /*
   extracts all seperations which can used either used as splitt candidates or resulting splitt elements
    */
-  def extractSeperatorCandidates(input: Tuple3[String, String, String]): List[String] = {
+  def extractSeperatorCandidatesFromCharacterClasses(input: Tuple3[String, String, String]): List[String] = {
+
+
 
     var erg = new ListBuffer[String]
     var candidates = input._1.slice(1, input._1.length).distinct.toList
@@ -245,6 +258,17 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     }
 
     erg.toList
+  }
+
+  def getCharacterClassTransitions(input: String): Set[String] = {
+    var results = Set[String]()
+    var characterClasses = reduceCharacterClasses(toCharacterClasses(input))
+    var i=0
+    while(i<characterClasses._1.length-1){
+      results+=characterClasses._1.substring(i,i+2)
+      i+=1;
+    }
+    results
   }
 
   /*
@@ -289,13 +313,76 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     results
   }
 
-  def getCandidates(input: String): List[String] = {
-    val res = filterFirstAndLastPartOut(extractSeperatorCandidates(reduceCharacterClasses(toCharacterClasses(input))), input)
+  def getOriginCharacters(inputIndex: Integer, array: Tuple3[String, String, String]): String = {
+
+    var results = ""
+    val reduced = array._1
+    val intermediate = array._2
+    val origin = array._3
+
+    var index = inputIndex
+
+    val characterClass=reduced.charAt(index)
+    val numberOfCharacterClasses=reduced.count(_==characterClass)
+    val thisIdxOfSameCharacters=reduced.substring(0,index).count(_==characterClass)
+
+    //Console.println(numberOfCharacterClasses+" "+thisIdxOfSameCharacters)
+
+  var i=0
+    var block=false
+    var metalist = ListBuffer[List[Integer]]()
+    var list = ListBuffer[Integer]()
+    while (i < intermediate.length) {
+      if (characterClass==intermediate.charAt(i)) {
+        list+=i
+
+        if(i==intermediate.length-1)
+          metalist+=list.toList
+      }
+      else {
+
+        if(list.length>0){
+          metalist+=list.toList
+          list.clear()
+        }
+      }
+
+      i += 1;
+    }
+
+    val idxlist=metalist.toList(thisIdxOfSameCharacters)
+    val erg=idxlist.map(idx=>origin.charAt(idx)+"").reduce(_+_)
+    erg
+  }
+
+  def addSplitteratorBetweenCharacterTransition(input: String, transition: String):String={
+    val characterClasses = reduceCharacterClasses(toCharacterClasses(input))
+    var i=0
+
+    var erg=""
+    var lastChar='z'
+    while(i<characterClasses._1.length){
+      val thisChar=  characterClasses._1.charAt(i)
+      if(lastChar==transition.charAt(0)&&thisChar==transition.charAt(1))
+        erg+=SplitPropertyUtils.defaultSplitterator
+
+      erg+=getOriginCharacters(i,characterClasses)
+
+
+      lastChar=thisChar
+      i+=1
+    }
+
+    erg
+  }
+
+  def getCharacterClassCandidates(input: String): List[String] = {
+    val res = filterFirstAndLastPartOut(extractSeperatorCandidatesFromCharacterClasses(reduceCharacterClasses(toCharacterClasses(input))), input)
     res
   }
 
-  def getParts(input: String): List[String] = {
-    val res = extractSeperatorCandidates(reduceCharacterClasses(toCharacterClasses(input)))
+  def getCharacterClassParts(input: String): List[String] = {
+    val res = extractSeperatorCandidatesFromCharacterClasses(reduceCharacterClasses(toCharacterClasses(input)))
     res
   }
 
@@ -306,6 +393,13 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
     })
 
   }
+
+  def getCharacterClassSplitts(input: String): Set[String] = {
+    val transitionCandidates=getCharacterClassTransitions(input)
+    val filteredTransitionCandidates=transitionCandidates.filterNot(_.matches("Aa|1,|,1"))
+    filteredTransitionCandidates.map(addSplitteratorBetweenCharacterTransition(input,_))
+  }
+
 
 
 }
