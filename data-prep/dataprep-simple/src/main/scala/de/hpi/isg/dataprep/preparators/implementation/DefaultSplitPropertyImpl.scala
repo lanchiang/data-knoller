@@ -77,8 +77,8 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
     val test_input0="camelCaseTest"
     val test_input1="CamelCaseTest"
-    val test_input2="112,83$"
-    val test_input3="$77,75"
+    val test_input2="112.83$"
+    val test_input3="$77.75"
 
 
     Console.println(getCharacterClassSplitts(test_input0));
@@ -396,7 +396,7 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   def getCharacterClassSplitts(input: String): Set[String] = {
     val transitionCandidates=getCharacterClassTransitions(input)
-    val filteredTransitionCandidates=transitionCandidates.filterNot(_.matches("Aa|1,|,1"))
+    val filteredTransitionCandidates=transitionCandidates.filterNot(_.matches("Aa|1,|,1|1\\.|\\.1"))
     filteredTransitionCandidates.map(addSplitteratorBetweenCharacterTransition(input,_))
   }
 

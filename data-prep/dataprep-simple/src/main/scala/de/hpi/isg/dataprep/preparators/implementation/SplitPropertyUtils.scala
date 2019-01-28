@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 import org.apache.spark.sql.Dataset
 
 object SplitPropertyUtils {
+  val defaultSplitterator="#!#"
   private val nonAlpaShort = """[^a-zA-Z\d]""".r
   private val nonAlpaLong = """[^a-zA-Z\d]{2,}""".r
 
