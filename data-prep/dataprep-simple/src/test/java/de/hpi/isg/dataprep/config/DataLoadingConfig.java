@@ -5,17 +5,16 @@ import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
-import de.hpi.isg.dataprep.metadata.PropertyDataType;
+import de.hpi.isg.dataprep.metadata.*;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
+import de.hpi.isg.dataprep.model.target.objects.ColumnMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
-import de.hpi.isg.dataprep.schema.transforms.TransAddAttribute;
 import de.hpi.isg.dataprep.schema.transforms.TransDeleteAttribute;
-import de.hpi.isg.dataprep.schema.transforms.TransMergeAttribute;
-import de.hpi.isg.dataprep.schema.transforms.TransSplitAttribute;
 import de.hpi.isg.dataprep.util.DataType;
+import de.hpi.isg.dataprep.util.DatePattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.types.DataTypes;
@@ -46,7 +45,7 @@ public class DataLoadingConfig {
         transforms = createTransformsManually();
 
         // generate target metadata
-        Set<Metadata> targetMetadata = createTargetMetadata();
+        Set<Metadata> targetMetadata = createTargetMetadataManually();
 
         dialect = new DialectBuilder()
                 .hasHeader(true)
@@ -66,9 +65,18 @@ public class DataLoadingConfig {
         pipeline = new Pipeline(dataContext);
     }
 
-    private static Set<Metadata> createTargetMetadata() {
+    private static Set<Metadata> createTargetMetadataManually() {
         Set<Metadata> targetMetadata = new HashSet<>();
-        targetMetadata.add(new PropertyDataType("date", DataType.PropertyType.DATE));
+
+        targetMetadata.add(new PreambleExistence(false));
+//        targetMetadata.add(new PropertyDatePattern(DatePattern.DatePatternEnum.MonthDayYear, new ColumnMetadata("date")));
+        targetMetadata.add(new PropertyExistence("month", true));
+        targetMetadata.add(new PropertyExistence("day", true));
+        targetMetadata.add(new PropertyExistence("year", true));
+        targetMetadata.add(new PropertyDataType("month", DataType.PropertyType.STRING));
+        targetMetadata.add(new PropertyDataType("day", DataType.PropertyType.STRING));
+        targetMetadata.add(new PropertyDataType("year", DataType.PropertyType.STRING));
+
         return targetMetadata;
     }
 

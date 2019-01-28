@@ -49,6 +49,10 @@ public class FlatFileDataLoader extends SparkDataLoader {
 
     @Override
     protected SchemaMapping createSchemaMapping() {
+        if (transforms == null) {
+            return null;
+        }
+
         Schema sourceSchema = new Schema(dataFrame.schema());
         SchemaMappingGenerator generator = new SchemaMappingGenerator(sourceSchema, transforms);
         generator.constructTargetSchema();

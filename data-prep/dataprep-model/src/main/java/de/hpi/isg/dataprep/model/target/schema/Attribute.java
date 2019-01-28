@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.model.target.schema;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -11,7 +12,9 @@ import java.util.Objects;
  * @author lan.jiang
  * @since 1/13/19
  */
-public class Attribute {
+public class Attribute implements Serializable {
+
+    private static final long serialVersionUID = -7229029676814189794L;
 
     private StructField attribute;
 

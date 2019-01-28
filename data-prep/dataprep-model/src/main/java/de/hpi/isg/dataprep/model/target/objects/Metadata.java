@@ -61,6 +61,11 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
         return scope.getName();
     }
 
+    /**
+     * Equals if this metadata has the same scope as that.
+     * @param o the compared metadata object.
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

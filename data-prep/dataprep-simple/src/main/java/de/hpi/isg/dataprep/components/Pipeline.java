@@ -10,6 +10,7 @@ import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
@@ -169,12 +170,24 @@ public class Pipeline implements AbstractPipeline {
         initMetadata.add(headerExistence);
 
         StructType structType = this.rawData.schema();
+//        Arrays.stream(structType.fields()).forEach(field -> {
+//            DataType dataType = field.dataType();
+//            String fieldName = field.name();
+//            PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
+//            initMetadata.add(propertyDataType);
+//        });
+
+        List<Attribute> attributes = new LinkedList<>();
         Arrays.stream(structType.fields()).forEach(field -> {
             DataType dataType = field.dataType();
             String fieldName = field.name();
             PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
+            Attribute attribute = new Attribute(field);
+            attributes.add(attribute);
             initMetadata.add(propertyDataType);
         });
+        Schemata schemata = new Schemata("table", attributes);
+        initMetadata.add(schemata);
 
         this.metadataRepository.updateMetadata(initMetadata);
     }
@@ -204,6 +217,9 @@ public class Pipeline implements AbstractPipeline {
         // While in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
         // can be updated.
         AbstractPreparation preparation = new Preparation(recommendedPreparator);
+
+        preparation.setPipeline(this);
+        preparation.setPosition(index++);
         preparations.add(preparation);
         executeRecommendedPreparation(preparation);
         return true;

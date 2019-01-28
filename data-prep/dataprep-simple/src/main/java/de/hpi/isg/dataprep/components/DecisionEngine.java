@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
+import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
@@ -120,10 +121,21 @@ public class DecisionEngine implements Engine {
         StructField[] fields = dataset.schema().fields();
         List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
+        if (fields.length == 0) {
+            // all the fields are deleted.
+            return null;
+        }
+
         // using this permutation iterator cannot specify the maximal number of columns.
         SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 1);
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
+
+            // do not consider the column combination with no columns.
+            if (colNameCombination.size()==0) {
+                continue;
+            }
+
             List<Column> columns = colNameCombination.stream().map(colName -> new Column(colName)).collect(Collectors.toList());
             Column[] columnArr = new Column[columns.size()];
             columnArr = columns.toArray(columnArr);
@@ -166,7 +178,7 @@ public class DecisionEngine implements Engine {
     }
 
     public boolean stopProcess(AbstractPipeline pipeline) {
-        if (pipeline.getSchemaMapping().hasMapped()) { // also the metadata are met
+        if (pipeline.getSchemaMapping().hasMapped() && targetMetadataMapped(pipeline)) { // also the metadata are met
             return true;
         }
         return forceStop();
@@ -182,6 +194,31 @@ public class DecisionEngine implements Engine {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check whether all the target metadata have been fulfilled.
+     *
+     * @return
+     */
+    private boolean targetMetadataMapped(AbstractPipeline pipeline) {
+        Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
+        MetadataRepository metadataRepository = pipeline.getMetadataRepository();
+
+        // count the metadata in the target that have been fulfilled.
+        int fulfilledCount = (int) targetMetadata.stream().filter(metadata -> {
+            Metadata stored = metadataRepository.getMetadata(metadata);
+            if (stored != null) {
+                if (stored.equalsByValue(metadata)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }).count();
+        return fulfilledCount==targetMetadata.size() ? true : false;
     }
 
     // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.
