@@ -13,8 +13,7 @@ import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.ml.clustering.{BisectingKMeans, KMeans}
 import org.apache.spark.ml.feature._
-import org.apache.spark.ml.linalg.{Vector, VectorUDT}
-import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.ml.linalg.{DenseVector, Vector, VectorUDT, Vectors}
 import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
 import org.apache.spark.ml.param.Param
 
@@ -173,10 +172,34 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val sparkContext = sparkBuilder.getOrCreate()
     import sparkContext.implicits._
 
-    dataFrame
+    val charTypeCounts = dataFrame
       .rdd
       .zipWithIndex()
       .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
+      .toDF("features", "rownumber")
+
+    var collectorDataFrame:DataFrame = Seq(Tuple3(Vectors.dense(1,2,3),1L, 3 )).toDF("a", "b", "c").filter(r => r.get(2).toString != "3")
+
+    for( col <- dataFrame.columns.indices){
+      val oneColumnDataframe = charTypeCounts
+        .map(row => (row.get(0).asInstanceOf[mutable.WrappedArray[DenseVector]](col),row.getAs[Long](1)))
+        .toDF("features", "rownumber")
+      val colResult = kmeansForColumn(oneColumnDataframe)
+      collectorDataFrame = collectorDataFrame.union(colResult)
+    }
+    collectorDataFrame
+  }
+
+  def kmeansForColumn(dataFrame: DataFrame) = {
+    val kmeans = new KMeans()
+      .setK(2)
+      .setSeed(1L)
+      .setTol(0.1)
+      .setInitMode("k-means||")
+      .setInitSteps(3)
+    val model = kmeans.fit(dataFrame)
+
+    model.transform(dataFrame)
   }
 
   private def createBuilderAndFindSeparator(dataframe: DataFrame, separator: String) = {

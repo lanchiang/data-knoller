@@ -9,6 +9,7 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
 import org.apache.spark.ml.clustering.BisectingKMeans
 import org.apache.spark.ml.feature.Word2Vec
+import org.apache.spark.ml.linalg.{DenseVector, Vector, Vectors}
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 
 import scala.collection.JavaConverters._
@@ -192,5 +193,21 @@ class RemovePreamble extends PreparatorScalaTest {
     }
 
     emptyDataFrame.collect() shouldEqual(2)
+  }
+
+  "CharTypeClusterer" should "generate Vectors correctly" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+    val customDataset = fileData
+    customDataset.columns.length shouldEqual(3)
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val zippedDataset = testPreparator.findPreableByTypesOfChars(customDataset)
+
+    zippedDataset.filter(row => row.get(2) == 1).collect shouldEqual 5
   }
 }
