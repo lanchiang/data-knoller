@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
-import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{MultiValueSeparator, SingleValueSeparator}
+import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{CharacterClassSeparator, MultiValueSeparator, SingleValueSeparator}
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
@@ -50,12 +50,24 @@ object DefaultSplitPropertyImpl {
     }
   }
 
-  case class CharacterClassSeparator(left: Char, right: Char) extends Separator {
-    override def getNumSplits(value: String): Int = ???
+  case class CharacterClassSeparator(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
+    override def getNumSplits(value: String): Int = {
+      val (_, count) = SplitPropertyUtils.bestCharacterClassSeparatorCandidates(value, numCols)(0)
+      count
+    }
 
-    override def executeSplit(value: String): Vector[String] = ???
+    override def executeSplit(value: String): Vector[String] = {
+      val (separatorValue, _) = SplitPropertyUtils
+        .bestCharacterClassSeparatorCandidates(value, numCols)
+        .maxBy { case (candidate, _) => globalDistribution(candidate) }
 
-    override def merge(split: Vector[String], original: String): String = ???
+      SplitPropertyUtils.addSplitteratorBetweenCharacterTransition(value, separatorValue)
+        .split(SplitPropertyUtils.defaultSplitterator).toVector
+    }
+
+    override def merge(split: Vector[String], original: String): String = {
+      split.mkString("")
+    }
   }
 
 }
@@ -115,9 +127,11 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   def findSeparator(column: Dataset[String], numCols: Int): Separator = {
     val stringSeparatorDistribution = SplitPropertyUtils.globalStringSeparatorDistribution(column, numCols)
+    val characterClassDistribution = SplitPropertyUtils.globalTransitionSeparatorDistribution(column, numCols)
     val separatorCandidates =
-      MultiValueSeparator(numCols, stringSeparatorDistribution) ::
-        stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
+      MultiValueSeparator(numCols, characterClassDistribution) ::
+        //stringSeparatorDistribution.keys.map(SingleValueSeparator)
+    characterClassDistribution.keys.map(CharacterClassSeparator).toList
     //TODO: ++ instances of all possible CharacterClassSeparators
 
     separatorCandidates.maxBy(evaluateSplit(column, _, numCols))

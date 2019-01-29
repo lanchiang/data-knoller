@@ -283,12 +283,6 @@ object SplitPropertyUtils {
 
   }
 
-  /*def getCharacterClassSplitts(input: String): Set[String] = {
-    val transitionCandidates=getCharacterClassTransitions(input)
-    val filteredTransitionCandidates=transitionCandidates.filterNot(_._1.matches("Aa|1,|,1|1\\.|\\.1"))
-    filteredTransitionCandidates.map(addSplitteratorBetweenCharacterTransition(input,_))
-  }*/
-
   abstract class Separator() {
     def getNumSplits(value: String): Int
 
