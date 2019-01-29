@@ -57,11 +57,6 @@ public class UsedEncoding extends Metadata {
     }
 
     @Override
-    public String getName() {
-        return scope.getName();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;

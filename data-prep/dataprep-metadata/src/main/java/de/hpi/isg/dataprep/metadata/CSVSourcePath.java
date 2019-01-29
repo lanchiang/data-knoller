@@ -57,11 +57,6 @@ public class CSVSourcePath extends Metadata {
     }
 
     @Override
-    public String getName() {
-        return scope.getName();
-    }
-
-    @Override
     public boolean equals(Object o) {
         return o != null && getClass() == o.getClass();
     }
