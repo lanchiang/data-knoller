@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import java.text.{ParseException, SimpleDateFormat}
-import java.util.Date
+import java.util.{Date, Locale}
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
@@ -13,6 +13,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
+import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
@@ -26,198 +27,282 @@ import scala.util.{Failure, Success, Try}
   */
 class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
 
-    override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-        val preparator = abstractPreparator.asInstanceOf[AdaptiveChangeDateFormat]
-        val propertyName = preparator.propertyName
-        val sourceDatePattern = preparator.sourceDatePattern
-        val targetDatePattern = preparator.targetDatePattern
+  class SimpleDate(var originalDate: String, var yearOption: Option[String] = None, var monthOption: Option[String] = None,
+                   var dayOption: Option[String] = None, var separators: List[String] = List()) {
+    //-------------------Constructor--------------------------
+    // TODO: do some renaming
+    val splitDate: List[String] = originalDate.split("[^0-9a-zA-z]{1,}").toList
+    println(s"Splits: $splitDate")
 
-        val rowEncoder = RowEncoder(dataFrame.schema)
+    println("Separators: " + getSeparators + " starts with separator: " + startsWithSeparator)
 
-        val extractedPatterns = dataFrame.rdd
-          .map(_.getAs[String](propertyName))
-          .map(toPattern)
-          .filter(_.isDefined)
-          .map(_.get)
-          .map((_, 1L))
-          .reduceByKey(_ + _)
-          .sortBy(_._2, ascending = false)
-          .collect()
-          .toMap
+    val (leftoverBlocks, convertedMonth) = convertMonthNames(splitDate)
+    var undeterminedBlocks: List[String] = padSingleDigitDates(leftoverBlocks)
 
-        println(extractedPatterns)
+    // Used for patternGeneration later
+    val monthText: Option[String] =  splitDate.find(!leftoverBlocks.contains(_))
 
-        val createdDataset = dataFrame.flatMap(row => {
-            val operatedValue = row.getAs[String](propertyName)
+    monthOption = convertedMonth
+    println(s"-> Month: $monthOption")
 
-            val indexTry = Try{row.fieldIndex(propertyName)}
-            val index = indexTry match {
-                case Failure(content) => throw content
-                case Success(content) => content
-            }
+    if (isMonthDefined) {
+      undeterminedBlocks = undeterminedBlocks.filter(_ != monthOption.get)
+    }
+    //--------------------------------------------------------
 
-            val seq = row.toSeq
-            val forepart = seq.take(index)
-            val backpart = seq.takeRight(row.length-index-1)
-
-            val tryConvert = Try{
-                if (sourceDatePattern.isDefined) {
-                    val newSeq = forepart :+ ConversionHelper.toDate(operatedValue, sourceDatePattern.get, targetDatePattern)
-                    val newRow = Row.fromSeq(newSeq)
-                    newRow
-                } else {
-                    val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern, extractedPatterns)
-                    val newRow = Row.fromSeq(newSeq)
-                    newRow
-                }
-            }
-
-            val convertOption = tryConvert match {
-                case Failure(content) => {
-                    errorAccumulator.add(new RecordError(operatedValue, content))
-                    tryConvert
-                }
-                case Success(content) => tryConvert
-            }
-
-            convertOption.toOption
-        })(rowEncoder)
-        createdDataset.count()
-
-        new ExecutionContext(createdDataset, errorAccumulator)
+    def isYearDefined: Boolean = {
+      yearOption.isDefined
     }
 
-    def getDateAsString(d: Date, pattern: String): String = {
-        val dateFormat = new SimpleDateFormat(pattern)
-        dateFormat.setLenient(false)
-        dateFormat.format(d)
+    def isMonthDefined: Boolean = {
+      monthOption.isDefined
     }
 
-    def convertStringToDate(s: String, pattern: String): Date = {
-        val dateFormat = new SimpleDateFormat(pattern)
-        dateFormat.setLenient(false)
-        dateFormat.parse(s)
+    def isDayDefined: Boolean = {
+      dayOption.isDefined
     }
 
-    def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, extractedRegex: Map[String, Long]): String = {
-        for((pattern, count) <- extractedRegex) {
-            breakable {
-                println(s"DateString: $date")
-                println(s"Try pattern: $pattern")
-                val parsedDateTry = Try {
-                    convertStringToDate(date, pattern)
-                }
-                val parsedDate = parsedDateTry match {
-                    case Success(content) => content
-                    case Failure(content) => break;
-                }
+    def isDefined: Boolean = {
+      dayOption.isDefined && monthOption.isDefined && yearOption.isDefined
+    }
 
-                println(s"Pattern succeeded: $parsedDate")
-                return getDateAsString(parsedDate, targetPattern.getPattern)
+    def startsWithSeparator: Boolean = {
+      val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
+      originalDate.matches(startsWithSeparatorPattern)
+    }
+
+    def getSeparators: List[String] = {
+      val separatorPattern: Regex = "[^0-9a-zA-z]{1,}".r
+      separatorPattern.findAllMatchIn(originalDate).map(_.toString).toList
+    }
+
+    private def convertMonthNames(splittedDate: List[String]): (List[String], Option[String]) = {
+      val monthNameToNumber = Map(
+        "January"   -> 1,
+        "February"  -> 2,
+        "March"     -> 3,
+        "April"     -> 4,
+        "May"       -> 5,
+        "June"      -> 6,
+        "July"      -> 7,
+        "August"    -> 8,
+        "September" -> 9,
+        "October"   -> 10,
+        "November"  -> 11,
+        "December"  -> 12
+      )
+      var convertedMonth: String = ""
+      var newDate: List[String] = splittedDate
+
+      for ((block, index) <- splittedDate.view.zipWithIndex) {
+        if (block.forall(_.isLetter)) {
+          for (month <- monthNameToNumber.keys) {
+            if (month.toLowerCase().startsWith(block.toLowerCase())) {
+              // TODO: Early abort may lead to errors if multiple strings are present, e.g. DoW and month
+              convertedMonth = f"${monthNameToNumber(month)}%02d"
+              newDate = newDate.updated(index, convertedMonth)
+              return (newDate, Some(convertedMonth))
             }
+          }
         }
-        throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
+      }
+
+      (newDate, None)
     }
 
-    def toPattern(date: String): Option[String] = {
-        val splitPattern: Regex = "([0-9]+)([\\.\\-\\/\\s]{1})([0-9]+)([\\.\\-\\/]{1})([0-9]+)".r
+    private def padSingleDigitDates(dates: List[String]): List[String] = {
+      dates.map( date => if (date.length == 1 && date.forall(Character.isDigit)) "0" + date else date )
+    }
 
-        for (patternMatch <- splitPattern.findFirstMatchIn(date)){
-            var year: String = "XXXX"
-            var month: String = "XX"
-            var day: String = "XX"
-            val groups = padSingleDigitDates(patternMatch.subgroups)
-            val numGroups = List(groups.head, groups(2), groups(4))
-            val separators = List(groups(1), groups(3))
+    override def toString: String ={
+      s"$yearOption, $monthOption, $dayOption"
+    }
+  }
 
-            numGroups.find { group =>
-                group.length == 4
-            } match {
-                case Some(group) =>
-                    year = group
-                    val result = determineDateAndMonth(numGroups.filter(_ != group))
-                    day = result._1
-                    month = result._2
-                case None =>
-                    val result = handleEqualSizedBlocks(numGroups)
-                    year = result._1
-                    month = result._2
-                    day = result._3
-            }
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+    val preparator = abstractPreparator.asInstanceOf[AdaptiveChangeDateFormat]
+    val propertyName = preparator.propertyName
+    val sourceDatePattern = preparator.sourceDatePattern
+    val targetDatePattern = preparator.targetDatePattern
 
-            if (year != "XXXX" && month != "XX" && day != "XX") {
-                val result = generatePatternAndRegex(groups, separators, year, month, day)
-                return Option(result._2)
-            }
-            return None
+    val rowEncoder = RowEncoder(dataFrame.schema)
+
+    val extractedPatterns = dataFrame.rdd
+      .map(_.getAs[String](propertyName))
+      .map(toPattern)
+      .filter(_.isDefined)
+      .map(_.get)
+      .map((_, 1L))
+      .reduceByKey(_ + _)
+      .sortBy(_._2, ascending = false)
+      .collect()
+      .toMap
+
+    println(extractedPatterns)
+
+    val createdDataset = dataFrame.flatMap(row => {
+      val operatedValue = row.getAs[String](propertyName)
+
+      val indexTry = Try{row.fieldIndex(propertyName)}
+      val index = indexTry match {
+        case Failure(content) => throw content
+        case Success(content) => content
+      }
+
+      val seq = row.toSeq
+      val forepart = seq.take(index)
+      val backpart = seq.takeRight(row.length-index-1)
+
+      val tryConvert = Try{
+        if (sourceDatePattern.isDefined) {
+          val newSeq = forepart :+ ConversionHelper.toDate(operatedValue, sourceDatePattern.get, targetDatePattern)
+          val newRow = Row.fromSeq(newSeq)
+          newRow
+        } else {
+          val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern, extractedPatterns)
+          val newRow = Row.fromSeq(newSeq)
+          newRow
         }
-        None
-    }
+      }
 
-    def generatePlaceholder(origString:String, placeholder:String):String = {
-        origString.replaceAll(".", placeholder)
-    }
-
-    def generatePatternAndRegex(fullGroup:List[String], separators:List[String], year: String, month: String, day: String): (String, String) = {
-        var newGroup = fullGroup.updated(fullGroup.indexOf(year), generatePlaceholder(year, "y"))
-        newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
-        newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "d"))
-
-        var pattern: String = ""
-        var regex: String = ""
-
-        for(group <- newGroup) {
-            val groupAsString = group.toString
-
-            pattern = pattern + groupAsString
-
-            "[DMY]+".r.findFirstMatchIn(groupAsString) match {
-                case Some(_) =>
-                    regex = regex + s"[0-9]{${groupAsString.length}}"
-                case None =>
-                    regex = regex + "\\" + groupAsString // TODO: better escaping
-            }
+      val convertOption = tryConvert match {
+        case Failure(content) => {
+          errorAccumulator.add(new RecordError(operatedValue, content))
+          tryConvert
         }
+        case Success(content) => tryConvert
+      }
 
-        (regex, pattern)
-    }
+      convertOption.toOption
+    })(rowEncoder)
+    createdDataset.count()
 
-    def determineDateAndMonth(groups: List[String]): (String, String) = {
-        var day: String = "XX"
-        var month: String = "XX"
+    new ExecutionContext(createdDataset, errorAccumulator)
+  }
 
-        groups.find { group =>
-            group.toInt > 12
-        } match {
-            case Some(group) =>
-                day = group
-                month = groups.filter(_ != group).head
-            case None =>
+  def getDateAsString(d: Date, pattern: String): String = {
+    // TODO(ns): Set locale to US, need to find a way to parse multiple languages
+    val dateFormat = new SimpleDateFormat(pattern, Locale.US)
+    dateFormat.setLenient(false)
+    dateFormat.format(d)
+  }
+
+  def convertStringToDate(s: String, pattern: String): Date = {
+    // TODO(ns): Set locale to US, need to find a way to parse multiple languages
+    val dateFormat = new SimpleDateFormat(pattern, Locale.US)
+    dateFormat.setLenient(false)
+    dateFormat.parse(s)
+  }
+
+  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, extractedPatterns: Map[String, Long]): String = {
+    for((pattern, count) <- extractedPatterns) {
+      breakable {
+        println(s"DateString: $date")
+        println(s"Try pattern: $pattern")
+        val parsedDateTry = Try {
+          convertStringToDate(date, pattern)
         }
-
-        (day, month)
-    }
-
-    def handleEqualSizedBlocks(groups: List[String]): (String, String, String) = {
-        var year: String = "XXXX"
-        var month: String = "XX"
-        var day: String = "XX"
-
-        groups.find { group =>
-            group.toInt > 31
-        } match {
-            case Some(group) =>
-                year = group
-                val result = determineDateAndMonth(groups.filter(_ != group))
-                month = result._1
-                day = result._2
-            case None =>
+        val parsedDate = parsedDateTry match {
+          case Success(content) => content
+          case Failure(content) => break;
         }
 
-        (year, month, day)
+        println(s"Pattern succeeded: $parsedDate")
+        return getDateAsString(parsedDate, targetPattern.getPattern)
+      }
+    }
+    throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
+  }
+
+  def applyRules(undeterminedBlocks: List[String], date: SimpleDate): SimpleDate = {
+    // TODO: If multiple blocks are the same, it wouldn't matter which is which
+    var leftoverBlocks: List[String] = undeterminedBlocks
+    var updatedDate: SimpleDate = date
+
+    for (block <- undeterminedBlocks) { // if no there are no undetermined parts left, function will return
+      breakable {
+        if (block.toInt <= 0) {
+          break
+        }
+        if (!date.isYearDefined && (block.length == 4 || block.toInt > 31 || (date.isDayDefined && block.toInt > 12))) {
+          updatedDate.yearOption = Some(block)
+        } else if (!date.isDayDefined && (block.toInt > 12 && block.toInt <= 31 ||
+          (date.isMonthDefined && block.toInt > 0 && block.toInt <= 31))) {
+          updatedDate.dayOption = Some(block)
+        } else {
+          break
+        }
+        leftoverBlocks = leftoverBlocks.filter(_ != block)
+      }
     }
 
-    def padSingleDigitDates(dates: List[String]): List[String] = {
-        dates.map( date => if (date.length == 1 && date.forall(Character.isDigit)) "0" + date else date )
+    // assign leftover block if there is any
+    if (leftoverBlocks.length == 1) {
+      println("Check")
+      if (!date.isYearDefined) {
+        updatedDate.yearOption = Some(leftoverBlocks.head)
+      } else if (!date.isMonthDefined) {
+        updatedDate.monthOption = Some(leftoverBlocks.head)
+      } else if (!date.isDayDefined) {
+        updatedDate.dayOption = Some(leftoverBlocks.head)
+      }
     }
+    updatedDate
+  }
+
+  def generatePlaceholder(origString:String, placeholder:String):String = {
+    origString.replaceAll(".", placeholder)
+  }
+
+  def generatePattern(date: SimpleDate): String = {
+    var pattern: String = ""
+    val year = date.yearOption.get
+    val month = date.monthText.getOrElse(date.monthOption.get)
+    val day = date.dayOption.get
+    println(s"generatePattern: $date.fullGroup, ${date.getSeparators}, $year, $month, $day")
+
+    var newGroup = date.splitDate.updated(date.splitDate.indexOf(year), generatePlaceholder(year, "y"))
+    newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
+    newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "d"))
+
+    val separatorsBuffer: ListBuffer[String] = date.getSeparators.to[ListBuffer]
+
+    if (date.startsWithSeparator) {
+      // Pop first element
+      pattern = separatorsBuffer.remove(0)
+      println(date.getSeparators)
+    }
+
+    for(group <- newGroup) {
+      var groupAsString = group.toString
+
+      // Full text pattern for month is MMMM
+      if (groupAsString.startsWith("MMMM")) {
+        groupAsString = "MMMM"
+      }
+
+      val separator = if(separatorsBuffer.nonEmpty) separatorsBuffer.remove(0) else ""
+
+      pattern = pattern + groupAsString + separator
+    }
+
+    pattern
+  }
+
+  def toPattern(originalDate: String): Option[String] = {
+    var date = new SimpleDate(originalDate)
+    println(s"Date: $originalDate")
+
+    date = applyRules(date.undeterminedBlocks, date)
+
+    println(s"$date")
+    if (date.isDefined) {
+      val resultingPattern = generatePattern(date)
+      println(s"Result: $resultingPattern\n")
+      return Some(resultingPattern)
+    }
+    println("")
+    None
+  }
+
 }

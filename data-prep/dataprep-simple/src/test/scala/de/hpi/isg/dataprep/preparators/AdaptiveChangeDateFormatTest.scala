@@ -8,7 +8,6 @@ import de.hpi.isg.dataprep.metadata.PropertyDatePattern
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
 import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.util.DatePattern
@@ -31,7 +30,9 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     pipeline.executePipeline()
 
     val errorLogs: util.List[ErrorLog] = new util.ArrayList[ErrorLog]
-    val errorLog: PreparationErrorLog = new PreparationErrorLog(preparation, "1989-01-00", new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1))
+    val errorLog: PreparationErrorLog =
+      new PreparationErrorLog(preparation, "1989-01-00",
+        new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1))
     errorLogs.add(errorLog)
     val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
 
@@ -40,14 +41,14 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     pipeline.getErrorRepository should equal(errorRepository)
   }
 
-  "calApplicability on the date column" should "return a score of 0.5" in {
+  "calApplicability on the date column" should "return a score of 0.6" in {
     val columnName = "date"
 
     val metadata = new util.ArrayList[Metadata]()
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata
-    ) should equal(0.5)
+    preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata
+    ) should equal(0.6.toFloat)
   }
 
   "calApplicability on the id column" should "return a score of 0" in {
@@ -56,7 +57,7 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     val metadata = new util.ArrayList[Metadata]()
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
+    preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 
   "calApplicability" should "return a score of 0 for a column with metadata of a previous date formatting" in {
@@ -72,6 +73,6 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     metadata.add(dateMetadata)
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
-    preparator.calApplicability(new SchemaMapping, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
+    preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 }

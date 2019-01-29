@@ -4,15 +4,15 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-
-import scala.collection.JavaConverters._
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import org.apache.spark.sql.{Dataset, Encoders, Row}
+import org.apache.spark.sql.{Dataset, Row}
+
+import scala.collection.JavaConverters._
 
 /**
   *
