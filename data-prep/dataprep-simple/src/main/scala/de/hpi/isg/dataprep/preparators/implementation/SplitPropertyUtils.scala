@@ -25,6 +25,10 @@ object SplitPropertyUtils {
       ._2
   }
 
+  def allCharacterClassCandidates(value: String): Vector[(String, Int)] = {
+    getCharacterClassTransitions(value)
+  }
+
   def bestCharacterClassSeparatorCandidates(value: String, numCols: Int): Vector[(String, Int)] = {
     getCharacterClassTransitions(value)
       .groupBy { case (_, count) => Math.abs(count + 1 - numCols) }
@@ -60,7 +64,7 @@ object SplitPropertyUtils {
     import dataFrame.sparkSession.implicits._
     dataFrame
       .flatMap(value =>
-        bestStringSeparatorCandidates(value, numCols)
+        bestCharacterClassSeparatorCandidates(value, numCols)
           .filter { case (_, count) => count + 1 == numCols }
           .map { case (candidate, _) => candidate }
       )
