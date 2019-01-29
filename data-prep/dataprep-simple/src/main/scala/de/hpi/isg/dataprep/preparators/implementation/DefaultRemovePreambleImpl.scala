@@ -6,15 +6,17 @@ import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.RemovePreamble
 import de.hpi.isg.dataprep.ExecutionContext
+import de.hpi.isg.dataprep.cases.CharTypeVector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, sql}
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.ml.clustering.{BisectingKMeans, KMeans}
-import org.apache.spark.ml.feature.{RFormula, Tokenizer, Word2Vec}
+import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg.{Vector, VectorUDT}
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
+import org.apache.spark.ml.param.Param
 
 import scala.collection.mutable
 /**
@@ -100,14 +102,22 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   def findPreableForColumn(dataframe:DataFrame, sparkContext: SparkSession): DataFrame  = {
 
     import sparkContext.implicits._
-    val word2Vec = new Word2Vec()
+
+    val vocabSize = dataframe
+      .map(r => r.getAs[mutable.WrappedArray[String]]("value").head.split("").toList)
+      .reduce(_.union(_))
+      .toSet
+      .size
+
+    val cvModel: CountVectorizerModel = new CountVectorizer()
       .setInputCol("value")
       .setOutputCol("features")
-      .setVectorSize(100)
-      .setMinCount(0)
-    val model = word2Vec.fit(dataframe)
-    val result = model.transform(dataframe)
-    val bkm = new BisectingKMeans().setK(2).setSeed(1)
+      .setVocabSize(vocabSize)
+      .setMinDF((dataframe.count()*0.1).toInt)
+      .fit(dataframe)
+
+    val result = cvModel.transform(dataframe)
+    val bkm = new KMeans().setK(2).setSeed(1)  //new BisectingKMeans().setK(2).setSeed(1)
     val modelBM = bkm.fit(result)
 
     val clusteredVecs = modelBM
@@ -122,7 +132,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
     val largestCluster = clusteredVecs.stat.approxQuantile("cluster",Array(0.5),0.1).head
 
-    clusteredVecs.filter(r => r.getAs("cluster") == largestCluster)
+    clusteredVecs.filter(r => r.getAs("cluster") != largestCluster)
   }
 
   def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={
@@ -156,10 +166,22 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     sparkContext.createDataFrame(resultRDD, dataframe.schema)
   }
 
+  def findPreableByTypesOfChars(dataFrame: DataFrame) = {
+    val sparkBuilder = SparkSession
+      .builder()
+      .master("local[4]")
+    val sparkContext = sparkBuilder.getOrCreate()
+    import sparkContext.implicits._
+
+    dataFrame
+      .rdd
+      .zipWithIndex()
+      .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
+  }
+
   private def createBuilderAndFindSeparator(dataframe: DataFrame, separator: String) = {
     val sparkBuilder = SparkSession
       .builder()
-      .appName("SparkTutorial")
       .master("local[4]")
     val sparkContext = sparkBuilder.getOrCreate()
     import sparkContext.implicits._

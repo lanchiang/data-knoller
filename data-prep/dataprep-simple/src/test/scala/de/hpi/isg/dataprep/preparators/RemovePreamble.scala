@@ -181,12 +181,12 @@ class RemovePreamble extends PreparatorScalaTest {
       .flatMap(row => row._1.toSeq.map( v => (v.toString.split(""), row._2, row._1.toSeq.indexOf(v))))
       .toDF("value", "line", "column")
 
-    var emptyDataFrame:DataFrame = Seq(Tuple2("a","b")).toDF("a", "b").filter(r => r.getString(0) != "a")
+    var emptyDataFrame:DataFrame = Seq(Tuple3("a","b", Seq("c"))).toDF("a", "b", "c").filter(r => r.getString(0) != "a")
 
     for(columnIndex <- customDataset.columns.indices){
       val colResult = testPreparator
         .findPreableForColumn(zippedDataset.filter(r => r.getInt(2) == columnIndex), sparkContext)
-        .select("line", "column")
+        .select("line", "column", "value")
         emptyDataFrame = emptyDataFrame.union(colResult)
 
     }
