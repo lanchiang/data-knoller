@@ -6,7 +6,10 @@ import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.preparators.define.SplitProperty;
+import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -56,6 +59,14 @@ public class SplitPropertyTest extends PreparatorTest {
     public void testSplitPropertyWithOnlyProperty() throws Exception {
         AbstractPreparator abstractPreparator = new SplitProperty("date");
         assertTest(abstractPreparator);
+    }
+
+    @Test
+    public void testApplicabilityScore() {
+        AbstractPreparator abstractPreparator = new SplitProperty("date", "-");
+        DefaultSplitPropertyImpl impl = new DefaultSplitPropertyImpl();
+        Dataset<String> column = pipeline.getRawData().select("date").as(Encoders.STRING());
+        Assert.assertEquals(impl.evaluateSplit(column, "-", 3), 0.9333, 0.0001);
     }
 
     private void assertTest(AbstractPreparator abstractPreparator) throws Exception {

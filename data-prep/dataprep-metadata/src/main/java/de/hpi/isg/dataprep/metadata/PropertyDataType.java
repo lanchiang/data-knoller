@@ -21,7 +21,7 @@ public class PropertyDataType extends Metadata {
 
     private DataType.PropertyType propertyDataType;
 
-    public PropertyDataType() {
+    private PropertyDataType() {
         super(PropertyDataType.class.getSimpleName());
     }
 
@@ -31,17 +31,8 @@ public class PropertyDataType extends Metadata {
         this.propertyDataType = propertyDataType;
     }
 
-    public MetadataScope getScope() {
-        return scope;
-    }
-
     public DataType.PropertyType getPropertyDataType() {
         return propertyDataType;
-    }
-
-    @Override
-    public String getName() {
-        return scope.getName();
     }
 
     @Override

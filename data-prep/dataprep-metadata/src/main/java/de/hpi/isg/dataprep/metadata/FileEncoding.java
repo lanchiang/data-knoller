@@ -65,11 +65,6 @@ public class FileEncoding extends Metadata {
     }
 
     @Override
-    public String getName() {
-        return scope.getName();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
