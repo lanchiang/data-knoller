@@ -20,14 +20,14 @@ import org.apache.spark.sql.{Dataset, Row}
 class ChangeTableEncoding() extends AbstractPreparator {
 
   override def buildMetadataSetup(): Unit = {
-    // TODO
+    // TODO path metadata required
   }
 
   private def countErrorsInFile(csvPath: String): Int = {
     val replacementChar = new Array[Byte](3)
     replacementChar(0) = 0xEF.toByte
     replacementChar(1) = 0xBF.toByte
-    replacementChar(0) = 0xBD.toByte
+    replacementChar(2) = 0xBD.toByte
 
     var errorCount = 0
 
