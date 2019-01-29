@@ -5,13 +5,16 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.util.Nameable;
+import de.hpi.isg.dataprep.util.Printable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The abstract class of a data preparation pipeline.
@@ -19,7 +22,12 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/9/10
  */
-public interface AbstractPipeline extends Nameable {
+public interface AbstractPipeline extends Nameable, Printable {
+
+    /**
+     * Before doing anything in the pipeline, this method is called to initialize the pipeline, configuring such as calculating the initial metadata.
+     */
+    void initPipeline();
 
     /**
      * Add a {@link AbstractPreparation} to this pipeline.
@@ -44,7 +52,8 @@ public interface AbstractPipeline extends Nameable {
     void executePipeline() throws Exception;
 
     /**
-     * Insert the metadata whose values are already known into the {@link MetadataRepository}
+     * Insert the metadata whose values are already known into the {@link MetadataRepository}.
+     * This should be done when initializing the pipeline, before calling the executePipeline method.
      */
     void initMetadataRepository();
 
@@ -54,15 +63,23 @@ public interface AbstractPipeline extends Nameable {
      */
     void buildMetadataSetup();
 
-    /**
-     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
-     */
-    void buildColumnCombination();
+//    /**
+//     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
+//     */
+//    void buildColumnCombination();
 
     /**
-     * Add the preparation that recommended by the {@link DecisionEngine} at the end of the pipeline.
+     * Add the preparation that recommended by the decision engine to the end of the pipeline, and execute it. Finally update metadata, dataset, and schema mapping.
+     *
+     * @return true if a preparator is added to the pipeline and executed, false if the decision engine determines to stop the process.
      */
-    void addRecommendedPreparation();
+    boolean addRecommendedPreparation();
+
+    /**
+     * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
+     * and other dynamic information must be updated.
+     */
+//    void executeRecommendedPreparation();
 
     List<AbstractPreparation> getPreparations();
 
@@ -72,9 +89,13 @@ public interface AbstractPipeline extends Nameable {
 
     ProvenanceRepository getProvenanceRepository();
 
-    Dataset<Row> getRawData();
+    SchemaMapping getSchemaMapping();
 
-    Collection<ColumnCombination> getColumnCombinations();
+    Set<Metadata> getTargetMetadata();
+
+    void updateTargetMetadata(Collection<Metadata> coming);
+
+    Dataset<Row> getRawData();
 
     String getDatasetName();
 
