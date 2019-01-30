@@ -165,6 +165,46 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     sparkContext.createDataFrame(resultRDD, dataframe.schema)
   }
 
+
+  def findPreambleByMedian(dataframe: DataFrame, separator: String): DataFrame ={
+
+    val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
+
+    val kmeans = new KMeans().setK(2).setSeed(1L).fit(separatorOcc)
+
+    val predictions = kmeans.transform(separatorOcc)
+
+    val maxCluster = predictions
+      .groupBy("prediction")
+      .count()
+      .collect
+      .maxBy(row => row.getLong(1))
+
+    val clusterScore = maxCluster.size
+
+    if (clusterScore % 2 == 0) {
+      val l = clusterScore / 2 - 1
+      val r = l + 1
+      (maxCluster(l) + maxCluster(r).toString).toDouble / 2
+    } else
+      maxCluster(clusterScore / 2).toString.toDouble
+
+    val filteredLinesByMedian = predictions
+      .filter(row => row.getAs("prediction") == clusterScore)
+      .select("rownumber")
+      .map(row => row.getLong(0))
+      .collect
+
+    val resultRDD = dataframe
+      .rdd.zipWithIndex()
+      .filter(row => filteredLinesByMedian contains row._2)
+      .map(row => row._1)
+      .persist
+
+    sparkContext.createDataFrame(resultRDD, dataframe.schema)
+
+  }
+
   def findPreableByTypesOfChars(dataFrame: DataFrame) = {
     val sparkBuilder = SparkSession
       .builder()
@@ -218,33 +258,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     (sparkContext, separatorOcc)
   }
 
-  def findPreambleByMedian(dataframe: DataFrame, separator: String): DataFrame ={
-
-    val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
-
-    val kmeans = new KMeans().setK(2).setSeed(1L)
-    val model = kmeans.fit(separatorOcc)
-
-    val predictions = model.transform(separatorOcc)
-
-    val maxCluster = predictions
-      .groupBy("prediction")
-      .count()
-      .collect
-      .maxBy(row => row.getLong(1))
-
-    val clusterScore = maxCluster.size
-    if (clusterScore % 2 == 0) {
-      val l = clusterScore / 2 - 1
-      val r = l + 1
-      (maxCluster(l) + maxCluster(r).toString).toDouble / 2
-    } else
-      maxCluster(clusterScore / 2).toString.toDouble
-
-    null
-
-
-  }
 
 
 
