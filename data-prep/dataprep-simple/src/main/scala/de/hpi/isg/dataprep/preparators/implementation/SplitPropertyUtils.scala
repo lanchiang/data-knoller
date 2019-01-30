@@ -5,6 +5,7 @@ import org.apache.spark.sql.Dataset
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
+//noinspection SimplifyBoolean
 object SplitPropertyUtils {
   val defaultSplitterator="#!#"
   private val nonAlpaShort = """[^a-zA-Z\d]""".r
@@ -81,7 +82,7 @@ object SplitPropertyUtils {
       .groupByKey(identity)
       .mapGroups { case (candidate, occurrences) => (candidate, occurrences.length) }
       .collect()
-      .toMap
+      .toMap.filterNot(_._1.equals("Aa"))
   }
 
   def toCharacterClasses(input: String): Tuple2[String, String] = {
@@ -108,7 +109,7 @@ object SplitPropertyUtils {
       last = c
       mapped
     })
-    reduced=reduced.replace("\0", "");
+    reduced=reduced.replace("\0", "")
 
     (reduced, input._1, input._2)
   }
@@ -199,7 +200,7 @@ object SplitPropertyUtils {
       }
 
 
-      i += 1;
+      i += 1
       i - 1
     }
 
@@ -234,7 +235,7 @@ object SplitPropertyUtils {
       }
       else {
 
-        if(list.length>0){
+        if(list.nonEmpty){
           metalist+=list.toList
           list.clear()
         }
@@ -282,7 +283,7 @@ object SplitPropertyUtils {
   def filterFirstAndLastPartOut(candidates: List[String], input: String): List[String] = {
 
     candidates.filter(candidate => {
-      input.startsWith(candidate) == false && input.endsWith(candidate) == false
+      !(input.startsWith(candidate) || input.endsWith(candidate))
     })
 
   }

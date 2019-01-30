@@ -17,8 +17,11 @@ import scala.collection.mutable.ListBuffer
 object DefaultSplitPropertyImpl {
 
   case class SingleValueSeparator(separatorValue: String) extends Separator {
-    override def getNumSplits(value: String): Int =
-      value.sliding(separatorValue.length).count(_ == separatorValue) + 1
+    override def getNumSplits(value: String): Int ={
+      val result=value.sliding(separatorValue.length).count(_ == separatorValue) + 1
+      result
+    }
+
 
     override def executeSplit(value: String): Vector[String] =
       value.split(separatorValue).toVector
@@ -50,7 +53,19 @@ object DefaultSplitPropertyImpl {
     }
   }
 
-  case class CharacterClassSeparatorNoColNum(globalDistribution: Map[String, Int]) extends Separator {
+  case class CharacterClassSeparatorNoColNum(separatorValue: String) extends Separator {
+    override def getNumSplits(value: String): Int =
+      SplitPropertyUtils.toCharacterClasses(value)._1.sliding(separatorValue.length).count(_ == separatorValue) + 1
+
+    override def executeSplit(value: String): Vector[String] =
+      SplitPropertyUtils.addSplitteratorBetweenCharacterTransition(value, separatorValue)
+        .split(SplitPropertyUtils.defaultSplitterator).toVector
+
+    override def merge(split: Vector[String], original: String): String =
+      split.mkString("")
+  }
+
+  /*case class CharacterClassSeparatorNoColNum(globalDistribution: Map[String, Int]) extends Separator {
     override def getNumSplits(value: String): Int = {
       val (_, count) = SplitPropertyUtils.allCharacterClassCandidates(value)(0)
       count
@@ -68,7 +83,7 @@ object DefaultSplitPropertyImpl {
     override def merge(split: Vector[String], original: String): String = {
       split.mkString("")
     }
-  }
+  }*/
 
   case class CharacterClassSeparatorWithColNum(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
     override def getNumSplits(value: String): Int = {
@@ -126,7 +141,6 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
       case (Some(sep), Some(num)) =>
         (sep, num)
     }
-
     createSplitValuesDataFrame(
       dataFrame,
       propertyName,
@@ -139,8 +153,10 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   def findSeparator(column: Dataset[String]): Separator = {
     val stringSeparatorDistribution = SplitPropertyUtils.globalStringSeparatorDistribution(column)
     val characterClassDistribution = SplitPropertyUtils.globalTransitionSeparatorDistribution(column)
-    val separatorCandidates = CharacterClassSeparatorNoColNum(characterClassDistribution) ::
-      stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
+    val separatorCandidates = //CharacterClassSeparatorNoColNum(characterClassDistribution) ::
+      stringSeparatorDistribution.keys.map(SingleValueSeparator).toList++
+      //stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
+        characterClassDistribution.keys.map(CharacterClassSeparatorNoColNum).toList
 
     separatorCandidates.maxBy(evaluateSplit(column, _))
   }
@@ -176,11 +192,12 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   def evaluateSplit(column: Dataset[String], separator: Separator): Float = {
     import column.sparkSession.implicits._
-    column
+    val result=column
       .map(separator.getNumSplits)
       .groupByKey(identity)
       .mapGroups { case (_, occurrences) => occurrences.length }
       .collect.max.toFloat / column.count()
+    result
   }
 
   def evaluateSplit(column: Dataset[String], separator: Separator, numCols: Int): Float = {
