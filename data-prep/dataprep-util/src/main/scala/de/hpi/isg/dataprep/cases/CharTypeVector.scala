@@ -6,6 +6,9 @@ case class CharTypeVector(lowerCaseChars:Int, upperCaseChars:Int, numbers:Int, s
   def allChars:Int = lowerCaseChars + upperCaseChars
 
   def toDenseVector: org.apache.spark.ml.linalg.Vector = {
+    if(allChars == 0 && numbers == 0 && specialChars == 0){
+      return Vectors.dense(0.01, 0.01, 0.01)
+    }
     Vectors.dense(allChars, numbers, specialChars)
   }
 }

@@ -197,6 +197,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .setTol(0.1)
       .setInitMode("k-means||")
       .setInitSteps(3)
+      .setDistanceMeasure("cosine")
     val model = kmeans.fit(dataFrame)
 
     model.transform(dataFrame)

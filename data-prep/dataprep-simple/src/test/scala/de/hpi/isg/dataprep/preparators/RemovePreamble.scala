@@ -208,6 +208,6 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val zippedDataset = testPreparator.findPreableByTypesOfChars(customDataset)
 
-    zippedDataset.filter(row => row.get(2) == 1).collect shouldEqual 5
+    zippedDataset.filter(row => row.get(2) == 1).collect.length shouldEqual 15
   }
 }
