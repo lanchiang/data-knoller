@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangePhoneFormatImpl
-import de.hpi.isg.dataprep.preparators.implementation.{PhoneNumberNormalizerInstances, PhoneNumberTaggerInstances}
+import de.hpi.isg.dataprep.preparators.implementation.{TaggerInstances, CheckerInstances}
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
@@ -24,9 +24,6 @@ class ChangePhoneFormat(
   def this(propertyName: String, targetFormat: PhoneNumberFormat) {
     this(propertyName, null, targetFormat)
   }
-
-  import PhoneNumberNormalizerInstances._
-  import PhoneNumberTaggerInstances._
 
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of metadata into both
@@ -54,13 +51,12 @@ class ChangePhoneFormat(
     targetMetadata: util.Collection[Metadata]
   ): Float = {
     import dataset.sparkSession.implicits._
+    import CheckerInstances._
+    import TaggerInstances._
 
     val impl = this.impl.asInstanceOf[DefaultChangePhoneFormatImpl]
-    implicit val normalizer = defaultNormalizer(defaultTagger)
 
-    targetMetadata
-      .asScala
-      .toSet
+    targetMetadata.asScala.toSet
       .foldLeft[Option[PhoneNumberFormat]](None) {
         case (_, metadata: PhoneNumberFormat) => Some(metadata)
         case (optTargetFormat, _) => optTargetFormat

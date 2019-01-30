@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.metadata.PhoneNumberFormat
+import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PhoneNumberFormatComponentType}
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat
@@ -13,10 +13,6 @@ import org.apache.spark.util.CollectionAccumulator
 import scala.util.{Failure, Success, Try}
 
 class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializable {
-  import PhoneNumberNormalizerInstances._
-  import PhoneNumberNormalizerSyntax._
-  import PhoneNumberTaggerInstances._
-
   /**
     * The abstract class of preparator implementation.
     *
@@ -27,8 +23,10 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @throws Exception
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+    import CheckerInstances._
+    import TaggerInstances._
+
     val preparator = abstractPreparator.asInstanceOf[ChangePhoneFormat]
-    implicit val normalizer = defaultNormalizer(defaultTagger)
 
     val createdDataset = dataFrame.flatMap { row =>
       val index = row.fieldIndex(preparator.propertyName)
@@ -54,23 +52,21 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
   }
 
   /**
-    * Converting a given phone number
-    * @param phoneNumber
-    * @param sourceFormat
-    * @param targetFormat
-    * @return
+    * Converting a phone number from a given source format to a target format
+    * @param phoneNumber String containing the phone number
+    * @param sourceFormat Source format of the phone number
+    * @param targetFormat Target format into which the phone number should be converted to
+    * @return Try of the converted phone number
     */
-  def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat)(implicit normalizer: PhoneNumberNormalizer[PhoneNumberFormat]): Try[String] = {
-    phoneNumber.converted(sourceFormat, targetFormat)
-  }
+  def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat)(implicit tagger: Tagger[PhoneNumberFormatComponentType]): Try[String] =
+    PhoneNumber(sourceFormat)(phoneNumber).convert(targetFormat).map(_.toString)
 
   /**
-    * Converting a given phone number
-    * @param phoneNumber
-    * @param targetFormat
-    * @return
+    * Converting a phone number to a target format
+    * @param phoneNumber String containing the phone number
+    * @param targetFormat Source format of the phone number
+    * @return Try of the converted phone number
     */
-  def convert(phoneNumber: String, targetFormat: PhoneNumberFormat)(implicit normalizer: PhoneNumberNormalizer[PhoneNumberFormat]): Try[String] = {
-    phoneNumber.converted(targetFormat)
-  }
+  def convert(phoneNumber: String, targetFormat: PhoneNumberFormat)(implicit tagger: Tagger[PhoneNumberFormatComponentType]): Try[String] =
+    PhoneNumber(phoneNumber).convert(targetFormat).map(_.toString)
 }
