@@ -7,13 +7,15 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Attribute;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.utils.UpdateUtils;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -44,9 +46,11 @@ public class Pipeline implements AbstractPipeline {
 
     private DecisionEngine decisionEngine = DecisionEngine.getInstance();
 
-    //
-
     private int index = 0;
+
+    // Note: just for the grand task test. Ideally, the schema mapping instance should not be held by something else, such as a higher level sand box.
+    private SchemaMapping schemaMapping;
+    private Set<Metadata> targetMetadata;
 
     /**
      * The raw data contains a set of {@link Row} instances. Each instance represent a line in a tabular data without schema definition,
@@ -62,6 +66,8 @@ public class Pipeline implements AbstractPipeline {
         this.provenanceRepository = new ProvenanceRepository();
         this.errorRepository = new ErrorRepository();
         this.preparations = new LinkedList<>();
+
+//        this.schemaMapping = new SimpleSchemaMapping(null);
     }
 
     public Pipeline(Dataset<Row> rawData) {
@@ -77,6 +83,9 @@ public class Pipeline implements AbstractPipeline {
     public Pipeline(DataContext dataContext) {
         this(dataContext.getDataFrame());
         this.dataContext = dataContext;
+        this.schemaMapping = dataContext.getSchemaMapping();
+        this.targetMetadata = dataContext.getTargetMetadata();
+
         this.datasetName = dataContext.getDialect().getTableName();
 
         // initialize and configure the pipeline.
@@ -139,12 +148,6 @@ public class Pipeline implements AbstractPipeline {
         // second time initialize metadata repository for preparation to execute the pipeline.
         initMetadataRepository();
 
-//        this.buildColumnCombination();
-//        for (AbstractPreparation preparation : preparations) {
-//            this.getColumnCombinations()
-//                    .forEach(columnCombination -> preparation.getAbstractPreparator().getApplicability().putIfAbsent(columnCombination, 0.0f));
-//        }
-
         // execute the pipeline
         for (AbstractPreparation preparation : preparations) {
             preparation.getAbstractPreparator().execute();
@@ -167,12 +170,24 @@ public class Pipeline implements AbstractPipeline {
         initMetadata.add(headerExistence);
 
         StructType structType = this.rawData.schema();
+//        Arrays.stream(structType.fields()).forEach(field -> {
+//            DataType dataType = field.dataType();
+//            String fieldName = field.name();
+//            PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
+//            initMetadata.add(propertyDataType);
+//        });
+
+        List<Attribute> attributes = new LinkedList<>();
         Arrays.stream(structType.fields()).forEach(field -> {
             DataType dataType = field.dataType();
             String fieldName = field.name();
             PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
+            Attribute attribute = new Attribute(field);
+            attributes.add(attribute);
             initMetadata.add(propertyDataType);
         });
+        Schemata schemata = new Schemata("table", attributes);
+        initMetadata.add(schemata);
 
         this.metadataRepository.updateMetadata(initMetadata);
     }
@@ -185,30 +200,46 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public boolean addRecommendedPreparation() {
+        if (decisionEngine.stopProcess(this)) {
+            return false;
+        }
+
         // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
         // now the process terminates when the selectBestPreparator method return null.
         AbstractPreparator recommendedPreparator = decisionEngine.selectBestPreparator(this);
 
         // return a null means the decision engine determines to stop the process
         if (recommendedPreparator == null) {
-            return false;
+            throw new RuntimeException("Internal error. Decision engine fails to select the best preparator.");
         }
 
         // Note: the traditional control flow is to add the preparations first and then execute the batch.
-        // But in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
+        // While in the recommendation mode the preparator is executed immediately after generated so that the datasets, metadata, env
         // can be updated.
         AbstractPreparation preparation = new Preparation(recommendedPreparator);
+
+        preparation.setPipeline(this);
+        preparation.setPosition(index++);
         preparations.add(preparation);
+        executeRecommendedPreparation(preparation);
         return true;
     }
 
-    @Override
-    public void executeRecommendedPreparation() {
+    /**
+     * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
+     * and other dynamic information must be updated.
+     */
+    private void executeRecommendedPreparation(AbstractPreparation preparation) {
         //execute the added preparation
+        try {
+            preparation.getAbstractPreparator().execute();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        // updated the dataset, metadata
-
-        // update the schemaMapping
+        // update the schemaMapping and target metadata
+        UpdateUtils.updateSchemaMapping(schemaMapping, preparation.getExecutionContext());
+        UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
     }
 
     @Override
@@ -249,6 +280,31 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public SchemaMapping getSchemaMapping() {
+        return this.schemaMapping;
+    }
+
+    @Override
+    public Set<Metadata> getTargetMetadata() {
+        return this.targetMetadata;
+    }
+
+    @Override
+    public void updateTargetMetadata(Collection<Metadata> coming) {
+        coming.stream().forEach(metadata -> {
+            if (targetMetadata.contains(metadata)) {
+                targetMetadata.remove(metadata);
+            }
+            targetMetadata.add(metadata);
+        });
+    }
+
+    @Override
+    public void print() {
+        System.out.println(this.preparations);
     }
 
     @Override

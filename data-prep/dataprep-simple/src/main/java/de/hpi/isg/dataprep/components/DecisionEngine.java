@@ -1,7 +1,10 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
+import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Attribute;
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.model.target.system.Engine;
@@ -30,14 +33,12 @@ public class DecisionEngine implements Engine {
 
     private static DecisionEngine instance;
 
-    private AbstractPipeline pipeline;
-
     /**
      * specifies the preparator candidates that the decision engine may call. Could be moved to the controller.
      */
 //    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
 //            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
-    private final static String[] preparatorCandidates = {"AddProperty", "Collapse"};
+    private final static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash"};
 
     private Set<AbstractPreparator> preparators;
     private Map<AbstractPreparator, Float> scores;
@@ -60,6 +61,13 @@ public class DecisionEngine implements Engine {
         ClassUtility.checkClassesExistence(preparatorCandidates, PREPARATOR_PACKAGE_PATH);
 
         scores = new HashMap<>();
+        instantiatePreparator();
+    }
+
+    /**
+     * Instantiate the preparator classes by their default constructor.
+     */
+    private void instantiatePreparator() {
         preparators = new HashSet<>();
 
         for (String string : preparatorCandidates) {
@@ -80,6 +88,18 @@ public class DecisionEngine implements Engine {
         }
     }
 
+    private void checkPipelineConfiguaration(AbstractPipeline pipeline) {
+        SchemaMapping schemaMapping = pipeline.getSchemaMapping();
+        Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
+
+        if (schemaMapping == null) {
+            throw new RuntimeException(new NullPointerException("Schema mapping instance not found."));
+        }
+        if (targetMetadata == null) {
+            throw new RuntimeException(new NullPointerException("Target metadata set instance not found."));
+        }
+    }
+
     /**
      * Returns the most suitable parameterized preparator recommended for the current step in the pipeline according to the applicability scores
      * of all the candidate preparators.
@@ -88,11 +108,10 @@ public class DecisionEngine implements Engine {
      *
      * @return the most suitable parameterized preparator. Returning null indicates the termination of the process
      */
-//    public AbstractPreparator selectBestPreparator(Dataset<Row> dataset, Collection<Metadata> targetMetadata) {
     public AbstractPreparator selectBestPreparator(AbstractPipeline pipeline) {
-        if (stopProcess()) {
-            return null;
-        }
+        checkPipelineConfiguaration(pipeline);
+        SchemaMapping schemaMapping = pipeline.getSchemaMapping();
+        Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
 
         // every time this method is called, instantiate all the preparator candidates again.
         initDecisionEngine();
@@ -102,21 +121,28 @@ public class DecisionEngine implements Engine {
         StructField[] fields = dataset.schema().fields();
         List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
-        // Todo: this is wrong now. It is not target metadata, but current ones. Put here as a placeholder to allow compilation.
-        Collection<Metadata> targetMetadata = pipeline.getMetadataRepository().getMetadataPool();
+        if (fields.length == 0) {
+            // all the fields are deleted.
+            return null;
+        }
+
         // using this permutation iterator cannot specify the maximal number of columns.
-        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 5);
+        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 1);
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
+
+            // do not consider the column combination with no columns.
+            if (colNameCombination.size()==0) {
+                continue;
+            }
+
             List<Column> columns = colNameCombination.stream().map(colName -> new Column(colName)).collect(Collectors.toList());
             Column[] columnArr = new Column[columns.size()];
             columnArr = columns.toArray(columnArr);
 
-//            Column[] columnArr = colNameCombination.stream().toArray(Column[]::new);
-
             Dataset<Row> dataSlice = dataset.select(columnArr);
             for (AbstractPreparator preparator : preparators) {
-                float score = preparator.calApplicability(null, dataSlice, targetMetadata);
+                float score = preparator.calApplicability(schemaMapping, dataSlice, targetMetadata);
                 // the same preparator: only with the same class name
                 float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
                 if (currentScore==Float.MIN_VALUE) {
@@ -124,10 +150,15 @@ public class DecisionEngine implements Engine {
                 }
                 else {
                     if (score > currentScore) {
+                        // replace the preparator instance in the key with the new preparator instance, though their names are the same.
+                        scores.remove(preparator);
                         scores.put(preparator, score);
                     }
                 }
             }
+
+            // create new empty preparator instances that will be filled by parameters.
+            instantiatePreparator();
         }
 
         // Find the preparator with the highest score.
@@ -146,16 +177,48 @@ public class DecisionEngine implements Engine {
         return bestPreparator;
     }
 
+    public boolean stopProcess(AbstractPipeline pipeline) {
+        if (pipeline.getSchemaMapping().hasMapped() && targetMetadataMapped(pipeline)) { // also the metadata are met
+            return true;
+        }
+        return forceStop();
+    }
+
     /**
      * When one of the termination conditions is met, return true to tell the decision engine stop the automation process.
      *
      * @return true if one of the termination conditions is met, otherwise false.
      */
-    private boolean stopProcess() {
+    private boolean forceStop() {
         if (iteration_count == MAX_ITERATION) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check whether all the target metadata have been fulfilled.
+     *
+     * @return
+     */
+    private boolean targetMetadataMapped(AbstractPipeline pipeline) {
+        Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
+        MetadataRepository metadataRepository = pipeline.getMetadataRepository();
+
+        // count the metadata in the target that have been fulfilled.
+        int fulfilledCount = (int) targetMetadata.stream().filter(metadata -> {
+            Metadata stored = metadataRepository.getMetadata(metadata);
+            if (stored != null) {
+                if (stored.equalsByValue(metadata)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }).count();
+        return fulfilledCount==targetMetadata.size() ? true : false;
     }
 
     // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.

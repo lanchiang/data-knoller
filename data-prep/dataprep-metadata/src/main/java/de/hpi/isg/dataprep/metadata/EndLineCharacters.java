@@ -35,11 +35,6 @@ public class EndLineCharacters extends Metadata {
     }
 
     @Override
-    public String getName() {
-        return scope.getName();
-    }
-
-    @Override
     public String toString() {
         return "EndLineCharacters{" +
                 "endLineCharacters='" + endLineCharacters + '\'' +
