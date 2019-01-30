@@ -18,7 +18,7 @@ import org.apache.spark.sql.{Dataset, Row}
   * @since 2018/11/29
   */
 class ChangeTableEncoding() extends AbstractPreparator {
-  val APPLICABILITY_THRESHOLD = 0.01
+  val APPLICABILITY_THRESHOLD = 0.001
   val REPLACEMENT_CHAR = '�'
 
   override def buildMetadataSetup(): Unit = {
@@ -78,6 +78,6 @@ class ChangeTableEncoding() extends AbstractPreparator {
     })
     // make sure the replacement chars were added through decoding and were not already written in the csv
     val errors = errorCounter.value - countReplacementChars(csvPath)
-    errors.toFloat / csvFile.length()
+    if (errors.toFloat / csvFile.length() > 0.01) 1.0f else 0.0f
   }
 }
