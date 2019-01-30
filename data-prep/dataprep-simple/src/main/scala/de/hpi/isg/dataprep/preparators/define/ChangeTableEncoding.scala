@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 import java.util
 
-import de.hpi.isg.dataprep.metadata.CSVSourcePath
+import de.hpi.isg.dataprep.metadata.{CSVSourcePath, UsedEncoding}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -18,53 +18,53 @@ import org.apache.spark.sql.{Dataset, Row}
   * @since 2018/11/29
   */
 class ChangeTableEncoding() extends AbstractPreparator {
+  val APPLICABILITY_THRESHOLD = 0.01
+  val REPLACEMENT_CHAR = '�'
 
   override def buildMetadataSetup(): Unit = {
     // TODO path metadata required
   }
 
-  private def countErrorsInFile(csvPath: String): Int = {
-    val replacementChar = new Array[Byte](3)
-    replacementChar(0) = 0xEF.toByte
-    replacementChar(1) = 0xBF.toByte
-    replacementChar(2) = 0xBD.toByte
+  private def countReplacementChars(csvPath: String): Int = {
+    val encoding = getCurrentEncoding.getOrElse(System.getProperty("file.encoding"))
+    val replacementChar = REPLACEMENT_CHAR.toString
+    val replacementBytes = replacementChar.getBytes(encoding)
+    if (!replacementChar.equals(new String(replacementBytes, encoding))) {
+      return 0  // current encoding cannot encode replacementChar => every replacementChar represents an error
+    }
 
     var errorCount = 0
-
-    val bytesRead = new Array[Byte](3)
-    bytesRead(0) = 0x00
-    bytesRead(1) = 0x00
-    bytesRead(2) = 0x00
-
+    var bytesRead = new Array[Byte](replacementBytes.length)
     val buf = new Array[Byte](1)
     val inStream = Files.newInputStream(Paths.get(csvPath))
 
     // read the csv byte by byte and search for the byte combination of the replacement char
-    var byteRead = inStream.read(buf).toByte
-    while (byteRead > 0) {
-      bytesRead(0) = bytesRead(1)
-      bytesRead(1) = bytesRead(2)
-      bytesRead(2) = byteRead
-      if (bytesRead.equals(replacementChar)) {
+    var hasNext = inStream.read(buf)
+    while (hasNext > 0) {
+      bytesRead = bytesRead.drop(1) :+ buf(0)  // shift array left and append new char
+      if (bytesRead.sameElements(replacementBytes)) {
         errorCount += 1
       }
-      byteRead = inStream.read(buf).toByte
+      hasNext = inStream.read(buf)
     }
     errorCount
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    val replacementChar = new Array[Byte](3)
-    replacementChar(0) = 0xEF.toByte
-    replacementChar(1) = 0xBF.toByte
-    replacementChar(2) = 0xBD.toByte
-
+  def getCsvPath: Option[String] = {
     val dummyMetadata = new CSVSourcePath("")
-    val csvMetadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[CSVSourcePath]
-    if (csvMetadata == null) {
-      return 0
-    }
-    val csvFile = new File(csvMetadata.getPath)
+    val metadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[CSVSourcePath]
+    Option(metadata.getPath)
+  }
+
+  def getCurrentEncoding: Option[String] = {
+    val dummyMetadata = new UsedEncoding("")
+    val metadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[UsedEncoding]
+    Option(metadata.getUsedEncoding)
+  }
+
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    val csvPath = this.getCsvPath.getOrElse(return 0)
+    val csvFile = new File(csvPath)
 
     // Right now we can only handle the complete table. If we don't get it, return 0
     if (dataset != this.getPreparation.getPipeline.getRawData) {
@@ -74,11 +74,10 @@ class ChangeTableEncoding() extends AbstractPreparator {
     // count replacement chars in every row
     val errorCounter = SparkContext.getOrCreate.longAccumulator
     dataset.foreach(row => {
-      errorCounter.add(row.toString().count(_ == Unicode.bytesToChar(replacementChar)))
+      errorCounter.add(row.toString().count(_ == REPLACEMENT_CHAR))
     })
     // make sure the replacement chars were added through decoding and were not already written in the csv
-    dataset.show()
-    val errors = errorCounter.value - countErrorsInFile(csvMetadata.getPath)
+    val errors = errorCounter.value - countReplacementChars(csvPath)
     errors.toFloat / csvFile.length()
   }
 }

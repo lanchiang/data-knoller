@@ -40,7 +40,7 @@ public class ChangeTableEncodingTest extends PreparatorTest {
     // calApplicability
     
     @Test
-    public void testNoErrors() throws Exception {
+    public void testNoErrors() {
         DataContext context = load(NO_ERRORS_URL);
         Assert.assertEquals(0, calApplicability(context), 0);
     }

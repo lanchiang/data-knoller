@@ -28,7 +28,7 @@ public class UsedEncoding extends Metadata {
         usedEncoding = encoding;
     }
 
-    private String getUsedEncoding() {
+    public String getUsedEncoding() {
         return usedEncoding;
     }
 
@@ -46,7 +46,7 @@ public class UsedEncoding extends Metadata {
         } else {
             UsedEncoding metadataInRepo = matchedInRepo.get(0);
             if (!getUsedEncoding().equals(metadataInRepo.getUsedEncoding())) {
-                throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
+                throw new MetadataNotMatchException("Metadata value does not match that in the repository.");
             }
         }
     }
@@ -58,22 +58,11 @@ public class UsedEncoding extends Metadata {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (this.usedEncoding == o.toString()) {
-            return true;
-        }
-        return false;
+        return o != null && getClass() == o.getClass();
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(usedEncoding);
-    }
-
-    @Override
-    public String toString() {
-        return usedEncoding;
     }
 }
