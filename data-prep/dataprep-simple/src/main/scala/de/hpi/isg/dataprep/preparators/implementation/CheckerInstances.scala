@@ -24,8 +24,13 @@ object CheckerInstances {
 	implicit val phoneFormatChecker: Checker[PhoneNumberFormat] =
 		new Checker[PhoneNumberFormat] {
 			override def check(format: PhoneNumberFormat)(value: String): Boolean = {
-				val components = PhoneNumber(format)(value).values
-				components.forall { case (component, part) => part.matchesFormat(component) } && format.components.size == components.size
+				value.split("-") match {
+					case parts if parts.size == format.components.size =>
+						(format.components.map(_.componentType) zip parts).forall {
+							case (component, part) => part.matchesFormat(component)
+						}
+					case _ => false
+				}
 			}
 		}
 }

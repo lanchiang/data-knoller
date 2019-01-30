@@ -6,11 +6,11 @@ package de.hpi.isg.dataprep.preparators.implementation
 	*/
 trait Tagger[A] {
 	/**
-		* Tagging parts of a sequence
-		* @param parts Parts to be tagged
-		* @return Mapping from tag to part
+		* Tagging a value
+		* @param value Value to be tagged
+		* @return Mapping from tag to part in the value
 		*/
-	def tag(parts: Seq[String]): Map[A, String]
+	def tag(value: String): Map[A, String]
 }
 
 /**
@@ -18,12 +18,12 @@ trait Tagger[A] {
 	*/
 object Tagger {
 	/**
-		* Tagging parts of a sequence
-		* @param parts Parts to be tagged
+		* Tagging a value
+		* @param value Value to be tagged
 		* @param tagger Instance of a Tagger implementation
 		* @tparam A Type of a tag
 		* @return Mapping from tag to part
 		*/
-	def tag[A](parts: Seq[String])(implicit tagger: Tagger[A]): Map[A, String] =
-		tagger.tag(parts)
+	def tag[A](value: String)(implicit tagger: Tagger[A]): Map[A, String] =
+		tagger.tag(value)
 }

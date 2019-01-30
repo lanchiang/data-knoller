@@ -4,11 +4,11 @@ import java.util
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PropertyDataType}
+import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PhoneNumberFormatComponentType, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangePhoneFormatImpl
-import de.hpi.isg.dataprep.preparators.implementation.{TaggerInstances, CheckerInstances}
+import de.hpi.isg.dataprep.preparators.implementation.{CheckerInstances, CheckerSyntax, TaggerInstances}
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
@@ -52,9 +52,11 @@ class ChangePhoneFormat(
   ): Float = {
     import dataset.sparkSession.implicits._
     import CheckerInstances._
+    import CheckerSyntax._
     import TaggerInstances._
 
     val impl = this.impl.asInstanceOf[DefaultChangePhoneFormatImpl]
+    val tagger = phoneNumberTagger(PhoneNumberFormatComponentType.ordered)
 
     targetMetadata.asScala.toSet
       .foldLeft[Option[PhoneNumberFormat]](None) {
@@ -65,8 +67,17 @@ class ChangePhoneFormat(
           column.dataType match {
             case StringType =>
               val samples = dataset.sample(false, 0.01)
-              val convertibles = samples.map(_.getAs[String](column.name)).flatMap(number => impl.convert(number, format).toOption)
-              convertibles.count().toFloat / samples.count().toFloat
+              val filteredSamples = samples.filter(samples(column.name).isNotNull)
+
+              val forallMatching = filteredSamples
+                .map(_.getAs[String](column.name).matchesFormat(format))
+                .reduce(_ && _)
+
+              val convertibles = filteredSamples
+                .map(_.getAs[String](column.name))
+                .flatMap(number => impl.convert(number, format)(tagger).toOption)
+
+              if (forallMatching) 0f else convertibles.count().toFloat / samples.count().toFloat
             case _ => 0f
           }
         }.max

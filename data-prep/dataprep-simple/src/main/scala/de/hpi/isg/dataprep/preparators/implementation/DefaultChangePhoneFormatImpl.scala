@@ -23,18 +23,18 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @throws Exception
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    import CheckerInstances._
     import TaggerInstances._
 
     val preparator = abstractPreparator.asInstanceOf[ChangePhoneFormat]
+    val tagger = Option(preparator.sourceFormat)
+      .map(_.components.map(_.componentType))
+      .fold(phoneNumberTagger(PhoneNumberFormatComponentType.ordered))(phoneNumberTagger)
 
     val createdDataset = dataFrame.flatMap { row =>
       val index = row.fieldIndex(preparator.propertyName)
       val operatedValue = row.getAs[String](index)
       val (start, end) = row.toSeq.splitAt(index)
-
-      val convertTry = Option(preparator.sourceFormat)
-        .fold(convert(operatedValue, preparator.targetFormat))(convert(operatedValue, _, preparator.targetFormat))
+      val convertTry = convert(operatedValue, preparator.targetFormat)(tagger)
         .flatMap(phoneNumber => Try(Row.fromSeq(start ++ Seq(phoneNumber) ++ end)))
 
       convertTry match {
@@ -50,16 +50,6 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
 
     new ExecutionContext(createdDataset, errorAccumulator)
   }
-
-  /**
-    * Converting a phone number from a given source format to a target format
-    * @param phoneNumber String containing the phone number
-    * @param sourceFormat Source format of the phone number
-    * @param targetFormat Target format into which the phone number should be converted to
-    * @return Try of the converted phone number
-    */
-  def convert(phoneNumber: String, sourceFormat: PhoneNumberFormat, targetFormat: PhoneNumberFormat)(implicit tagger: Tagger[PhoneNumberFormatComponentType]): Try[String] =
-    PhoneNumber(sourceFormat)(phoneNumber).convert(targetFormat).map(_.toString)
 
   /**
     * Converting a phone number to a target format

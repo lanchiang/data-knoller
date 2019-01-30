@@ -6,9 +6,9 @@ import scala.util.{Failure, Success, Try}
 
 /**
 	* Phone number
-	* @param values Mapping from component type to part of the phone number
+	* @param components Mapping from component type to part of the phone number
 	*/
-case class PhoneNumber(values: Map[PhoneNumberFormatComponentType, String]) extends AnyVal {
+case class PhoneNumber(components: Map[PhoneNumberFormatComponentType, String]) extends AnyVal {
 	import PhoneNumberFormatComponent._
 
 	/**
@@ -17,17 +17,17 @@ case class PhoneNumber(values: Map[PhoneNumberFormatComponentType, String]) exte
 		* @return Try of the converted phone number
 		*/
 	def convert(format: PhoneNumberFormat): Try[PhoneNumber] = {
-		val components = format.components.map {
-			case Required(componentType) => values.get(componentType).map(componentType -> _)
-			case Optional(componentType, defaultValue) => values.get(componentType).orElse(Option(defaultValue)).map(componentType -> _)
+		val convertedComponents = format.components.map {
+			case Required(componentType) => components.get(componentType).map(componentType -> _)
+			case Optional(componentType, defaultValue) => components.get(componentType).orElse(Option(defaultValue)).map(componentType -> _)
 		}
 
-		if (components.exists(_.isEmpty)) Failure(IllegalPhoneNumberFormatException("Missing required component(s)"))
-		else Success(PhoneNumber(components.flatten.toMap))
+		if (convertedComponents.exists(_.isEmpty)) Failure(IllegalPhoneNumberFormatException("Missing required component(s)"))
+		else Success(PhoneNumber(convertedComponents.flatten.toMap))
 	}
 
 	override def toString: String =
-		values.values.mkString("-")
+		components.values.mkString("-")
 }
 
 /**
@@ -36,11 +36,6 @@ case class PhoneNumber(values: Map[PhoneNumberFormatComponentType, String]) exte
 object PhoneNumber {
 	import TaggerSyntax._
 
-	def apply(format: PhoneNumberFormat)(value: String): PhoneNumber = {
-		new PhoneNumber((format.components.map(_.componentType) zip value.split("""\D+""")).toMap)
-	}
-
-	def apply(value: String)(implicit tagger: Tagger[PhoneNumberFormatComponentType]): PhoneNumber = {
-		new PhoneNumber(value.split("""\D+""").toList.tagged)
-	}
+	def apply(value: String)(implicit tagger: Tagger[PhoneNumberFormatComponentType]): PhoneNumber =
+		new PhoneNumber(value.tagged)
 }
