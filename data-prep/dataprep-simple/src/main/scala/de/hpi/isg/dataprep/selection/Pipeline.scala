@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.selection
 import de.hpi.isg.dataprep.context.DataContext
 import de.hpi.isg.dataprep.metadata._
 import de.hpi.isg.dataprep.model.repository.{MetadataRepository, ProvenanceRepository}
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog
 import de.hpi.isg.dataprep.model.target.objects.{Metadata, TableMetadata}
 import org.apache.spark.sql.{Dataset, Row}
