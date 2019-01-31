@@ -34,8 +34,8 @@ class SplitProperty(var propertyName: Option[String], var separator: Option[Sepa
   }
 
   override def buildMetadataSetup(): Unit = {
-    if (!this.propertyName.isDefined)
-      throw new ParameterNotSpecifiedException(String.format("%s not specified.", "propertyName"))
+    if (this.propertyName.isEmpty)
+      throw new ParameterNotSpecifiedException("propertyName not specified.")
 
     val propertyName = this.propertyName.get
 
