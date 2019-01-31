@@ -6,7 +6,6 @@ import java.{lang, util}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl

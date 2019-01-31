@@ -2,26 +2,24 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
-import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{CharacterClassSeparatorNoColNum, CharacterClassSeparatorWithColNum, MultiValueSeparator, SingleValueSeparator}
+import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{MultiValueCharacterClassSeparator, MultiValueStringSeparator, SingleValueCharacterClassSeparator, SingleValueStringSeparator}
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.util.CollectionAccumulator
 
-import scala.collection.mutable.ListBuffer
-
 object DefaultSplitPropertyImpl {
 
-  case class SingleValueSeparator(separatorValue: String) extends Separator {
-    override def getNumSplits(value: String): Int ={
-      val result=value.sliding(separatorValue.length).count(_ == separatorValue) + 1
+  case class SingleValueStringSeparator(separatorValue: String) extends Separator {
+    override def getNumSplits(value: String): Int = {
+      val result = value.sliding(separatorValue.length).count(_ == separatorValue) + 1
       result
     }
-
 
     override def executeSplit(value: String): Vector[String] =
       value.split(separatorValue).toVector
@@ -30,7 +28,7 @@ object DefaultSplitPropertyImpl {
       split.mkString(separatorValue)
   }
 
-  case class MultiValueSeparator(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
+  case class MultiValueStringSeparator(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
     override def getNumSplits(value: String): Int = {
       val (_, count) = SplitPropertyUtils.bestStringSeparatorCandidates(value, numCols)(0)
       count
@@ -53,7 +51,7 @@ object DefaultSplitPropertyImpl {
     }
   }
 
-  case class CharacterClassSeparatorNoColNum(separatorValue: String) extends Separator {
+  case class SingleValueCharacterClassSeparator(separatorValue: String) extends Separator {
     override def getNumSplits(value: String): Int =
       SplitPropertyUtils.toCharacterClasses(value)._1.sliding(separatorValue.length).count(_ == separatorValue) + 1
 
@@ -65,27 +63,7 @@ object DefaultSplitPropertyImpl {
       split.mkString("")
   }
 
-  /*case class CharacterClassSeparatorNoColNum(globalDistribution: Map[String, Int]) extends Separator {
-    override def getNumSplits(value: String): Int = {
-      val (_, count) = SplitPropertyUtils.allCharacterClassCandidates(value)(0)
-      count
-    }
-
-    override def executeSplit(value: String): Vector[String] = {
-      val (separatorValue, _) = SplitPropertyUtils
-        .allCharacterClassCandidates(value)
-        .maxBy { case (candidate, _) => globalDistribution(candidate) }
-
-      SplitPropertyUtils.addSplitteratorBetweenCharacterTransition(value, separatorValue)
-        .split(SplitPropertyUtils.defaultSplitterator).toVector
-    }
-
-    override def merge(split: Vector[String], original: String): String = {
-      split.mkString("")
-    }
-  }*/
-
-  case class CharacterClassSeparatorWithColNum(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
+  case class MultiValueCharacterClassSeparator(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
     override def getNumSplits(value: String): Int = {
       val (_, count) = SplitPropertyUtils.bestCharacterClassSeparatorCandidates(value, numCols)(0)
       count
@@ -110,19 +88,22 @@ object DefaultSplitPropertyImpl {
 class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   override def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val parameters = abstractPreparator.asInstanceOf[SplitProperty]
+
+    if (parameters.propertyName.isEmpty)
+      throw new ParameterNotSpecifiedException(String.format("%s not specified.", "propertyName"))
+
     val resultDataFrame = try {
       executeSplitProperty(dataFrame, parameters)
     } catch {
       case e: Throwable =>
-        errorAccumulator.add(new RecordError(parameters.propertyName, e))
+        errorAccumulator.add(new RecordError(parameters.propertyName.get, e))
         dataFrame
     }
     new ExecutionContext(resultDataFrame, errorAccumulator)
   }
 
   def executeSplitProperty(dataFrame: DataFrame, parameters: SplitProperty): DataFrame = {
-
-    val propertyName = parameters.propertyName
+    val propertyName = parameters.propertyName.get
     if (!dataFrame.columns.contains(propertyName))
       throw new IllegalArgumentException(s"No column $propertyName found!")
     val column = dataFrame.select(propertyName).as(Encoders.STRING)
@@ -153,10 +134,9 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   def findSeparator(column: Dataset[String]): Separator = {
     val stringSeparatorDistribution = SplitPropertyUtils.globalStringSeparatorDistribution(column)
     val characterClassDistribution = SplitPropertyUtils.globalTransitionSeparatorDistribution(column)
-    val separatorCandidates = //CharacterClassSeparatorNoColNum(characterClassDistribution) ::
-      stringSeparatorDistribution.keys.map(SingleValueSeparator).toList++
-      //stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
-        characterClassDistribution.keys.map(CharacterClassSeparatorNoColNum).toList
+    val separatorCandidates =
+      stringSeparatorDistribution.keys.map(SingleValueStringSeparator) ++
+        characterClassDistribution.keys.map(SingleValueCharacterClassSeparator)
 
     separatorCandidates.maxBy(evaluateSplit(column, _))
   }
@@ -164,9 +144,13 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
   def findSeparator(column: Dataset[String], numCols: Int): Separator = {
     val stringSeparatorDistribution = SplitPropertyUtils.globalStringSeparatorDistribution(column, numCols)
     val characterClassDistribution = SplitPropertyUtils.globalTransitionSeparatorDistribution(column, numCols)
-    val separatorCandidates = MultiValueSeparator(numCols, stringSeparatorDistribution) ::
-        CharacterClassSeparatorWithColNum(numCols, characterClassDistribution) ::
-        stringSeparatorDistribution.keys.map(SingleValueSeparator).toList
+    val separatorCandidates =
+      List(
+        MultiValueStringSeparator(numCols, stringSeparatorDistribution),
+        MultiValueCharacterClassSeparator(numCols, characterClassDistribution)
+      ) ++
+        stringSeparatorDistribution.keys.map(SingleValueStringSeparator) ++
+        characterClassDistribution.keys.map(SingleValueCharacterClassSeparator)
 
     separatorCandidates.maxBy(evaluateSplit(column, _, numCols))
   }
@@ -186,13 +170,13 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
       .groupByKey(identity)
       .mapGroups { case (numSplits, occurrences) => (numSplits, occurrences.length) }
       .collect
-      .maxBy{case (_, numOccurrences) => numOccurrences}
+      .maxBy { case (_, numOccurrences) => numOccurrences }
       ._1
   }
 
   def evaluateSplit(column: Dataset[String], separator: Separator): Float = {
     import column.sparkSession.implicits._
-    val result=column
+    val result = column
       .map(separator.getNumSplits)
       .groupByKey(identity)
       .mapGroups { case (_, occurrences) => occurrences.length }

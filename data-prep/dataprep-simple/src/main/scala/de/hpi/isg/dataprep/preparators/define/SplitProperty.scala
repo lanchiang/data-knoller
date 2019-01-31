@@ -12,25 +12,32 @@ import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separat
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{DataFrame, Encoders}
 
-class SplitProperty(val propertyName: String, val separator: Option[Separator], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
+class SplitProperty(var propertyName: Option[String], var separator: Option[Separator], var numCols: Option[Int], var fromLeft: Boolean) extends AbstractPreparator {
   def this(propertyName: String, separator: Separator, numCols: Int, fromLeft: Boolean = true) {
-    this(propertyName, Some(separator), Some(numCols), fromLeft)
+    this(Some(propertyName), Some(separator), Some(numCols), fromLeft)
   }
 
   def this(propertyName: String, separator: Separator) {
-    this(propertyName, Some(separator), None, true)
+    this(Some(propertyName), Some(separator), None, true)
   }
 
   def this(propertyName: String, numCols: Int) {
-    this(propertyName, None, Some(numCols), true)
+    this(Some(propertyName), None, Some(numCols), true)
   }
 
   def this(propertyName: String) {
-    this(propertyName, None, None, true)
+    this(Some(propertyName), None, None, true)
+  }
+
+  def this() {
+    this(None, None, None, true)
   }
 
   override def buildMetadataSetup(): Unit = {
-    if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified.", propertyName))
+    if (!this.propertyName.isDefined)
+      throw new ParameterNotSpecifiedException(String.format("%s not specified.", "propertyName"))
+
+    val propertyName = this.propertyName.get
 
     numCols match {
       case Some(n) =>
@@ -50,6 +57,10 @@ class SplitProperty(val propertyName: String, val separator: Option[Separator], 
     val column = dataFrame.select(propertyName).as(Encoders.STRING)
     val splitPropertyImpl = impl.asInstanceOf[DefaultSplitPropertyImpl]
     val separator = splitPropertyImpl.findSeparator(column, numCols)
+
+    this.numCols = Some(numCols)
+    this.separator = Some(separator)
+    this.propertyName = Some(propertyName)
     splitPropertyImpl.evaluateSplit(column, separator, numCols)
   }
 }
