@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import java.text.{ParseException, SimpleDateFormat}
+import java.text.{DateFormat, ParseException, SimpleDateFormat}
 import java.util.{Date, Locale}
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
@@ -305,4 +305,56 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     None
   }
 
+  case class TextDateField(pattern: String, locale: Locale)
+
+  def findValidPatternAndLocale(cluster: List[List[String]]): Map[Int, Option[TextDateField]] = {
+    val monthPattern = "MMM"
+    val dayOfWeekPattern = "E"
+
+    println(DateFormat.getAvailableLocales.toList)
+
+    val blocks = cluster.transpose
+    val blockTestDateFields = blocks.zipWithIndex
+      .filter{case (block, _) => block.head.forall(_.isLetter)}
+      .map{case (block, index) => {
+
+        val blockDomain = block.toSet
+        var textDateField: Option[TextDateField] = None
+        if (blockDomain.size == 12) {
+          textDateField = findValidLocale(blockDomain, monthPattern, DateFormat.getAvailableLocales.toList)
+        } else if (blockDomain.size == 7) {
+          textDateField = findValidLocale(blockDomain, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
+        } else {
+          textDateField = findValidLocale(blockDomain, monthPattern, DateFormat.getAvailableLocales.toList)
+          if (textDateField.isEmpty) {
+            textDateField = findValidLocale(blockDomain, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
+          }
+        }
+        (index, textDateField)
+      }}.toMap
+    blockTestDateFields
+  }
+
+  def findValidLocale(blockDomain: Set[String], pattern: String, locales: List[Locale]): Option[TextDateField] = {
+    locales.foreach(locale => {
+      val sdf = new SimpleDateFormat(pattern, locale)
+      if (!locale.getDisplayCountry.isEmpty) {
+        blockDomain.foreach(value => {
+          if (validDateFormat(value, sdf)) {
+            println(locale.toLanguageTag)
+            return Option(TextDateField(pattern, locale))
+          }
+        })
+      }
+    })
+    None
+  }
+
+  // Checks if value can be parsed
+  def validDateFormat(value: String, sdf: SimpleDateFormat): Boolean = {
+    Try{ sdf.parse(value) } match {
+      case Failure(_) => false
+      case Success(_) => true
+    }
+  }
 }

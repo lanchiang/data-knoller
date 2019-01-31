@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators
 
 import java.text.ParseException
 import java.util
+import java.util.Locale
 
 import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern
@@ -10,6 +11,7 @@ import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
+import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DatePattern
 import org.apache.spark.sql.functions.col
 
@@ -74,5 +76,18 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
     preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
+  }
+
+  "Not enough evidence" should "return the type of text day and find the locale" in {
+    val impl = new DefaultAdaptiveChangeDateFormatImpl
+
+    val cluster1 = List(List("Sun","Aug", "2014"), List("Sun","Oct", "2009"), List("Mon","Sep", "2010"))
+
+    val foundTextDateField = impl.findValidPatternAndLocale(cluster1)
+    println(foundTextDateField)
+    foundTextDateField should equal(
+      Map(0 -> Some(impl.TextDateField("E", Locale.US)),
+        // PANAMA spanish
+        1 -> Some(impl.TextDateField("MMM", new Locale("es", "PA")))))
   }
 }
