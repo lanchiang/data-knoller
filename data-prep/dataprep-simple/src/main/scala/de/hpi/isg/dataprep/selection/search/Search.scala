@@ -1,5 +1,5 @@
 package de.hpi.isg.dataprep.selection.search
 
-trait Search[Vertex, Edge] {
-  def getNext(): (Vertex, Edge)
+trait Search[Node, Edge] {
+  def getNext(start: Node): (Edge, Node)
 }

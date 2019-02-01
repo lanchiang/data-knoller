@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.selection
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog
 
-class Preparation[T <: Preparator](val preparator: T) {
+class Preparation(val preparator: Preparator) {
   /**
     * Check whether this preparator along with the previous one cause pipeline-level errors.
     *

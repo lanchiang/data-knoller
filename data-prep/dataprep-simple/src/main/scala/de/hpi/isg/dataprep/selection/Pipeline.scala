@@ -9,7 +9,7 @@ import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
 
-class Pipeline(val dataContext: DataContext, preparations: Preparation[_ <: Preparator]*) {
+class Pipeline(val dataContext: DataContext, preparations: Preparation*) {
   val name = "default-pipeline"
   val dataSetName: String = dataContext.getDialect.getTableName
   val rawData: Dataset[Row] = dataContext.getDataFrame
