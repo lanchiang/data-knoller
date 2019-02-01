@@ -186,11 +186,12 @@ class DefaultSplitPropertyImpl extends AbstractPreparatorImpl {
 
   def evaluateSplit(column: Dataset[String], separator: Separator, numCols: Int): Float = {
     import column.sparkSession.implicits._
+    val expectedNumSplits = numCols - 1
     column
-      .map(separator.getNumSplits)
-      .map(numSplits => numCols - Math.abs(numCols - numSplits))
+      .map(separator.getNumSplits(_) - 1)
+      .map(numSplits => expectedNumSplits - Math.abs(expectedNumSplits - numSplits))
       .map(rowScore => if (rowScore < 0) 0 else rowScore)
-      .collect.sum.toFloat / numCols / column.count()
+      .collect.sum.toFloat / expectedNumSplits / column.count()
   }
 
   def createSplitValuesDataFrame(dataFrame: DataFrame, propertyName: String, separator: Separator, times: Int, fromLeft: Boolean): Dataset[Row] = {
