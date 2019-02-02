@@ -1,0 +1,500 @@
+name	id	date	company_acquired	acquiring_company
+	/guid/9202a8c04000641f8000000006e576e4			World Extreme Cagefighting	Ultimate Fighting Championship
+	/guid/9202a8c04000641f8000000006e9ed1f	2006	Maritime Telecommunications Network	SeaMobile Enterprises
+	/guid/9202a8c04000641f8000000007bf2c62			Trump Shuttle	Shuttle Inc.
+	/guid/9202a8c04000641f8000000006cf9d46	1999	INS	Lucent Technologies
+	/guid/9202a8c04000641f8000000007085abf	2004-02-03	Gluon Networks	Zhone Technologies
+	/guid/9202a8c04000641f800000000727b22f	2007-08	Incando Corporation	Scripps Network
+	/guid/9202a8c04000641f8000000005fe03f3	1997	Maxis	Electronic Arts
+	/guid/9202a8c04000641f8000000006ab6333	2006-11	StoreAge Networking Technologies	LSI Corporation
+	/guid/9202a8c04000641f80000000072ff29e	2007-03-01	Mondowave Inc.	Leadis Technology
+	/guid/9202a8c04000641f80000000070a9a6b	2004	Vans	VF Corporation
+	/guid/9202a8c04000641f8000000008790281	1993	Freeman, Fox and Partners	Welsh Water
+	/guid/9202a8c04000641f8000000005f40c9b			Ventritex	St. Jude Medical
+	/guid/9202a8c04000641f8000000008528048	1957	Welex Jet Services	Halliburton
+	/guid/9202a8c04000641f8000000006aa2680	2004-06	Biomet		
+	/guid/9202a8c04000641f8000000006e80950	1998-06-25	Penederm	Mylan Laboratories Inc.
+	/guid/9202a8c04000641f8000000006e19adf	2007-09	Bridgestream	Oracle Corporation
+	/guid/9202a8c04000641f8000000006cf573c			Shomiti	Finisar
+	/guid/9202a8c04000641f8000000006cf9f41			Assured Access	Alcatel
+	/guid/9202a8c04000641f8000000006d44392	2006	Summit Design	Mentor Graphics
+	/guid/9202a8c04000641f80000000084515bb			Crackle	Sony Pictures Entertainment
+	/guid/9202a8c04000641f8000000006cfc095	1999-09	Quote.com	Terra Lycos
+	/guid/9202a8c04000641f80000000080feba4			Blogger	Google
+	/guid/9202a8c04000641f80000000086e53dd	1918	McLaughlin automobile	General Motors
+	/guid/9202a8c04000641f8000000006de287b	2001-02	Heartport Inc.	Johnson & Johnson
+	/guid/9202a8c04000641f8000000006abfd4f	2003	Rational Software	IBM
+	/guid/9202a8c04000641f80000000086e53b6	2005	MBNA	Bank of America
+	/guid/9202a8c04000641f800000000731b25c	2007-05	3Way Networks	Airvana
+	/guid/9202a8c04000641f8000000006e1b9e8	2006-01	360Commerce	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ed49fe	2007	Postini	Google
+	/guid/9202a8c04000641f8000000007399ea5	2005	Flickr	Yahoo!
+	/guid/9202a8c04000641f8000000006aae284	2002	PayPal	eBay
+	/guid/9202a8c04000641f8000000006ab2fb8	1999-07	Sequent Computer Systems	IBM
+	/guid/9202a8c04000641f8000000005f2b958			Primary Access	3Com
+	/guid/9202a8c04000641f800000000843d707	2008-05	Ars Technica	Condé Nast Publications
+	/guid/9202a8c04000641f8000000008744b78	1994	Def Jam Recordings	PolyGram
+	/guid/9202a8c04000641f8000000005f484f0	1998-11	Clarity Wireless, Inc	Cisco Systems
+	/guid/9202a8c04000641f8000000005f39f79			Entrisphere	Ericsson
+	/guid/9202a8c04000641f8000000006e576d8			PRIDE	Ultimate Fighting Championship
+	/guid/9202a8c04000641f80000000083f78d2	2007-04-27	Invoke Systems	Ascentium
+	/guid/9202a8c04000641f8000000006e779db	2005	EasyAsk	Progress Software
+	/guid/9202a8c04000641f80000000070a9a5b	2004-03-10	DC Shoes	Quiksilver
+	/guid/9202a8c04000641f80000000060ba4b5	2004-04	Marimba	BMC Software
+	/guid/9202a8c04000641f8000000008745281	2006-02-19	Netfrastructure	MySQL AB
+	/guid/9202a8c04000641f8000000006ac9b57	2006-05	Tireno	Det Norske Veritas
+	/guid/9202a8c04000641f8000000005f3e923	1969-01-01	New York, New Haven and Hartford Railroad	Penn Central Transportation
+	/guid/9202a8c04000641f8000000006e1ec41	2005-06	TimesTen	Oracle Corporation
+	/guid/9202a8c04000641f8000000006b73261	2007-02	Aceva Technologies	SunGard
+	/guid/9202a8c04000641f800000000707aa86	1997	Epic Design Technology	Synopsys
+	/guid/9202a8c04000641f80000000072ba93c	2007-05-30	Last.fm	CBS
+	/guid/9202a8c04000641f8000000006de1eb0					AOL
+	/guid/9202a8c04000641f8000000006e92977	2006-08	Userplane	AOL
+	/guid/9202a8c04000641f8000000006ab4bbd	1990	MTM Enterprises	Television South
+	/guid/9202a8c04000641f8000000005f2ebd7	2000-08	Onlink Technologies	Siebel Systems
+	/guid/9202a8c04000641f8000000006e76c2a	2005-04	There Inc.	Makena Technologies
+	/guid/9202a8c04000641f8000000006b69fc1	2000	eGroups	Yahoo!
+	/guid/9202a8c04000641f8000000008057e39	2008-02-01	HDI	United Business Media
+	/guid/9202a8c04000641f8000000006d44fa3	1999	Stratum One	Cisco Systems
+	/guid/9202a8c04000641f8000000006cada24			Verisity Design	Cadence Design Systems
+	/guid/9202a8c04000641f8000000007c7db6a	2001-03	The Spark	Barnes & Noble
+	/guid/9202a8c04000641f8000000007dde8c8	2003	J.D. Edwards	PeopleSoft
+	/guid/9202a8c04000641f8000000005f3ce03	1998-01-26	Digital Equipment Corporation	Compaq
+	/guid/9202a8c04000641f8000000006ac2ecb			Virtock Technologies, Inc.	Media Machines
+	/guid/9202a8c04000641f80000000086e52e4	1968	Longman	Pearson PLC
+	/guid/9202a8c04000641f8000000005f4d41b					iUpload
+	/guid/9202a8c04000641f800000000878d8c4	1999	Poco Petroleums	Burlington Resources
+	/guid/9202a8c04000641f8000000006c7864b			Peakstream	LocalNet
+	/guid/9202a8c04000641f8000000006e9eb4a	2004	Eumax	Vette Corp.
+	/guid/9202a8c04000641f8000000006ac81c9	2005-01-11	SevenSpace	Sun Microsystems
+	/guid/9202a8c04000641f8000000006ff2a56			Charles Scribner's Sons	Gale
+	/guid/9202a8c04000641f8000000006f633a9	2007-07	InviteShare	TechCrunch
+	/guid/9202a8c04000641f8000000006ff2a5e			Greenhaven Press	Gale
+	/guid/9202a8c04000641f8000000005f582f3	2007-05	Logoworks	Hewlett-Packard
+	/guid/9202a8c04000641f8000000007390cf3			Vyant Technologies, Inc.	Mendocino Software
+	/guid/9202a8c04000641f8000000006b6def5			NetContinuum	Barracuda Networks
+	/guid/9202a8c04000641f8000000006cfac5b			Caughtoffside.com	Sportingo
+	/guid/9202a8c04000641f8000000006aca2fc	2007-01	HearMe	Paltalk
+	/guid/9202a8c04000641f80000000078e21be	2007-06-26	Serasa	Experian
+	/guid/9202a8c04000641f8000000005f2a5c8	2007-10	Oxygen media	NBC
+	/guid/9202a8c04000641f8000000006cf9f9e			Sun Microsystems		
+	/guid/9202a8c04000641f8000000006e57d73	2006-11	YouTube	Google
+	/guid/9202a8c04000641f8000000007ba14a7	1998	J. B. White	Dillard's
+	/guid/9202a8c04000641f8000000006ab389e	2007-10	Frappr	Platial
+	/guid/9202a8c04000641f8000000006ad4d78			Mozy	EMC Corporation
+	/guid/9202a8c04000641f8000000006ac9b48	2006-05	Echelon	Det Norske Veritas
+	/guid/9202a8c04000641f80000000070a9abf	2004-06-15	Kipling	VF Corporation
+	/guid/9202a8c04000641f80000000072fcd85			Ipath	The Timberland Company
+	/guid/9202a8c04000641f80000000078e21b2	2006	ClarityBlue	Experian
+	/guid/9202a8c04000641f80000000086e534c	2005	Lycoris	Mandriva
+	/guid/9202a8c04000641f8000000006cfbf35	2006-01	Centra Software	Saba Software
+	/guid/9202a8c04000641f8000000006ca84bd					Cisco Systems
+	/guid/9202a8c04000641f800000000745452c			Georgia-Pacific	Koch Industries
+	/guid/9202a8c04000641f8000000006ac81e0	2004-01-12	Strangeberry	TiVo
+	/guid/9202a8c04000641f80000000086e53f5	2001-09	Microware	RadiSys
+	/guid/9202a8c04000641f8000000006cf9bc6			Onetta, Inc	Bookham
+	/guid/9202a8c04000641f80000000083f78ba	2007-03-12	Centerlogic	Ascentium
+	/guid/9202a8c04000641f8000000006e77b4c			Reflectent Software	Citrix Systems
+	/guid/9202a8c04000641f8000000008641b72	2004-08	Uecomm	Optus
+	/guid/9202a8c04000641f8000000005f2b7cd	1995	Collabra Software	Netscape
+	/guid/9202a8c04000641f8000000006e02740			DiCarta	Emptoris
+	/guid/9202a8c04000641f8000000006e999d2			FeedBurner	Google
+	/guid/9202a8c04000641f8000000006aa2e5b	2005-12-03	Macromedia	Adobe Systems
+	/guid/9202a8c04000641f800000000805993a	2008	Picdar	Nstein
+	/guid/9202a8c04000641f8000000008528042	1962	Kellogg, Brown and Root	Halliburton
+	/guid/9202a8c04000641f80000000070cc080	2004-03-16	Cardiff Software	Verity Inc
+	/guid/9202a8c04000641f8000000006de1f0b			Aspect Development	I2 Technologies
+	/guid/9202a8c04000641f8000000005ff072b	2007-05-23	Cambia Security, Inc.	nCircle Network Security, Inc.
+	/guid/9202a8c04000641f8000000006ad3bc3	2004-06	Interpore	Biomet
+	/guid/9202a8c04000641f8000000006e7ebf0	2007	ExpertVillage	Demand Media
+	/guid/9202a8c04000641f80000000080d9535	1998	Cascadian Farm	Small Planet Foods
+	/guid/9202a8c04000641f8000000006ae741c	2006-11	Lipman Electronic Engineering	VeriFone
+	/guid/9202a8c04000641f80000000070a9a08	2005	Skis Rossignol	Quiksilver
+	/guid/9202a8c04000641f8000000006e9252a			Afara	Sun Microsystems
+	/guid/9202a8c04000641f8000000006e90ca9	2007-10-08	Parlano	Microsoft
+	/guid/9202a8c04000641f8000000006e1a6e6	2007-10	Interlace Systems	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ce708b	2007-12	LGC Wireless	ADC Telecommunications
+	/guid/9202a8c04000641f8000000006ff2a74			Sleeping Bear Press	Gale
+	/guid/9202a8c04000641f8000000008059924			Valsar	Nstein
+	/guid/9202a8c04000641f8000000006e94236			Jaiku	Google
+	/guid/9202a8c04000641f8000000006c9d05f			NetScreen Technologies	Juniper Networks
+	/guid/9202a8c04000641f8000000006c7c9e4	2000	Springbank	Blue Coat Systems
+	/guid/9202a8c04000641f8000000007443683	2003	Kline Iron and Steel	American Tower Corporation
+	/guid/9202a8c04000641f80000000063313f3	2006-12	Connetics	Stiefel Laboratories
+	/guid/9202a8c04000641f8000000006e9feff	2004-05	Youth Media & Marketing Networks	Collegiate Funding Services
+	/guid/9202a8c04000641f8000000005fec099	2005	Topspin Communications	Cisco Systems
+	/guid/9202a8c04000641f8000000007b43894	1979	Green Giant	Pillsbury Company
+	/guid/9202a8c04000641f8000000006ad7595			Norton Utilities	Symantec
+	/guid/9202a8c04000641f8000000006ab6aea	2000	Acuson	Siemens AG
+	/guid/9202a8c04000641f8000000006cf54bf			VINA Technologies	Verilink
+	/guid/9202a8c04000641f8000000006f48572	2008-01-16	Electric Visual Evolution, LLC	Volcom
+	/guid/9202a8c04000641f800000000878d6e9	1980-11-21	St. Louis-San Francisco Railway	Burlington Northern Railroad
+	/guid/9202a8c04000641f8000000006c6eaef			Rhapsody Networks	Brocade Communications Systems
+	/guid/9202a8c04000641f800000000743728c	1996	StrataCom	Cisco Systems
+	/guid/9202a8c04000641f800000000747794b	2007-12	Edgeio	Vast
+	/guid/9202a8c04000641f8000000006ad6743	2007-07	PacketHop	SRI International
+	/guid/9202a8c04000641f800000000760be9f			TSR, Inc.	Wizards of the Coast
+	/guid/9202a8c04000641f8000000007bf487d			EduCards	E.S.R. Inc.
+	/guid/9202a8c04000641f80000000060a60f5	2007-08	XenSource	Citrix Systems
+	/guid/9202a8c04000641f8000000006e1dc54	2005-10	Innobase	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e8686d	2003	eMusic	Dimensional Associates
+	/guid/9202a8c04000641f80000000080d964b	1986	Barbara's Bakery	Weetabix
+	/guid/9202a8c04000641f80000000086e77da	2005-01	nCUBE	C-COR
+	/guid/9202a8c04000641f8000000006ab1ffd					Digital Origins
+	/guid/9202a8c04000641f8000000006e9ae61	2004	Cerberian	Blue Coat Systems
+	/guid/9202a8c04000641f8000000006c9d0b1			Netiverse	Cisco Systems
+	/guid/9202a8c04000641f8000000006e7379d	2007-03	Tabblo	Hewlett-Packard
+	/guid/9202a8c04000641f8000000008784bc0			Afferent Systems	Elsevier MDL
+	/guid/9202a8c04000641f8000000005f4d0a1	2004	Integrated Systems Engineering AG	Synopsys
+	/guid/9202a8c04000641f8000000005f4d25f	1994	CADIS gmbH	Synopsys
+	/guid/9202a8c04000641f8000000005fe6e0a	2005-09-01	Evant, Inc.	Manhattan Associates
+	/guid/9202a8c04000641f8000000006d26954			Medicode	Applied HealthCare
+	/guid/9202a8c04000641f8000000006e1bf8b	2006-10	MetaSolv Software	Oracle Corporation
+	/guid/9202a8c04000641f8000000007065d2a	2007-04-25	BeVocal	Nuance Communications
+	/guid/9202a8c04000641f8000000006f5bbcc	2007-07				
+	/guid/9202a8c04000641f8000000006e7a888	2007	Cuts	RiffTrax
+	/guid/9202a8c04000641f8000000006e75101			Extensity	Infor Global Solutions
+	/guid/9202a8c04000641f8000000006f5243f	2007-04	Dynamoid	Sulake
+	/guid/9202a8c04000641f8000000006ead090			Redback Networks	Ericsson
+	/guid/9202a8c04000641f8000000006ea3da4			Mad4Milk.net	Freewebs
+	/guid/9202a8c04000641f80000000086e52a5	1986	LJN	Music Corporation of America
+	/guid/9202a8c04000641f80000000080feb9a			DoubleClick	Google
+	/guid/9202a8c04000641f800000000812f72b	2007-12-12	Adams Respiratory Therapeutics, Inc.	Reckitt Benckiser
+	/guid/9202a8c04000641f80000000086d472d					Rambøll Group
+	/guid/9202a8c04000641f8000000006e1d08a	2006-10	Sunopsis	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e7a893					RiffTrax
+	/guid/9202a8c04000641f8000000005f4d40d						
+	/guid/9202a8c04000641f800000000878d8be	2006	Burlington Resources	ConocoPhillips
+	/guid/9202a8c04000641f80000000070a9a8d	2007	Seven for all Mankind	VF Corporation
+	/guid/9202a8c04000641f8000000006aa3b52	2003	Walker Interactive Systems	SSA Global Technologies
+	/guid/9202a8c04000641f8000000006c9d661			MaxComm Technologies	Cisco Systems
+	/guid/9202a8c04000641f8000000006e77cf1			Insider Pages	Citysearch
+	/guid/9202a8c04000641f8000000007254f70			EO Inc	AT&T
+	/guid/9202a8c04000641f80000000086e51e1	2000-01	Interleaf	BroadVision Inc.
+	/guid/9202a8c04000641f8000000006c7b037			Syndesis Limited	Subex Azure
+	/guid/9202a8c04000641f8000000005f3c705			Achex	First Data
+	/guid/9202a8c04000641f80000000086e536e	1974	Magnavox	Philips Consumer Electronics
+	/guid/9202a8c04000641f80000000086e53ee	1984	MetaComCo	Commodore International
+	/guid/9202a8c04000641f8000000006e1ca54	2006-08	Sigma Dynamics	Oracle Corporation
+	/guid/9202a8c04000641f80000000080feb9f			JotSpot	Google
+	/guid/9202a8c04000641f8000000006c9cf5c	1998	Pipelinks	Cisco Systems
+	/guid/9202a8c04000641f8000000006e1d4f1	2005-07	Context Media	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e809b0	1998-11-09	FemRx	Ethicon Inc.
+	/guid/9202a8c04000641f8000000006cfbf26	2005-05	THINQ Learning Solutions	Saba Software
+	/guid/9202a8c04000641f8000000005f40d6b	1997-08-14	NYNEX	Bell Atlantic
+	/guid/9202a8c04000641f8000000007b4389a	1972	Burger King	Pillsbury Company
+	/guid/9202a8c04000641f8000000006cf54ee			Telera	Alcatel
+	/guid/9202a8c04000641f8000000006cfa955	2002	Overture	Yahoo!
+	/guid/9202a8c04000641f80000000086e7900	1998	Orion Pictures	Metro-Goldwyn-Mayer
+	/guid/9202a8c04000641f80000000070a9a4f	2004	Hurley International	Nike, Inc.
+	/guid/9202a8c04000641f8000000006aa337e	1998	Molecular Dynamics	GE Healthcare
+	/guid/9202a8c04000641f8000000005fe311e	2003-04	Get2Chip	Cadence Design Systems
+	/guid/9202a8c04000641f8000000006f592ba	1996	CompCore Multimedia, Inc.	Zoran Corp.
+	/guid/9202a8c04000641f8000000007a085f7	1983	Banana Republic	Gap Inc.
+	/guid/9202a8c04000641f8000000006e8286b	2007-05	Digital Photography Review	Amazon.com
+	/guid/9202a8c04000641f8000000008744c11	2000-02	Canada Trust	Toronto-Dominion Bank
+	/guid/9202a8c04000641f8000000007085f10			Pure Atria Software	Rational Software
+	/guid/9202a8c04000641f8000000006e81720	2007-03			Oracle Corporation
+	/guid/9202a8c04000641f8000000005f4e6ce	2001	Informix	IBM
+	/guid/9202a8c04000641f8000000006e99c89	2007-07	Photobucket	Fox Interactive Media
+	/guid/9202a8c04000641f8000000006aca1f5	2007	Celsys Biofuels Inc.	Mascoma Corporation
+	/guid/9202a8c04000641f8000000006cfbe09			ShopStyle	Sugar, Inc.
+	/guid/9202a8c04000641f80000000070a9eb1			RSA Security	EMC Corporation
+	/guid/9202a8c04000641f8000000006cfc51e			Atom Entertainment	Viacom
+	/guid/9202a8c04000641f8000000008059946			KM Technologies	Nstein
+	/guid/9202a8c04000641f8000000006e57a5f			Passave	PMC-Sierra
+	/guid/9202a8c04000641f8000000006c7a93e			Versatile Optical Networks	Vitesse Semiconductor
+	/guid/9202a8c04000641f8000000006cf5ab7			RightWorks	I2 Technologies
+	/guid/9202a8c04000641f8000000006b6ed4d	2001	Obongo	AOL
+	/guid/9202a8c04000641f8000000006f49e27	2004	Kelkoo	Yahoo!
+	/guid/9202a8c04000641f8000000006e1e807	2005-12	TempoSoft	Oracle Corporation
+	/guid/9202a8c04000641f80000000060b4b67			Intersperse	Tidal Software
+	/guid/9202a8c04000641f8000000006d2efee	1994	Magellan Navigation	Orbital Sciences Corporation
+	/guid/9202a8c04000641f8000000005f2da63	1997	Cascade Communications	Ascend Communications
+	/guid/9202a8c04000641f8000000006e1970a	2007-04	AppForge	Oracle Corporation
+	/guid/9202a8c04000641f8000000005f2da9c			Livingston Enterprises	Ascend Communications
+	/guid/9202a8c04000641f80000000060b5afc	2007-09	Zimbra	Yahoo!
+	/guid/9202a8c04000641f8000000008641b79	2006-01-12	Virgin Mobile Australia	Optus
+	/guid/9202a8c04000641f80000000086e4c64	1946	Hogarth Press	Chatto and Windus
+	/guid/9202a8c04000641f8000000006cfc223	1998	LinkExchange	Microsoft
+	/guid/9202a8c04000641f8000000006d439ab	2007	Terayon	Motorola
+	/guid/9202a8c04000641f8000000006e7ec9d			EHow	Demand Media
+	/guid/9202a8c04000641f8000000006ac8287	2001-05-11	Avogadro	Openwave
+	/guid/9202a8c04000641f8000000005fe03fc	1998	Westwood Studios	Electronic Arts
+	/guid/9202a8c04000641f80000000076d580a			Telgua	América Móvil
+	/guid/9202a8c04000641f8000000006ab4bd6	1997	International Family Entertainment Inc.	Fox Kids
+	/guid/9202a8c04000641f8000000006df573d	2001	C-Cube Microsystems	LSI Corporation
+	/guid/9202a8c04000641f8000000007bf2c73			Shuttle Inc.	US Airways
+	/guid/9202a8c04000641f80000000060b8ead			Pivotal	CDC
+	/guid/9202a8c04000641f8000000005f2a4c5			Cygnus Solutions	Red Hat Software
+	/guid/9202a8c04000641f8000000005f34956			Interlink Computer Sciences	CA Inc.
+	/guid/9202a8c04000641f8000000006e1bbe2	2006-06	Demantra	Oracle Corporation
+	/guid/9202a8c04000641f80000000060ba79f	2006-05	iVillage	NBC Universal
+	/guid/9202a8c04000641f8000000005f4a046			Xircom	Intel Corporation
+	/guid/9202a8c04000641f8000000006ea5b8c	2007-10	Jellyfish	Microsoft
+	/guid/9202a8c04000641f8000000006e59658	2007-09-25	Vivato	Catcher Holdings
+	/guid/9202a8c04000641f8000000006e74acd	2007-08	Determina	VMware
+	/guid/9202a8c04000641f8000000005f2db3d	1996	Morning Star Technologies	Ascend Communications
+	/guid/9202a8c04000641f80000000070a9e2a			Velogic	Keynote Systems
+	/guid/9202a8c04000641f8000000006ea3be5			Fotolog	Hi-Media
+	/guid/9202a8c04000641f8000000006ea19b5	2007-08	Cycling.tv	JumpTV
+	/guid/9202a8c04000641f8000000005f2a514			Sistina Software	Red Hat Software
+	/guid/9202a8c04000641f8000000005f2a5fe	2007-09	Right Media	Yahoo!
+	/guid/9202a8c04000641f80000000080d92a4	2000	Kashi Company	Kellogg Company
+	/guid/9202a8c04000641f80000000086e51ef	2000-11	Jaleco	PCCW
+	/guid/9202a8c04000641f80000000070f16f5	2008-02-05	DNA Distribution	Burton
+	/guid/9202a8c04000641f8000000006abf099			MetaMatrix	Red Hat Software
+	/guid/9202a8c04000641f8000000005f51627	2007-11-05	Vontu	Symantec
+	/guid/9202a8c04000641f8000000006e1e601	2005-04	Retek	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e80905			3dfx	NVIDIA
+	/guid/9202a8c04000641f8000000006e7cbc6	2005	del.icio.us	Yahoo!
+	/guid/9202a8c04000641f8000000006e1de06	2005-03	Oblix	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ab6593	1999-06	VLSI Technology	Phillips Electronics NV
+	/guid/9202a8c04000641f8000000006e7fce3	2005-04-18	Cryovascular	Boston Scientific
+	/guid/9202a8c04000641f80000000086d5145	1990	Lear Jet	Bombardier
+	/guid/9202a8c04000641f8000000006e1ea6d	2005-11	Thor Technologies	Oracle Corporation
+	/guid/9202a8c04000641f8000000007b43884	2001	Pillsbury Company	General Mills
+	/guid/9202a8c04000641f80000000083f78c6	2007-12-17	MillerWhiteRunkle	Ascentium
+	/guid/9202a8c04000641f8000000006e9ae70	2006	Permeo Technologies	Blue Coat Systems
+	/guid/9202a8c04000641f8000000006ea4459	2007-11	Yedda	AOL
+	/guid/9202a8c04000641f8000000006ff2a81			Wheeler Publishing	Gale
+	/guid/9202a8c04000641f8000000006ff1c1b			DiTango	Sling Media Inc.
+	/guid/9202a8c04000641f8000000006e19850	2007-07	Bharosa	Oracle Corporation
+	/guid/9202a8c04000641f8000000005f52516					USWeb
+	/guid/9202a8c04000641f8000000005f40b15	1996	Cray Research, Inc.	Silicon Graphics, Inc.
+	/guid/9202a8c04000641f8000000006cfc5a1	2007	Agile	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e1c421	2006-04	Portal Software	Oracle Corporation
+	/guid/9202a8c04000641f800000000696d2d5	2004	Niragongo Ltd.	Unipier
+	/guid/9202a8c04000641f8000000006e9ed37			Geolink	SeaMobile Enterprises
+	/guid/9202a8c04000641f8000000006de1d24			Documentum	EMC Corporation
+	/guid/9202a8c04000641f8000000006e810b1			Dotspotter	CBS
+	/guid/9202a8c04000641f800000000805992f			Alis Technologies	Nstein
+	/guid/9202a8c04000641f8000000006e868a4	2001	eMusic	VU Net USA
+	/guid/9202a8c04000641f8000000005feb68b	2007-10	LogicalApps	Oracle Corporation
+	/guid/9202a8c04000641f800000000878d8d0	2001	Canadian Hunter Exploration	Burlington Resources
+	/guid/9202a8c04000641f800000000852805b	1988	Geophysical Service Incorporated	Halliburton
+	/guid/9202a8c04000641f8000000006cfc4ba	2003	CenterRun	Sun Microsystems
+	/guid/9202a8c04000641f8000000006e7ebe3						
+	/guid/9202a8c04000641f8000000006e9f01c	2004-05	MobileGame Korea	Hands-On Mobile, Inc.
+	/guid/9202a8c04000641f8000000006ad0428	2007	Clipmarks	Forbes
+	/guid/9202a8c04000641f8000000008744b72	1998	Def Jam Recordings	Universal Music Group
+	/guid/9202a8c04000641f8000000008784bb7			Elsevier MDL	Symyx Technologies
+	/guid/9202a8c04000641f8000000005f2a4aa			JBoss	Red Hat Software
+	/guid/9202a8c04000641f800000000843d701			Wired	Condé Nast Publications
+	/guid/9202a8c04000641f8000000006e76730	2003-11	Neoteris	NetScreen Technologies
+	/guid/9202a8c04000641f8000000005f4c5d7	2007-08			Dell
+	/guid/9202a8c04000641f8000000006c9d13b			Monterey Networks	Cisco Systems
+	/guid/9202a8c04000641f8000000006e1ee1b	2005-06	TripleHop	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ea623f	2006-05	GoJobby.com	Jobster
+	/guid/9202a8c04000641f80000000086e51f9	1956	Jowett	Blackburn Aircraft
+	/guid/9202a8c04000641f80000000086e528c	1949	Lime Grove Studios	BBC
+	/guid/9202a8c04000641f8000000006f49e69					Kelkoo
+	/guid/9202a8c04000641f8000000006e9eaae	2006	ERM Thermal Technologies, Inc.	Vette Corp.
+	/guid/9202a8c04000641f8000000006cf580e	1999	Sentient Networks	Cisco Systems
+	/guid/9202a8c04000641f80000000086e51da	1989	Industrija motornih vozil	Renault
+	/guid/9202a8c04000641f8000000006e1cdac	2006-11	SPL WorldGroup	Oracle Corporation
+	/guid/9202a8c04000641f8000000008781861			Trans World Airlines	American Airlines
+	/guid/9202a8c04000641f8000000006cd8193	2004	Epicor Medical	St. Jude Medical
+	/guid/9202a8c04000641f800000000865c299			Alpine Bikes Ltd	Graham Tiso Ltd
+	/guid/9202a8c04000641f8000000006cf5de2			MySpace	News Corporation
+	/guid/9202a8c04000641f8000000006cfa0f8			Allegro Systems	Cisco Systems
+	/guid/9202a8c04000641f80000000086d43ca	1993	Hahn Brewery	Lion Nathan
+	/guid/9202a8c04000641f80000000080d92b6	2007-11	Bear Naked	Kashi Company
+	/guid/9202a8c04000641f8000000006cf9e38	2003	Guardent, Inc.	VeriSign
+	/guid/9202a8c04000641f8000000006e947df			Sven Technologies	Spatial Technology, Inc.
+	/guid/9202a8c04000641f8000000006ba2416	2006-12-04	St. Francis Medical Technologies	Kyphon
+	/guid/9202a8c04000641f8000000006e9f6a1	2006-04	Xfire	Viacom
+	/guid/9202a8c04000641f8000000007e4bdd8	2002-05-03	Compaq	Hewlett-Packard
+	/guid/9202a8c04000641f8000000006ab4be1	2002	Fox Kids	The Walt Disney Company
+	/guid/9202a8c04000641f8000000006e9bce4	2007-05	Flektor	Fox Interactive Media
+	/guid/9202a8c04000641f80000000060b5cad			Virsa Systems	SAP AG
+	/guid/9202a8c04000641f80000000070a96a7	2006-05-22	Performance Retail	Dresser Wayne
+	/guid/9202a8c04000641f8000000006ad04b9	2007	Club Penguin	The Walt Disney Company
+	/guid/9202a8c04000641f8000000006ac0b62	2007-08	Maya's Mom	BabyCenter
+	/guid/9202a8c04000641f8000000005fea167	2003-04	All-Wet Technologies	NEXX Systems
+	/guid/9202a8c04000641f8000000006e13126	2006-10	MOVO Mobile	Neighborhood America
+	/guid/9202a8c04000641f8000000006ac363e	2007-11	Quigo	AOL
+	/guid/9202a8c04000641f8000000006e9ae31	1996	Scalable Data Systems	Blue Coat Systems
+	/guid/9202a8c04000641f8000000006f592d9	2004-07	Emblaze Semiconductor Ltd	Zoran Corp.
+	/guid/9202a8c04000641f8000000006cfbc53	1997	Visigenic Software	Borland
+	/guid/9202a8c04000641f8000000006f524d3	2005-10	Upcoming	Yahoo!
+	/guid/9202a8c04000641f8000000006de1ec2	1998	AtWeb	Netscape
+	/guid/9202a8c04000641f8000000006e77930			DataSage	Vignette
+	/guid/9202a8c04000641f8000000006c619ff	2007-09	Sling Media Inc.	EchoStar Communications Corporation
+	/guid/9202a8c04000641f800000000727afe8	2007-07	Recipezaar	Scripps Network
+	/guid/9202a8c04000641f8000000006cf9df9	2007-04	Hyperion Solutions	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ca93f0			Ardent Communications	Cisco Systems
+	/guid/9202a8c04000641f80000000070a9f49			Oacis Healthcare Systems	Science Applications International Corporation
+	/guid/9202a8c04000641f8000000006b80e6d			NetScaler	Citrix Systems
+	/guid/9202a8c04000641f8000000006ac6994			IMlogic	Symantec
+	/guid/9202a8c04000641f8000000006e9b5dd			Club Penguin Entertainment Inc	The Walt Disney Company
+	/guid/9202a8c04000641f8000000006ea624e	2005-08	WorkZoo.com	Jobster
+	/guid/9202a8c04000641f8000000006e1afd1	2007-12	Moniforce	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e77ae2			Onexchange	The Clearing Corporation
+	/guid/9202a8c04000641f8000000006e77f4e			TalkingBlocks	Hewlett-Packard
+	/guid/9202a8c04000641f8000000006de1db2	1999-05	Billpoint	eBay
+	/guid/9202a8c04000641f8000000007dde8ce	1999	Vantive	PeopleSoft
+	/guid/9202a8c04000641f8000000006e9ae43	2000	Entera	Blue Coat Systems
+	/guid/9202a8c04000641f8000000007477937	2007-12	Edgeio	LookSmart
+	/guid/9202a8c04000641f8000000005f2da5a	1999	Ascend Communications	Lucent Technologies
+	/guid/9202a8c04000641f8000000008781866					American Airlines
+	/guid/9202a8c04000641f8000000006ab201b			Media 100	Radius
+	/guid/9202a8c04000641f8000000006e1bda2	2006-02	HotSip	Oracle Corporation
+	/guid/9202a8c04000641f8000000006f4a6c5	2007-09	ZingFu.com	ProfileBuilder
+	/guid/9202a8c04000641f80000000086e77ed			Norsk Data	Telenor
+	/guid/9202a8c04000641f8000000006cf9fc8			Abrizio	PMC-Sierra
+	/guid/9202a8c04000641f8000000006cfbe53			Sugar Network	Sugar, Inc.
+	/guid/9202a8c04000641f8000000008744b3a	2004	Roc-A-Fella Records	Def Jam Recordings
+	/guid/9202a8c04000641f80000000060bb0da	2006	Internet Security Systems	IBM
+	/guid/9202a8c04000641f8000000005f4d424	2003-03	WebPartz	iUpload
+	/guid/9202a8c04000641f80000000060b8934	2006	Epiphany	Infor
+	/guid/9202a8c04000641f80000000070a6037	2007-06-05	Pathfire	DG FastChannel
+	/guid/9202a8c04000641f800000000679dc26	2000-01	Visio	Microsoft
+	/guid/9202a8c04000641f8000000006e1c7d2	2006-01	Siebel Systems	Oracle Corporation
+	/guid/9202a8c04000641f8000000006e1e3d6	2005-07	ProfitLogic	Oracle Corporation
+	/guid/9202a8c04000641f8000000006cb7cb6	2005	Plumtree Software	BEA Systems
+	/guid/9202a8c04000641f8000000006e77a7d			Oberon Software	OnDisplay
+	/guid/9202a8c04000641f80000000072ff802	2005-11-30	Agility Communications	JDS Uniphase
+	/guid/9202a8c04000641f800000000859a2ea	2007-08			Rambøll Group
+	/guid/9202a8c04000641f8000000005f23246			Hecht's	Federated Department Stores
+	/guid/9202a8c04000641f80000000086e52fd	1989	Lorimar-Telepictures	Warner Communications
+	/guid/9202a8c04000641f8000000006ff2a67			Lucent Books	Gale
+	/guid/9202a8c04000641f8000000006e750d1					Geac
+	/guid/9202a8c04000641f80000000060b7127			SourceForge	CollabNet
+	/guid/9202a8c04000641f800000000693d945	2004-02	ON Technology	Symantec
+	/guid/9202a8c04000641f8000000006ac7493	1996	Tivoli Systems, Inc.	IBM
+	/guid/9202a8c04000641f8000000006e7cfe3	2007-07	TripUp	SideStep Inc.
+	/guid/9202a8c04000641f80000000074773a9	2007-04-11	Personal Bee	Technorati
+	/guid/9202a8c04000641f8000000006aa4172	1995	Univax	NABI Biopharmaceuticals
+	/guid/9202a8c04000641f80000000080f909d	1986	Smartfoods	PepsiCo
+	/guid/9202a8c04000641f8000000006cfc2b1			GlobalCenter	Exodus Communications
+	/guid/9202a8c04000641f80000000070cc0ec	2004-12-16	Dralasoft	Verity Inc
+	/guid/9202a8c04000641f8000000006f59493	2007-07	GrandCentral	Google
+	/guid/9202a8c04000641f80000000070cc033	2005-11-04	Verity Inc	Autonomy Corporation
+	/guid/9202a8c04000641f8000000005fe6f25	2006			Infor Global Solutions
+	/guid/9202a8c04000641f8000000005f5161e	2007-11-05	EqualLogic	Dell
+	/guid/9202a8c04000641f80000000070a9eb8			Tablus	EMC Corporation
+	/guid/9202a8c04000641f8000000006c6e9a3			VitalSigns	Alcatel-Lucent
+	/guid/9202a8c04000641f80000000080d9519	2000	Small Planet Foods	General Mills
+	/guid/9202a8c04000641f8000000007314434	2000-09	LMi.net	Internet Commerce and Communications
+	/guid/9202a8c04000641f80000000060bb274	2006	Focal, Inc.	Genzyme
+	/guid/9202a8c04000641f8000000005f2312f	2005	Determine Software	Selectica
+	/guid/9202a8c04000641f8000000005f35d15	1997	Pure Software		
+	/guid/9202a8c04000641f8000000005f2dad9	1996	Netstar	Ascend Communications
+	/guid/9202a8c04000641f80000000086e78c6	1999	Nullsoft	AOL
+	/guid/9202a8c04000641f8000000006e85eca	2007-04	Gaming Everywhere	Ujogo
+	/guid/9202a8c04000641f8000000006e1add3	2007-04	LODESTAR	Oracle Corporation
+	/guid/9202a8c04000641f8000000006aa0c39	1995	Pacific Hydro	IFM Renewable Energy
+	/guid/9202a8c04000641f8000000006f6c90c	2006	Revolution Money	Revolution LLC
+	/guid/9202a8c04000641f8000000006cfc505			EmailAdvisor	Lyris
+	/guid/9202a8c04000641f8000000006c57ca0	2005	Skype	eBay
+	/guid/9202a8c04000641f8000000006ae8843	2006-11-08	Mobile 365	Sybase
+	/guid/9202a8c04000641f8000000006e1b67d	2007-09	Netsure Telecom Limited	Oracle Corporation
+	/guid/9202a8c04000641f8000000005f2db7c	1998	Stratus Technologies	Ascend Communications
+	/guid/9202a8c04000641f8000000006e9a4dd	2007-05	Wallstrip	CBS
+	/guid/9202a8c04000641f8000000006f5b577	2006-02	iStockphoto	Getty Images
+	/guid/9202a8c04000641f80000000086d51c0	2007-11-27	Columbia Aircraft	Cessna
+	/guid/9202a8c04000641f8000000007078138	1997	Centerview Software	Informix
+	/guid/9202a8c04000641f80000000060b90a0	2003-12	Daedalus	ByteMobile
+	/guid/9202a8c04000641f8000000007622a59			ClearForest	Reuters Group plc
+	/guid/9202a8c04000641f8000000006abb805	2007-10	BlueLithium	Yahoo!
+	/guid/9202a8c04000641f8000000006ac9b19	2006-05-02	CIBIT	Det Norske Veritas
+	/guid/9202a8c04000641f80000000074436f9	2004	Kline Iron and Steel	SPX Corporation
+	/guid/9202a8c04000641f8000000006d46551	2007	SpectraLink	Polycom
+	/guid/9202a8c04000641f8000000006e77a47			Novera Software	Mercator
+	/guid/9202a8c04000641f8000000005f4dd94			AllPosters.com	Art.com
+	/guid/9202a8c04000641f8000000006abda03			Bubble Guru	KShermanStudios LLC
+	/guid/9202a8c04000641f8000000007b2ffec			Scaled Composites	Northrop Grumman
+	/guid/9202a8c04000641f8000000007b4388e	1989	Pillsbury Company	Diageo
+	/guid/9202a8c04000641f80000000060b9337			Cemprus LLC	Stratus Technologies
+	/guid/9202a8c04000641f8000000006c7a303					Vitesse Semiconductor
+	/guid/9202a8c04000641f80000000060b90af	2003-05	Broadcloud	ByteMobile
+	/guid/9202a8c04000641f8000000006b79876			Marketwire	CCNMatthews
+	/guid/9202a8c04000641f8000000006c7cb2a			Spatial Wireless	Alcatel-Lucent
+	/guid/9202a8c04000641f8000000005f4decd			Friedrichshafen Flugzeugbau	Dornier Flugzeugwerke
+	/guid/9202a8c04000641f8000000006d6ab3a	2006-08	CollegeHumor	IAC/InterActiveCorp
+	/guid/9202a8c04000641f8000000006944f5b	1998	Shiva	Intel Corporation
+	/guid/9202a8c04000641f80000000086e54bc	1998	Mushroom Records	News Corporation
+	/guid/9202a8c04000641f8000000006e018ed	2007	Navini Networks	Cisco Systems
+	/guid/9202a8c04000641f8000000006de2d3f	2007-05	StumbleUpon	eBay
+	/guid/9202a8c04000641f800000000730239f			Anchor Blue Clothing Company	Sun Capital Partners, Inc
+	/guid/9202a8c04000641f8000000005f23d08			Alexa Internet	Amazon.com
+	/guid/9202a8c04000641f80000000078fa8c8	2004	Claritas	Acxiom
+	/guid/9202a8c04000641f8000000006cfbe18			Coutorture	Sugar, Inc.
+	/guid/9202a8c04000641f8000000005f3e92e	1969-01-01				
+	/guid/9202a8c04000641f800000000750991a	2006	MonsterCommerce, LLC	Network Solutions
+	/guid/9202a8c04000641f80000000082f6139	2006-03-16	The Body Shop	L'Oréal
+	/guid/9202a8c04000641f80000000060bb99e	2005	Corixa	GlaxoSmithKline
+	/guid/9202a8c04000641f8000000006e1c15e	2006-04	Net4Call	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ab4bc8	1993	Television South	International Family Entertainment Inc.
+	/guid/9202a8c04000641f8000000006e1b807	2007-03	Tangosol	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ac9b39	2006-05	Q labs	Det Norske Veritas
+	/guid/9202a8c04000641f80000000070a9a97	2007	Lucy activewear	VF Corporation
+	/guid/9202a8c04000641f80000000086e5299	1845	Liverpool and Manchester Railway	Grand Junction Railway
+	/guid/9202a8c04000641f80000000078e219a	2003	Scorex	Experian
+	/guid/9202a8c04000641f8000000006aa2705	1998	Quickturn Design Systems	Cadence Design Systems
+	/guid/9202a8c04000641f80000000070a9629	2001	Ariel Corp	Mayan Networks
+	/guid/9202a8c04000641f8000000006cf9d95	2006	InCode	VeriSign
+	/guid/9202a8c04000641f80000000086e54a6	1976	MOS Technology	Commodore International
+	/guid/9202a8c04000641f8000000008641b6d			Optus	Cable & Wireless
+	/guid/9202a8c04000641f8000000006ac9bdc	2003	SERC	CIBIT
+	/guid/9202a8c04000641f8000000006e1dad2	2005-08	I-flex Solutions	Oracle Corporation
+	/guid/9202a8c04000641f8000000006c868d6	2005	Snapfish	Hewlett-Packard
+	/guid/9202a8c04000641f80000000078dd0f7	2007-04-19	Hitwise	Experian
+	/guid/9202a8c04000641f8000000006e9ae52	2003	Ositis Software	Blue Coat Systems
+	/guid/9202a8c04000641f8000000008528054	1988	Gearhart	Halliburton
+	/guid/9202a8c04000641f8000000006ab1840	1996	Athena Neurosciences	Elan Corporation
+	/guid/9202a8c04000641f8000000006ae89b5	2006-06	Solonde AG	VeriFone
+	/guid/9202a8c04000641f8000000005f3e8ed	1999	Consolidated Rail Corporation	CSX Transportation
+	/guid/9202a8c04000641f8000000006de1d72	1998	CommQuest	IBM
+	/guid/9202a8c04000641f8000000006c6e90a					Lucent Technologies
+	/guid/9202a8c04000641f8000000006e9e554	2007-08				
+	/guid/9202a8c04000641f8000000006ff2a49			Graham & Whiteside	Gale
+	/guid/9202a8c04000641f80000000086e4a50	2007	Great North Eastern Railway	National Express East Coast
+	/guid/9202a8c04000641f8000000006ac2e98			Media Machines	ManyOne
+	/guid/9202a8c04000641f80000000086e78ed	1938	Officine Meccaniche	Fiat
+	/guid/9202a8c04000641f8000000005f3661d	2007-06	Parakey	Facebook
+	/guid/9202a8c04000641f8000000006e1cc55	2006-02	Sleepycat Software	Oracle Corporation
+	/guid/9202a8c04000641f8000000007a532b4	2002-12	Inktomi Corporation	Yahoo!
+	/guid/9202a8c04000641f8000000005f46b4c			AireSpace, Inc	Cisco Systems
+	/guid/9202a8c04000641f80000000060b9091	2005-02	ProQuent Systems	ByteMobile
+	/guid/9202a8c04000641f80000000083f78ae	2008-01-15	Artemis Corporation	Ascentium
+	/guid/9202a8c04000641f8000000006ff2c9f			Newsvine	MSNBC Interactive
+	/guid/9202a8c04000641f80000000078e21a6	2002-03	ConsumerInfo.com	Experian
+	/guid/9202a8c04000641f8000000005f3e8e3	1999	Consolidated Rail Corporation	Norfolk Southern Railway
+	/guid/9202a8c04000641f8000000005fec152			Cooligy	Emerson Electric Company
+	/guid/9202a8c04000641f8000000006e9e4de					E. W. Scripps Company
+	/guid/9202a8c04000641f8000000006c79e9d			YAGO	Riverstone Networks
+	/guid/9202a8c04000641f80000000086d774a	1985	Tooheys	Bond Corporation
+	/guid/9202a8c04000641f8000000006ab3b4e	2007	AppDeploy.com	KACE
+	/guid/9202a8c04000641f8000000006e1df6a	2005-11	OctetString	Oracle Corporation
+	/guid/9202a8c04000641f8000000006ea7b12	2007-08	Kaboodle	Hearst Corporation
+	/guid/9202a8c04000641f8000000006cfc471			Sumea	Digital Chocolate
+	/guid/9202a8c04000641f80000000086e5378	1999	Marconi Electronic Systems	BAE Systems
+	/guid/9202a8c04000641f80000000086e6d3b	1981	Datasaab	Ericsson
+	/guid/9202a8c04000641f80000000060b6ea4	2005	Corio	IBM
+	/guid/9202a8c04000641f80000000060b7147			Freemarkets	Ariba
+	/guid/9202a8c04000641f800000000878da8d	1906-01-17	California Southern Railroad	Atchison, Topeka and Santa Fe Railway
+	/guid/9202a8c04000641f80000000060b4ee7			VRBO	HomeAway
+	/guid/9202a8c04000641f8000000006e809a7	1998-11	FemRx	Johnson & Johnson
+	/guid/9202a8c04000641f8000000006e7cbbf			del.icio.us		
+	/guid/9202a8c04000641f8000000005f3fed9			Haystack Labs	Trusted Information Systems
+	/guid/9202a8c04000641f8000000006ff2a8e			Thorndike Press	Gale
+	/guid/9202a8c04000641f8000000006f639f9			Reddit	Condé Nast Publications
+	/guid/9202a8c04000641f8000000006ae3b24			Velocity11	Agilent Technologies
+	/guid/9202a8c04000641f80000000072ff7f8	2005-11-30	JDS Uniphase		
+	/guid/9202a8c04000641f800000000851a56b	1999	Culligan	US Filter
+	/guid/9202a8c04000641f8000000006e99c7a	2006	LaFraise	Spreadshirt
+	/guid/9202a8c04000641f8000000006e7ec27			ENom	Demand Media
+	/guid/9202a8c04000641f8000000005f49fdf			Argon Networks	Siemens AG
+	/guid/9202a8c04000641f80000000086d43d0					Lion Nathan
+	/guid/9202a8c04000641f8000000005f3faf7			Brooklyn-Manhattan Transit Corporation	New York City Subway
+	/guid/9202a8c04000641f8000000006e1e1e7	2005-01	PeopleSoft	Oracle Corporation
+	/guid/9202a8c04000641f8000000006cf4e9c			Convex Computer	Hewlett-Packard
+	/guid/9202a8c04000641f8000000006e1d6f5	2005-09	G-Log	Oracle Corporation
+	/guid/9202a8c04000641f8000000006f592c3	2003-08	Oak Technology	Zoran Corp.
+	/guid/9202a8c04000641f8000000006e1d191	2006-06	Telephony@Work	Oracle Corporation
+	/guid/9202a8c04000641f8000000007477320	2005-12-14	PriceGrabber.com	Experian
+	/guid/9202a8c04000641f8000000006e1cf68	2006-11	Stellent	Oracle Corporation
+	/guid/9202a8c04000641f8000000005fefd80	2007	NuCore Technology	MediaTek
+	/guid/9202a8c04000641f8000000005ff2507			Azerity	Model N, Inc.
