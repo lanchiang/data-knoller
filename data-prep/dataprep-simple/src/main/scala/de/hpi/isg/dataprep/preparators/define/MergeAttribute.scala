@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import org.apache.spark.sql.{Dataset, Row}
+
 import scala.collection.JavaConverters._
 class MergeAttribute (val attributes:List[String]
 					 ,val connector:String)
@@ -31,8 +32,44 @@ class MergeAttribute (val attributes:List[String]
 			0
 	}
 
+  def isYear(a: Dataset[Row], b: String): Boolean = {
 
-	override def buildMetadataSetup(): Unit = {
+    val sumYears = a.select(b).map(x => if (x.getInt(0) < 2100 && x.getInt(0) > 0) 1 else 0)
+      .sum
+
+    //if (b.contains("year") || b.contains("Year")) true
+    if (sumYears / a.count() == 1)
+      true
+    else
+      false
+  }
+
+  def isMonth(a: Dataset[Row], b: String): Boolean = {
+
+    val sumMonth = a.select(b).map(x => if (x.getInt(0) < 13 && x.getInt(0) > 0) 1 else 0)
+      .sum
+
+    //if (b.contains("month") || b.contains("Month")) true
+    if (sumMonth / a.count() == 1)
+      true
+    else
+      false
+  }
+
+  def isDay(a: Dataset[Row], b: String): Boolean = {
+
+    val sumDay = a.select(b).map(x => if (x.getInt(0) < 32 && x.getInt(0) > 0) 1 else 0)
+      .sum
+
+    //if (b.contains("day") || b.contains("Day")) true
+    if (sumDay / a.count() == 1)
+      true
+    else
+      false
+  }
+
+
+  override def buildMetadataSetup(): Unit = {
 
 	}
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
