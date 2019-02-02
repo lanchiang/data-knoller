@@ -15,8 +15,10 @@ import org.apache.spark.util.CollectionAccumulator
 
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
-import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
 
 /**
   * Converts source to target date pattern
@@ -26,98 +28,6 @@ import scala.util.{Failure, Success, Try}
   * @since 2018/12/03
   */
 class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
-
-  class SimpleDate(var originalDate: String, var yearOption: Option[String] = None, var monthOption: Option[String] = None,
-                   var dayOption: Option[String] = None, var separators: List[String] = List()) {
-    //-------------------Constructor--------------------------
-    // TODO: do some renaming
-    val splitDate: List[String] = originalDate.split("[^0-9a-zA-z]{1,}").toList
-    println(s"Splits: $splitDate")
-
-    println("Separators: " + getSeparators + " starts with separator: " + startsWithSeparator)
-
-    val (leftoverBlocks, convertedMonth) = convertMonthNames(splitDate)
-    var undeterminedBlocks: List[String] = padSingleDigitDates(leftoverBlocks)
-
-    // Used for patternGeneration later
-    val monthText: Option[String] =  splitDate.find(!leftoverBlocks.contains(_))
-
-    monthOption = convertedMonth
-    println(s"-> Month: $monthOption")
-
-    if (isMonthDefined) {
-      undeterminedBlocks = undeterminedBlocks.filter(_ != monthOption.get)
-    }
-    //--------------------------------------------------------
-
-    def isYearDefined: Boolean = {
-      yearOption.isDefined
-    }
-
-    def isMonthDefined: Boolean = {
-      monthOption.isDefined
-    }
-
-    def isDayDefined: Boolean = {
-      dayOption.isDefined
-    }
-
-    def isDefined: Boolean = {
-      dayOption.isDefined && monthOption.isDefined && yearOption.isDefined
-    }
-
-    def startsWithSeparator: Boolean = {
-      val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
-      originalDate.matches(startsWithSeparatorPattern)
-    }
-
-    def getSeparators: List[String] = {
-      val separatorPattern: Regex = "[^0-9a-zA-z]{1,}".r
-      separatorPattern.findAllMatchIn(originalDate).map(_.toString).toList
-    }
-
-    private def convertMonthNames(splittedDate: List[String]): (List[String], Option[String]) = {
-      val monthNameToNumber = Map(
-        "January"   -> 1,
-        "February"  -> 2,
-        "March"     -> 3,
-        "April"     -> 4,
-        "May"       -> 5,
-        "June"      -> 6,
-        "July"      -> 7,
-        "August"    -> 8,
-        "September" -> 9,
-        "October"   -> 10,
-        "November"  -> 11,
-        "December"  -> 12
-      )
-      var convertedMonth: String = ""
-      var newDate: List[String] = splittedDate
-
-      for ((block, index) <- splittedDate.view.zipWithIndex) {
-        if (block.forall(_.isLetter)) {
-          for (month <- monthNameToNumber.keys) {
-            if (month.toLowerCase().startsWith(block.toLowerCase())) {
-              // TODO: Early abort may lead to errors if multiple strings are present, e.g. DoW and month
-              convertedMonth = f"${monthNameToNumber(month)}%02d"
-              newDate = newDate.updated(index, convertedMonth)
-              return (newDate, Some(convertedMonth))
-            }
-          }
-        }
-      }
-
-      (newDate, None)
-    }
-
-    private def padSingleDigitDates(dates: List[String]): List[String] = {
-      dates.map( date => if (date.length == 1 && date.forall(Character.isDigit)) "0" + date else date )
-    }
-
-    override def toString: String ={
-      s"$yearOption, $monthOption, $dayOption"
-    }
-  }
 
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[AdaptiveChangeDateFormat]
@@ -217,7 +127,7 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
   def applyRules(undeterminedBlocks: List[String], date: SimpleDate): SimpleDate = {
     // TODO: If multiple blocks are the same, it wouldn't matter which is which
     var leftoverBlocks: List[String] = undeterminedBlocks
-    var updatedDate: SimpleDate = date
+    val updatedDate: SimpleDate = date
 
     for (block <- undeterminedBlocks) { // if no there are no undetermined parts left, function will return
       breakable {
@@ -357,4 +267,96 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
       case Success(_) => true
     }
   }
+
+
+  // Clustering Start
+  def isDigit(s: String): Boolean = {
+    s.forall(_.isDigit)
+  }
+
+  def isLetter(s: String): Boolean = {
+    s.forall(_.isLetter)
+  }
+
+  def isAlphanumeric(s: String): Boolean = {
+    s.forall(_.isLetterOrDigit)
+  }
+
+  def splitString(s: String): List[String] = {
+    // Currently separators are split too so that ", " would become two different blocks: [,] [ ]
+    // This is fine for now because our clustering is very strict
+    val tmp: String = (s + 'X')
+      .sliding(2)
+      .map(pair => pair.head +
+        (if (isAlphanumeric(pair.head.toString) && isAlphanumeric(pair.last.toString))
+          ""
+        else
+          "&"))
+      .mkString("")
+    tmp.split("&").toList
+  }
+
+  def getSimilarity(s1: String, s2: String): Double  = {
+    val split1: List[String] = splitString(s1)
+    val split2: List[String] = splitString(s2)
+    var score: Double = 0.0
+    val numberOfCriteria: Int = 3
+
+    var idx: Int = 0
+    var separatorsIdentical: Boolean = true
+    var blockTypesIdentical: Boolean = true
+
+    // iterate over blocks and check conditions for aligned blocks
+    while (idx < split1.length && idx < split2.length) {
+      val block1 = split1(idx)
+      val block2 = split2(idx)
+
+
+      if (!isAlphanumeric(block1) && !isAlphanumeric(block2)) {
+        if (block1 != block2) {
+          separatorsIdentical = false
+        }
+      } else {
+        // checks if alphanumeric block at same position match type (number/letter)
+        // TODO: check char for char because of dates which contain 1st/2nd
+        if (!((isDigit(block1) && isDigit(block2)) || (isLetter(block1) && isLetter(block2)))) {
+          blockTypesIdentical = false
+        }
+      }
+
+      idx += 1
+    }
+
+    if (split1.length == split2.length) {
+      score += 1
+    }
+
+    if (separatorsIdentical) {
+      score += 1
+    }
+
+    if (blockTypesIdentical) {
+      score += 1
+    }
+
+    score / numberOfCriteria
+  }
+
+  def clusterDates(dates: List[String]): mutable.Map[String, ListBuffer[List[String]]] = {
+    val clusters: mutable.Map[String, ListBuffer[List[String]]] = mutable.Map()
+    for (date <- dates) {
+      breakable {
+        for (clusterRep <- clusters.keys) {
+          if (getSimilarity(clusterRep, date) == 1) {
+            clusters(clusterRep).append(splitString(date))
+            break
+          }
+        }
+        clusters(date) = ListBuffer(splitString(date))
+      }
+    }
+
+    clusters
+  }
+  // Clustering end
 }
