@@ -38,11 +38,11 @@ public class Pipeline implements AbstractPipeline {
      */
     private final static int MAX_CARDINALITY = Integer.MIN_VALUE;
 
-    private MetadataRepository metadataRepository;
-    private ProvenanceRepository provenanceRepository;
-    private ErrorRepository errorRepository;
+    private MetadataRepository metadataRepository = new MetadataRepository();
+    private ProvenanceRepository provenanceRepository = new ProvenanceRepository();
+    private ErrorRepository errorRepository = new ErrorRepository();
 
-    private List<AbstractPreparation> preparations;
+    private List<AbstractPreparation> preparations = new LinkedList<>();
 
     private DecisionEngine decisionEngine = DecisionEngine.getInstance();
 
@@ -61,17 +61,8 @@ public class Pipeline implements AbstractPipeline {
     private DataContext dataContext;
     private String datasetName;
 
-    private Pipeline() {
-        this.metadataRepository = new MetadataRepository();
-        this.provenanceRepository = new ProvenanceRepository();
-        this.errorRepository = new ErrorRepository();
-        this.preparations = new LinkedList<>();
-
-//        this.schemaMapping = new SimpleSchemaMapping(null);
-    }
 
     public Pipeline(Dataset<Row> rawData) {
-        this();
         this.rawData = rawData;
     }
 
