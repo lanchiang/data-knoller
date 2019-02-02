@@ -17,7 +17,8 @@ public class DataType implements Serializable {
         INTEGER,
         DOUBLE,
         DATE,
-        DATETIME
+        DATETIME,
+        NONE
     }
 
     public static PropertyType getTypeFromSparkType(org.apache.spark.sql.types.DataType dataType) {

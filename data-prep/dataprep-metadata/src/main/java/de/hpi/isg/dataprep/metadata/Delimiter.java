@@ -39,8 +39,4 @@ public class Delimiter extends Metadata {
         return delimiter;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
 }

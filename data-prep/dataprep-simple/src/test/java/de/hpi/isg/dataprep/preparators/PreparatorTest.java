@@ -9,8 +9,6 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -20,7 +18,6 @@ import org.junit.BeforeClass;
  */
 public class PreparatorTest {
 
-    protected static Dataset<Row> dataset;
     protected static AbstractPipeline pipeline;
     protected static DataContext dataContext;
     protected static FileLoadDialect dialect;
@@ -53,7 +50,7 @@ public class PreparatorTest {
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
 
-//        dataContext.getDataFrame().show();
+        dataContext.getDataFrame().show();
         return;
     }
 
