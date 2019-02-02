@@ -6,8 +6,7 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import org.apache.spark.sql.{Dataset, Row}
 
-class SelectionProcessController(dataContext: DataContext, decisionEngine: DecisionEngine) extends PreparatorLoader {
-  override val path: String = "de.hpi.isg.dataprep.preparators"
+class SelectionProcessController(dataContext: DataContext, decisionEngine: DecisionEngine) {
   val allPreps: List[Preparation] = loadPreparations()
 
   def createPipeline(): Pipeline = ???
