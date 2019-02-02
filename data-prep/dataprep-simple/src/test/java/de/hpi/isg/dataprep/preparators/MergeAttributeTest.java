@@ -29,6 +29,7 @@ public class MergeAttributeTest {
 	protected static DataContext dataContext;
 
 	protected static  DataContext restaurantsContext;
+    protected static  DataContext benkeContext;
 
 	@BeforeClass
 	public static void setUp() {
@@ -48,6 +49,13 @@ public class MergeAttributeTest {
 			.url("./src/test/resources/restaurants.tsv")
 			.buildDialect();
 
+        FileLoadDialect benke = new DialectBuilder()
+                .hasHeader(true)
+                .delimiter(";")
+                .inferSchema(true)
+                .url("./src/test/resources/BenkeKarsch.csv")
+                .buildDialect();
+
 //        FileLoadDialect dialect = new DialectBuilder()
 //                .hasHeader(true)
 //                .delimiter("\t")
@@ -60,6 +68,10 @@ public class MergeAttributeTest {
 
 		SparkDataLoader dataLoader1 = new FlatFileDataLoader(restaurants);
 		restaurantsContext = dataLoader1.load();
+
+        SparkDataLoader dataLoader2 = new FlatFileDataLoader(benke);
+        benkeContext = dataLoader2.load();
+
 
 //        dataContext.getDataFrame().show();
 		return;
@@ -107,6 +119,21 @@ public class MergeAttributeTest {
 		pipeline.executePipeline();
 		pipeline.getRawData().show();
 	}
+
+	@Test
+    public void mergeUrlTest() throws Exception{
+	    pipeline = new Pipeline(benkeContext);
+        List<String> columns = new ArrayList<>();
+        columns.add("url");
+        columns.add("biourl");
+        AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+        pipeline.getRawData().show();
+    }
+
+
 
 	@Test
 	public void testAplicabilityFunc() throws Exception{
