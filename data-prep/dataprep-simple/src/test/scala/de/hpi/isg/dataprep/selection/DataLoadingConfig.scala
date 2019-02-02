@@ -39,7 +39,7 @@ trait DataLoadingConfig extends FlatSpecLike with Matchers with BeforeAndAfterEa
     transforms = createTransformsManually
     // generate target metadata
     val targetMetadata = createTargetMetadataManually
-    dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("C:\\Users\\Torben\\IdeaProjects\\data-knoller\\data-prep\\dataprep-simple\\src\\test\\resources\\pokemon.csv").buildDialect
+    dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("dataprep-simple\\src\\test\\resources\\pokemon.csv").buildDialect
     //        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, schemaMapping);
     val dataLoader: SparkDataLoader = new FlatFileDataLoader(dialect, targetMetadata.asJava, transforms.asJava)
     dataContext = dataLoader.load

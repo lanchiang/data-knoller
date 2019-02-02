@@ -15,10 +15,6 @@ class DecisionEngineTest extends DataLoadingConfig {
     val preparator = decisionEngine.selectNextPreparation(List[Class[_ <: AbstractPreparator]](classOf[DeleteProperty]), pipeline.getSchemaMapping, pipeline.getRawData, pipeline.getTargetMetadata.asScala.toList).get
 
     pipeline.addPreparation(new Preparation(preparator))
-    pipeline.executePipeline()
-    pipeline.getRawData.show()
-    println(expectedPreparator.propertyName)
-    println(preparator.asInstanceOf[DeleteProperty].propertyName)
     preparator shouldEqual expectedPreparator
   }
 
