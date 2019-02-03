@@ -7,20 +7,16 @@ import de.hpi.isg.dataprep.metadata.{PropertyDataType, LanguageMetadata}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.implementation.DefaultDetectLanguagePreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
-class DetectLanguagePreparator(val propertyNames: Set[String]) extends AbstractPreparator {
+class DetectLanguagePreparator() extends AbstractPreparator {
 
-  this.impl = new DefaultDetectLanguagePreparatorImpl
+  var propertyName : String = _
 
   def this(propertyName: String) {
-    this(Set(propertyName))
-  }
-
-  def this(propertyNames: Array[String]) {
-    this(propertyNames.toSet)
+    this()
+    this.propertyName = propertyName
   }
 
   /**
@@ -30,14 +26,10 @@ class DetectLanguagePreparator(val propertyNames: Set[String]) extends AbstractP
     * @throws ParameterNotSpecifiedException
     */
   override def buildMetadataSetup(): Unit = {
-
-    if (propertyNames == null)
+    if (propertyName == null)
       throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-    propertyNames.foreach { propertyName: String =>
-      if (propertyName == null)
-        throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-      this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-    }
+    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {

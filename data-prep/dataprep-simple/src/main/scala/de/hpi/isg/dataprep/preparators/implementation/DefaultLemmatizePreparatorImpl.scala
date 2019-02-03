@@ -53,63 +53,44 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
-    val propertyNames = preparator.propertyNames
+    val propertyName = preparator.propertyName
 
-    var propLang = new mutable.HashMap[String, Class[_ <: Language]]()
-    propertyNames.foreach(propertyName => {
-      // TODO: This is so broken...
-      val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
-        new LanguageMetadata(propertyName, LanguageMetadata.LanguageEnum.ANY)).asInstanceOf[LanguageMetadata]
-      // TODO: as we won't apply the preparator if there ist no metadata, the following line is redundant IMO
-      val language = if(langMeta.getLanguage == null) LanguageEnum.ENGLISH.getType else langMeta.getLanguage.getType
-      propLang.put(propertyName, language)
-    })
+    // TODO: This is so broken...
+    val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
+      new LanguageMetadata(propertyName, LanguageMetadata.LanguageEnum.ANY)).asInstanceOf[LanguageMetadata]
+    // TODO: as we won't apply the preparator if there ist no metadata, the following line is redundant IMO
+    val language = if(langMeta.getLanguage == null) LanguageEnum.ENGLISH.getType else langMeta.getLanguage.getType
 
     val realErrors = ListBuffer[PreparationError]()
     var df = dataFrame
-    for (name <- propertyNames) {
-      df = df.withColumn(name + "_lemmatized", lit(""))
-    }
+    df = df.withColumn(propertyName + "_lemmatized", lit(""))
+
     val rowEncoder = RowEncoder(df.schema)
     val createdDataset = df.flatMap(row => {
       //
-      val remappings = propertyNames.map(propertyName => {
-        val valIndexTry = Try {
-          row.fieldIndex(propertyName)
-        }
-        val valIndex = valIndexTry match {
-          case Failure(content) => throw content
-          case Success(content) => content
-        }
-        val operatedValue = row.getAs[String](valIndex)
 
-        val indexTry = Try {
-          row.fieldIndex(propertyName + "_lemmatized")
-        }
-        val index = indexTry match {
-          case Failure(content) => throw content
-          case Success(content) => content
-        }
-        (index, operatedValue)
-      }).toMap
+      val valIndexTry = Try {
+        row.fieldIndex(propertyName)
+      }
+      val valIndex = valIndexTry match {
+        case Failure(content) => throw content
+        case Success(content) => content
+      }
+      val operatedValue = row.getAs[String](valIndex)
 
-      var langMapping = new mutable.HashMap[Int, Class[_ <: Language]]()
-      propertyNames.foreach(propertyName => {
-        val indexTry = Try {
-          row.fieldIndex(propertyName + "_lemmatized")
-        }
-        val index = indexTry match {
-          case Failure(content) => throw content
-          case Success(content) => content
-        }
-        langMapping.put(index, propLang(propertyName))
-      })
+      val newIndexTry = Try {
+        row.fieldIndex(propertyName + "_lemmatized")
+      }
+      val newIndex = newIndexTry match {
+        case Failure(content) => throw content
+        case Success(content) => content
+      }
 
       val seq = row.toSeq
       val tryConvert = Try {
         val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
-          if (remappings.isDefinedAt(index))
-            lemmatizeString(remappings(index), langMapping(index))
+          if (newIndex == index)
+            lemmatizeString(operatedValue, language)
           else
             value
         }
@@ -119,7 +100,7 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
 
       val trial = tryConvert match {
         case Failure(content) =>
-          errorAccumulator.add(new RecordError(remappings.values.mkString(","), content))
+          errorAccumulator.add(new RecordError(operatedValue.toString, content))
           tryConvert
         case Success(content) => tryConvert
       }

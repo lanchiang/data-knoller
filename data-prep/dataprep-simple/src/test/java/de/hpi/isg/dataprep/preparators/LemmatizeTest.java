@@ -62,36 +62,6 @@ public class LemmatizeTest extends PreparatorTest {
     }
 
     @Test
-    public void testMultipleValidColumns() throws Exception {
-        String[] parameters = new String[]{"stemlemma", "stemlemma2"};
-        AbstractPreparator abstractPreparator = new LemmatizePreparator(parameters);
-
-        AbstractPreparation preparation = new Preparation(abstractPreparator);
-        pipeline.executePipeline();
-
-        pipeline.getMetadataRepository().getMetadataPool().add(new LanguageMetadata("stemlemma", LanguageMetadata.LanguageEnum.ENGLISH));
-        pipeline.getMetadataRepository().getMetadataPool().add(new LanguageMetadata("stemlemma2", LanguageMetadata.LanguageEnum.ENGLISH));
-        // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
-        pipeline.addPreparation(preparation);
-        preparation.getAbstractPreparator().execute();
-
-        pipeline.getRawData().show();
-        pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
-
-        List<ErrorLog> errorLogs = new ArrayList<>();
-        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
-        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
-
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
-        List<String> actualStemlemma2 = pipeline.getRawData().select("stemlemma2_lemmatized").as(Encoders.STRING()).collectAsList();
-        List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "going", "war", "Fred s house", "succeed");
-
-        Assert.assertEquals(expected, actualStemlemma);
-        Assert.assertEquals(expected, actualStemlemma2);
-    }
-
-
-    @Test
     public void testInvalidColumn() throws Exception {
         AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma_wrong");
 

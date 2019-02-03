@@ -8,20 +8,16 @@ import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
 import de.hpi.isg.dataprep.metadata.{LanguageMetadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.preparators.implementation.DefaultLemmatizePreparatorImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
-class LemmatizePreparator(val propertyNames: Set[String]) extends AbstractPreparator with Serializable {
+class LemmatizePreparator extends AbstractPreparator with Serializable {
 
-  this.impl = new DefaultLemmatizePreparatorImpl
+  var propertyName : String = _
 
   def this(propertyName: String) {
-    this(Set(propertyName))
-  }
-
-  def this(propertyNames: Array[String]) {
-    this(propertyNames.toSet)
+    this()
+    this.propertyName = propertyName
   }
 
   /**
@@ -31,16 +27,11 @@ class LemmatizePreparator(val propertyNames: Set[String]) extends AbstractPrepar
     * @throws ParameterNotSpecifiedException
     */
   override def buildMetadataSetup(): Unit = {
-
-    if (propertyNames == null)
+    if (propertyName == null)
       throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-    propertyNames.foreach { propertyName: String =>
-      if (propertyName == null)
-        throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-      this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-      this.prerequisites.add(new LanguageMetadata(propertyName, LanguageEnum.ANY))
-    }
 
+    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+    this.prerequisites.add(new LanguageMetadata(propertyName, LanguageEnum.ANY))
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {

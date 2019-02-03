@@ -30,24 +30,22 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
-    val propertyNames = preparator.propertyNames
+    val propertyName = preparator.propertyName
 
     val detector = new LanguageIdentifier(2000)
     // TODO: Chunk df with randomSplit()
-    propertyNames.foreach(propName => {
-      val colStr = dataFrame.select(propName).collect().map(p => p.getAs[String](0)).mkString(" ")
-      val lang = detector.detectLanguage(colStr)
 
-      try{
-        // No language should also be noted down
-        val enumLang = if (lang != null) LanguageEnum.langForClass(lang.getClass) else null
-        val langMetadata = new LanguageMetadata(propName, enumLang)
-      } catch {
-        case e: UnsupportedLanguageException =>
-          errorAccumulator.add(new PropertyError(propName, e))
-      }
+    val colStr = dataFrame.select(propertyName).collect().map(p => p.getAs[String](0)).mkString(" ")
+    val lang = detector.detectLanguage(colStr)
 
-    })
+    try{
+      // No language should also be noted down
+      val enumLang = if (lang != null) LanguageEnum.langForClass(lang.getClass) else null
+      val langMetadata = new LanguageMetadata(propertyName, enumLang)
+    } catch {
+      case e: UnsupportedLanguageException =>
+        errorAccumulator.add(new PropertyError(propertyName, e))
+    }
 
     new ExecutionContext(dataFrame, errorAccumulator)
   }
