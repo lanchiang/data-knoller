@@ -38,7 +38,7 @@ public class DecisionEngine implements Engine {
      */
 //    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
 //            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
-    private final static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash"};
+    private final static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash","MergeAttribute"};
 
     private Set<AbstractPreparator> preparators;
     private Map<AbstractPreparator, Float> scores;
@@ -127,7 +127,7 @@ public class DecisionEngine implements Engine {
         }
 
         // using this permutation iterator cannot specify the maximal number of columns.
-        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 1);
+        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, 2);
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
 
