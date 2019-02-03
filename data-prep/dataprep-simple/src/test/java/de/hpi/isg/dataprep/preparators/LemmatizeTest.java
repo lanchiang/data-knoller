@@ -47,6 +47,21 @@ public class LemmatizeTest extends PreparatorTest {
     }
 
     @Test
+    public void testValidSpanishColumn() throws Exception {
+        AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma");
+
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
+        pipeline.executePipeline();
+
+        pipeline.getMetadataRepository().getMetadataPool().add(new LanguageMetadata("stemlemma", LanguageMetadata.LanguageEnum.SPANISH));
+        // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
+        pipeline.addPreparation(preparation);
+        preparation.getAbstractPreparator().execute();
+
+        pipeline.getRawData().show();
+    }
+
+    @Test
     public void testMultipleValidColumns() throws Exception {
         String[] parameters = new String[]{"stemlemma", "stemlemma2"};
         AbstractPreparator abstractPreparator = new LemmatizePreparator(parameters);
