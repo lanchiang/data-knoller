@@ -63,6 +63,7 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
       // TODO: This is so broken...
       val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
         new LanguageMetadata(propertyName, LanguageMetadata.LanguageEnum.ANY)).asInstanceOf[LanguageMetadata]
+      // TODO: as we won't apply the preparator if there ist no metadata, the following line is redundant IMO
       val language = if(langMeta.getLanguage == null) LanguageEnum.ENGLISH.getType else langMeta.getLanguage.getType
       propLang.put(propertyName, language)
     })

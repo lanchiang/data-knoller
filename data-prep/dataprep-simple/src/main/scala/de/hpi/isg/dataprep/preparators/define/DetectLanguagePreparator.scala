@@ -49,9 +49,9 @@ class DetectLanguagePreparator(val propertyNames: Set[String]) extends AbstractP
     val metadata = new LanguageMetadata(propertyName, null)
     val check = metadataRepository.getMetadata(metadata)
     if (check == null || !metadata.equalsByValue(check)) {
-      0
-    } else {
       1
+    } else {
+      0
     }
   }
 }
