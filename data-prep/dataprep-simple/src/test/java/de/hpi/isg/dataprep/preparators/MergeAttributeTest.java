@@ -1,27 +1,39 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
+import de.hpi.isg.dataprep.components.DecisionEngine;
 import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
+import de.hpi.isg.dataprep.metadata.PreambleExistence;
+import de.hpi.isg.dataprep.metadata.PropertyDataType;
+import de.hpi.isg.dataprep.metadata.PropertyExistence;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
+import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.schema.Attribute;
+import de.hpi.isg.dataprep.model.target.schema.Transform;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.define.MergeAttribute;
-import de.hpi.isg.dataprep.preparators.define.Sampling;
+import de.hpi.isg.dataprep.schema.transforms.TransMergeAttribute;
+import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.StructField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MergeAttributeTest {
 	protected static Dataset<Row> dataset;
@@ -29,33 +41,38 @@ public class MergeAttributeTest {
 	protected static DataContext dataContext;
 
 	protected static  DataContext restaurantsContext;
+	static FileLoadDialect restaurants;
+	static FileLoadDialect pokemons;
+
+	protected static org.apache.spark.sql.types.Metadata emptyMetadata = org.apache.spark.sql.types.Metadata.empty();
+
 
 	@BeforeClass
 	public static void setUp() {
 		Logger.getLogger("org").setLevel(Level.OFF);
 		Logger.getLogger("akka").setLevel(Level.OFF);
 
-		FileLoadDialect dialect = new DialectBuilder()
+		pokemons = new DialectBuilder()
 			.hasHeader(true)
 			.inferSchema(true)
 			.url("./src/test/resources/pokemon.csv")
 			.buildDialect();
 
-		FileLoadDialect restaurants = new DialectBuilder()
+		restaurants = new DialectBuilder()
 			.hasHeader(true)
 			.delimiter("\t")
 			.inferSchema(true)
 			.url("./src/test/resources/restaurants.tsv")
 			.buildDialect();
 
-//        FileLoadDialect dialect = new DialectBuilder()
+//        FileLoadDialect pokemons = new DialectBuilder()
 //                .hasHeader(true)
 //                .delimiter("\t")
 //                .inferSchema(true)
 //                .url("./src/test/resources/restaurants.tsv")
 //                .buildDialect();
 
-		SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+		SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons);
 		dataContext = dataLoader.load();
 
 		SparkDataLoader dataLoader1 = new FlatFileDataLoader(restaurants);
@@ -97,11 +114,11 @@ public class MergeAttributeTest {
 
 	@Test
 	public void mergeAdressTest() throws Exception{
-		pipeline = new Pipeline(restaurantsContext);
-		List<String> columns = new ArrayList<>();
-		columns.add("address");
-		columns.add("city");
-		AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
+		pipeline = new Pipeline(dataContext);
+		List<String> columns2 = new ArrayList<>();
+		columns2.add("stemlemma");
+		columns2.add("stemlemma2");
+		AbstractPreparator abstractPreparator = new MergeAttribute(columns2, " ");
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
 		pipeline.executePipeline();
@@ -110,12 +127,56 @@ public class MergeAttributeTest {
 
 	@Test
 	public void testAplicabilityFunc() throws Exception{
+
+		Set<Metadata> targetMetadata = createTargetMetadataManually();
+
+//        SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons, targetMetadata, schemaMapping);
+		List<Transform> transforms = createTransformsManually();
+		SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons, targetMetadata, transforms);
+		pipeline = new Pipeline(dataLoader.load());
+		List<String> columns = new ArrayList<>();
+		columns.add("stemlemma");
+		columns.add("stemlemma2");
+		AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
+		AbstractPreparation preparation = new Preparation(abstractPreparator);
+		pipeline.addPreparation(preparation);
+
 		//Dataset<Row> dataset = restaurantsContext.getDataFrame();
 		//List<String> columns = new ArrayList<>();
 		//columns.add("address");
 		//columns.add("city");
+		DecisionEngine decisionEngine = DecisionEngine.getInstance();
+		AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
 		//AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
 		//System.out.println(abstractPreparator.calApplicability(null,dataset,null));
+	}
+
+	private Set<Metadata> createTargetMetadataManually() {
+		Set<Metadata> targetMetadata = new HashSet<>();
+
+		targetMetadata.add(new PreambleExistence(false));
+//        targetMetadata.add(new PropertyDatePattern(DatePattern.DatePatternEnum.MonthDayYear, new ColumnMetadata("date")));
+		targetMetadata.add(new PropertyExistence("stem", true));
+//		targetMetadata.add(new PropertyExistence("day", true));
+//		targetMetadata.add(new PropertyExistence("year", true));
+		targetMetadata.add(new PropertyDataType("stem", DataType.PropertyType.STRING));
+//		targetMetadata.add(new PropertyDataType("day", DataType.PropertyType.STRING));
+//		targetMetadata.add(new PropertyDataType("year", DataType.PropertyType.STRING));
+
+		return targetMetadata;
+	}
+	private static List<Transform> createTransformsManually() {
+		// generate schema mapping
+		List<Transform> transforms = new ArrayList<>();
+		Attribute sourceAttributes [] =  new  Attribute[] {
+			new Attribute(new StructField("stemlemma", DataTypes.StringType, true, emptyMetadata))
+			,new Attribute(new StructField("stemlemma2", DataTypes.StringType, true, emptyMetadata))
+		};
+		Attribute targetAttribute = new Attribute(new StructField("stem",DataTypes.StringType,true,  emptyMetadata));
+		Transform mergeAttribute = new TransMergeAttribute(sourceAttributes,targetAttribute);
+		transforms.add(mergeAttribute);
+
+		return transforms;
 	}
 
 	@Test
