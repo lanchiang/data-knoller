@@ -41,8 +41,44 @@ class MergeAttribute (val attributes:List[String]
 	def mapMerge(row: Row) = isGoodToMerge(row.getString(0),row.getString(1))
 
 
+  def isYear(a: Dataset[Row], b: String): Boolean = {
 
-	override def buildMetadataSetup(): Unit = {
+    val sumYears = a.select(b).map(x => if (x.getInt(0) < 2100 && x.getInt(0) > 0) 1 else 0)
+      .sum
+
+    //if (b.contains("year") || b.contains("Year")) true
+    if (sumYears / a.count() == 1)
+      true
+    else
+      false
+  }
+
+  def isMonth(a: Dataset[Row], b: String): Boolean = {
+
+    val sumMonth = a.select(b).map(x => if (x.getInt(0) < 13 && x.getInt(0) > 0) 1 else 0)
+      .sum
+
+    //if (b.contains("month") || b.contains("Month")) true
+    if (sumMonth / a.count() == 1)
+      true
+    else
+      false
+  }
+
+  def isDay(a: Dataset[Row], b: String): Boolean = {
+
+    val sumDay = a.select(b).map(x => if (x.getInt(0) < 32 && x.getInt(0) > 0) 1 else 0)
+      .sum
+
+    //if (b.contains("day") || b.contains("Day")) true
+    if (sumDay / a.count() == 1)
+      true
+    else
+      false
+  }
+
+
+  override def buildMetadataSetup(): Unit = {
 
 	}
 	val weight = 4
