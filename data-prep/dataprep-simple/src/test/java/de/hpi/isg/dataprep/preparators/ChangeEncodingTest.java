@@ -7,12 +7,10 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
-import de.hpi.isg.dataprep.metadata.FileEncoding;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangeEncoding;
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeEncodingImpl;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
