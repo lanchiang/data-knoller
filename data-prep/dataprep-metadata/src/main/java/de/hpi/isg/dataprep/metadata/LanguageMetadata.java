@@ -70,11 +70,6 @@ public class LanguageMetadata extends Metadata {
     }
 
     @Override
-    public String getName() {
-        return scope.getName();
-    }
-
-    @Override
     public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
         List<LanguageMetadata> matchedInRepo = metadataRepository.getMetadataPool().stream()
                 .filter(metadata -> metadata instanceof LanguageMetadata)
