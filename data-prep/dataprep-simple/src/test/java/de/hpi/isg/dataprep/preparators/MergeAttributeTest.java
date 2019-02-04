@@ -175,6 +175,8 @@ public class MergeAttributeTest {
 		//columns.add("city");
 		DecisionEngine decisionEngine = DecisionEngine.getInstance();
 		AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
+		pipeline.executePipeline();
+		pipeline.getRawData().show();
 		//AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
 		//System.out.println(abstractPreparator.calApplicability(null,dataset,null));
 	}
