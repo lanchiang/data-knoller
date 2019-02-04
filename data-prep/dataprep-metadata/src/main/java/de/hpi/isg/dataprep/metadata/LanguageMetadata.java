@@ -100,7 +100,10 @@ public class LanguageMetadata extends Metadata {
         if (!(metadata instanceof LanguageMetadata))
             return false;
         LanguageEnum otherLang = ((LanguageMetadata) metadata).getLanguage();
-        return language == LanguageEnum.ANY || otherLang == LanguageEnum.ANY || language.equals(otherLang);
+        if(language == null || otherLang == null)
+            return false;
+        return language == LanguageEnum.ANY || otherLang == LanguageEnum.ANY
+                || language.equals(otherLang);
     }
 
     @Override
