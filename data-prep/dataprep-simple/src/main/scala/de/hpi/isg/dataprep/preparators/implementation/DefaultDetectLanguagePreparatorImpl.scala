@@ -34,7 +34,7 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
 
     val detector = new LanguageIdentifier(2000)
 
-    val langPerRow = dataFrame.select(propertyName)
+    val langPerChunk = dataFrame.select(propertyName)
       .collect().grouped(preparator.chunkSize).zipWithIndex.map(rowChunkWithId => {
       val rowChunk = rowChunkWithId._1
       val index = rowChunkWithId._2
@@ -52,7 +52,7 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
       }
     }).toMap.asJava
 
-    val langMetadata = new LanguageMetadata(propertyName, langPerRow, preparator.chunkSize)
+    val langMetadata = new LanguageMetadata(propertyName, langPerChunk, preparator.chunkSize)
     abstractPreparator.addUpdateMetadata(langMetadata)
 
     new ExecutionContext(dataFrame, errorAccumulator)
