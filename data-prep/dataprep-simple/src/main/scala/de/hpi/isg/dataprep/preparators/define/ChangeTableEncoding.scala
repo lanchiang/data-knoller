@@ -73,8 +73,9 @@ class ChangeTableEncoding() extends AbstractPreparator {
 
     // count replacement chars in every row
     val errorCounter = SparkContext.getOrCreate.longAccumulator
+    val replacementChar = REPLACEMENT_CHAR
     dataset.foreach(row => {
-      errorCounter.add(row.toString().count(_ == REPLACEMENT_CHAR))
+      errorCounter.add(row.toString().count(_ == replacementChar))
     })
     // make sure the replacement chars were added through decoding and were not already written in the csv
     val errors = errorCounter.value - countReplacementChars(csvPath)

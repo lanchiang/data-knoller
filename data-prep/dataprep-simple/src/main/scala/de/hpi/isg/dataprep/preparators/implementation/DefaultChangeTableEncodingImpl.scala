@@ -56,7 +56,6 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
       case null => throw new EncodingNotDetectedException(csvPath)
       case encoding => encoding
     }
-    detector.reset()
     encoding
   }
 }
