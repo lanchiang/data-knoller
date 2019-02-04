@@ -15,15 +15,13 @@ import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class DetectLanguageTest extends PreparatorTest {
 
     @Test
     public void testLanguageDetection() throws Exception {
-        AbstractPreparator abstractPreparator = new DetectLanguagePreparator("stemlemma");
+        AbstractPreparator abstractPreparator = new DetectLanguagePreparator("stemlemma", 10);
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
@@ -34,6 +32,8 @@ public class DetectLanguageTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-        Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LanguageMetadata("stemlemma", LanguageMetadata.LanguageEnum.ENGLISH)));
+        Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
+        langMapping.put(0, LanguageMetadata.LanguageEnum.ENGLISH);
+        Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LanguageMetadata("stemlemma", langMapping)));
     }
 }

@@ -68,51 +68,46 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
 
       val language = langMeta.getLanguage(index)
 
-      if(language != null) {
-        val valIndexTry = Try {
-          row.fieldIndex(propertyName)
-        }
-        val valIndex = valIndexTry match {
-          case Failure(content) => throw content
-          case Success(content) => content
-        }
-        val operatedValue = row.getAs[String](valIndex)
-
-        val newIndexTry = Try {
-          row.fieldIndex(propertyName + "_lemmatized")
-        }
-        val newIndex = newIndexTry match {
-          case Failure(content) => throw content
-          case Success(content) => content
-        }
-
-        val seq = row.toSeq
-        val tryConvert = Try {
-          val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
-            if (newIndex == index)
-              lemmatizeString(operatedValue, language.getType)
-            else
-              value
-          }
-          val newRow = Row.fromSeq(newSeq)
-          newRow
-        }
-
-        val trial = tryConvert match {
-          case Failure(content) =>
-            errorAccumulator.add(new RecordError(operatedValue.toString, content))
-            tryConvert
-          case Success(content) => tryConvert
-        }
-        trial.toOption
-      } else{
-        Option(row)
+      val valIndexTry = Try {
+        row.fieldIndex(propertyName)
       }
+      val valIndex = valIndexTry match {
+        case Failure(content) => throw content
+        case Success(content) => content
+      }
+      val operatedValue = row.getAs[String](valIndex)
+
+      val newIndexTry = Try {
+        row.fieldIndex(propertyName + "_lemmatized")
+      }
+      val newIndex = newIndexTry match {
+        case Failure(content) => throw content
+        case Success(content) => content
+      }
+
+      val seq = row.toSeq
+      val tryConvert = Try {
+        val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
+          if (newIndex == index && language != null)
+            lemmatizeString(operatedValue, language.getType)
+          else
+            value
+        }
+        val newRow = Row.fromSeq(newSeq)
+        newRow
+      }
+
+      val trial = tryConvert match {
+        case Failure(content) =>
+          errorAccumulator.add(new RecordError(operatedValue.toString, content))
+          tryConvert
+        case Success(content) => tryConvert
+      }
+      trial.toOption
     })(rowEncoder).drop("iter_index")
 
 
     createdDataset.count()
-
     abstractPreparator.addUpdateMetadata(new LemmatizedMetadata(propertyName))
 
     new ExecutionContext(createdDataset, errorAccumulator)
