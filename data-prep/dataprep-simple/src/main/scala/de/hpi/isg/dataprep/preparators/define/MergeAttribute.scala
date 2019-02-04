@@ -65,13 +65,13 @@ class MergeAttribute (val attributes:List[String]
       false
   }
 
-  def isDay(a: Dataset[Row], b: String): Boolean = {
+  def isDay(row: Dataset[Row],header: String): Boolean = {
+  import row.sparkSession.implicits._
+    val sumDay = row.select(header).map(x => if (x.getInt(0) <= 31 && x.getInt(0) > 0 ) 1 else 0).reduce(_+_)
 
-    val sumDay = a.select(b).map(x => if (x.getInt(0) < 32 && x.getInt(0) > 0) 1 else 0)
-      .sum
+    val columnWithoutNull = row.filter(x => x.getString(0).trim.isEmpty)
 
-    //if (b.contains("day") || b.contains("Day")) true
-    if (sumDay / a.count() == 1)
+    if (sumDay / columnWithoutNull.count() <= 0.95)
       true
     else
       false
@@ -116,6 +116,4 @@ class MergeAttribute (val attributes:List[String]
 		println(result)
 		result
 	}
-
-
 }
