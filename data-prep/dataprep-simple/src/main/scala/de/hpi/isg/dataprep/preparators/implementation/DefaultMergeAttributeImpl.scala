@@ -22,6 +22,7 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 	  */
 	override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 		val preparator = abstractPreparator.asInstanceOf[MergeAttribute];
+		println(preparator.test)
 		val newColumnName = findName(preparator.attributes(0),preparator.attributes(1))
 		val mergeFunc = if (preparator.connector.isEmpty) merge else merge(preparator.connector)
 		val df = dataFrame.withColumn(newColumnName, mergeFunc(col(preparator.attributes(0)),col(preparator.attributes(1))))
@@ -49,8 +50,8 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 		.map(colCombo =>
 					colCombo.map(
 						row =>{
-								val a = row.getString(0)
-								val b = row.getString(1)
+								val a = row.get(0).toString
+								val b = row.get(1).toString
 								if (a.equals(b))
 									1
 								else if ( a.trim.isEmpty || b.trim.isEmpty)

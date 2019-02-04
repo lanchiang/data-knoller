@@ -11,8 +11,15 @@ import spire.std.float
 
 import scala.collection.JavaConverters._
 class MergeAttribute (val attributes:List[String]
-					 ,val connector:String)
+					 ,val connector:String,
+					  val test:String)
 		extends AbstractPreparator{
+
+	def this( attributes:List[String]
+			  , connector:String)
+	{
+		this(attributes,connector,"Bla Bla bla")
+	}
 
 	def this()
 	{
@@ -41,25 +48,26 @@ class MergeAttribute (val attributes:List[String]
 	def mapMerge(row: Row) = isGoodToMerge(row.getString(0),row.getString(1))
 
 
-  def isYear(a: Dataset[Row], b: String): Boolean = {
-
-    val sumYears = a.select(b).map(x => if (x.getInt(0) < 2100 && x.getInt(0) > 0) 1 else 0)
-      .sum
+  def isYear(dataset: Dataset[Row], b: String): Boolean = {
+	  import dataset.sparkSession.implicits._
+    val sumYears = dataset.select(b).map(x => if (x.getInt(0) < 2100 && x.getInt(0) > 0) 1 else 0)
+			.reduce(_+_)
 
     //if (b.contains("year") || b.contains("Year")) true
-    if (sumYears / a.count() == 1)
+    if (sumYears / dataset.count() == 1)
       true
     else
       false
   }
 
-  def isMonth(a: Dataset[Row], b: String): Boolean = {
+  def isMonth(dataset: Dataset[Row], b: String): Boolean = {
+	  import dataset.sparkSession.implicits._
+    val sumMonth = dataset.select(b).map(x => if (x.getInt(0) < 13 && x.getInt(0) > 0) 1 else 0)
+			.reduce(_+_)
 
-    val sumMonth = a.select(b).map(x => if (x.getInt(0) < 13 && x.getInt(0) > 0) 1 else 0)
-      .sum
 
-    //if (b.contains("month") || b.contains("Month")) true
-    if (sumMonth / a.count() == 1)
+	  //if (b.contains("month") || b.contains("Month")) true
+    if (sumMonth / dataset.count() == 1)
       true
     else
       false
@@ -67,9 +75,12 @@ class MergeAttribute (val attributes:List[String]
 
   def isDay(row: Dataset[Row],header: String): Boolean = {
   import row.sparkSession.implicits._
-    val sumDay = row.select(header).map(x => if (x.getInt(0) <= 31 && x.getInt(0) > 0 ) 1 else 0).reduce(_+_)
-
-    val columnWithoutNull = row.filter(x => x.getString(0).trim.isEmpty)
+  val columnWithoutNull = row
+		  .select(header)
+		  .filter(x => x.get(0).toString.trim.isEmpty)
+    val sumDay = columnWithoutNull
+			.map(x => if (x.getInt(0) <= 31 && x.getInt(0) > 0 ) 1 else 0)
+			.reduce(_+_)
 
     if (sumDay / columnWithoutNull.count() <= 0.95)
       true
@@ -77,10 +88,18 @@ class MergeAttribute (val attributes:List[String]
       false
   }
 
+//	def ksTest(dataset: Dataset[Row]):Double = {
+//		dataset.sort("col1","col2")
+//
+//
+//
+//	}
+
 
   override def buildMetadataSetup(): Unit = {
 
 	}
+
 	val weight = 4
 	val bias = -0.75
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
