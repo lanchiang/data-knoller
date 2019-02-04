@@ -46,6 +46,7 @@ class LemmatizePreparator extends AbstractPreparator with Serializable {
       }
       case 1 => {
         propertyName = schema.fields(0).name
+
         val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
 
         val languageMetadata = new LanguageMetadata(propertyName, null) // any language

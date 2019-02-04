@@ -10,6 +10,8 @@ import de.hpi.isg.dataprep.model.target.schema.{Attribute, SchemaMapping}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
+import scala.collection.JavaConverters._
+import org.dmg.pmml.False
 
 class DetectLanguagePreparator() extends AbstractPreparator {
 
@@ -60,7 +62,16 @@ class DetectLanguagePreparator() extends AbstractPreparator {
         val hasStringMetadata = metadataRepository.containByValue(stringMetadata)
 
         if ((checkLanguageMetadata == null || !languageMetadata.equalsByValue(checkLanguageMetadata)) && hasStringMetadata) {
-          1
+          val newSample = dataset
+            .sample(withReplacement = true, math.min(1.0, 20.0 / dataset.count()))
+            .limit(10)
+
+          import dataset.sparkSession.implicits._
+          val sampleString = newSample.select(propertyName).map(_.getAs[String](0)).collect().mkString("")
+          val cleanedStr = sampleString.replaceAll("[\\d.,\\/#!$%\\^&\\*;:{}=\\-_`~()]", "")
+
+          val score = math.max(0.001, 1 - (5 / cleanedStr.length)).asInstanceOf[Float]
+          score
         } else {
           0
         }
