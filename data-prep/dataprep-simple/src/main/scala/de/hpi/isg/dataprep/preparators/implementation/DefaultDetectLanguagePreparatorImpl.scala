@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
 import de.hpi.isg.dataprep.metadata.{LanguageMetadata, UnsupportedLanguageException}
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
+import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 import org.languagetool.JLanguageTool
@@ -29,7 +29,7 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
     * @throws Exception
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
+    val preparator = abstractPreparator.asInstanceOf[DetectLanguagePreparator]
     val propertyName = preparator.propertyName
 
     val detector = new LanguageIdentifier(2000)
@@ -42,6 +42,7 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
       // No language should also be noted down
       val enumLang = if (lang != null) LanguageEnum.langForClass(lang.getClass) else null
       val langMetadata = new LanguageMetadata(propertyName, enumLang)
+      abstractPreparator.addUpdateMetadata(langMetadata)
     } catch {
       case e: UnsupportedLanguageException =>
         errorAccumulator.add(new PropertyError(propertyName, e))
