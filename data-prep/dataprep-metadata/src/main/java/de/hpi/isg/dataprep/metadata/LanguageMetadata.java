@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * @author Lan Jiang
- * @since 2018/8/25
- */
 public class LanguageMetadata extends Metadata {
 
     public enum LanguageEnum {

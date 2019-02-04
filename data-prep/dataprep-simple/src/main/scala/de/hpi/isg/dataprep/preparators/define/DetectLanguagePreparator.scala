@@ -3,9 +3,10 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, LanguageMetadata}
+import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
+import de.hpi.isg.dataprep.metadata.{LanguageMetadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.schema.{Attribute, SchemaMapping}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
@@ -33,17 +34,31 @@ class DetectLanguagePreparator() extends AbstractPreparator {
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    // todo: check if language metadata is set
-    // todo: get propertyName
-    val propertyName = "demo"
-    val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
+    val schema = dataset.schema
+    val score : Float = schema.size match {
+      case value if value > 1 => 0
+      case value if value == 0 => {
+        //        throw new RuntimeException("Illegal schema size.")
+        val e : Exception = new RuntimeException(new IllegalArgumentException("Illegal schema size."))
+        e.printStackTrace()
+        0
+      }
+      case 1 => {
+        propertyName = schema.fields(0).name
+        val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
 
-    val metadata = new LanguageMetadata(propertyName, null)
-    val check = metadataRepository.getMetadata(metadata)
-    if (check == null || !metadata.equalsByValue(check)) {
-      1
-    } else {
-      0
+        val languageMetadata = new LanguageMetadata(propertyName, LanguageEnum.ANY)
+        val checkLanguageMetadata = metadataRepository.getMetadata(languageMetadata)
+        val stringMetadata = new PropertyDataType(propertyName, DataType.PropertyType.STRING)
+        val hasStringMetadata = metadataRepository.containByValue(stringMetadata)
+
+        if ((checkLanguageMetadata == null || !languageMetadata.equalsByValue(checkLanguageMetadata)) && hasStringMetadata) {
+          1
+        } else {
+          0
+        }
+      }
     }
+    score
   }
 }

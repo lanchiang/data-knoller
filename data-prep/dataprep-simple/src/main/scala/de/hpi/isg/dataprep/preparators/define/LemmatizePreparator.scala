@@ -35,6 +35,31 @@ class LemmatizePreparator extends AbstractPreparator with Serializable {
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    0
+    val schema = dataset.schema
+    val score : Float = schema.size match {
+      case value if value > 1 => 0
+      case value if value == 0 => {
+        //        throw new RuntimeException("Illegal schema size.")
+        val e : Exception = new RuntimeException(new IllegalArgumentException("Illegal schema size."))
+        e.printStackTrace()
+        0
+      }
+      case 1 => {
+        propertyName = schema.fields(0).name
+        val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
+
+        val languageMetadata = new LanguageMetadata(propertyName, LanguageEnum.ANY)
+        val hasLanguageMetadata = metadataRepository.containByValue(languageMetadata)
+        val stringMetadata = new PropertyDataType(propertyName, DataType.PropertyType.STRING)
+        val hasStringMetadata = metadataRepository.containByValue(stringMetadata)
+
+        if (hasLanguageMetadata && hasStringMetadata) {
+          1
+        } else {
+          0
+        }
+      }
+    }
+    score
   }
 }
