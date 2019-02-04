@@ -5,7 +5,7 @@ import java.util.Properties
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-import de.hpi.isg.dataprep.metadata.LanguageMetadata
+import de.hpi.isg.dataprep.metadata.{LanguageMetadata, LemmatizedMetadata}
 import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -103,9 +103,12 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
           tryConvert
         case Success(content) => tryConvert
       }
+
       trial.toOption
     })(rowEncoder)
     createdDataset.count()
+
+    abstractPreparator.addUpdateMetadata(new LemmatizedMetadata(propertyName))
 
     new ExecutionContext(createdDataset, errorAccumulator)
   }
