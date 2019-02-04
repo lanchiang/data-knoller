@@ -11,7 +11,7 @@ import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, functions}
 import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.sql.functions.lit
 import org.languagetool.{AnalyzedToken, AnalyzedTokenReadings, JLanguageTool, Language}
@@ -55,56 +55,62 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
     val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
     val propertyName = preparator.propertyName
 
-    // TODO: This is so broken...
     val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
-      new LanguageMetadata(propertyName, LanguageMetadata.LanguageEnum.ANY)).asInstanceOf[LanguageMetadata]
-    val language = langMeta.getLanguage.getType
+      new LanguageMetadata(propertyName, null)).asInstanceOf[LanguageMetadata]
 
     val realErrors = ListBuffer[PreparationError]()
     var df = dataFrame
     df = df.withColumn(propertyName + "_lemmatized", lit(""))
 
     val rowEncoder = RowEncoder(df.schema)
-    val createdDataset = df.flatMap(row => {
-      //
+    val createdDataset = df.withColumn("iter_index", functions.monotonically_increasing_id()).flatMap(row => {
+      val index = row.getAs[Long]("iter_index").asInstanceOf[Int]
 
-      val valIndexTry = Try {
-        row.fieldIndex(propertyName)
-      }
-      val valIndex = valIndexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
-      val operatedValue = row.getAs[String](valIndex)
+      val language = langMeta.getLanguage(index)
 
-      val newIndexTry = Try {
-        row.fieldIndex(propertyName + "_lemmatized")
-      }
-      val newIndex = newIndexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
-
-      val seq = row.toSeq
-      val tryConvert = Try {
-        val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
-          if (newIndex == index)
-            lemmatizeString(operatedValue, language)
-          else
-            value
+      if(language != null) {
+        val valIndexTry = Try {
+          row.fieldIndex(propertyName)
         }
-        val newRow = Row.fromSeq(newSeq)
-        newRow
-      }
+        val valIndex = valIndexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+        val operatedValue = row.getAs[String](valIndex)
 
-      val trial = tryConvert match {
-        case Failure(content) =>
-          errorAccumulator.add(new RecordError(operatedValue.toString, content))
-          tryConvert
-        case Success(content) => tryConvert
+        val newIndexTry = Try {
+          row.fieldIndex(propertyName + "_lemmatized")
+        }
+        val newIndex = newIndexTry match {
+          case Failure(content) => throw content
+          case Success(content) => content
+        }
+
+        val seq = row.toSeq
+        val tryConvert = Try {
+          val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
+            if (newIndex == index)
+              lemmatizeString(operatedValue, language.getType)
+            else
+              value
+          }
+          val newRow = Row.fromSeq(newSeq)
+          newRow
+        }
+
+        val trial = tryConvert match {
+          case Failure(content) =>
+            errorAccumulator.add(new RecordError(operatedValue.toString, content))
+            tryConvert
+          case Success(content) => tryConvert
+        }
+        trial.toOption
+      } else{
+        Option(row)
       }
-      trial.toOption
-    })(rowEncoder)
+    })(rowEncoder).drop("iter_index")
+
+
     createdDataset.count()
 
     new ExecutionContext(createdDataset, errorAccumulator)

@@ -14,9 +14,7 @@ import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by danthe on 26.11.18.
@@ -30,7 +28,11 @@ public class LemmatizeTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.executePipeline();
 
-        pipeline.getMetadataRepository().getMetadataPool().add(new LanguageMetadata("stemlemma", LanguageMetadata.LanguageEnum.ENGLISH));
+        Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
+        langMapping.put(0, LanguageMetadata.LanguageEnum.ENGLISH);
+        pipeline.getMetadataRepository().getMetadataPool().add(
+                new LanguageMetadata("stemlemma", langMapping, 10)
+        );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();
@@ -53,7 +55,11 @@ public class LemmatizeTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.executePipeline();
 
-        pipeline.getMetadataRepository().getMetadataPool().add(new LanguageMetadata("stemlemma", LanguageMetadata.LanguageEnum.SPANISH));
+        Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
+        langMapping.put(0, LanguageMetadata.LanguageEnum.SPANISH);
+        pipeline.getMetadataRepository().getMetadataPool().add(
+                new LanguageMetadata("stemlemma", langMapping, 10)
+        );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();
@@ -68,7 +74,11 @@ public class LemmatizeTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.executePipeline();
 
-        pipeline.getMetadataRepository().getMetadataPool().add(new LanguageMetadata("stemlemma_wrong", LanguageMetadata.LanguageEnum.ENGLISH));
+        Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
+        langMapping.put(0, LanguageMetadata.LanguageEnum.ENGLISH);
+        pipeline.getMetadataRepository().getMetadataPool().add(
+                new LanguageMetadata("stemlemma_wrong", langMapping, 10)
+        );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();

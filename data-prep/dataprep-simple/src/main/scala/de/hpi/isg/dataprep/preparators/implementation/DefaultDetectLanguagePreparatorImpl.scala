@@ -7,9 +7,9 @@ import de.hpi.isg.dataprep.metadata.{LanguageMetadata, UnsupportedLanguageExcept
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{Dataset, Row, functions}
 import org.apache.spark.util.CollectionAccumulator
-import org.languagetool.JLanguageTool
+import org.languagetool.{JLanguageTool, Language}
 import org.languagetool.language.LanguageIdentifier
 
 import scala.collection.JavaConverters._
@@ -33,20 +33,27 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
     val propertyName = preparator.propertyName
 
     val detector = new LanguageIdentifier(2000)
-    // TODO: Chunk df with randomSplit()
 
-    val colStr = dataFrame.select(propertyName).collect().map(p => p.getAs[String](0)).mkString(" ")
-    val lang = detector.detectLanguage(colStr)
+    val langPerRow = dataFrame.select(propertyName)
+      .collect().grouped(preparator.chunkSize).zipWithIndex.map(rowChunkWithId => {
+      val rowChunk = rowChunkWithId._1
+      val index = rowChunkWithId._2
 
-    try{
-      // No language should also be noted down
-      val enumLang = if (lang != null) LanguageEnum.langForClass(lang.getClass) else null
-      val langMetadata = new LanguageMetadata(propertyName, enumLang)
-      abstractPreparator.addUpdateMetadata(langMetadata)
-    } catch {
-      case e: UnsupportedLanguageException =>
-        errorAccumulator.add(new PropertyError(propertyName, e))
-    }
+      val textChunk = rowChunk.map(_.getAs[String](0)).mkString(" ")
+      val lang = detector.detectLanguage(textChunk)
+
+      try {
+        val enumLang = if (lang != null) LanguageEnum.langForClass(lang.getClass) else null
+        (index.asInstanceOf[Integer], enumLang)
+      } catch {
+        case e: UnsupportedLanguageException =>
+          errorAccumulator.add(new PropertyError(propertyName, e))
+          (index.asInstanceOf[Integer], null)
+      }
+    }).toMap.asJava
+
+    val langMetadata = new LanguageMetadata(propertyName, langPerRow, preparator.chunkSize)
+    abstractPreparator.addUpdateMetadata(langMetadata)
 
     new ExecutionContext(dataFrame, errorAccumulator)
   }

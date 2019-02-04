@@ -11,7 +11,9 @@ import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 import org.languagetool.Language;
 import org.languagetool.language.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -25,8 +27,7 @@ public class LanguageMetadata extends Metadata {
         SPANISH(Spanish.class),
         PORTUGUESE(Portuguese.class),
         RUSSIAN(Russian.class),
-        CHINESE(Chinese.class),
-        ANY(null);
+        CHINESE(Chinese.class);
 
         private final Class<? extends Language> type;
         private LanguageEnum(Class<? extends Language> type) {
@@ -45,24 +46,36 @@ public class LanguageMetadata extends Metadata {
         }
     }
 
-    private LanguageEnum language;
+    private Map<Integer, LanguageEnum> languages;
+    private int chunkSize = 5;
 
     public LanguageMetadata() {
         super(LanguageMetadata.class.getSimpleName());
     }
 
-    public LanguageMetadata(String propertyName, LanguageEnum language) {
+    public LanguageMetadata(String propertyName, Map<Integer, LanguageEnum> languages) {
         this();
         this.scope = new ColumnMetadata(propertyName);
-        this.language = language;
+        this.languages = languages;
+    }
+
+    public LanguageMetadata(String propertyName, Map<Integer, LanguageEnum> languages, int chunkSize) {
+        this();
+        this.scope = new ColumnMetadata(propertyName);
+        this.languages = languages;
+        this.chunkSize = chunkSize;
     }
 
     public MetadataScope getScope() {
         return scope;
     }
 
-    public LanguageEnum getLanguage() {
-        return language;
+    public Map<Integer, LanguageEnum> getLanguages() {
+        return languages;
+    }
+
+    public LanguageEnum getLanguage(int index){
+        return languages.getOrDefault(index / chunkSize, null);
     }
 
     @Override
@@ -99,18 +112,17 @@ public class LanguageMetadata extends Metadata {
     public boolean equalsByValue(Metadata metadata) {
         if (!(metadata instanceof LanguageMetadata))
             return false;
-        LanguageEnum otherLang = ((LanguageMetadata) metadata).getLanguage();
-        if(language == null || otherLang == null)
-            return false;
-        return language == LanguageEnum.ANY || otherLang == LanguageEnum.ANY
-                || language.equals(otherLang);
+        Map<Integer, LanguageEnum> otherLangs = ((LanguageMetadata) metadata).getLanguages();
+        if(languages == null || otherLangs == null) // ANY
+            return true;
+        return languages.equals(otherLangs);
     }
 
     @Override
     public String toString() {
         return "PropertyDataType{" +
                 "propertyName='" + scope.getName() + '\'' +
-                ", language=" + language +
+                ", languages=" + new HashSet<LanguageEnum>(languages.values()).toString() +
                 '}';
     }
 }

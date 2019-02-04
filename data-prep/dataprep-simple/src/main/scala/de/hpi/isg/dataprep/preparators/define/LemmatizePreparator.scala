@@ -31,7 +31,7 @@ class LemmatizePreparator extends AbstractPreparator with Serializable {
       throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
 
     this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-    this.prerequisites.add(new LanguageMetadata(propertyName, LanguageEnum.ANY))
+    this.prerequisites.add(new LanguageMetadata(propertyName, null)) // any language
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
@@ -48,7 +48,7 @@ class LemmatizePreparator extends AbstractPreparator with Serializable {
         propertyName = schema.fields(0).name
         val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
 
-        val languageMetadata = new LanguageMetadata(propertyName, LanguageEnum.ANY)
+        val languageMetadata = new LanguageMetadata(propertyName, null) // any language
         val hasLanguageMetadata = metadataRepository.containByValue(languageMetadata)
         val stringMetadata = new PropertyDataType(propertyName, DataType.PropertyType.STRING)
         val hasStringMetadata = metadataRepository.containByValue(stringMetadata)

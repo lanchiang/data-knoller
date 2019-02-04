@@ -14,10 +14,17 @@ import org.apache.spark.sql.{Dataset, Row}
 class DetectLanguagePreparator() extends AbstractPreparator {
 
   var propertyName : String = _
+  var chunkSize : Int = 5
 
   def this(propertyName: String) {
     this()
     this.propertyName = propertyName
+  }
+
+  def this(propertyName: String, chunkSize: Int) {
+    this()
+    this.propertyName = propertyName
+    this.chunkSize = chunkSize
   }
 
   /**
@@ -47,7 +54,7 @@ class DetectLanguagePreparator() extends AbstractPreparator {
         propertyName = schema.fields(0).name
         val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
 
-        val languageMetadata = new LanguageMetadata(propertyName, LanguageEnum.ANY)
+        val languageMetadata = new LanguageMetadata(propertyName, null) // any language
         val checkLanguageMetadata = metadataRepository.getMetadata(languageMetadata)
         val stringMetadata = new PropertyDataType(propertyName, DataType.PropertyType.STRING)
         val hasStringMetadata = metadataRepository.containByValue(stringMetadata)
