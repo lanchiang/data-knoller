@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.metadata.LanguageMetadata;
+import de.hpi.isg.dataprep.metadata.LemmatizedMetadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -46,6 +47,7 @@ public class LemmatizeTest extends PreparatorTest {
         List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "going", "war", "Fred s house", "succeed");
         Assert.assertEquals(expected, actualStemlemma);
+        Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LemmatizedMetadata("stemlemma")));
     }
 
     @Test

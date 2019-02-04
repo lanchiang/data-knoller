@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class LanguageMetadata extends Metadata {
 
     public enum LanguageEnum {
-        ENGLISH(AmericanEnglish.class),
+        ENGLISH(English.class),
         GERMAN(German.class),
         FRENCH(French.class),
         DUTCH(Dutch.class),
