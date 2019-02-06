@@ -27,11 +27,11 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
         } else if (maybeLocalePattern.get.pattern == "EEE") {
           dayOfTheWeekOption = Some(datePart)
         }
-      } else {
+      } else if (Utils.isNumber(datePart)) {
         undeterminedBlocks.append(datePart)
       }
     }
-    applyRules(undeterminedBlocks.toList)
+    applyNumberRules(undeterminedBlocks.toList)
 
     if (isDefined) {
       val resultingPattern = generatePattern()
@@ -46,7 +46,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
     None
   }
 
-  def applyRules(undeterminedBlocks: List[String]): Unit = {
+  def applyNumberRules(undeterminedBlocks: List[String]): Unit = {
     // TODO: If multiple blocks are the same, it wouldn't matter which is which
     var leftoverBlocks: List[String] = undeterminedBlocks
 
