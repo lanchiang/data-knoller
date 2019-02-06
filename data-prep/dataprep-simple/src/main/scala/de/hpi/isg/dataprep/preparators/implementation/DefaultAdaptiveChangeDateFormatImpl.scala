@@ -53,14 +53,17 @@ object Utils {
 
     var localePattern: Option[LocalePattern] = None
 
+    // First try US, then users locale and then all others
+    val locales = Locale.US :: Locale.getDefault() :: DateFormat.getAvailableLocales.toList
+
     if (distinctBlockValues.size == 12) {
-      localePattern = findValidLocale(distinctBlockValues, monthPattern, DateFormat.getAvailableLocales.toList)
+      localePattern = findValidLocale(distinctBlockValues, monthPattern, locales)
     } else if (distinctBlockValues.size == 7) {
-      localePattern = findValidLocale(distinctBlockValues, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
+      localePattern = findValidLocale(distinctBlockValues, dayOfWeekPattern, locales)
     } else {
-      localePattern = findValidLocale(distinctBlockValues, monthPattern, DateFormat.getAvailableLocales.toList)
+      localePattern = findValidLocale(distinctBlockValues, monthPattern, locales)
       if (localePattern.isEmpty) {
-        localePattern = findValidLocale(distinctBlockValues, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
+        localePattern = findValidLocale(distinctBlockValues, dayOfWeekPattern, locales)
       }
     }
     localePattern
@@ -101,20 +104,21 @@ object Utils {
     s.forall(_.isLetterOrDigit)
   }
 
-  def extractClusterDatePattern(dates: List[String]): Option[String] = {
+  def extractClusterDatePattern(dates: List[String]): Option[LocalePattern] = {
     val simpleDates: List[SimpleDate] = dates.map(new SimpleDate(_))
     val blocks: List[List[String]] = simpleDates.map(_.splitDate).transpose
     val blockLocalePatterns: List[Option[LocalePattern]] = blocks
-      // return None, when it's not a letter
       .map(block => if (Utils.isLetter(block.head)) Utils.findValidLocalePattern(block.toSet) else None)
 
-    var maybeDatePattern: Option[String] = None
+    var maybeLocaleDatePattern: Option[LocalePattern] = None
 
     simpleDates.iterator
-      .takeWhile(_ => maybeDatePattern.isEmpty)
-      .foreach(simpleDate => maybeDatePattern = simpleDate.toPattern(blockLocalePatterns))
+      .takeWhile(_ => maybeLocaleDatePattern.isEmpty)
+      .foreach(simpleDate =>
+        maybeLocaleDatePattern = simpleDate.toPattern(blockLocalePatterns)
+      )
 
-    maybeDatePattern
+    maybeLocaleDatePattern
   }
 }
 
@@ -147,7 +151,7 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
       .groupBy(Utils.getSimilarityCriteria)
       .mapValues(clusteredDates => Utils.extractClusterDatePattern(clusteredDates.toList))
       .collect()
-      .toMap[PatternCriteria, Option[String]]
+      .toMap[PatternCriteria, Option[LocalePattern]]
 
     val createdDataset = dataFrame.flatMap(row => {
       val operatedValue = row.getAs[String](propertyName)
@@ -189,36 +193,35 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
-  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, dateClustersPatterns: Map[PatternCriteria, Option[String]]): String = {
+  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, dateClustersPatterns: Map[PatternCriteria, Option[LocalePattern]]): String = {
     val similarityCriteria: PatternCriteria = Utils.getSimilarityCriteria(date)
-    val maybeDatePattern: Option[String] = dateClustersPatterns(similarityCriteria)
+    val maybeDatePattern: Option[LocalePattern] = dateClustersPatterns(similarityCriteria)
 
     if (maybeDatePattern.isDefined) {
-      val parsedDate = tryParseDate(date, maybeDatePattern.get)
+      val datePattern = maybeDatePattern.get
+      val parsedDate = tryParseDate(date, datePattern.pattern, datePattern.locale)
       if (parsedDate.isDefined) {
-        return getDateAsString(parsedDate.get, targetPattern.getPattern)
+        return getDateAsString(parsedDate.get, datePattern.pattern, datePattern.locale)
       }
     }
     throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
   }
 
-  def getDateAsString(d: Date, pattern: String): String = {
-    // TODO(ns): Set locale to US, need to find a way to parse multiple languages
-    val dateFormat = new SimpleDateFormat(pattern, Locale.US)
+  def getDateAsString(d: Date, pattern: String, locale: Locale): String = {
+    val dateFormat = new SimpleDateFormat(pattern, locale)
     dateFormat.setLenient(false)
     dateFormat.format(d)
   }
 
-  def tryParseDate(dateString: String, datePattern: String): Option[Date] = {
-    Try{ convertStringToDate(dateString, datePattern) } match {
+  def tryParseDate(dateString: String, datePattern: String, locale: Locale): Option[Date] = {
+    Try{ convertStringToDate(dateString, datePattern, locale) } match {
       case Failure(_) => None
       case Success(date) => Some(date)
     }
   }
 
-  def convertStringToDate(s: String, pattern: String): Date = {
-    // TODO(ns): Set locale to US, need to find a way to parse multiple languages
-    val dateFormat = new SimpleDateFormat(pattern, Locale.US)
+  def convertStringToDate(s: String, pattern: String, locale: Locale): Date = {
+    val dateFormat = new SimpleDateFormat(pattern, locale)
     dateFormat.setLenient(false)
     dateFormat.parse(s)
   }

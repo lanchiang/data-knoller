@@ -17,7 +17,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
 
   //--------------------------------------------------------
 
-  def toPattern(alreadyFoundPatterns: List[Option[LocalePattern]]): Option[String] = {
+  def toPattern(alreadyFoundPatterns: List[Option[LocalePattern]]): Option[LocalePattern] = {
     val undeterminedBlocks = ListBuffer[String]()
     // Use already found text patterns
     (splitDate zip alreadyFoundPatterns).foreach{case (datePart, maybeLocalePattern) =>
@@ -35,8 +35,12 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
 
     if (isDefined) {
       val resultingPattern = generatePattern()
+      // Take first locale. Assumption: There should only be one locale per date. Default to US, if none is found
+      val maybeLocale = alreadyFoundPatterns.flatten.headOption
+      val locale: Locale = if (maybeLocale.isDefined) maybeLocale.get.locale else Locale.US
+
       println(s"Result: $resultingPattern\n")
-      return Some(resultingPattern)
+      return Some(LocalePattern(locale, resultingPattern))
     }
     println("")
     None
