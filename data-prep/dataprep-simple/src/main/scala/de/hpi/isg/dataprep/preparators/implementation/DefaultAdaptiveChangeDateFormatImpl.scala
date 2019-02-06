@@ -7,18 +7,123 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
+import de.hpi.isg.dataprep.preparators.implementation.PartTypeEnum.PartTypeEnum
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
-import scala.collection.mutable.ListBuffer
-import scala.util.control.Breaks._
+import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
+object Utils {
+  def getSimilarityCriteria(date: String): PatternCriteria = {
+    val alphaNumericPattern = "[0-9a-zA-z\\x7f-\\xff]{1,}"
+    val nonAlphaNumericPattern = "[^0-9a-zA-z\\x7f-\\xff]{1,}"
+    // Regex parsing a date string with named capture groups datePart, separator
+    val datePattern = new Regex(s"($alphaNumericPattern)|($nonAlphaNumericPattern)", "datePart", "separator")
+
+    val initialDateBlocks: List[Regex.Match] = datePattern.findAllIn(date).matchData.toList
+    val dateParts: List[String] = initialDateBlocks.filter(_.group("datePart") != null).map(_.toString)
+
+    val numberOfBlocks: Int = initialDateBlocks.size
+    val separators: List[String] = initialDateBlocks.filter(_.group("separator") != null).map(_.toString)
+    // TODO(ns) Pad before calculating this, also months with different lengths
+    val lengthOfDateParts: List[Int] = dateParts.map(_.length)
+    val blockTypes: List[PartTypeEnum] = initialDateBlocks.map(m => extractType(m.toString))
+    PatternCriteria(numberOfBlocks, separators, lengthOfDateParts, blockTypes)
+  }
+
+  def extractType(s: String): PartTypeEnum = {
+    if (Utils.isDigit(s)) {
+      PartTypeEnum.Number
+    } else if (Utils.isLetter(s)) {
+      PartTypeEnum.Text
+    } else if (Utils.isAlphaNumeric(s)) {
+      PartTypeEnum.Mixed
+    } else {
+      PartTypeEnum.Separator
+    }
+  }
+
+  def findValidLocalePattern(distinctBlockValues: Set[String]): Option[LocalePattern] = {
+    val monthPattern = "MMM"
+    val dayOfWeekPattern = "EEE"
+
+    var localePattern: Option[LocalePattern] = None
+
+    if (distinctBlockValues.size == 12) {
+      localePattern = findValidLocale(distinctBlockValues, monthPattern, DateFormat.getAvailableLocales.toList)
+    } else if (distinctBlockValues.size == 7) {
+      localePattern = findValidLocale(distinctBlockValues, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
+    } else {
+      localePattern = findValidLocale(distinctBlockValues, monthPattern, DateFormat.getAvailableLocales.toList)
+      if (localePattern.isEmpty) {
+        localePattern = findValidLocale(distinctBlockValues, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
+      }
+    }
+    localePattern
+  }
+
+  def findValidLocale(blockDomain: Set[String], pattern: String, locales: List[Locale]): Option[LocalePattern] = {
+    locales.foreach(locale => {
+      val sdf = new SimpleDateFormat(pattern, locale)
+      if (!locale.getDisplayCountry.isEmpty) {
+        blockDomain.foreach(value => {
+          if (validDateFormat(value, sdf)) {
+            println(s"Found valid Locale ${locale.toLanguageTag}")
+            return Option(LocalePattern(locale, pattern))
+          }
+        })
+      }
+    })
+    None
+  }
+
+  // Checks if value can be parsed
+  def validDateFormat(value: String, sdf: SimpleDateFormat): Boolean = {
+    Try{ sdf.parse(value) } match {
+      case Failure(_) => false
+      case Success(_) => true
+    }
+  }
+
+  def isDigit(s: String): Boolean = {
+    s.forall(_.isDigit)
+  }
+
+  def isLetter(s: String): Boolean = {
+    s.forall(_.isLetter)
+  }
+
+  def isAlphaNumeric(s: String): Boolean = {
+    s.forall(_.isLetterOrDigit)
+  }
+
+  def extractClusterDatePattern(dates: List[String]): Option[String] = {
+    val simpleDates: List[SimpleDate] = dates.map(new SimpleDate(_))
+    val blocks: List[List[String]] = simpleDates.map(_.splitDate).transpose
+    val blockLocalePatterns: List[Option[LocalePattern]] = blocks
+      // return None, when it's not a letter
+      .map(block => if (Utils.isLetter(block.head)) Utils.findValidLocalePattern(block.toSet) else None)
+
+    var maybeDatePattern: Option[String] = None
+
+    simpleDates.iterator
+      .takeWhile(_ => maybeDatePattern.isEmpty)
+      .foreach(simpleDate => maybeDatePattern = simpleDate.toPattern(blockLocalePatterns))
+
+    maybeDatePattern
+  }
+}
+
+object PartTypeEnum extends Enumeration {
+  type PartTypeEnum = Value
+  val  Number, Text, Mixed, Separator = Value
+}
+
+case class PatternCriteria(numberOfBlocks: Int, separators: List[String], lengthOfDateParts: List[Int], blockTypes: List[PartTypeEnum])
 
 /**
   * Converts source to target date pattern
@@ -37,18 +142,12 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
 
     val rowEncoder = RowEncoder(dataFrame.schema)
 
-    val extractedPatterns = dataFrame.rdd
+    val dateClusterPatterns = dataFrame.rdd
       .map(_.getAs[String](propertyName))
-      .map(toPattern)
-      .filter(_.isDefined)
-      .map(_.get)
-      .map((_, 1L))
-      .reduceByKey(_ + _)
-      .sortBy(_._2, ascending = false)
+      .groupBy(Utils.getSimilarityCriteria)
+      .mapValues(clusteredDates => Utils.extractClusterDatePattern(clusteredDates.toList))
       .collect()
-      .toMap
-
-    println(extractedPatterns)
+      .toMap[PatternCriteria, Option[String]]
 
     val createdDataset = dataFrame.flatMap(row => {
       val operatedValue = row.getAs[String](propertyName)
@@ -69,7 +168,7 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
           val newRow = Row.fromSeq(newSeq)
           newRow
         } else {
-          val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern, extractedPatterns)
+          val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern, dateClusterPatterns)
           val newRow = Row.fromSeq(newSeq)
           newRow
         }
@@ -90,11 +189,31 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
+  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, dateClustersPatterns: Map[PatternCriteria, Option[String]]): String = {
+    val similarityCriteria: PatternCriteria = Utils.getSimilarityCriteria(date)
+    val maybeDatePattern: Option[String] = dateClustersPatterns(similarityCriteria)
+
+    if (maybeDatePattern.isDefined) {
+      val parsedDate = tryParseDate(date, maybeDatePattern.get)
+      if (parsedDate.isDefined) {
+        return getDateAsString(parsedDate.get, targetPattern.getPattern)
+      }
+    }
+    throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
+  }
+
   def getDateAsString(d: Date, pattern: String): String = {
     // TODO(ns): Set locale to US, need to find a way to parse multiple languages
     val dateFormat = new SimpleDateFormat(pattern, Locale.US)
     dateFormat.setLenient(false)
     dateFormat.format(d)
+  }
+
+  def tryParseDate(dateString: String, datePattern: String): Option[Date] = {
+    Try{ convertStringToDate(dateString, datePattern) } match {
+      case Failure(_) => None
+      case Success(date) => Some(date)
+    }
   }
 
   def convertStringToDate(s: String, pattern: String): Date = {
@@ -103,260 +222,4 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     dateFormat.setLenient(false)
     dateFormat.parse(s)
   }
-
-  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, extractedPatterns: Map[String, Long]): String = {
-    for((pattern, count) <- extractedPatterns) {
-      breakable {
-        println(s"DateString: $date")
-        println(s"Try pattern: $pattern")
-        val parsedDateTry = Try {
-          convertStringToDate(date, pattern)
-        }
-        val parsedDate = parsedDateTry match {
-          case Success(content) => content
-          case Failure(content) => break;
-        }
-
-        println(s"Pattern succeeded: $parsedDate")
-        return getDateAsString(parsedDate, targetPattern.getPattern)
-      }
-    }
-    throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
-  }
-
-  def applyRules(undeterminedBlocks: List[String], date: SimpleDate): SimpleDate = {
-    // TODO: If multiple blocks are the same, it wouldn't matter which is which
-    var leftoverBlocks: List[String] = undeterminedBlocks
-    val updatedDate: SimpleDate = date
-
-    for (block <- undeterminedBlocks) { // if no there are no undetermined parts left, function will return
-      breakable {
-        if (block.toInt <= 0) {
-          break
-        }
-        if (!date.isYearDefined && (block.length == 4 || block.toInt > 31 || (date.isDayDefined && block.toInt > 12))) {
-          updatedDate.yearOption = Some(block)
-        } else if (!date.isDayDefined && (block.toInt > 12 && block.toInt <= 31 ||
-          (date.isMonthDefined && block.toInt > 0 && block.toInt <= 31))) {
-          updatedDate.dayOption = Some(block)
-        } else {
-          break
-        }
-        leftoverBlocks = leftoverBlocks.filter(_ != block)
-      }
-    }
-
-    // assign leftover block if there is any
-    if (leftoverBlocks.length == 1) {
-      println("Check")
-      if (!date.isYearDefined) {
-        updatedDate.yearOption = Some(leftoverBlocks.head)
-      } else if (!date.isMonthDefined) {
-        updatedDate.monthOption = Some(leftoverBlocks.head)
-      } else if (!date.isDayDefined) {
-        updatedDate.dayOption = Some(leftoverBlocks.head)
-      }
-    }
-    updatedDate
-  }
-
-  def generatePlaceholder(origString:String, placeholder:String):String = {
-    origString.replaceAll(".", placeholder)
-  }
-
-  def generatePattern(date: SimpleDate): String = {
-    var pattern: String = ""
-    val year = date.yearOption.get
-    val month = date.monthText.getOrElse(date.monthOption.get)
-    val day = date.dayOption.get
-    println(s"generatePattern: $date.fullGroup, ${date.getSeparators}, $year, $month, $day")
-
-    var newGroup = date.splitDate.updated(date.splitDate.indexOf(year), generatePlaceholder(year, "y"))
-    newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
-    newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "d"))
-
-    val separatorsBuffer: ListBuffer[String] = date.getSeparators.to[ListBuffer]
-
-    if (date.startsWithSeparator) {
-      // Pop first element
-      pattern = separatorsBuffer.remove(0)
-      println(date.getSeparators)
-    }
-
-    for(group <- newGroup) {
-      var groupAsString = group.toString
-
-      // Full text pattern for month is MMMM
-      if (groupAsString.startsWith("MMMM")) {
-        groupAsString = "MMMM"
-      }
-
-      val separator = if(separatorsBuffer.nonEmpty) separatorsBuffer.remove(0) else ""
-
-      pattern = pattern + groupAsString + separator
-    }
-
-    pattern
-  }
-
-  def toPattern(originalDate: String): Option[String] = {
-    var date = new SimpleDate(originalDate)
-    println(s"Date: $originalDate")
-
-    date = applyRules(date.undeterminedBlocks, date)
-
-    println(s"$date")
-    if (date.isDefined) {
-      val resultingPattern = generatePattern(date)
-      println(s"Result: $resultingPattern\n")
-      return Some(resultingPattern)
-    }
-    println("")
-    None
-  }
-
-  case class TextDateField(pattern: String, locale: Locale)
-
-  def findValidPatternAndLocale(cluster: List[List[String]]): Map[Int, Option[TextDateField]] = {
-    val monthPattern = "MMM"
-    val dayOfWeekPattern = "E"
-
-    println(DateFormat.getAvailableLocales.toList)
-
-    val blocks = cluster.transpose
-    val blockTestDateFields = blocks.zipWithIndex
-      .filter{case (block, _) => block.head.forall(_.isLetter)}
-      .map{case (block, index) => {
-
-        val blockDomain = block.toSet
-        var textDateField: Option[TextDateField] = None
-        if (blockDomain.size == 12) {
-          textDateField = findValidLocale(blockDomain, monthPattern, DateFormat.getAvailableLocales.toList)
-        } else if (blockDomain.size == 7) {
-          textDateField = findValidLocale(blockDomain, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
-        } else {
-          textDateField = findValidLocale(blockDomain, monthPattern, DateFormat.getAvailableLocales.toList)
-          if (textDateField.isEmpty) {
-            textDateField = findValidLocale(blockDomain, dayOfWeekPattern, DateFormat.getAvailableLocales.toList)
-          }
-        }
-        (index, textDateField)
-      }}.toMap
-    blockTestDateFields
-  }
-
-  def findValidLocale(blockDomain: Set[String], pattern: String, locales: List[Locale]): Option[TextDateField] = {
-    locales.foreach(locale => {
-      val sdf = new SimpleDateFormat(pattern, locale)
-      if (!locale.getDisplayCountry.isEmpty) {
-        blockDomain.foreach(value => {
-          if (validDateFormat(value, sdf)) {
-            println(locale.toLanguageTag)
-            return Option(TextDateField(pattern, locale))
-          }
-        })
-      }
-    })
-    None
-  }
-
-  // Checks if value can be parsed
-  def validDateFormat(value: String, sdf: SimpleDateFormat): Boolean = {
-    Try{ sdf.parse(value) } match {
-      case Failure(_) => false
-      case Success(_) => true
-    }
-  }
-
-
-  // Clustering Start
-  def isDigit(s: String): Boolean = {
-    s.forall(_.isDigit)
-  }
-
-  def isLetter(s: String): Boolean = {
-    s.forall(_.isLetter)
-  }
-
-  def isAlphanumeric(s: String): Boolean = {
-    s.forall(_.isLetterOrDigit)
-  }
-
-  def splitString(s: String): List[String] = {
-    // Currently separators are split too so that ", " would become two different blocks: [,] [ ]
-    // This is fine for now because our clustering is very strict
-    val tmp: String = (s + 'X')
-      .sliding(2)
-      .map(pair => pair.head +
-        (if (isAlphanumeric(pair.head.toString) && isAlphanumeric(pair.last.toString))
-          ""
-        else
-          "&"))
-      .mkString("")
-    tmp.split("&").toList
-  }
-
-  def getSimilarity(s1: String, s2: String): Double  = {
-    val split1: List[String] = splitString(s1)
-    val split2: List[String] = splitString(s2)
-    var score: Double = 0.0
-    val numberOfCriteria: Int = 3
-
-    var idx: Int = 0
-    var separatorsIdentical: Boolean = true
-    var blockTypesIdentical: Boolean = true
-
-    // iterate over blocks and check conditions for aligned blocks
-    while (idx < split1.length && idx < split2.length) {
-      val block1 = split1(idx)
-      val block2 = split2(idx)
-
-
-      if (!isAlphanumeric(block1) && !isAlphanumeric(block2)) {
-        if (block1 != block2) {
-          separatorsIdentical = false
-        }
-      } else {
-        // checks if alphanumeric block at same position match type (number/letter)
-        // TODO: check char for char because of dates which contain 1st/2nd
-        if (!((isDigit(block1) && isDigit(block2)) || (isLetter(block1) && isLetter(block2)))) {
-          blockTypesIdentical = false
-        }
-      }
-
-      idx += 1
-    }
-
-    if (split1.length == split2.length) {
-      score += 1
-    }
-
-    if (separatorsIdentical) {
-      score += 1
-    }
-
-    if (blockTypesIdentical) {
-      score += 1
-    }
-
-    score / numberOfCriteria
-  }
-
-  def clusterDates(dates: List[String]): mutable.Map[String, ListBuffer[List[String]]] = {
-    val clusters: mutable.Map[String, ListBuffer[List[String]]] = mutable.Map()
-    for (date <- dates) {
-      breakable {
-        for (clusterRep <- clusters.keys) {
-          if (getSimilarity(clusterRep, date) == 1) {
-            clusters(clusterRep).append(splitString(date))
-            break
-          }
-        }
-        clusters(date) = ListBuffer(splitString(date))
-      }
-    }
-
-    clusters
-  }
-  // Clustering end
 }
