@@ -32,14 +32,21 @@ object Utils {
     // Regex parsing a date string with named capture groups datePart, separator
     val datePattern = new Regex(s"($alphaNumericPattern)|($nonAlphaNumericPattern)", "datePart", "separator")
 
-    val initialDateBlocks: List[Regex.Match] = datePattern.findAllIn(date).matchData.toList
-    val dateParts: List[String] = initialDateBlocks.filter(_.group("datePart") != null).map(_.toString)
+    val dateBlocks: List[Regex.Match] = datePattern.findAllIn(date).matchData.toList
+    val dateParts: List[String] = dateBlocks.filter(_.group("datePart") != null).map(_.toString).map(padSingleDigitDate)
 
-    val numberOfBlocks: Int = initialDateBlocks.size
-    val separators: List[String] = initialDateBlocks.filter(_.group("separator") != null).map(_.toString)
+    val numberOfBlocks: Int = dateBlocks.size
+    val separators: List[String] = dateBlocks.filter(_.group("separator") != null).map(_.toString)
     val lengthOfNumberDateParts: List[Int] = dateParts.filter(isNumber).map(_.length)
-    val blockTypes: List[PartTypeEnum] = initialDateBlocks.map(m => extractType(m.toString))
+    val blockTypes: List[PartTypeEnum] = dateBlocks.map(m => extractType(m.toString))
     PatternCriteria(numberOfBlocks, separators, lengthOfNumberDateParts, blockTypes)
+  }
+
+  def padSingleDigitDate(s: String): String = {
+    if (s.length == 1 && s.forall(Character.isDigit))
+      "0" + s
+    else
+      s
   }
 
   def extractType(s: String): PartTypeEnum = {
