@@ -7,7 +7,6 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
-import de.hpi.isg.dataprep.preparators.implementation.PartTypeEnum.PartTypeEnum
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
@@ -16,6 +15,15 @@ import org.apache.spark.util.CollectionAccumulator
 
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
+
+object PartTypeEnum extends Enumeration {
+  type PartTypeEnum = Value
+  val  Number, Text, Mixed, Separator = Value
+}
+
+import de.hpi.isg.dataprep.preparators.implementation.PartTypeEnum._
+
+case class PatternCriteria(numberOfBlocks: Int, separators: List[String], lengthOfNumberDateParts: List[Int], blockTypes: List[PartTypeEnum])
 
 object Utils {
   def getSimilarityCriteria(date: String): PatternCriteria = {
@@ -29,14 +37,13 @@ object Utils {
 
     val numberOfBlocks: Int = initialDateBlocks.size
     val separators: List[String] = initialDateBlocks.filter(_.group("separator") != null).map(_.toString)
-    // TODO(ns) Pad before calculating this, also months with different lengths
-    val lengthOfDateParts: List[Int] = dateParts.map(_.length)
+    val lengthOfNumberDateParts: List[Int] = dateParts.filter(isNumber).map(_.length)
     val blockTypes: List[PartTypeEnum] = initialDateBlocks.map(m => extractType(m.toString))
-    PatternCriteria(numberOfBlocks, separators, lengthOfDateParts, blockTypes)
+    PatternCriteria(numberOfBlocks, separators, lengthOfNumberDateParts, blockTypes)
   }
 
   def extractType(s: String): PartTypeEnum = {
-    if (Utils.isDigit(s)) {
+    if (Utils.isNumber(s)) {
       PartTypeEnum.Number
     } else if (Utils.isLetter(s)) {
       PartTypeEnum.Text
@@ -92,7 +99,7 @@ object Utils {
     }
   }
 
-  def isDigit(s: String): Boolean = {
+  def isNumber(s: String): Boolean = {
     s.forall(_.isDigit)
   }
 
@@ -121,13 +128,6 @@ object Utils {
     maybeLocaleDatePattern
   }
 }
-
-object PartTypeEnum extends Enumeration {
-  type PartTypeEnum = Value
-  val  Number, Text, Mixed, Separator = Value
-}
-
-case class PatternCriteria(numberOfBlocks: Int, separators: List[String], lengthOfDateParts: List[Int], blockTypes: List[PartTypeEnum])
 
 /**
   * Converts source to target date pattern

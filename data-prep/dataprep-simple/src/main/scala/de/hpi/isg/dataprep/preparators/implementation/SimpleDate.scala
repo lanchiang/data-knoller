@@ -50,9 +50,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
     // TODO: If multiple blocks are the same, it wouldn't matter which is which
     var leftoverBlocks: List[String] = undeterminedBlocks
 
-
-    //TODO(NS) refactor
-    for (block <- undeterminedBlocks) { // if no there are no undetermined parts left, function will return
+    for (block <- undeterminedBlocks) { // if there are no undetermined parts left, function will return
       breakable {
         if (block.toInt <= 0) {
           break
