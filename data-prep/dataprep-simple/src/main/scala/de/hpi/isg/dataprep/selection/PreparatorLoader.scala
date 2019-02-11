@@ -14,12 +14,4 @@ trait PreparatorLoader {
     reflections.getSubTypesOf(classOf[AbstractPreparator]).asScala.toSet
   }
 
-  def loadPreparator(prepClass: Class[_ <: AbstractPreparator]): AbstractPreparator = {
-    if (!preparator.contains(prepClass)) {
-      throw new ClassNotFoundException()
-    }
-    prepClass.newInstance()
-
-  }
-
 }
