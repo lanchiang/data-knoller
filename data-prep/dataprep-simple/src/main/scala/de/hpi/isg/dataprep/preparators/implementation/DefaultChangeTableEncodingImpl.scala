@@ -7,10 +7,11 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.EncodingNotDetectedException
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.metadata.CSVSourcePath
+import de.hpi.isg.dataprep.model.dialects.FileLoadDialect
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.define.ChangeTableEncoding
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 import org.mozilla.universalchardet.UniversalDetector
 
@@ -25,16 +26,29 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[ChangeTableEncoding]
     val pipeline = preparator.getPreparation.getPipeline
-
-    val actualEncoding = detectEncoding(pipeline)
+    var data = dataFrame
     val dialect = pipeline.getDialect
-    dialect.setEncoding(actualEncoding)
 
-    val dataLoader = new FlatFileDataLoader(dialect)
-    val createdDataset = dataLoader.load().getDataFrame
+    val loadEncoding = preparator.getCurrentEncoding
+    val actualEncoding = detectEncoding(pipeline)
+    val hasCorrectLoadEncoding = loadEncoding.isDefined && loadEncoding.get == actualEncoding
 
+    if (!hasCorrectLoadEncoding) {
+      dialect.setEncoding(actualEncoding)
+      data = reloadWith(dialect, pipeline)
+    }
+
+    if (hasCorrectLoadEncoding || preparator.calApplicability(null, data, null) > 0) {
+      val unmixedDialect = unmixEncoding()
+      data = reloadWith(unmixedDialect, pipeline)
+    }
+    new ExecutionContext(data, errorAccumulator)
+  }
+
+  private def reloadWith(dialect: FileLoadDialect, pipeline: AbstractPipeline): DataFrame = {
+    val createdDataset = new FlatFileDataLoader(dialect).load().getDataFrame
     pipeline.initMetadataRepository()
-    new ExecutionContext(createdDataset, errorAccumulator)
+    createdDataset
   }
 
   private def detectEncoding(pipeline: AbstractPipeline): String = {
@@ -52,10 +66,12 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     }
     detector.dataEnd()
 
-    val encoding = detector.getDetectedCharset match {
-      case null => throw new EncodingNotDetectedException(csvPath)
-      case encoding => encoding
-    }
+    val encoding = detector.getDetectedCharset
+    if (encoding == null) throw new EncodingNotDetectedException(csvPath)
     encoding
+  }
+
+  private def unmixEncoding(): FileLoadDialect = {
+    new FileLoadDialect
   }
 }
