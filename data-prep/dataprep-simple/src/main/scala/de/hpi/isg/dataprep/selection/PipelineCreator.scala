@@ -7,14 +7,8 @@ import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import org.apache.spark.sql.{Dataset, Row}
 
 class SelectionProcessController(dataContext: DataContext, decisionEngine: DecisionEngine) {
-  val allPreps: List[Preparation] = loadPreparations()
-
   def createPipeline(): Pipeline = ???
 
   def selectionLoop(allPreps: List[Preparation], currentPreps: List[Preparation], schemaMapping: SchemaMapping, data: Dataset[Row], metadata: List[Metadata]): List[Preparation] = ???
-
-
-  private def loadPreparations(): List[Preparation] = ???
-
 }
 
