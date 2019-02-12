@@ -90,7 +90,7 @@ object SplitPropertyUtils {
 
 
   /*
-    Transforms input string into its CharacterClasses, e.g. DataKnoller becomes AaaaAaaaaaa
+    Transforms input string into its CharacterClasses, e.g. 'DataKnoller' becomes 'AaaaAaaaaaa'
     returns tuple with (CharacterClassesString, OriginalString)
    */
   def toCharacterClasses(input: String): Tuple2[String, String] = {
@@ -107,7 +107,7 @@ object SplitPropertyUtils {
   }
 
   /*
-  Removes duplicated characters in a row, e.g. fooboo becomes fobo
+  Removes duplicated characters in a row, e.g. 'fooboo' becomes 'fobo'
    returns tuple with (ReducedCharacterClassesString, CharacterClassesString, OriginalString)
    */
   def reduceCharacterClasses(input: Tuple2[String, String]): Tuple3[String, String, String] = {
@@ -127,7 +127,7 @@ object SplitPropertyUtils {
 
 
   /*
-    Extracts the transitions between CharacterClasses, eg. find for String "DataPrep" the vector ((Aa,2),(aA,1))
+    Extracts the transitions between CharacterClasses, eg. find for String 'DataPrep' the vector ((Aa,2),(aA,1))
    */
   def getCharacterClassTransitions(input: String): Vector[(String, Int)] = {
     var results = ListBuffer[String]()
