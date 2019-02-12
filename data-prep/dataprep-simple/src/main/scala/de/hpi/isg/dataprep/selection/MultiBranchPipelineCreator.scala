@@ -6,8 +6,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import scala.collection.mutable.MutableList
 
 
-class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreator(dataContext) with PreparatorLoader {
-  override val path: String = "de.hpi.isg.dataprep.preparators"
+class MultiBranchPipelineCreator(dataFrame: DataFrame) {
   val dummyPreparators = List(new DummyPreparator, new DummyPreparator, new DummyPreparator)
 
   private val MAX_ITERATIONS = 100
@@ -18,7 +17,7 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
                            parent: Option[Node],
                            childs: MutableList[Node],
                            preparator: Option[DummyPreparator],
-                           affectedCols: Map[DummyPreparator, Set[String]],
+                           affectedCols: Set[String],
                            dataFrame: DataFrame,
                            score: Score
                          )
@@ -29,14 +28,14 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
     None,
     MutableList.empty,
     None,
-    Map.empty[DummyPreparator, Set[String]],
-    dataContext.getDataFrame,
+    Set.empty,
+    dataFrame,
     0
   )
 
 
 
-  override def createPipeline(): Pipeline = {
+  def createPipeline(): Pipeline = {
     val leafs = List(root)
 
     val candidates = leafs
@@ -45,10 +44,22 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
       })
 
     val bestCandidates = kBestCandidates(MAX_BRANCHES, candidates)
+    ???
 
 
+  }
 
-  ???
+
+  def getBranchAffectedCols(node: Node): Map[DummyPreparator, Set[String]] = {
+    case Node(None, _, _, _, _, _) => Map.empty
+    case Node(Some(parent), _, Some(preparator), affectedCols, _, _) => {
+      val branchAffectedCols = getBranchAffectedCols(parent)
+      val preparatorAffectedCols = branchAffectedCols
+        .getOrElse(preparator, Set.empty)
+        .union(affectedCols)
+
+      branchAffectedCols + (preparator -> preparatorAffectedCols)
+    }
   }
 
   def kBestCandidates(k: Int, candidates: List[Candidate]): List[Candidate] = {
@@ -68,7 +79,6 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
     val leafBranchScore = getBranchScore(leaf)
     preparators
       .map(p => Candidate(leaf, p, leafBranchScore + p.calApplicability(leaf.dataFrame)))
-      .toSet
   }
 
   def generateColumnCombinations(preparator: DummyPreparator, df: DataFrame, affectedCols: Set[String]): Set[DataFrame] = {
