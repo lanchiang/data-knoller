@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
+import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
@@ -217,9 +218,9 @@ public class ChangeEncodingTest extends PreparatorTest {
         }
 
         @Override
-        public void execute() throws Exception {
+        public ExecutionContext execute() throws Exception {
             this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(fakeMetadata);
-            super.execute();
+            return super.execute();
         }
     }
 }

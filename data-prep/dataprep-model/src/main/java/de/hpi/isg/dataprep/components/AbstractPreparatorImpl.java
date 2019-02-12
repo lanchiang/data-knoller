@@ -46,19 +46,17 @@ abstract public class AbstractPreparatorImpl {
         return preparator.getPreparation().getPipeline().getRawData();
     }
 
-    public final void execute(AbstractPreparator preparator) throws Exception {
+    public final ExecutionContext execute(AbstractPreparator preparator) throws Exception {
         // getDataset
         Dataset<Row> dataset = this.getDataSet(preparator);
 
         ExecutionContext executionContext = executePreparator(preparator, dataset);
 
+        // TODO remove
         preparator.getPreparation().setExecutionContext(executionContext);
         preparator.setUpdatedTable(executionContext.newDataFrame());
 
-        // throw the runtime errors to the preparator. The preparator is due to record the errors.
-        if (executionContext.hasError()) {
-            throw new PreparationHasErrorException("This preparation causes errors for some records.");
-        }
+        return executionContext;
     }
 
     public final <T> T getPreparatorInstance(AbstractPreparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {

@@ -1,13 +1,18 @@
 package de.hpi.isg.dataprep.components;
 
+import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.metadata.*;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
+import de.hpi.isg.dataprep.model.error.PropertyError;
+import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
+import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
+import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
@@ -23,6 +28,7 @@ import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Lan Jiang
@@ -141,9 +147,54 @@ public class Pipeline implements AbstractPipeline {
 
         // execute the pipeline
         for (AbstractPreparation preparation : preparations) {
-            preparation.getAbstractPreparator().execute();
+            ExecutionContext executionContext = preparation.getAbstractPreparator().execute();
+
+            recordErrorLog(executionContext, preparation);
+            this.setRawData(executionContext.newDataFrame());
+            UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
+            recordProvenance();
         }
     }
+
+    private void recordProvenance() {
+
+    }
+
+    /**
+     * Call this method whenever an error occurs during the preparator execution in order to
+     * record an error log.
+     */
+    private void recordErrorLog(ExecutionContext executionContext, AbstractPreparation preparation) {
+        List<ErrorLog> errorLogs = executionContext.errorsAccumulator().value().stream()
+                .map(error -> {
+                    ErrorLog errorLog = null;
+                    switch (error.getErrorLevel()) {
+                        case RECORD: {
+                            RecordError pair = (RecordError) error;
+                            String value = pair.getErrRecord();
+                            Throwable exception = pair.getError();
+                            errorLog = new PreparationErrorLog(preparation, value, exception);
+                            break;
+                        }
+                        case PROPERTY: {
+                            PropertyError pair = (PropertyError) error;
+                            String value = pair.getProperty();
+                            Throwable throwable = pair.getThrowable();
+                            errorLog = new PreparationErrorLog(preparation, value, throwable);
+                            break;
+                        }
+                        case DATASET: {
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
+                    return errorLog;
+                }).collect(Collectors.toList());
+        this.errorRepository.addErrorLogs(errorLogs);
+    }
+
 
     @Override
     public void initMetadataRepository() {
