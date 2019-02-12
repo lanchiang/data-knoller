@@ -147,12 +147,7 @@ public class Pipeline implements AbstractPipeline {
 
         // execute the pipeline
         for (AbstractPreparation preparation : preparations) {
-            ExecutionContext executionContext = preparation.getAbstractPreparator().execute();
-
-            recordErrorLog(executionContext, preparation);
-            this.setRawData(executionContext.newDataFrame());
-            UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
-            recordProvenance();
+            executePreparation(preparation);
         }
     }
 
@@ -263,7 +258,7 @@ public class Pipeline implements AbstractPipeline {
         preparation.setPipeline(this);
         preparation.setPosition(index++);
         preparations.add(preparation);
-        executeRecommendedPreparation(preparation);
+        executePreparation(preparation);
         return true;
     }
 
@@ -271,17 +266,19 @@ public class Pipeline implements AbstractPipeline {
      * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
      * and other dynamic information must be updated.
      */
-    private void executeRecommendedPreparation(AbstractPreparation preparation) {
+    private void executePreparation(AbstractPreparation preparation) {
+        ExecutionContext executionContext;
         //execute the added preparation
         try {
-            preparation.getAbstractPreparator().execute();
+            executionContext = preparation.getAbstractPreparator().execute();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        // update the schemaMapping and target metadata
-        UpdateUtils.updateSchemaMapping(schemaMapping, preparation.getExecutionContext());
+        recordErrorLog(executionContext, preparation);
+        this.setRawData(executionContext.newDataFrame());
         UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
+        recordProvenance();
     }
 
     @Override
