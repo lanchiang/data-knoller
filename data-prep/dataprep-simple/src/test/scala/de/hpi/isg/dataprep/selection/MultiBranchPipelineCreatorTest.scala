@@ -27,7 +27,7 @@ class MultiBranchPipelineCreatorTest extends FlatSpecLike with Matchers with Bef
     val pipelineCreator = new MultiBranchPipelineCreator(df)
     val columnCombinations = pipelineCreator.generateColumnCombinations(df, Set("col1"))
 
-    columnCombinations should have size 8
+    columnCombinations should have size 7
   }
 
   it should "find the affected columns for a branch" in {

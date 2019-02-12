@@ -44,10 +44,11 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
   def candidateToBranchHead(candidate: Candidate): Child = {
     val oldBranchHead = candidate.branchHead
     val preparator = candidate.preparator
-    val colComb = candidate.affectedCols
     val prepScore = candidate.score
-    val oldDF = oldBranchHead.dataFrame
-    val newDf = preparator.impl.execute(oldDF)
+    val oldDf = oldBranchHead.dataFrame
+    val newDf = preparator.impl.execute(oldDf)
+    // prevents operators like split attribute to recursively split columns
+    val colComb = candidate.affectedCols.union(newDf.columns.toSet -- oldDf.columns.toSet)
 
     Child(oldBranchHead, preparator, colComb, newDf, prepScore)
   }
@@ -63,6 +64,10 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
 
       branchAffectedCols + (preparator -> preparatorAffectedCols)
     }
+  }
+
+  def pruneEquivalentBranches(candidates: List[Candidate]): List[Candidate] = {
+    ???
   }
 
   // Filters the k best candidates from all potential candidates to extend the tree.
