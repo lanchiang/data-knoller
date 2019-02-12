@@ -8,6 +8,7 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
   val dummyPreparators = List(new DummyPreparator, new DummyPreparator, new DummyPreparator)
   val root: Root = Root(dataFrame)
 
+  // Assembles the pipeline.
   def createPipeline(): Unit = {
     val bestBranch = findBestBranch(root)
     println(getBranchScore(bestBranch))
@@ -16,6 +17,7 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
     println(getBranchAffectedCols(bestBranch).size)
   }
 
+  // Returns the leaf node that represents the branch with the highest total score.
   def findBestBranch(root: Root): Child = {
     def rec(branchHeads: List[TreeNode], maxIterations: Int): List[TreeNode] = {
       if (maxIterations == 0) return branchHeads
@@ -38,6 +40,7 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
     }
   }
 
+  // Transforms a candidate to a tree node to append it to the graph.
   def candidateToBranchHead(candidate: Candidate): Child = {
     val oldBranchHead = candidate.branchHead
     val preparator = candidate.preparator
@@ -49,6 +52,7 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
     Child(oldBranchHead, preparator, colComb, newDf, prepScore)
   }
 
+  // Returns a map from all preparators in a branch to all columns they affected.
   def getBranchAffectedCols(node: TreeNode): Map[DummyPreparator, Set[String]] = node match {
     case Root(_) => Map.empty[DummyPreparator, Set[String]]
     case Child(parent, preparator, affectedCols, _, _) => {
@@ -61,6 +65,7 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
     }
   }
 
+  // Filters the k best candidates from all potential candidates to extend the tree.
   def kBestCandidates(k: Int, candidates: List[Candidate]): List[Candidate] = {
     if(k == 0) Nil
     else {
@@ -75,6 +80,9 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
       case Child(parent, _, _, _, score) => score + getBranchScore(parent)
   }
 
+  // Returns the candidates to extend the tree branch represented by the branchHead. The List
+  // of preparators represents all possible preparation operators.
+  // The preparator applicabilities are calculated for all valid column combinations for each preparator.
   def nextCandidates(branchHead: TreeNode, preparators: List[DummyPreparator]): List[Candidate]    = {
     val branchScore = getBranchScore(branchHead)
     val affectedCols = getBranchAffectedCols(branchHead)
@@ -85,6 +93,8 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
     } yield Candidate(branchHead, prep, colComb.columns.toSet, branchScore + score, score)
   }
 
+  // This generates all the column combinations and allows to exclude certain columns.
+  // This allows us to prevent a preparator from affecting a column twice.
   def generateColumnCombinations(df: DataFrame, excludeCols: Set[String]): List[DataFrame] = {
     (df.columns.toSet -- excludeCols)
       .subsets()
