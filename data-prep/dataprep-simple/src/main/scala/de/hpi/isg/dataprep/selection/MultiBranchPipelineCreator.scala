@@ -67,7 +67,27 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
   }
 
   def pruneEquivalentBranches(candidates: List[Candidate]): List[Candidate] = {
-    ???
+    def getBranchStructure(branchHead: TreeNode): List[(DummyPreparator, Set[String])] = branchHead match {
+      case Root(_) => Nil
+      case Child(parent, preparator, affectedCols, _, _) => (preparator, affectedCols) :: getBranchStructure(parent)
+    }
+    def reduceBranchStructure(structure: List[(DummyPreparator, Set[String])]): List[Set[(DummyPreparator, Set[String])]] = {
+      structure.foldLeft(List(Set.empty[(DummyPreparator, Set[String])])){case (reducedStruct, (prep, cols)) =>
+        val isIndependent = reducedStruct.head
+          .exists{case(prevPrep, prevCols) => cols.intersect(prevCols).nonEmpty}
+
+          if(isIndependent) (reducedStruct.head + ((prep, cols))) :: reducedStruct.tail
+          else Set((prep, cols)) :: reducedStruct
+      }
+    }
+
+
+    val currentBranchStructures = candidates
+      .map(c => (c, (c.preparator, c.affectedCols) :: getBranchStructure(c.branchHead)))
+      .map{case (candidate, unreducedBranch) => (candidate, reduceBranchStructure(unreducedBranch))}
+      .groupBy{case (candidate, reducedBranch) => reducedBranch}
+      ???
+
   }
 
   // Filters the k best candidates from all potential candidates to extend the tree.
