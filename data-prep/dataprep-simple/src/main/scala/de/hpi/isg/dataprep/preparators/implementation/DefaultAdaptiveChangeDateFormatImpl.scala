@@ -25,10 +25,13 @@ import de.hpi.isg.dataprep.preparators.implementation.PartTypeEnum._
 
 case class PatternCriteria(numberOfBlocks: Int, separators: List[String], lengthOfNumberDateParts: List[Int], blockTypes: List[PartTypeEnum])
 
-object Utils {
+object AdaptiveDateUtils {
+  val alphaNumericPattern: String = "[0-9a-zA-z\\x7f-\\xff]{1,}"
+  val nonAlphaNumericPattern: String = "[^0-9a-zA-z\\x7f-\\xff]{1,}"
+  val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
+
   def getSimilarityCriteria(date: String): PatternCriteria = {
-    val alphaNumericPattern = "[0-9a-zA-z\\x7f-\\xff]{1,}"
-    val nonAlphaNumericPattern = "[^0-9a-zA-z\\x7f-\\xff]{1,}"
+
     // Regex parsing a date string with named capture groups datePart, separator
     val datePattern = new Regex(s"($alphaNumericPattern)|($nonAlphaNumericPattern)", "datePart", "separator")
 
@@ -50,11 +53,11 @@ object Utils {
   }
 
   def extractType(s: String): PartTypeEnum = {
-    if (Utils.isNumber(s)) {
+    if (AdaptiveDateUtils.isNumber(s)) {
       PartTypeEnum.Number
-    } else if (Utils.isLetter(s)) {
+    } else if (AdaptiveDateUtils.isLetter(s)) {
       PartTypeEnum.Text
-    } else if (Utils.isAlphaNumeric(s)) {
+    } else if (AdaptiveDateUtils.isAlphaNumeric(s)) {
       PartTypeEnum.Mixed
     } else {
       PartTypeEnum.Separator
@@ -119,10 +122,11 @@ object Utils {
   }
 
   def extractClusterDatePattern(dates: List[String]): Option[LocalePattern] = {
+    println(s"Cluster: $dates")
     val simpleDates: List[SimpleDate] = dates.map(new SimpleDate(_))
     val blocks: List[List[String]] = simpleDates.map(_.splitDate).transpose
     val blockLocalePatterns: List[Option[LocalePattern]] = blocks
-      .map(block => if (Utils.isLetter(block.head)) Utils.findValidLocalePattern(block.toSet) else None)
+      .map(block => if (AdaptiveDateUtils.isLetter(block.head)) AdaptiveDateUtils.findValidLocalePattern(block.toSet) else None)
 
     var maybeLocaleDatePattern: Option[LocalePattern] = None
 
@@ -145,7 +149,8 @@ object Utils {
   */
 class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
 
-  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
+                                      errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[AdaptiveChangeDateFormat]
     val propertyName = preparator.propertyName
     val sourceDatePattern = preparator.sourceDatePattern
@@ -155,8 +160,8 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
 
     val dateClusterPatterns = dataFrame.rdd
       .map(_.getAs[String](propertyName))
-      .groupBy(Utils.getSimilarityCriteria)
-      .mapValues(clusteredDates => Utils.extractClusterDatePattern(clusteredDates.toList))
+      .groupBy(AdaptiveDateUtils.getSimilarityCriteria)
+      .mapValues(clusteredDates => AdaptiveDateUtils.extractClusterDatePattern(clusteredDates.toList))
       .collect()
       .toMap[PatternCriteria, Option[LocalePattern]]
 
@@ -201,7 +206,7 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
   }
 
   def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, dateClustersPatterns: Map[PatternCriteria, Option[LocalePattern]]): String = {
-    val similarityCriteria: PatternCriteria = Utils.getSimilarityCriteria(date)
+    val similarityCriteria: PatternCriteria = AdaptiveDateUtils.getSimilarityCriteria(date)
     val maybeDatePattern: Option[LocalePattern] = dateClustersPatterns(similarityCriteria)
 
     if (maybeDatePattern.isDefined) {

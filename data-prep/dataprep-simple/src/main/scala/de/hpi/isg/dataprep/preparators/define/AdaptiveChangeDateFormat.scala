@@ -7,9 +7,10 @@ import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
+import de.hpi.isg.dataprep.preparators.implementation.{AdaptiveDateUtils, DefaultAdaptiveChangeDateFormatImpl, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
@@ -59,51 +60,43 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       * @return the applicability matrix succinctly represented by a hash map. Each key stands for
       *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
       */
-    override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row],
+                                  targetMetadata: util.Collection[Metadata]): Float = {
       if (alreadyApplied(targetMetadata)) {
         return 0
       }
-
-      val preparator = new DefaultAdaptiveChangeDateFormatImpl
-      var scores: Map[String, Float] = Map()
-      val columnName = dataset.columns(0)
-
-      val numTotalRows = dataset.count()
-      // Approximate counting maybe better for runtime
-      // val numTotalRows = dataset.rdd.countApprox(120000).getFinalValue().mean
-
-      val samplePercentage = 0.1
-      val sampleSizeOfRows = Math.ceil(numTotalRows * samplePercentage).toInt
-
-      // Assume that 1000 rows can be checked in a reasonable time, so we don't need to abort early
-      if (numTotalRows > 1000 && noMatchFor(dataset, preparator, sampleSizeOfRows)) {
-        return 0
+      object AgeOrdering extends Ordering[(Int, (PatternCriteria, Iterable[String]))] {
+        def compare(a: (Int, (PatternCriteria, Iterable[String])), b: (Int, (PatternCriteria, Iterable[String]))) = {
+          a._1 compare b._1
+        }
       }
 
-      val numAppliedRows = dataset.rdd
+      val largestClusters = dataset.rdd
         .map(_(0).toString)
-        .map(x => preparator.toPattern(x))
-        .filter(_.isDefined)
-        .count()
+        .groupBy(AdaptiveDateUtils.getSimilarityCriteria)
+        .map(group => (group._2.size, group))
+        .takeOrdered(3)(AgeOrdering.reverse)
 
-      val score: Float = numAppliedRows.toFloat / numTotalRows
-      println(s"$columnName: Number of applied Rows: $numAppliedRows, Rows total: $numTotalRows, Ratio/Score: $score")
-      score
-    }
+      // TODO
+      var totalNumberOfRows: Int = 0
+      for (entry <- largestClusters) {
+        totalNumberOfRows = totalNumberOfRows + entry._1
+      }
 
-    // Not ideal, as it will apply the Preparator.toPattern twice for sampleSizeOfRows
-    // A sample is better to be sure that not just the first X rows are checked, but not used here
-    // as it would make our test nondeterministic
-    def noMatchFor(dataset: Dataset[Row], preparator: DefaultAdaptiveChangeDateFormatImpl, sampleSizeOfRows: Int): Boolean ={
-      val countNotWorkingRows = dataset.rdd
-        .take(sampleSizeOfRows)
-        //.takeSample(false, sampleSizeOfRows)
-        .map(_(0).toString)
-        .map(x => preparator.toPattern(x))
-        .filter(_.isDefined)
-        .count(_ => true)
+      println(totalNumberOfRows)
 
-      countNotWorkingRows >= sampleSizeOfRows
+      val datePatternCluster = largestClusters
+        .map(clusteredDates => (clusteredDates._1, AdaptiveDateUtils.extractClusterDatePattern(clusteredDates._2._2.toList)))
+
+      var failedNumberOfRows = 0
+      for (entry <- datePatternCluster) {
+        entry._2 match {
+          case None => failedNumberOfRows = failedNumberOfRows + entry._1
+          case Some(LocalePattern(locale, pattern)) =>
+        }
+      }
+
+      1.0f - failedNumberOfRows.toFloat / totalNumberOfRows
     }
 
     def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {

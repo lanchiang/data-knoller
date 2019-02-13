@@ -12,7 +12,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
                  var dayOption: Option[String] = None, var dayOfTheWeekOption: Option[String] = None, var separators: List[String] = List()) extends Serializable {
 
   //-------------------Constructor--------------------------
-  val splitDate: List[String] = originalDate.split("[^0-9a-zA-z]{1,}").toList
+  val splitDate: List[String] = originalDate.split(AdaptiveDateUtils.nonAlphaNumericPattern).toList
   println(s"Splits: $splitDate")
 
   //--------------------------------------------------------
@@ -27,7 +27,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
         } else if (maybeLocalePattern.get.pattern == "EEE") {
           dayOfTheWeekOption = Some(datePart)
         }
-      } else if (Utils.isNumber(datePart)) {
+      } else if (AdaptiveDateUtils.isNumber(datePart)) {
         undeterminedBlocks.append(datePart)
       }
     }
@@ -139,12 +139,11 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
   }
 
   def startsWithSeparator: Boolean = {
-    val startsWithSeparatorPattern: String = "^[^0-9a-zA-z]{1,}"
-    originalDate.matches(startsWithSeparatorPattern)
+    originalDate.matches(AdaptiveDateUtils.startsWithSeparatorPattern)
   }
 
   def getSeparators: List[String] = {
-    val separatorPattern: Regex = "[^0-9a-zA-z]{1,}".r
+    val separatorPattern: Regex = AdaptiveDateUtils.nonAlphaNumericPattern.r
     separatorPattern.findAllMatchIn(originalDate).map(_.toString).toList
   }
 
