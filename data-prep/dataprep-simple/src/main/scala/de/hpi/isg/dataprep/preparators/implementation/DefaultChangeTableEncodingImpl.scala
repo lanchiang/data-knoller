@@ -1,6 +1,8 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import java.io._
+import java.nio.ByteBuffer
+import java.nio.charset.{CharacterCodingException, Charset, CodingErrorAction}
 import java.nio.file.{Files, Paths}
 
 import de.hpi.isg.dataprep.ExecutionContext
@@ -74,6 +76,7 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
 
 private class EncodingUnmixer(csvPath: String) {
   val WRITE_ENCODING = "UTF-8"
+  private var csvFile: RandomAccessFile = _
 
   private case class DetectionUnit(startIndex: Int, endIndex: Int, encoding: String) {
     def length: Int = this.endIndex - this.startIndex
@@ -81,10 +84,13 @@ private class EncodingUnmixer(csvPath: String) {
 
   def unmixEncoding(dialect: FileLoadDialect): FileLoadDialect = {
     val path = "TODO"
+    this.csvFile = new RandomAccessFile(this.csvPath, "r")
 
     val units = findUnits()
     val correctedUnits = correctUnits(units)
     writeCsv(correctedUnits, path)
+
+    this.csvFile.close()
 
     dialect.setEncoding(WRITE_ENCODING)
     dialect.setUrl(path)
@@ -92,7 +98,8 @@ private class EncodingUnmixer(csvPath: String) {
   }
 
   private def findUnits(): Seq[DetectionUnit] = {
-    val reader = new ByteLineReader(this.csvPath)
+    this.csvFile.seek(0)
+    val reader = new ByteLineReader(this.csvFile)
     val detector = new UniversalDetector(null)
     var units = Vector[DetectionUnit]()
 
@@ -125,12 +132,11 @@ private class EncodingUnmixer(csvPath: String) {
   private def writeCsv(units: Seq[DetectionUnit], newPath: String): Unit = {
     val maxLength = units.maxBy(_.length).length
     val buf = new Array[Byte](maxLength)
-    val csvFile = new RandomAccessFile(this.csvPath, "r")
     val newFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(newPath), WRITE_ENCODING))
 
     for (unit <- units) {
-      csvFile.seek(unit.startIndex)
-      csvFile.read(buf, 0, unit.length)
+      this.csvFile.seek(unit.startIndex)
+      this.csvFile.read(buf, 0, unit.length)
       val str = new String(buf, unit.encoding)
       newFile.write(str)
     }
@@ -146,32 +152,57 @@ private class EncodingUnmixer(csvPath: String) {
         detector.handleData(reader.buf, 0, reader.length)
       } while (!lineEnd)  // process data until we reach the line end
       reader.prepareForNextLine()
-    } while (!detector.isDone || reader.fileEnd)  // at the end of every line, check if done
+    } while (!detector.isDone && !reader.fileEnd)  // at the end of every line, check if done
 
     detector.getDetectedCharset
   }
 
   private def correctBoundary(first: DetectionUnit, second: DetectionUnit): (DetectionUnit, DetectionUnit) = {
-    val boundary = first.endIndex  // TODO find boundary
+    this.csvFile.seek(first.startIndex)
+    val reader = new ByteLineReader(this.csvFile)
+    var lineBytes = Vector[Byte]()
+    var wrongEncoding = false
+    var lineStartIndex = reader.currentIndex
+
+    do {
+      var lineEnd = false
+      lineStartIndex = reader.currentIndex
+      do {
+        lineEnd = reader.readLineBytes()
+        lineBytes = lineBytes ++ reader.buf.slice(0, reader.length)
+      } while (!lineEnd)  // process data until we reach the line end
+
+      val buf = ByteBuffer.wrap(lineBytes.toArray)
+      val decoder = Charset.forName(second.encoding).newDecoder()
+      decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
+      try {
+        decoder.decode(buf)
+      } catch {
+        case _: CharacterCodingException => wrongEncoding = true
+      }
+
+      reader.prepareForNextLine()
+    } while (!wrongEncoding && reader.currentIndex < second.endIndex && !reader.fileEnd)
+
+    val boundary = lineStartIndex
     (DetectionUnit(first.startIndex, boundary, first.encoding), DetectionUnit(boundary, second.endIndex, second.encoding))
   }
 }
 
-private class ByteLineReader(csvPath: String) {
-  private val inStream = Files.newInputStream(Paths.get(csvPath))
+private class ByteLineReader(csvFile: RandomAccessFile) {
+  private val NEWLINE_CHAR = 0x0A  // ASCII byte for newline (most encodings are backwards compatible with ASCII)
+  private val BUFFER_SIZE = 4096
 
-  val buf = new Array[Byte](4096)
+  val buf = new Array[Byte](BUFFER_SIZE)
   var fileEnd: Boolean = false  // have we reached the file's end?
   var length: Int = 0           // number of valid bytes in buf
   var currentIndex = 0          // position in file
   private var bufOffset = 0     // position in buf where to start writing (data before bufOffset is already valid)
 
-  private val NEWLINE_CHAR = 0x0A  // ASCII byte for newline (most encodings are backwards compatible with ASCII)
-
 
   // returns true if line (or file) end was found
   def readLineBytes(): Boolean = {
-    val bytesRead = this.inStream.read(this.buf, this.bufOffset, this.buf.length - this.bufOffset)
+    val bytesRead = this.csvFile.read(this.buf, this.bufOffset, this.buf.length - this.bufOffset)
     this.bufOffset = 0
 
     if (bytesRead == -1) {
