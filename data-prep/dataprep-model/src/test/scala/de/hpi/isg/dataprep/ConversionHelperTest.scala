@@ -1,8 +1,6 @@
 package de.hpi.isg.dataprep
 
 import de.hpi.isg.dataprep.ConversionHelper.countSubstring
-import de.hpi.isg.dataprep.model.dialects.FileLoadDialect
-import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{Row, SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest._

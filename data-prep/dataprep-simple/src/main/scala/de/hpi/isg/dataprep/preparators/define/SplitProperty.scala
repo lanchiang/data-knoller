@@ -1,35 +1,43 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.{lang, util}
+import java.util
 
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.Metadata
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
+import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
 import de.hpi.isg.dataprep.util.DataType
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Encoders}
 
-
-class SplitProperty(val propertyName: String, val separator: Option[String], val numCols: Option[Int], val fromLeft: Boolean) extends AbstractPreparator {
-  impl = new DefaultSplitPropertyImpl
-
-  def this(propertyName: String, separator: String, numCols: Int, fromLeft: Boolean = true) {
-    this(propertyName, Some(separator), Some(numCols), fromLeft)
+class SplitProperty(var propertyName: Option[String], var separator: Option[Separator], var numCols: Option[Int], var fromLeft: Boolean) extends AbstractPreparator {
+  def this(propertyName: String, separator: Separator, numCols: Int, fromLeft: Boolean = true) {
+    this(Some(propertyName), Some(separator), Some(numCols), fromLeft)
   }
 
-  def this(propertyName: String, separator: String) {
-    this(propertyName, Some(separator), None, true)
+  def this(propertyName: String, separator: Separator) {
+    this(Some(propertyName), Some(separator), None, true)
+  }
+
+  def this(propertyName: String, numCols: Int) {
+    this(Some(propertyName), None, Some(numCols), true)
   }
 
   def this(propertyName: String) {
-    this(propertyName, None, None, true)
+    this(Some(propertyName), None, None, true)
+  }
+
+  def this() {
+    this(None, None, None, true)
   }
 
   override def buildMetadataSetup(): Unit = {
-    if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified.", propertyName))
+    if (this.propertyName.isEmpty)
+      throw new ParameterNotSpecifiedException("propertyName not specified.")
+
+    val propertyName = this.propertyName.get
 
     numCols match {
       case Some(n) =>
@@ -37,10 +45,22 @@ class SplitProperty(val propertyName: String, val separator: Option[String], val
       case _ =>
     }
 
-    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    0
+  override def calApplicability(schemaMapping: SchemaMapping, dataFrame: DataFrame, targetMetadata: util.Collection[Metadata]): Float = {
+    if (dataFrame.columns.length != 1) return 0
+    val propertyName = dataFrame.columns(0)
+    val numCols = schemaMapping.getTargetBySourceAttributeName(propertyName).size()
+    if (numCols <= 1) return 0
+
+    val column = dataFrame.select(propertyName).as(Encoders.STRING)
+    val splitPropertyImpl = impl.asInstanceOf[DefaultSplitPropertyImpl]
+    val separator = splitPropertyImpl.findSeparator(column, numCols)
+
+    this.numCols = Some(numCols)
+    this.separator = Some(separator)
+    this.propertyName = Some(propertyName)
+    splitPropertyImpl.evaluateSplit(column, separator, numCols)
   }
 }

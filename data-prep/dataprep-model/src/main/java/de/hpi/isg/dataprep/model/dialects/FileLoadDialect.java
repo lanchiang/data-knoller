@@ -28,9 +28,6 @@ public class FileLoadDialect {
         QUOTE_NONE;
     }
 
-    public FileLoadDialect() {
-    }
-
     public String getDelimiter() {
         return delimiter;
     }

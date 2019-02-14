@@ -3,13 +3,18 @@ package de.hpi.isg.dataprep.model.target.schema;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
+ * A wrapper of {@link StructField}. Two such instances equals each other when and only when the name, data type, and nullable of them are the same.
+ *
  * @author lan.jiang
  * @since 1/13/19
  */
-public class Attribute {
+public class Attribute implements Serializable {
+
+    private static final long serialVersionUID = -7229029676814189794L;
 
     private StructField attribute;
 
@@ -54,5 +59,13 @@ public class Attribute {
     @Override
     public int hashCode() {
         return Objects.hash(name, dataType, nullable);
+    }
+
+    @Override
+    public String toString() {
+        return "Attribute{" +
+                "name='" + name + '\'' +
+                ", dataType=" + dataType +
+                '}';
     }
 }

@@ -38,9 +38,4 @@ public class HeaderExistence extends Metadata {
     public boolean isHeaderExistence() {
         return headerExistence;
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
 }

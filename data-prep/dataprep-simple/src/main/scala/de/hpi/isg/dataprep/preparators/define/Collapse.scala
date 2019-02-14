@@ -5,19 +5,27 @@ import java.{lang, util}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultCollapseImpl
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.util.Random
+
 /**
   *
   * @author Lan Jiang
   * @since 2018/8/31
   */
-class Collapse(val propertyName: String) extends AbstractPreparator {
+class Collapse extends AbstractPreparator {
+
+  var propertyName : String = _
+
+  def this(_propertyName : String) {
+    this()
+    propertyName = _propertyName
+  }
 
   //    override def newImpl = new DefaultCollapseImpl
 
@@ -41,6 +49,8 @@ class Collapse(val propertyName: String) extends AbstractPreparator {
   }
 
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+//      val score = Random.nextFloat()
+//      score
       0
     }
 }

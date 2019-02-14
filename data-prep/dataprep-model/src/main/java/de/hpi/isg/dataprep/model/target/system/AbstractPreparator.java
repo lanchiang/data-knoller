@@ -7,7 +7,6 @@ import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.data.ColumnCombination;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
@@ -36,19 +35,12 @@ abstract public class AbstractPreparator implements Executable {
     protected List<Metadata> invalid;
     protected Dataset<Row> updatedTable;
 
-    /**
-     * This data structure stores the applicability score of this preparator on each {@link ColumnCombination}.
-     */
-    protected Map<ColumnCombination, Float> applicability;
-
     protected AbstractPreparatorImpl impl;
 
     public AbstractPreparator() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         invalid = new ArrayList<>();
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
-
-        applicability = new HashMap<>();
 
 //        impl = newImpl();
 
@@ -79,6 +71,8 @@ abstract public class AbstractPreparator implements Executable {
         } catch (PreparationHasErrorException e) {
             recordErrorLog();
         }
+
+        // update metadata and dataset.
         postExecConfig();
 
     }
@@ -95,10 +89,23 @@ abstract public class AbstractPreparator implements Executable {
      * @param dataset is the input dataset slice. A slice can be a subset of the columns of the data,
      *                or a subset of the rows of the data.
      * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
-     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
-     *  a {@link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
+     * @return the score that is calculated by the signature of this preparator instance.
      */
     abstract public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata);
+
+    /**
+     * Return a new parameter-free preparator instance.
+     *
+     * @param clazz specifies the concrete preparator that should be returned.
+     * @return the parameter-free concrete preparator.
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    public static AbstractPreparator getPreparatorInstance(Class<? extends AbstractPreparator> clazz)
+            throws IllegalAccessException, InstantiationException {
+        AbstractPreparator preparator = clazz.newInstance();
+        return preparator;
+    }
 
     /**
      * The execution of the preparator.
@@ -193,10 +200,8 @@ abstract public class AbstractPreparator implements Executable {
         recordProvenance();
         updateMetadataRepository();
         updateDataset();
-    }
 
-    public Map<ColumnCombination, Float> getApplicability() {
-        return applicability;
+        // updateSchemaMapping
     }
 
     public List<Metadata> getInvalidMetadata() {
@@ -223,4 +228,21 @@ abstract public class AbstractPreparator implements Executable {
         this.preparation = preparation;
     }
 
+    /**
+     * The preparator is equal to another only when they belong to the same kind of preparator, i.e., having the same preparator name.
+     * @param o
+     * @return
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractPreparator that = (AbstractPreparator) o;
+        return Objects.equals(this.getClass().getSimpleName(), that.getClass().getSimpleName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getClass().getSimpleName());
+    }
 }
