@@ -47,17 +47,4 @@ class AdaptiveChangeDateFormatImplTest extends PreparatorScalaTest {
 
     pipeline.getErrorRepository should equal(errorRepository)
   }
-//
-//  "Not enough evidence" should "return the type of text day and find the locale" in {
-//    val impl = new DefaultAdaptiveChangeDateFormatImpl
-//
-//    val cluster1 = List(List("Sun","Aug", "2014"), List("Sun","Oct", "2009"), List("Mon","Sep", "2010"))
-//
-//    val foundTextDateField = impl.findValidPatternAndLocale(cluster1)
-//    println(foundTextDateField)
-//    foundTextDateField should equal(
-//      Map(0 -> Some(impl.TextDateField("E", Locale.US)),
-//        // PANAMA spanish
-//        1 -> Some(impl.TextDateField("MMM", new Locale("es", "PA")))))
-//  }
 }
