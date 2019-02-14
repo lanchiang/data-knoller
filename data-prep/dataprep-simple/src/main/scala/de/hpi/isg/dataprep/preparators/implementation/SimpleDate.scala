@@ -15,6 +15,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
   val splitDate: List[String] = originalDate.split(AdaptiveDateUtils.nonAlphaNumericPattern).toList
   //--------------------------------------------------------
 
+
   def toPattern(alreadyFoundPatterns: List[Option[LocalePattern]]): Option[LocalePattern] = {
     val undeterminedBlocks = ListBuffer[String]()
     // Use already found text patterns
@@ -31,7 +32,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
     }
     applyNumberRules(undeterminedBlocks.toList)
 
-    if (isDefined) {
+    if (allPartsDefined) {
       val resultingPattern = generatePattern()
       // Take first locale. Assumption: There should only be one locale per date. Default to US, if none is found
       val maybeLocale = alreadyFoundPatterns.flatten.headOption
@@ -85,11 +86,16 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
     val year = yearOption.get
     val month = monthOption.get
     val day = dayOption.get
-    println(s"generatePattern: $getSeparators, $year, $month, $day")
 
     var newGroup = splitDate.updated(splitDate.indexOf(year), generatePlaceholder(year, "y"))
     newGroup = newGroup.updated(newGroup.indexOf(month), generatePlaceholder(month, "M"))
     newGroup = newGroup.updated(newGroup.indexOf(day), generatePlaceholder(day, "d"))
+
+    if (dayOfTheWeekOption.isDefined) {
+      val dayOfTheWeek = dayOfTheWeekOption.get
+
+      newGroup = newGroup.updated(newGroup.indexOf(dayOfTheWeek), generatePlaceholder(dayOfTheWeek, "E"))
+    }
 
     val separatorsBuffer: ListBuffer[String] = getSeparators.to[ListBuffer]
 
@@ -105,6 +111,9 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
       // Full text pattern for month is MMMM
       if (groupAsString.startsWith("MMMM")) {
         groupAsString = "MMMM"
+      }
+      if (groupAsString.startsWith("EEEE")) {
+        groupAsString = "EEEE"
       }
 
       val separator = if(separatorsBuffer.nonEmpty) separatorsBuffer.remove(0) else ""
@@ -131,7 +140,8 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
     dayOfTheWeekOption.isDefined
   }
 
-  def isDefined: Boolean = {
+//  def allPartsDefined(alreadyFoundPatterns: List[Option[LocalePattern]]): Boolean = {
+  def allPartsDefined: Boolean = {
     dayOption.isDefined && monthOption.isDefined && yearOption.isDefined
   }
 

@@ -22,7 +22,7 @@ import org.apache.spark.sql.functions.col
   */
 class AdaptiveChangeDateFormatImplTest extends PreparatorScalaTest {
 
-  override var testFileName = "dates.csv"
+  override var testFileName = "dates_extended.csv"
 
   "Dates" should "be formatted given a target format" in {
     val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
@@ -32,10 +32,15 @@ class AdaptiveChangeDateFormatImplTest extends PreparatorScalaTest {
     pipeline.executePipeline()
 
     val errorLogs: util.List[ErrorLog] = new util.ArrayList[ErrorLog]
-    val errorLog: PreparationErrorLog =
+    errorLogs.add(
       new PreparationErrorLog(preparation, "1989-01-00",
-        new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1))
-    errorLogs.add(errorLog)
+        new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)))
+
+    // Can't be parsed because this date was a Monday
+    errorLogs.add(
+      new PreparationErrorLog(preparation, "Tuesday, 13 Dec 1999",
+        new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)))
+
     val errorRepository: ErrorRepository = new ErrorRepository(errorLogs)
 
     println(pipeline.getErrorRepository.getPrintedReady)
