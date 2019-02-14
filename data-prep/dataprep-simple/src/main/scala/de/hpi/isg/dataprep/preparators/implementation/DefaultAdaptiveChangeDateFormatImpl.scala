@@ -138,6 +138,38 @@ object AdaptiveDateUtils {
 
     maybeLocaleDatePattern
   }
+
+  // TODO: the following methods were part of DefaultAdaptive...-class. Check if it's ok to define it here
+  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, maybeDatePattern: Option[LocalePattern])
+  : String = {
+    if (maybeDatePattern.isDefined) {
+      val datePattern = maybeDatePattern.get
+      val parsedDate = tryParseDate(date, datePattern.pattern, datePattern.locale)
+      if (parsedDate.isDefined) {
+        return getDateAsString(parsedDate.get, datePattern.pattern, datePattern.locale)
+      }
+    }
+    throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
+  }
+
+  def getDateAsString(d: Date, pattern: String, locale: Locale): String = {
+    val dateFormat = new SimpleDateFormat(pattern, locale)
+    dateFormat.setLenient(false)
+    dateFormat.format(d)
+  }
+
+  def tryParseDate(dateString: String, datePattern: String, locale: Locale): Option[Date] = {
+    Try{ convertStringToDate(dateString, datePattern, locale) } match {
+      case Failure(_) => None
+      case Success(date) => Some(date)
+    }
+  }
+
+  def convertStringToDate(s: String, pattern: String, locale: Locale): Date = {
+    val dateFormat = new SimpleDateFormat(pattern, locale)
+    dateFormat.setLenient(false)
+    dateFormat.parse(s)
+  }
 }
 
 /**
@@ -184,7 +216,9 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
           val newRow = Row.fromSeq(newSeq)
           newRow
         } else {
-          val newSeq = forepart :+ formatToTargetPattern(operatedValue, targetDatePattern, dateClusterPatterns)
+          val localePatternOption: Option[LocalePattern] = dateClusterPatterns(AdaptiveDateUtils.getSimilarityCriteria(operatedValue))
+          val newSeq = forepart :+ AdaptiveDateUtils.formatToTargetPattern(operatedValue, targetDatePattern,
+            localePatternOption)
           val newRow = Row.fromSeq(newSeq)
           newRow
         }
@@ -205,36 +239,4 @@ class DefaultAdaptiveChangeDateFormatImpl extends AbstractPreparatorImpl with Se
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
-  def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, dateClustersPatterns: Map[PatternCriteria, Option[LocalePattern]]): String = {
-    val similarityCriteria: PatternCriteria = AdaptiveDateUtils.getSimilarityCriteria(date)
-    val maybeDatePattern: Option[LocalePattern] = dateClustersPatterns(similarityCriteria)
-
-    if (maybeDatePattern.isDefined) {
-      val datePattern = maybeDatePattern.get
-      val parsedDate = tryParseDate(date, datePattern.pattern, datePattern.locale)
-      if (parsedDate.isDefined) {
-        return getDateAsString(parsedDate.get, datePattern.pattern, datePattern.locale)
-      }
-    }
-    throw new ParseException("No unambiguous pattern found to parse date. Date might be corrupted.", -1)
-  }
-
-  def getDateAsString(d: Date, pattern: String, locale: Locale): String = {
-    val dateFormat = new SimpleDateFormat(pattern, locale)
-    dateFormat.setLenient(false)
-    dateFormat.format(d)
-  }
-
-  def tryParseDate(dateString: String, datePattern: String, locale: Locale): Option[Date] = {
-    Try{ convertStringToDate(dateString, datePattern, locale) } match {
-      case Failure(_) => None
-      case Success(date) => Some(date)
-    }
-  }
-
-  def convertStringToDate(s: String, pattern: String, locale: Locale): Date = {
-    val dateFormat = new SimpleDateFormat(pattern, locale)
-    dateFormat.setLenient(false)
-    dateFormat.parse(s)
-  }
 }

@@ -14,6 +14,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 /**
   *
@@ -65,38 +66,49 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       if (alreadyApplied(targetMetadata)) {
         return 0
       }
+
+      // TODO: see if there is a way to prevent building class by either inlining it or circumventing it completely
       object AgeOrdering extends Ordering[(Int, (PatternCriteria, Iterable[String]))] {
         def compare(a: (Int, (PatternCriteria, Iterable[String])), b: (Int, (PatternCriteria, Iterable[String]))) = {
           a._1 compare b._1
         }
       }
 
+      // Num dates in cluster, (Pattern Criteria, clustered dates)
       val largestClusters = dataset.rdd
         .map(_(0).toString)
         .groupBy(AdaptiveDateUtils.getSimilarityCriteria)
+        // TODO: check if there's a workaround for explicitly map the size of the clusters here
         .map(group => (group._2.size, group))
         .takeOrdered(3)(AgeOrdering.reverse)
 
-      // TODO
-      var totalNumberOfRows: Int = 0
+      var totalNumberOfValues: Int = 0
       for (entry <- largestClusters) {
-        totalNumberOfRows = totalNumberOfRows + entry._1
+        totalNumberOfValues = totalNumberOfValues + entry._1
       }
 
-      println(totalNumberOfRows)
-
+      // Option[LocalePattern], cluster
       val datePatternCluster = largestClusters
-        .map(clusteredDates => (clusteredDates._1, AdaptiveDateUtils.extractClusterDatePattern(clusteredDates._2._2.toList)))
+        // TODO: ._2._2 looks ugly and is not maintainable if there is a better way use it
+        .map(clusteredDates => (AdaptiveDateUtils.extractClusterDatePattern(clusteredDates._2._2.toList),
+          clusteredDates._2._2.toList))
 
-      var failedNumberOfRows = 0
+      var failedNumberOfValues = 0
+      val targetPattern = DatePatternEnum.DayMonthYear
+
       for (entry <- datePatternCluster) {
-        entry._2 match {
-          case None => failedNumberOfRows = failedNumberOfRows + entry._1
-          case Some(LocalePattern(locale, pattern)) =>
+        val optionLocalePattern = entry._1
+        for (date <- entry._2) {
+          Try{
+            AdaptiveDateUtils.formatToTargetPattern(date, targetPattern, optionLocalePattern)
+          } match {
+            case Failure(_) => failedNumberOfValues = failedNumberOfValues + 1
+            case Success(_) =>
+          }
         }
       }
 
-      1.0f - failedNumberOfRows.toFloat / totalNumberOfRows
+      1.0f - failedNumberOfValues.toFloat / totalNumberOfValues
     }
 
     def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {

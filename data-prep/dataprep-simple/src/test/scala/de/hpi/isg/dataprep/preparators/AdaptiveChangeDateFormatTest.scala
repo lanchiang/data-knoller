@@ -31,7 +31,7 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
     preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata
-    ) should equal((6.0/16.0).toFloat)
+    ) should equal(5.0f/16.0f)
   }
 
   "calApplicability on the id column" should "return a score of 0" in {

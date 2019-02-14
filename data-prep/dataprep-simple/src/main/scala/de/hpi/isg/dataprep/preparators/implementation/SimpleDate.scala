@@ -13,8 +13,6 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
 
   //-------------------Constructor--------------------------
   val splitDate: List[String] = originalDate.split(AdaptiveDateUtils.nonAlphaNumericPattern).toList
-  println(s"Splits: $splitDate")
-
   //--------------------------------------------------------
 
   def toPattern(alreadyFoundPatterns: List[Option[LocalePattern]]): Option[LocalePattern] = {
@@ -42,7 +40,6 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
       println(s"Result: $resultingPattern\n")
       return Some(LocalePattern(locale, resultingPattern))
     }
-    println("")
     None
   }
 
