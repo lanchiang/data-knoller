@@ -179,18 +179,16 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .count()
       .collect
       .maxBy(row => row.getLong(1))
+      .getInt(0)
 
-    val clusterScore = maxCluster.size
+    //get List of Int cluster
 
-    if (clusterScore % 2 == 0) {
-      val l = clusterScore / 2 - 1
-      val r = l + 1
-      (maxCluster(l) + maxCluster(r).toString).toDouble / 2
-    } else
-      maxCluster(clusterScore / 2).toString.toDouble
+    val rdd: RDD[Int] = sc.parallelize((1), (2), (5), (3), (2), (4))
+
+    val median = calculateMedian(rdd)
 
     val filteredLinesByMedian = predictions
-      .filter(row => row.getAs("prediction") == clusterScore)
+      .filter(row => row.getAs("prediction") == median)
       .select("rownumber")
       .map(row => row.getLong(0))
       .collect
@@ -202,6 +200,22 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .persist
 
     sparkContext.createDataFrame(resultRDD, dataframe.schema)
+  }
+
+  private def calculateMedian(rdd: RDD[Int]) = {
+    val sorted = rdd.sortBy(identity).zipWithIndex().map {
+      case (v, idx) => (idx, v)
+    }
+    val count = sorted.count()
+
+    val median: Double = if (count % 2 == 0) {
+      val l = count / 2 - 1
+      val r = l + 1
+      (sorted.lookup(l).head + sorted.lookup(r).head).toDouble / 2
+    } else sorted.lookup(count / 2).head.toDouble
+  }
+
+  def calculateMedian(sorted: RDD[(Int)]): Double = {
 
   }
 

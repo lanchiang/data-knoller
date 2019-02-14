@@ -10,6 +10,7 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
 import org.apache.spark.ml.clustering.BisectingKMeans
 import org.apache.spark.ml.feature.Word2Vec
 import org.apache.spark.ml.linalg.{DenseVector, Vector, Vectors}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 
 import scala.collection.JavaConverters._
@@ -93,6 +94,27 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val testPreparator = new DefaultRemovePreambleImpl
     val prepResult = testPreparator.findPreambleByClustering(customDataset, ",")
+    prepResult.collect() shouldEqual Array(Row("1,2"), Row("3,4"), Row("1,3"), Row("7,8,"))
+  }
+
+  "Median" should "calculate median" in {
+    val rdd: RDD[Int] = sc.parallelize(Seq((1), (2), (5), (2)))
+
+    val testPreparator = new DefaultRemovePreambleImpl
+    val median = testPreparator.calculateMedian(rdd)
+
+    median shouldEqual 2
+  }
+
+
+  "ClusteringMedian" should "find clusters in dataset with separators by calculate the median" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val dataset = Seq("3,4", "2,4", "postamble ", "postamble ","postamble ","8,7", "9,1").toDF
+    dataset.columns.length shouldEqual(1)
+
+    val testPreparator = new DefaultRemovePreambleImpl
+    val prepResult = testPreparator.findPreambleByMedian(customDataset, ",")
     prepResult.collect() shouldEqual Array(Row("1,2"), Row("3,4"), Row("1,3"), Row("7,8,"))
   }
 
