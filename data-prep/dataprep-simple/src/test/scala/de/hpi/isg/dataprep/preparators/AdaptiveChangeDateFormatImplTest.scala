@@ -22,7 +22,7 @@ import org.apache.spark.sql.functions.col
   */
 class AdaptiveChangeDateFormatImplTest extends PreparatorScalaTest {
 
-  override var testFileName = "dates_extended.csv"
+  override var testFileName = "dates.csv"
 
   "Dates" should "be formatted given a target format" in {
     val preparator = new AdaptiveChangeDateFormat("date", None, DatePattern.DatePatternEnum.DayMonthYear)
