@@ -29,29 +29,33 @@ class RemovePreamble extends PreparatorScalaTest {
     super.beforeAll()
   }
 
-  "Dataset" should "be correctly read" in {
+  "Initial char" should "find right counts for each char" in {
     val localContext = sparkContext
     import localContext.implicits._
-    val customDataset = Seq(("1","2"), ("3","4"), ("postamble",""),("postamble",""),("postamble",""), ("","fake")).toDF
+    val customDataset = Seq(("1","2"), ("3","4"), ("#postamble",""),("#postamble",""),("#postamble",""), ("","fake")).toDF
     customDataset.columns.length shouldEqual(2)
     val test = customDataset
-      .rdd
-      .zipWithIndex()
-      .flatMap(row => {
-        val tempRow = row._1.toSeq.zipWithIndex.map(entry =>
-          entry._1.toString match {
-            case "" =>  List(entry._2)
-            case _ => List()
-          }).reduce((a,b) => a.union(b))
-        tempRow.map(e => (e,row._2))
-      })
-      .map(e => (e._1,List(e._2)))
-      .reduceByKey(_.union(_))
-      .map(r => (r._1, r._2.groupBy(k => r._2.indexOf(k) - k)))
-      .map(e => e._2.toList.map(v => v._2))
-      .reduce(_.union(_))
-      .map(l => l.size)
-    test.sortBy(a => a) shouldEqual(List(1,3))
+        .map {r => r.mkString.charAt(0).toString}
+      .filter(c => !"[A-Za-z0-9]".r.pattern.matcher(c).find())
+        .groupBy("value")
+        .count()
+        .toDF("char", "count")
+        .reduce((a,b) => if (a.getLong(1) > b.getLong(1)) a else b )
+
+    test shouldEqual Row("#",3)
+  }
+
+  "Initial char" should "remove all preable lines starting with #" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val customDataset = Seq(("1","2"), ("3","4"), ("#postamble",""),("#postamble",""),("#postamble",""), ("","fake")).toDF
+    val expectedDataset = Seq(("1","2"), ("3","4"), ("","fake")).toDF
+
+    val prep = new DefaultRemovePreambleImpl
+
+    val result = prep.analyseLeadingCharacter(customDataset)
+
+    result.collect shouldEqual expectedDataset.collect
   }
 
   "Remove Preamble" should "calculate calApplicability for multiple collumns correctly" in {
@@ -97,24 +101,24 @@ class RemovePreamble extends PreparatorScalaTest {
     prepResult.collect() shouldEqual Array(Row("1,2"), Row("3,4"), Row("1,3"), Row("7,8,"))
   }
 
-  "Median" should "calculate median" in {
+  /*"Median" should "calculate median" in {
     val rdd: RDD[Int] = sc.parallelize(Seq((1), (2), (5), (2)))
 
     val testPreparator = new DefaultRemovePreambleImpl
     val median = testPreparator.calculateMedian(rdd)
 
     median shouldEqual 2
-  }
+  }*/
 
 
   "ClusteringMedian" should "find clusters in dataset with separators by calculate the median" in {
     val localContext = sparkContext
     import localContext.implicits._
     val dataset = Seq("3,4", "2,4", "postamble ", "postamble ","postamble ","8,7", "9,1").toDF
-    dataset.columns.length shouldEqual(1)
+    dataset.columns.length shouldEqual(2)
 
     val testPreparator = new DefaultRemovePreambleImpl
-    val prepResult = testPreparator.findPreambleByMedian(customDataset, ",")
+    val prepResult = testPreparator.findPreambleByMedian(dataset, ",")
     prepResult.collect() shouldEqual Array(Row("1,2"), Row("3,4"), Row("1,3"), Row("7,8,"))
   }
 

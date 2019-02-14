@@ -32,50 +32,34 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
                                       dataFrame_orig: Dataset[sql.Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
-    val dataFrame = dataFrame_orig.toDF
-    val preparator = abstractPreparator.asInstanceOf[RemovePreamble]
-    val delimiter = preparator.delimiter
-    val hasHeader = preparator.hasHeader.toBoolean
-    val hasPreamble = preparator.hasPreamble
-    var endPreambleIndex = preparator.rowsToRemove
-    val commentCharacter = preparator.commentCharacter
+    import dataFrame_orig.sparkSession.implicits._
+    val stringedDataset = dataFrame_orig.map {r => r.mkString("")}
+    val separatorChar = (new DefaultSplitPropertyImpl).findSeparator(stringedDataset, stringedDataset.columns.size)
 
-    if (hasPreamble == false) return new ExecutionContext(dataFrame, errorAccumulator)
+    // by leading character
+    val leadingCharRemovedDataset = analyseLeadingCharacter(dataFrame_orig)
+
+    // by separator occurrence
+
+    // by clustering
 
 
-    //identifying last preamble row
-    if (endPreambleIndex == 0) {
-      endPreambleIndex = findRow(dataFrame.toDF)
-    }
-    if (endPreambleIndex == 0 && (hasPreambleInColumn(dataFrame) == false)) {
-      return new ExecutionContext(dataFrame, errorAccumulator)
-    }
+    new ExecutionContext(dataFrame_orig, errorAccumulator)
+  }
 
-    //taking char character as preamble character
-    if (commentCharacter.equals("") == false) {
-      preambleCharacters = commentCharacter + ".*$"
-    }
-    //drop all rows before last preamble row and update column names
+  def analyseLeadingCharacter(dataframe:DataFrame): DataFrame = {
+    import dataframe.sparkSession.implicits._
+    val prominentChar = dataframe
+      .map {r => r.mkString.charAt(0).toString}
+      .filter(c => !"[A-Za-z0-9]".r.pattern.matcher(c).find())
+      .groupBy("value")
+      .count()
+      .toDF("char", "count")
+      .reduce((a,b) => if (a.getLong(1) > b.getLong(1)) a else b )
+      .getString(0)
 
-    //creating new dataframe to frame of original dataframe
-    //val filteredDatasetReloaded = newDataFrameToPath(dataFrame.inputFiles(0), endPreambleIndex, dataFrame.toDF, delimiter, hasHeader)
-    var filteredDataframe = dataFrame
-
-    try {
-      filteredDataframe = newHeadForDataFrame(removePreambleRecursive(dataFrame.toDF, endPreambleIndex), dataFrame)
-    } catch {
-      case e: Exception =>
-
-        filteredDataframe
-    }
-
-    //if column size is identical use modified dataframe, else use new parsed dataframe
-    if (filteredDataframe.columns.length != dataFrame.columns.length) {
-      filteredDataframe = dataFrame
-    }
-
-    val ergDataset = filteredDataframe
-    new ExecutionContext(ergDataset, errorAccumulator)
+    dataframe
+      .filter(r => r.mkString("").head.toString != prominentChar)
   }
 
   def outlierWordToVec(dataframe:DataFrame): DataFrame = {
@@ -182,8 +166,8 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .getInt(0)
 
     //get List of Int cluster
-
-    val rdd: RDD[Int] = sc.parallelize((1), (2), (5), (3), (2), (4))
+/*
+   val rdd: RDD[Int] = sc.parallelize((1), (2), (5), (3), (2), (4))
 
     val median = calculateMedian(rdd)
 
@@ -199,7 +183,8 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .map(row => row._1)
       .persist
 
-    sparkContext.createDataFrame(resultRDD, dataframe.schema)
+    sparkContext.createDataFrame(resultRDD, dataframe.schema)*/
+    dataframe
   }
 
   private def calculateMedian(rdd: RDD[Int]) = {
@@ -213,10 +198,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       val r = l + 1
       (sorted.lookup(l).head + sorted.lookup(r).head).toDouble / 2
     } else sorted.lookup(count / 2).head.toDouble
-  }
-
-  def calculateMedian(sorted: RDD[(Int)]): Double = {
-
   }
 
   def findPreableByTypesOfChars(dataFrame: DataFrame) = {
@@ -272,115 +253,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     (sparkContext, separatorOcc)
   }
 
-
-  // ------------------------------------------------------------- OLD CODE --------------------------------------------
-
-
-  def removePreambleRecursive(dataFrame: DataFrame, line: Int): DataFrame = {
-    if (line <= 0) {
-      return dataFrame
-    }
-    else {
-      var filteredDataset = removeFirstLine(dataFrame)
-
-      removePreambleRecursive(filteredDataset, line - 1)
-    }
-  }
-
-  //removes  first row and its uplicates
-  def removeFirstLine(dataFrame: DataFrame): DataFrame = {
-    val rdd = dataFrame.rdd.mapPartitionsWithIndex {
-      case (index, iterator) => if (index == 0) iterator.drop(1) else iterator
-    }
-    val spark = SparkSession.builder.master("local").getOrCreate()
-    spark.createDataFrame(rdd, dataFrame.schema)
-  }
-
-
-  def removePreamble(dataFrame: DataFrame): DataFrame = {
-    val row = findRow(dataFrame)
-    val erg = removePreambleRecursive(dataFrame, row)
-    erg
-  }
-
-  def numberOfIdenticalRowsRemoved(dataFrame: DataFrame): Integer = {
-
-    val skipable_first_row = dataFrame.first()
-    val filteredDataset = dataFrame.filter(row => row == skipable_first_row)
-
-    val erg = filteredDataset.count()
-    erg.toInt
-  }
-
-  //removes all rows up to specified index
-  def removePreambleOfFile(file: RDD[Row], rows: Integer): RDD[Row] = {
-
-    val filteredTextFile = file.mapPartitionsWithIndex { (idx, iter) =>
-      if (idx == 0) {
-        iter.drop(rows)
-      } else {
-        iter
-      }
-    }
-    filteredTextFile
-  }
-
-  //overwrite old header with first line of dataframe
-  def newHeadForDataFrame(dataFrame: DataFrame, oldDataFrame: DataFrame): DataFrame = {
-    val header = oldDataFrame.columns
-    val firstHeader = header(0)
-    if (firstHeader.matches(preambleCharacters)) {
-
-      try {
-        val newHeaderNames: Seq[String] = dataFrame.head().toSeq.asInstanceOf[Seq[String]]
-
-        val newHeadedDataset = removeFirstLine(dataFrame.toDF(newHeaderNames: _*))
-        newHeadedDataset
-      } catch {
-        case e: Exception =>
-          return dataFrame.toDF("_c0");
-      }
-
-    }
-    else {
-      dataFrame
-    }
-  }
-
-  //checks if the premable contains one of the preamble characters as first character
-
-  def hasPreambleInColumn(dataFrame: DataFrame): Boolean = {
-    if (dataFrame.columns(0).matches(preambleCharacters)) true
-    else false
-  }
-
-  //rekursive search for first row which is not preamble like
-  def findRow(dataFrame: DataFrame): Integer = {
-    try {
-      if (dataFrame.first().size <= 0) return 0
-    } catch {
-      case e: Exception => return 0;
-    }
-    val firstString = dataFrame.first().get(0).toString()
-
-    val rows = 1
-    if (firstString.matches(preambleCharacters)) {
-      val reducedFrame = removeFirstLine(dataFrame)
-      findRow(reducedFrame) + rows
-    }
-    else if (firstString.equals("")) {
-      val reducedFrame = removeFirstLine(dataFrame)
-      findRow(reducedFrame) + rows
-    }
-    //check for "-character as first character
-    else if (firstString.matches("['\"].*$")) {
-      val reducedFrame = removeFirstLine(dataFrame)
-      findRow(reducedFrame) + rows
-    }
-    // else recursive abbort
-    else
-      0
-  }
 
   /**
     * The abstract class of preparator implementation.
