@@ -33,16 +33,12 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     import localContext.implicits._
     val customDataset = Seq(("1","2"), ("3","4"), ("#postamble",""),("#postamble",""),("#postamble",""), ("","fake")).toDF
-    customDataset.columns.length shouldEqual(2)
-    val test = customDataset
-        .map {r => r.mkString.charAt(0).toString}
-      .filter(c => !"[A-Za-z0-9]".r.pattern.matcher(c).find())
-        .groupBy("value")
-        .count()
-        .toDF("char", "count")
-        .reduce((a,b) => if (a.getLong(1) > b.getLong(1)) a else b )
 
-    test shouldEqual Row("#",3)
+    val prep = new DefaultRemovePreambleImpl
+
+    val result = prep.findPreambleChar(customDataset)
+
+    result shouldEqual "#"
   }
 
   "Initial char" should "remove all preable lines starting with #" in {
@@ -54,6 +50,19 @@ class RemovePreamble extends PreparatorScalaTest {
     val prep = new DefaultRemovePreambleImpl
 
     val result = prep.analyseLeadingCharacter(customDataset)
+
+    result.collect shouldEqual expectedDataset.collect
+  }
+
+  "Separator Count" should "remove all preamble lines with an unusual amount of separators" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val customDataset = Seq("1,2,5,6", "3,4,7,8", "#postamble", "#postamble", ",,,fake").toDF
+    val expectedDataset = Seq("1,2,5,6", "3,4,7,8", ",,,fake").toDF
+
+    val prep = new DefaultRemovePreambleImpl
+
+    val result = prep.analyseSeparatorCount(customDataset,separator = ",")
 
     result.collect shouldEqual expectedDataset.collect
   }

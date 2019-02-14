@@ -16,6 +16,7 @@ import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg.{DenseVector, Vector, VectorUDT, Vectors}
 import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
 import org.apache.spark.ml.param.Param
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 
 import scala.collection.mutable
 /**
@@ -34,22 +35,29 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
     import dataFrame_orig.sparkSession.implicits._
     val stringedDataset = dataFrame_orig.map {r => r.mkString("")}
-    val separatorChar = (new DefaultSplitPropertyImpl).findSeparator(stringedDataset, stringedDataset.columns.size)
+    val separatorChar = (new DefaultSplitPropertyImpl).findSeparator(stringedDataset, stringedDataset.columns.length)
 
     // by leading character
     val leadingCharRemovedDataset = analyseLeadingCharacter(dataFrame_orig)
 
     // by separator occurrence
+    val unexpectedSepAmountRemovedDataset = analyseSeparatorCount(dataFrame_orig, separatorChar.toString)
 
     // by clustering
-
 
     new ExecutionContext(dataFrame_orig, errorAccumulator)
   }
 
   def analyseLeadingCharacter(dataframe:DataFrame): DataFrame = {
+    val prominentChar = findPreambleChar(dataframe)
+
+    dataframe
+      .filter(r => r.mkString("").head.toString != prominentChar)
+  }
+
+  def findPreambleChar(dataframe:DataFrame): String = {
     import dataframe.sparkSession.implicits._
-    val prominentChar = dataframe
+    dataframe
       .map {r => r.mkString.charAt(0).toString}
       .filter(c => !"[A-Za-z0-9]".r.pattern.matcher(c).find())
       .groupBy("value")
@@ -57,9 +65,30 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .toDF("char", "count")
       .reduce((a,b) => if (a.getLong(1) > b.getLong(1)) a else b )
       .getString(0)
+  }
 
-    dataframe
-      .filter(r => r.mkString("").head.toString != prominentChar)
+  def analyseSeparatorCount(dataFrame: DataFrame, separator:String): DataFrame = {
+
+    val medianSepCount = findMedianSepCount(dataFrame, separator)
+
+    dataFrame
+      .filter(r => {
+        val separatorCounts = separator.r.findAllIn(r.mkString("")).length.toDouble
+        Math.abs(separatorCounts - medianSepCount) < 2
+      })
+  }
+
+  def findMedianSepCount(dataFrame: DataFrame, separator:String): Double = {
+    import dataFrame.sparkSession.implicits._
+    val sepCountFrame = dataFrame
+      .map {r => r.mkString("")}
+      .map {r => separator.r.findAllIn(r).length}
+
+    sepCountFrame
+      .toDF("sepCount")
+      .stat
+      .approxQuantile("sepCount",Array(0.5),0.01)
+      .head
   }
 
   def outlierWordToVec(dataframe:DataFrame): DataFrame = {
