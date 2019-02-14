@@ -259,8 +259,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   }
 
 
-
-
   // ------------------------------------------------------------- OLD CODE --------------------------------------------
 
 

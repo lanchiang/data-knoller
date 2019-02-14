@@ -58,26 +58,26 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    // what speaks for having a preamble?
-    // Dataset only has one row
+
+    //represents the chance the dataset doesnt have a preamble
     var finalScore = 1.0
 
     val numberOfColumns = dataset.columns.length
     if(numberOfColumns == 1)
     {
-      finalScore *= 0.99
+      finalScore *= 0.01
     }else{
       // dataset has one row, where there are missing values and they only occur in consecutive lines
-      finalScore *= checkForConsecutiveEmptyRows(dataset)
+      finalScore *= 1 - checkForConsecutiveEmptyRows(dataset)
     }
 
     // Consecutive lines starting with the same character
-    finalScore *= checkFirstCharacterInConsecutiveRows(dataset)
+    finalScore *= 1 -  checkFirstCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
 
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
-    finalScore *= charsInEachLine(dataset)
-    finalScore.toFloat
+    finalScore *= 1 - charsInEachLine(dataset)
+    1 - finalScore.toFloat
   }
 
   def checkFirstCharacterInConsecutiveRows(dataset: Dataset[Row]): Double = {
