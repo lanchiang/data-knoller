@@ -129,6 +129,9 @@ private class EncodingUnmixer(csvPath: String) {
     correctedUnits
   }
 
+  /**
+    * Writes the content of this.csvFile into a new CSV file using a consistent encoding
+    */
   private def writeCsv(units: Seq[DetectionUnit], newPath: String): Unit = {
     val maxLength = units.maxBy(_.length).length
     val buf = new Array[Byte](maxLength)
@@ -157,35 +160,46 @@ private class EncodingUnmixer(csvPath: String) {
     detector.getDetectedCharset
   }
 
+  /**
+    * Moves the boundary between two units to the exact point where the encoding changes
+    * @return the corrected units
+    */
   private def correctBoundary(first: DetectionUnit, second: DetectionUnit): (DetectionUnit, DetectionUnit) = {
     this.csvFile.seek(first.startIndex)
     val reader = new ByteLineReader(this.csvFile)
     var lineBytes = Vector[Byte]()
-    var wrongEncoding = false
     var lineStartIndex = reader.currentIndex
+    var validEncoding = true
 
-    do {
-      var lineEnd = false
+    do {  // go through file until we find a line that can't be decoded with first.encoding
       lineStartIndex = reader.currentIndex
+      var lineEnd = false
       do {
         lineEnd = reader.readLineBytes()
         lineBytes = lineBytes ++ reader.buf.slice(0, reader.length)
-      } while (!lineEnd)  // process data until we reach the line end
-
-      val buf = ByteBuffer.wrap(lineBytes.toArray)
-      val decoder = Charset.forName(second.encoding).newDecoder()
-      decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
-      try {
-        decoder.decode(buf)
-      } catch {
-        case _: CharacterCodingException => wrongEncoding = true
-      }
-
+      } while (!lineEnd)
       reader.prepareForNextLine()
-    } while (!wrongEncoding && reader.currentIndex < second.endIndex && !reader.fileEnd)
 
-    val boundary = lineStartIndex
+      validEncoding = isValidEncodingFor(lineBytes.toArray, first.encoding)
+    } while (validEncoding && reader.currentIndex < second.endIndex && !reader.fileEnd)
+
+    val boundary = lineStartIndex  // this line could not be decoded => assume it is the boundary
     (DetectionUnit(first.startIndex, boundary, first.encoding), DetectionUnit(boundary, second.endIndex, second.encoding))
+  }
+
+  /**
+    * Checks whether `bytes` can be decoded using `encoding`
+    */
+  private def isValidEncodingFor(bytes: Array[Byte], encoding: String): Boolean = {
+    val buf = ByteBuffer.wrap(bytes)
+    val decoder = Charset.forName(encoding).newDecoder()
+    decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
+    try {
+      decoder.decode(buf)
+    } catch {
+      case _: CharacterCodingException => return false
+    }
+    true
   }
 }
 
@@ -200,7 +214,10 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
   private var bufOffset = 0     // position in buf where to start writing (data before bufOffset is already valid)
 
 
-  // returns true if line (or file) end was found
+  /**
+    * Reads bytes into the buffer until the buffer is full or a line end is found
+    * @return true if a line (or file) end was found
+    */
   def readLineBytes(): Boolean = {
     val bytesRead = this.csvFile.read(this.buf, this.bufOffset, this.buf.length - this.bufOffset)
     this.bufOffset = 0
@@ -217,7 +234,9 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
     hasFoundLineEnd
   }
 
-  // move bytes from the next line to the beginning of buf, make sure they don't get overwritten by next read
+  /**
+    * Moves bytes from the next line to the beginning of buf, make sure they don't get overwritten by next read
+    */
   def prepareForNextLine(): Unit = {
     System.arraycopy(this.buf, this.length, this.buf, 0, this.buf.length - this.length)
     this.bufOffset = this.length
