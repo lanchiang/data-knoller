@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -163,8 +164,8 @@ public class MergeAttributeTest {
 		SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons, targetMetadata, transforms);
 		pipeline = new Pipeline(dataLoader.load());
 		List<String> columns = new ArrayList<>();
-		columns.add("stemlemma");
-		columns.add("stemlemma2");
+//		columns.add("stemlemma");
+//		columns.add("stemlemma2");
 		AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
@@ -175,6 +176,8 @@ public class MergeAttributeTest {
 		//columns.add("city");
 		DecisionEngine decisionEngine = DecisionEngine.getInstance();
 		AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
+		pipeline = new Pipeline(dataLoader.load());
+		pipeline.addPreparation(new Preparation(actualPreparator));
 		pipeline.executePipeline();
 		pipeline.getRawData().show();
 		//AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");

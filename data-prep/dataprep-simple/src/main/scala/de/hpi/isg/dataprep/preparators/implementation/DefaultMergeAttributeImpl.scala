@@ -37,18 +37,6 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 		if (col1.equals(col2)) col1 else if (col2.trim.nonEmpty) col2 else col1
 	})
 
-
-	def isNull(value:String) = value.trim.isEmpty
-	def isGoodToMerge(a:String, b:String):Integer = {
-		if (a.equals(b))
-			1
-		else if ( isNull(a) || isNull(b))
-			1
-		else
-			0
-	}
-
-
 	def getAllSubstrings(str: String): Set[String] = {
 		str.inits.flatMap(_.tails).toSet
 	}
