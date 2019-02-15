@@ -11,17 +11,9 @@ import spire.std.float
 
 import scala.collection.JavaConverters._
 class MergeAttribute (var attributes:List[String]
-					 ,val connector:String,
-					  val test:String)
+					 ,val connector:String)
 		extends AbstractPreparator{
-
-
-	def this( attributes:List[String]
-			  , connector:String)
-	{
-		this(attributes,connector,"Bla Bla bla")
-	}
-
+	var mergeDate = false
 	def this()
 	{
 		this(List[String](),"")
@@ -113,10 +105,21 @@ class MergeAttribute (var attributes:List[String]
 
 	val weight = 4
 	val bias = -0.75
+
+	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]) :Float={
+		import dataset.sparkSession.implicits._
+
+		this.mergeDate = true
+		0
+	}
+
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
 		import dataset.sparkSession.implicits._
 		val columns = dataset.columns.toSeq
-		if (columns.length < 2) return 0
+		if(columns.length == 3)
+			return callApplicabilityDate(schemaMapping,dataset,targetMetadata)
+		if (columns.length != 2)
+			return 0
 
 		val applicability = columns
 				.flatMap (col => columns.map((col,_))) // crossproduct
