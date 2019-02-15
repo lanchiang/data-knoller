@@ -52,7 +52,7 @@ class MergeAttribute (var attributes:List[String]
       .map(x => if (x.getInt(0) <= 2100 && x.getInt(0) > 0 ) 1 else 0)
       .reduce(_+_)
 
-    if (sumYear / columnWithoutNull.count() == 1)
+    if (sumYear / columnWithoutNull.count() >= 1)
       true
     else
       false
@@ -69,7 +69,7 @@ class MergeAttribute (var attributes:List[String]
 			.map(x => if (x.getInt(0) <= 12 && x.getInt(0) > 0 ) 1 else 0)
 			.reduce(_+_)
 
-    if (sumMonth / columnWithoutNull.count() == 1)
+    if (sumMonth / columnWithoutNull.count() >= 0.95)
       true
     else
       false
@@ -108,9 +108,37 @@ class MergeAttribute (var attributes:List[String]
 
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]) :Float={
 		import dataset.sparkSession.implicits._
+    val x = dataset.columns
+    val i = Iterator(dataset.columns)
+    var d = "0"
+    var m = "0"
+    var y = "0"
 
-		this.mergeDate = true
-		0
+    while (i.hasNext && d == "0" || m == "0" || y == "0"){
+
+      if  (headerIsDay(x(i)) && d == "0"){
+        d = x(i)
+        i.next()
+      }
+      else if (headerIsMonth(x(i)) && m == "0"){
+        m = x(i)
+        i.next()
+      }
+      else if (headerIsYear(x(i)) && y == "0"){
+        y = x(i)
+        i.next()
+      }
+      else i.next()
+    }
+
+    if (d != "0" && m != "0" && y != "0"){
+
+      this.attributes = List(d,m,y)
+
+      this.mergeDate = true
+
+      1
+    } else 0
 	}
 
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
