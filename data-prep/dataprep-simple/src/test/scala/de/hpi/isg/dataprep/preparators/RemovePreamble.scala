@@ -111,8 +111,15 @@ class RemovePreamble extends PreparatorScalaTest {
   "Separator Count" should "remove all preamble lines with an unusual amount of separators" in {
     val localContext = sparkContext
     import localContext.implicits._
-    val customDataset = Seq("1,2,5,6", "3,4,7,8", "#postamble", "#postamble", ",,,fake").toDF
-    val expectedDataset = Seq("1,2,5,6", "3,4,7,8", ",,,fake").toDF
+    val fileData = localContext.read
+      .option("sep", ",")
+      .csv("../dataprep-simple/src/test/resources/preamble_separator.csv")
+    val customDataset = fileData
+
+    val fileDataExpected = localContext.read
+      .option("sep", ",")
+      .csv("../dataprep-simple/src/test/resources/preamble_separator_expected.csv")
+    val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
 
@@ -120,6 +127,28 @@ class RemovePreamble extends PreparatorScalaTest {
 
     result.collect shouldEqual expectedDataset.collect
   }
+
+  "Separator Count" should "remove all preamble lines and ignore others" in {
+    val localContext = sparkContext
+    import localContext.implicits._
+    val fileData = localContext.read
+      .option("sep", ",")
+      .csv("../dataprep-simple/src/test/resources/preamble_separator_fail.csv")
+    val customDataset = fileData
+
+    val fileDataExpected = localContext.read
+      .option("sep", ",")
+      .csv("../dataprep-simple/src/test/resources/preamble_separator_fail_expected.csv")
+    val expectedDataset = fileDataExpected
+
+
+    val prep = new DefaultRemovePreambleImpl
+
+    val result = prep.analyseSeparatorCount(customDataset, separator = ",")
+
+    result.collect shouldEqual expectedDataset.collect
+  }
+
 
   "CharTypeClusterer" should "generate Vectors correctly" in {
     val localContext = sparkContext
