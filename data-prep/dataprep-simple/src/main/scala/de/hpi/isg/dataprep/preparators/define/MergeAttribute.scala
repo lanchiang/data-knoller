@@ -10,10 +10,11 @@ import org.apache.spark.sql.functions.udf
 import spire.std.float
 
 import scala.collection.JavaConverters._
-class MergeAttribute (val attributes:List[String]
+class MergeAttribute (var attributes:List[String]
 					 ,val connector:String,
 					  val test:String)
 		extends AbstractPreparator{
+
 
 	def this( attributes:List[String]
 			  , connector:String)
@@ -37,15 +38,8 @@ class MergeAttribute (val attributes:List[String]
 	//}
 	def isNull(value:String) = value.trim.isEmpty
 
-	def isGoodToMerge(a:String, b:String):Integer = {
-		if (a.equals(b))
-			1
-			else if ( isNull(a) || isNull(b))
-			1
-		else
-			0
-	}
-	def mapMerge(row: Row) = isGoodToMerge(row.getString(0),row.getString(1))
+
+	def mapMerge(row: Row) = Util.isGoodToMerge(row.getString(0),row.getString(1))
 
 
   def isYear(dataset: Dataset[Row], b: String): Boolean = {
@@ -97,7 +91,6 @@ class MergeAttribute (val attributes:List[String]
 //
 //	}
 
-
   override def buildMetadataSetup(): Unit = {
 
 	}
@@ -110,31 +103,41 @@ class MergeAttribute (val attributes:List[String]
 		if (columns.length < 2) return 0
 
 		val applicability = columns.flatMap (
-			col => columns.map((col,_))
-			).filter(x => x._1 != x._2)
-				.map(x => dataset.select(x._1.toString, x._2))
+						col => columns.map((col,_))
+					)
+				.filter(x => x._1 != x._2)
+				.map(x => (dataset.select(x._1.toString, x._2),x._1,x._2))
         		.map(
 				colCombo =>
-					colCombo.map( x => {
+					(
+					colCombo._1.map( x => {
 						val a = x.get(0).toString
 						val b = x.get(1).toString
-
-						if (a.equals(b))
-							1
-						else if (a.trim.isEmpty || b.trim.isEmpty)
-							1
-						else
-							0
-					})
+						Util.isGoodToMerge(a,b)
+					}),colCombo._2,colCombo._3)
 				)
-       // 		.foreach(x => x.show())
-        		.filter(x => x.count()>0)
+        		//.foreach(x => x.show())
+        		//.filter(filterfunc)
 				.map(colCombo =>
-					colCombo
-					.reduce(_ + _)
-				).max / dataset.count().toFloat
-		val result = (Math.max(applicability + bias,0) * weight).toFloat
-		println(result)
+			(colCombo._1.reduce(_+_)/ dataset.count().toFloat, colCombo._2,colCombo._3)
+					//colCombo. reduce(_ + _)
+				).maxBy(_._1)
+		//println(applicability)
+				//.gr / dataset.count().toFloat
+		val result = (Math.max(applicability._1 + bias,0) * weight).toFloat
+		this.attributes =List(applicability._2,applicability._3)
+//
 		result
+	}
+}
+object Util extends Serializable{
+	def isNull(value:String) = value.trim.isEmpty
+	def isGoodToMerge(a:String, b:String):Integer = {
+		if (a.equals(b))
+			1
+		else if ( isNull(a) || isNull(b))
+			1
+		else
+			0
 	}
 }
