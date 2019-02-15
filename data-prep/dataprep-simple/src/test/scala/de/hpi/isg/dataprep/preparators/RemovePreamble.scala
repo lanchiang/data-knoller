@@ -29,6 +29,15 @@ class RemovePreamble extends PreparatorScalaTest {
     super.beforeAll()
   }
 
+  "Spark should be able to read files" should "work" in {
+    val localContext = sparkContext
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+
+    fileData.columns.length shouldEqual 3
+  }
+
   "Initial char" should "find right counts for each char" in {
     val localContext = sparkContext
     import localContext.implicits._
@@ -62,10 +71,13 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val prep = new DefaultRemovePreambleImpl
 
-    val result = prep.analyseSeparatorCount(customDataset,separator = ",")
+    val result = prep.analyseSeparatorCount(customDataset, separator = ",")
 
     result.collect shouldEqual expectedDataset.collect
   }
+
+
+  // TODO: rework following tests - they are way to long
 
   "Remove Preamble" should "calculate calApplicability for multiple collumns correctly" in {
     val localContext = sparkContext
