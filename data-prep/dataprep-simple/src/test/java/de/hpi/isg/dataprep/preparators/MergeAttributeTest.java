@@ -143,8 +143,6 @@ public class MergeAttributeTest {
     public void mergeUrlTest() throws Exception{
 	    pipeline = new Pipeline(benkeContext);
         List<String> columns = new ArrayList<>();
-        columns.add("url");
-        columns.add("biourl");
         AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
@@ -183,6 +181,19 @@ public class MergeAttributeTest {
 		//AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
 		//System.out.println(abstractPreparator.calApplicability(null,dataset,null));
 	}
+
+	@Test
+    public void testMergeDateFunc() throws Exception{
+        pipeline = new Pipeline(benkeContext);
+
+        List<String> columns = new ArrayList<>();
+        AbstractPreparator abstractPreparator = new MergeAttribute(columns,"");
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+        pipeline.getRawData().show();
+    }
+
 
 	private Set<Metadata> createTargetMetadataManually() {
 		Set<Metadata> targetMetadata = new HashSet<>();

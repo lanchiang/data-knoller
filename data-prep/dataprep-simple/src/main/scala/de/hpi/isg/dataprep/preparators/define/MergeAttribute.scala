@@ -108,32 +108,21 @@ class MergeAttribute (var attributes:List[String]
 
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]) :Float={
 		import dataset.sparkSession.implicits._
-    val x = dataset.columns
-    val i = Iterator(dataset.columns)
-    var d = "0"
-    var m = "0"
-    var y = "0"
 
-    while (i.hasNext && d == "0" || m == "0" || y == "0"){
+    val dateCombi =  dataset.columns.seq.flatMap( x=>
+      dataset.columns.map(y=>(y,x))
+    ).filter(x=> x._1 != x._2)
+      .flatMap( x=>
+        dataset.columns.map(y=>(y,x._1,x._2))
+      ).filter(x=> x._3 != x._2)
+      .filter(x=> x._3 != x._1)
+      .filter(x => headerIsDay(x._1) && headerIsMonth(x._2) && headerIsYear(x._3))
 
-      if  (headerIsDay(x(i)) && d == "0"){
-        d = x(i)
-        i.next()
-      }
-      else if (headerIsMonth(x(i)) && m == "0"){
-        m = x(i)
-        i.next()
-      }
-      else if (headerIsYear(x(i)) && y == "0"){
-        y = x(i)
-        i.next()
-      }
-      else i.next()
-    }
 
-    if (d != "0" && m != "0" && y != "0"){
+    if (dateCombi.seq.length>0){
 
-      this.attributes = List(d,m,y)
+      val result = dateCombi.seq(0)
+      this.attributes = List(result._1,result._2,result._3)
 
       this.mergeDate = true
 
