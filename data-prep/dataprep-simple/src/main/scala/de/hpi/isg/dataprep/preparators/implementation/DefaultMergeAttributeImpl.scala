@@ -17,7 +17,7 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 		//find a name for the merged column
 		val newColumnName = findName(preparator.attributes(0),preparator.attributes(1))
 		//select the right merge function
-		val mergeFunc = if (preparator.connector.isEmpty) merge else merge(preparator.connector)
+		val mergeFunc = if (preparator.connector.isEmpty) merge else if (preparator.mergeDate) mergeDate else merge(preparator.connector)
 		//merge
 		val df = dataFrame.withColumn(newColumnName, mergeFunc(col(preparator.attributes(0)),col(preparator.attributes(1))))
 		//delete old columns
@@ -26,6 +26,11 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 
 		new ExecutionContext(df.select(columns: _*),errorAccumulator)
 	}
+
+	def mergeDate(): UserDefinedFunction =
+		udf((col1: String,col2: String,col3: String) => {
+			col1 + "." + col2 + "." +col3
+		})
 
 	def merge(connector: String): UserDefinedFunction =
 		udf((col1: String,col2: String) => {
