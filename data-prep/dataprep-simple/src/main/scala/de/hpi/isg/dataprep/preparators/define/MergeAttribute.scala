@@ -39,7 +39,7 @@ class MergeAttribute (var attributes:List[String]
 	def isNull(value:String) = value.trim.isEmpty
 
 
-	def mapMerge(row: Row) = Util.isGoodToMerge(row.getString(0),row.getString(1))
+	def mapMerge(row: Row) = MergeUtil.isGoodToMerge(row.getString(0),row.getString(1))
 
 
   def headerIsYear(header: String): Boolean = if (header.contains("Year") || header.contains("year")) true else false
@@ -118,35 +118,35 @@ class MergeAttribute (var attributes:List[String]
 		val columns = dataset.columns.toSeq
 		if (columns.length < 2) return 0
 
-		val applicability = columns.flatMap (
-						col => columns.map((col,_))
-					)
-				.filter(x => x._1 != x._2)
-				.map(x => (dataset.select(x._1.toString, x._2),x._1,x._2))
+		val applicability = columns
+				.flatMap (col => columns.map((col,_))) // crossproduct
+				.filter(x => x._1 != x._2)	//filter pairs with the same column
+				.map(x => (dataset	//select actual columns together with names
+					.select(x._1.toString, x._2),x._1,x._2))
         		.map(
 				colCombo =>
 					(
 					colCombo._1.map( x => {
 						val a = x.get(0).toString
 						val b = x.get(1).toString
-						Util.isGoodToMerge(a,b)
+						MergeUtil.isGoodToMerge(a,b) //calculate mergeGoodness for each row
 					}),colCombo._2,colCombo._3)
 				)
-        		//.foreach(x => x.show())
-        		//.filter(filterfunc)
 				.map(colCombo =>
-			(colCombo._1.reduce(_+_)/ dataset.count().toFloat, colCombo._2,colCombo._3)
-					//colCombo. reduce(_ + _)
-				).maxBy(_._1)
-		//println(applicability)
-				//.gr / dataset.count().toFloat
+					(colCombo._1.reduce(_+_) / //sum mergeGoodness
+							dataset.count().toFloat //and calculate relative mergeGoodness for the column
+							, colCombo._2,colCombo._3)
+				).maxBy(_._1) //select best pair of columns to merge
+		//apply threshold
 		val result = (Math.max(applicability._1 + bias,0) * weight).toFloat
+		//remember columns for later merge operation
 		this.attributes =List(applicability._2,applicability._3)
-//
+		//return weighted mergeGoodness
 		result
 	}
 }
-object Util extends Serializable{
+
+object MergeUtil extends Serializable{
 	def isNull(value:String) = value.trim.isEmpty
 	def isGoodToMerge(a:String, b:String):Integer = {
 		if (a.equals(b))
