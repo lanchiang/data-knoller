@@ -33,7 +33,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/test_space_preamble.csv")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
 
     fileData.columns.length shouldEqual 3
   }
@@ -55,12 +55,12 @@ class RemovePreamble extends PreparatorScalaTest {
     import localContext.implicits._
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/preamble_initial_char.csv")
+      .csv("../dataprep-simple/src/test/resources/preamble_initial_char.csv")
     val customDataset = fileData
 
     val fileDataExpected = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/preamble_initial_char_expected.csv")
+      .csv("../dataprep-simple/src/test/resources/preamble_initial_char_expected.csv")
     val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
@@ -75,12 +75,12 @@ class RemovePreamble extends PreparatorScalaTest {
     import localContext.implicits._
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/preamble_initial_char_fail.csv")
+      .csv("../dataprep-simple/src/test/resources/preamble_initial_char_fail.csv")
     val customDataset = fileData
 
     val fileDataExpected = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/preamble_initial_char_fail_expected.csv")
+      .csv("../dataprep-simple/src/test/resources/preamble_initial_char_fail_expected.csv")
     val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
@@ -94,12 +94,12 @@ class RemovePreamble extends PreparatorScalaTest {
     import localContext.implicits._
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/preamble_initial_char_space_fail.csv")
+      .csv("../dataprep-simple/src/test/resources/preamble_initial_char_space_fail.csv")
     val customDataset = fileData
 
     val fileDataExpected = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/preamble_initial_char_space_fail_expected.csv")
+      .csv("../dataprep-simple/src/test/resources/preamble_initial_char_space_fail_expected.csv")
     val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
@@ -125,7 +125,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/test_space_preamble.csv")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
     val customDataset = fileData
 
     val testPreparator = new DefaultRemovePreambleImpl
@@ -139,7 +139,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("/Users/resi/git/data-knoller/data-prep/dataprep-simple/src/test/resources/test_space_preamble.csv")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
     val customDataset = fileData
 
     val testPreparator = new DefaultRemovePreambleImpl
