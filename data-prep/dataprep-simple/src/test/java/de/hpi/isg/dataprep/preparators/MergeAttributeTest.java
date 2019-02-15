@@ -174,6 +174,8 @@ public class MergeAttributeTest {
 		//List<String> columns = new ArrayList<>();
 		//columns.add("address");
 		//columns.add("city");
+		pipeline.executePipeline();
+		pipeline.getRawData().show();
 		DecisionEngine decisionEngine = DecisionEngine.getInstance();
 		AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
 		pipeline = new Pipeline(dataLoader.load());
