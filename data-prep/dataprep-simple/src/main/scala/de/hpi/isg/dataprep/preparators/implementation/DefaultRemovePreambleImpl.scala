@@ -78,32 +78,42 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       })
   }
 
-  def findPreableByTypesOfChars(dataFrame: DataFrame) = {
-    val sparkBuilder = SparkSession
-      .builder()
-      .master("local[4]")
-    val sparkContext = sparkBuilder.getOrCreate()
-    import sparkContext.implicits._
+  def findPreableByTypesOfChars(dataFrame: DataFrame): DataFrame = {
+    import dataFrame.sparkSession.implicits._
 
-    val charTypeCounts = dataFrame
-      .rdd
-      .zipWithIndex()
-      .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
-      .toDF("features", "rownumber")
+    val charTypeCounts = dataFrameToCharTypeVectors(dataFrame)
+    var collectorDataFrame = createEmptyThreeColumnDataFrame(dataFrame)
 
-    var collectorDataFrame:DataFrame = Seq(Tuple3(Vectors.dense(1,2,3),1L, 3 )).toDF("a", "b", "c").filter(r => r.get(2).toString != "3")
-
-    for( col <- dataFrame.columns.indices){
-      val oneColumnDataframe = charTypeCounts
-        .map(row => (row.get(0).asInstanceOf[mutable.WrappedArray[DenseVector]](col),row.getAs[Long](1)))
-        .toDF("features", "rownumber")
+    for(col <- dataFrame.columns.indices){
+      val oneColumnDataframe = reduceDFtoSingleColumn(charTypeCounts, col)
       val colResult = kmeansForColumn(oneColumnDataframe)
       collectorDataFrame = collectorDataFrame.union(colResult)
     }
     collectorDataFrame
   }
 
-  def kmeansForColumn(dataFrame: DataFrame) = {
+  def dataFrameToCharTypeVectors(dataFrame: DataFrame): DataFrame = {
+    import dataFrame.sparkSession.implicits._
+    dataFrame
+      .rdd
+      .zipWithIndex()
+      .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
+      .toDF("features", "rownumber")
+  }
+
+  def createEmptyThreeColumnDataFrame(dataFrame: DataFrame): DataFrame = {
+    import dataFrame.sparkSession.implicits._
+    Seq(Tuple3(Vectors.dense(1,2,3),1L, 3 )).toDF("a", "b", "c").filter(r => r.get(2).toString != "3")
+  }
+
+  def reduceDFtoSingleColumn(dataFrame: DataFrame, index:Int): DataFrame = {
+    import dataFrame.sparkSession.implicits._
+    dataFrame
+      .map(row => (row.get(0).asInstanceOf[mutable.WrappedArray[DenseVector]](index),row.getAs[Long](1)))
+      .toDF("features", "rownumber")
+  }
+
+  def kmeansForColumn(dataFrame: DataFrame): DataFrame = {
     val kmeans = new KMeans()
       .setK(2)
       .setSeed(1L)
@@ -114,6 +124,15 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val model = kmeans.fit(dataFrame)
 
     model.transform(dataFrame)
+  }
+
+  def identifyPreambleCluster(dataFrame: DataFrame): Double = {
+    dataFrame.stat.approxQuantile("cluster",Array(0.5),0.1).head
+  }
+
+  def decideOnRowsToDelete(dataFrame: DataFrame, preambleCluster:Double): DataFrame = {
+    //TODO: implement - how many columns have to agree that a row is a preamble?
+    dataFrame
   }
 
   //TODO: refactor, delete useless stuff

@@ -76,6 +76,34 @@ class RemovePreamble extends PreparatorScalaTest {
     result.collect shouldEqual expectedDataset.collect
   }
 
+  "CharTypeClusterer" should "generate Vectors correctly" in {
+    val localContext = sparkContext
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+    val customDataset = fileData
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val zippedDataset = testPreparator.findPreableByTypesOfChars(customDataset)
+
+    zippedDataset.filter(row => row.get(2) == 1).collect.length shouldEqual 15
+  }
+
+  "CharTypeClusterer" should "find Preamble Cluster on its own" in {
+    val localContext = sparkContext
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+    val customDataset = fileData
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val result = testPreparator.findPreableByTypesOfChars(customDataset)
+    val cluster = testPreparator.identifyPreambleCluster(result)
+    cluster shouldEqual 1.0
+  }
+
 
   // TODO: rework following tests - they are way to long
 
@@ -240,20 +268,5 @@ class RemovePreamble extends PreparatorScalaTest {
     }
 
     emptyDataFrame.collect() shouldEqual(2)
-  }
-
-  "CharTypeClusterer" should "generate Vectors correctly" in {
-    val localContext = sparkContext
-    import localContext.implicits._
-    val fileData = localContext.read
-      .option("sep", "\t")
-      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
-    val customDataset = fileData
-
-    val testPreparator = new DefaultRemovePreambleImpl
-
-    val zippedDataset = testPreparator.findPreableByTypesOfChars(customDataset)
-
-    zippedDataset.filter(row => row.get(2) == 1).collect.length shouldEqual 15
   }
 }
