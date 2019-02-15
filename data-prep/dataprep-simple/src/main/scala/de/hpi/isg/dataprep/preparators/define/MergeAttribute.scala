@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import org.apache.spark.sql.{Dataset, Row, functions}
 import org.apache.spark.sql.functions.udf
+import org.dmg.pmml.True
 import spire.std.float
 
 import scala.collection.JavaConverters._
@@ -48,26 +49,42 @@ class MergeAttribute (val attributes:List[String]
 	def mapMerge(row: Row) = isGoodToMerge(row.getString(0),row.getString(1))
 
 
-  def isYear(dataset: Dataset[Row], b: String): Boolean = {
-	  import dataset.sparkSession.implicits._
-    val sumYears = dataset.select(b).map(x => if (x.getInt(0) < 2100 && x.getInt(0) > 0) 1 else 0)
-			.reduce(_+_)
+  def headerIsYear(header: String): Boolean = if (header.contains("Year") || header.contains("year")) true else false
 
-    //if (b.contains("year") || b.contains("Year")) true
-    if (sumYears / dataset.count() == 1)
+  def headerIsMonth(header: String): Boolean = if (header.contains("Month") || header.contains("month")) true else false
+
+  def headerIsDay(header: String): Boolean = if (header.contains("Day") || header.contains("day")) true else false
+
+
+  def isYear(row: Dataset[Row], header: String): Boolean = {
+    import row.sparkSession.implicits._
+
+    val columnWithoutNull = row
+      .select(header)
+      .filter(x => x.get(0).toString.trim.isEmpty)
+
+    val sumYear = columnWithoutNull
+      .map(x => if (x.getInt(0) <= 2100 && x.getInt(0) > 0 ) 1 else 0)
+      .reduce(_+_)
+
+    if (sumYear / columnWithoutNull.count() == 1)
       true
     else
       false
   }
 
-  def isMonth(dataset: Dataset[Row], b: String): Boolean = {
-	  import dataset.sparkSession.implicits._
-    val sumMonth = dataset.select(b).map(x => if (x.getInt(0) < 13 && x.getInt(0) > 0) 1 else 0)
+  def isMonth(row: Dataset[Row], header: String): Boolean = {
+		import row.sparkSession.implicits._
+
+		val columnWithoutNull = row
+			.select(header)
+			.filter(x => x.get(0).toString.trim.isEmpty)
+
+		val sumMonth = columnWithoutNull
+			.map(x => if (x.getInt(0) <= 12 && x.getInt(0) > 0 ) 1 else 0)
 			.reduce(_+_)
 
-
-	  //if (b.contains("month") || b.contains("Month")) true
-    if (sumMonth / dataset.count() == 1)
+    if (sumMonth / columnWithoutNull.count() == 1)
       true
     else
       false
