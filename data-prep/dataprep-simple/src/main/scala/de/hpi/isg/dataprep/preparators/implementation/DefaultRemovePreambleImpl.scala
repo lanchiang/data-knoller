@@ -42,6 +42,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val unexpectedSepAmountRemovedDataset = analyseSeparatorCount(dataFrame_orig, separatorChar.toString)
 
     // by clustering
+    val unequalCharTypesRemovedDataset = findPreambleChar(dataFrame_orig)
 
     new ExecutionContext(dataFrame_orig, errorAccumulator)
   }
@@ -77,24 +78,16 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   }
 
   def findPreambleByTypesOfChars(dataFrame: DataFrame): DataFrame = {
-    import dataFrame.sparkSession.implicits._
 
     val zippedDataFrame = dataFrame.rdd.zipWithIndex
-
-    val charTypeCounts = dataFrameToCharTypeVectors(zippedDataFrame, dataFrame.sparkSession)
-    var collectorDataFrame = createEmptyThreeColumnDataFrame(dataFrame)
-
-    for(col <- dataFrame.columns.indices){
-      val oneColumnDataframe = reduceDFtoSingleColumn(charTypeCounts, col)
-      val colResult = kmeansForColumn(oneColumnDataframe)
-      collectorDataFrame = collectorDataFrame.union(colResult)
-    }
+    val collectorDataFrame = createDFforPreambleAnalysis(zippedDataFrame, dataFrame)
     val rowsToDelete = decideOnRowsToDelete(collectorDataFrame, identifyDataCluster(collectorDataFrame))
 
-    zippedDataFrame
-      .filter(r => rowsToDelete.contains(r._2))
-      .map(r => r._1.toSeq)
-      .toDF
+    val cleanRDD = zippedDataFrame
+      .filter(r => !rowsToDelete.contains(r._2))
+      .map(r => r._1)
+
+    dataFrame.sqlContext.createDataFrame(cleanRDD, dataFrame.schema)
   }
 
   def dataFrameToCharTypeVectors(dataFrame: RDD[(Row, Long)], session:SparkSession): DataFrame = {
@@ -192,7 +185,22 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     score
   }
 
+  def createDFforPreambleAnalysis(zippedDataFrame: RDD[(Row, Long)], origDataFrame: DataFrame): DataFrame = {
+
+    val charTypeCounts = dataFrameToCharTypeVectors(zippedDataFrame, origDataFrame.sparkSession)
+    var collectorDataFrame = createEmptyThreeColumnDataFrame(origDataFrame)
+
+    for(col <- origDataFrame.columns.indices){
+      val oneColumnDataframe = reduceDFtoSingleColumn(charTypeCounts, col)
+      val colResult = kmeansForColumn(oneColumnDataframe)
+      collectorDataFrame = collectorDataFrame.union(colResult)
+    }
+    collectorDataFrame
+  }
+
   //TODO: refactor, delete useless stuff
+
+
 
   def findMedianSepCount(dataFrame: DataFrame, separator:String): Double = {
     import dataFrame.sparkSession.implicits._

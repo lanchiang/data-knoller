@@ -109,41 +109,14 @@ class RemovePreamble extends PreparatorScalaTest {
     val fileData = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
-    val customDataset = fileData
+    val customDataset = fileData.rdd.zipWithIndex
 
     val testPreparator = new DefaultRemovePreambleImpl
 
-    val result = testPreparator.findPreambleByTypesOfChars(customDataset)
+    val result = testPreparator.createDFforPreambleAnalysis(customDataset, fileData)
     val cluster = testPreparator.identifyDataCluster(result)
 
     testPreparator.decideOnRowsToDelete(result, cluster).length shouldEqual 5
-
-    import result.sparkSession.implicits._
-    val filteredSet = result
-      .filter(r => r.getAs[Int](2) != cluster.toInt)
-      .groupByKey(r => r.getAs[Long](1))
-      .mapGroups((l, iter) => (l,iter.toList.length))
-
-    val maxAgreeingCols = filteredSet.reduce((a,b) => if(a._2 > b._2) a else b)._2
-
-    var maxHomogenetyScore = 0
-    var optimalCols = 0
-    for(agreeingCols <- (1 to maxAgreeingCols).inclusive){
-      val preambleRows = filteredSet
-        .filter(r => r._2 <= agreeingCols)
-        .map(r => r._1)
-        .collect
-
-      val currentScore = testPreparator.homogenityOfList(preambleRows.toList)
-
-      if(currentScore >= maxHomogenetyScore){
-        optimalCols = agreeingCols
-        maxHomogenetyScore = currentScore
-      }
-    }
-
-    maxHomogenetyScore shouldEqual 4
-    optimalCols shouldEqual 3
   }
 
   "Homogenety of List" should "give a good indication of how close together lines are" in {
@@ -160,6 +133,20 @@ class RemovePreamble extends PreparatorScalaTest {
     homogenValue shouldEqual 5
     partialHomogenValue shouldEqual 4
     unhomogenValue shouldEqual 0
+  }
+
+  "CharTypeClusterer" should "remove preamble" in {
+    val localContext = sparkContext
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+    val customDataset = fileData
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val result = testPreparator.findPreambleByTypesOfChars(customDataset)
+
+    result.collect.length shouldEqual 30
   }
 
   // TODO: rework following tests - they are way to long

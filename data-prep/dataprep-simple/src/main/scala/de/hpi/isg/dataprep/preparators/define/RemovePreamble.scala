@@ -12,7 +12,7 @@ import org.apache.spark.sql.{Dataset, Row}
 
 /**
   *
-  * @author Lasse Kohlmeyer
+  * @author Justus Eilers, Theresia Bruns
   * @since 2018/29/15
   */
 class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamble: Boolean, val rowsToRemove: Integer, val commentCharacter: String) extends AbstractPreparator {
