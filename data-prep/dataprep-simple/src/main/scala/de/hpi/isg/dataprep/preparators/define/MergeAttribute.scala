@@ -121,29 +121,17 @@ class MergeAttribute (var attributes:List[String]
 		if (columns.length != 2)
 			return 0
 
-		val applicability = columns
-				.flatMap (col => columns.map((col,_))) // crossproduct
-				.filter(x => x._1 != x._2)	//filter pairs with the same column
-				.map(x => (dataset	//select actual columns together with names
-					.select(x._1.toString, x._2),x._1,x._2))
-        		.map(
-				colCombo =>
-					(
-					colCombo._1.map( x => {
-						val a = x.get(0).toString
-						val b = x.get(1).toString
-						MergeUtil.isGoodToMerge(a,b) //calculate mergeGoodness for each row
-					}),colCombo._2,colCombo._3)
-				)
-				.map(colCombo =>
-					(colCombo._1.reduce(_+_) / //sum mergeGoodness
-							dataset.count().toFloat //and calculate relative mergeGoodness for the column
-							, colCombo._2,colCombo._3)
-				).maxBy(_._1) //select best pair of columns to merge
+		val applicability = dataset
+				.map( x => {
+					val a = x.get(0).toString
+					val b = x.get(1).toString
+					MergeUtil.isGoodToMerge(a,b) //calculate mergeGoodness for each row
+				})
+				.reduce(_+_) / dataset.count().toFloat
 		//apply threshold
-		val result = (Math.max(applicability._1 + bias,0) * weight).toFloat
+		val result = (Math.max(applicability + bias,0) * weight).toFloat
 		//remember columns for later merge operation
-		this.attributes =List(applicability._2,applicability._3)
+		this.attributes = columns.toList
 		//return weighted mergeGoodness
 		result
 	}
