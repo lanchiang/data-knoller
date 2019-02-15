@@ -1,6 +1,5 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import com.sun.rowset.internal.Row
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -21,11 +20,10 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import scala.collection.mutable
 /**
   *
-  * @author Lasse Kohlmeyer
+  * @author Justus Eilers, Theresia Bruns
   * @since 2018/11/29
   */
 class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
-  private var preambleCharacters = "[!#$%&*+-./:<=>?@^|~].*$"
 
   //ideas: average distance of characters in line
 
@@ -78,10 +76,12 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       })
   }
 
-  def findPreableByTypesOfChars(dataFrame: DataFrame): DataFrame = {
+  def findPreambleByTypesOfChars(dataFrame: DataFrame): DataFrame = {
     import dataFrame.sparkSession.implicits._
 
-    val charTypeCounts = dataFrameToCharTypeVectors(dataFrame)
+    val zippedDataFrame = dataFrame.rdd.zipWithIndex
+
+    val charTypeCounts = dataFrameToCharTypeVectors(zippedDataFrame, dataFrame.sparkSession)
     var collectorDataFrame = createEmptyThreeColumnDataFrame(dataFrame)
 
     for(col <- dataFrame.columns.indices){
@@ -89,14 +89,17 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       val colResult = kmeansForColumn(oneColumnDataframe)
       collectorDataFrame = collectorDataFrame.union(colResult)
     }
-    collectorDataFrame
+    val rowsToDelete = decideOnRowsToDelete(collectorDataFrame, identifyDataCluster(collectorDataFrame))
+
+    zippedDataFrame
+      .filter(r => rowsToDelete.contains(r._2))
+      .map(r => r._1.toSeq)
+      .toDF
   }
 
-  def dataFrameToCharTypeVectors(dataFrame: DataFrame): DataFrame = {
-    import dataFrame.sparkSession.implicits._
+  def dataFrameToCharTypeVectors(dataFrame: RDD[(Row, Long)], session:SparkSession): DataFrame = {
+    import session.implicits._
     dataFrame
-      .rdd
-      .zipWithIndex()
       .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
       .toDF("features", "rownumber")
   }
@@ -126,13 +129,67 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     model.transform(dataFrame)
   }
 
-  def identifyPreambleCluster(dataFrame: DataFrame): Double = {
-    dataFrame.stat.approxQuantile("cluster",Array(0.5),0.1).head
+  def identifyDataCluster(dataFrame: DataFrame): Double = {
+    dataFrame.stat.approxQuantile("c",Array(0.5),0.1).head
   }
 
-  def decideOnRowsToDelete(dataFrame: DataFrame, preambleCluster:Double): DataFrame = {
-    //TODO: implement - how many columns have to agree that a row is a preamble?
-    dataFrame
+  def decideOnRowsToDelete(dataFrame: DataFrame, dataCluster:Double): Array[Long] = {
+    import dataFrame.sparkSession.implicits._
+    // how many cols agree that a row is a preamble row
+    val filteredSet = dataFrame
+      .filter(r => r.getAs[Int](2) != dataCluster.toInt)
+      .groupByKey(r => r.getAs[Long](1))
+      .mapGroups((l, iter) => (l,iter.toList.length))
+
+    // how many cols are there?
+    val maxAgreeingCols = filteredSet.reduce((a,b) => if(a._2 > b._2) a else b)._2
+
+    // how many rows should be allowed to vote - based on homogenety of result
+    var maxHomogenetyScore = 0
+    var optimalCols = 0
+    for(agreeingCols <- (1 to maxAgreeingCols).inclusive){
+      val preambleRows = filteredSet
+        .filter(r => r._2 <= agreeingCols)
+        .map(r => r._1)
+        .collect
+
+      val currentScore = homogenityOfList(preambleRows.toList)
+
+      if(currentScore >= maxHomogenetyScore){
+        optimalCols = agreeingCols
+        maxHomogenetyScore = currentScore
+      }
+    }
+
+    // row numbers of rows that are part of the preamble
+    filteredSet
+      .filter(r => r._2 >= optimalCols)
+      .map(r => r._1)
+      .collect
+  }
+
+  def homogenityOfList(rowIdicies:List[Long] ): Int = {
+
+    val sortedList = rowIdicies
+      .sorted
+
+    var lastEntry:Long = -1
+    var score = 0
+
+    for(entry:Long <- sortedList){
+      if(lastEntry != -1){
+        if((entry - lastEntry) == 1){
+          score += 1
+        }else{
+          val penalty = Math.pow(entry - lastEntry, 2)/2
+          if(penalty <= score){
+            score = score - penalty.toInt
+          }
+        }
+      }
+      lastEntry = entry
+    }
+    score
   }
 
   //TODO: refactor, delete useless stuff

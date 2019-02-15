@@ -85,7 +85,7 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val testPreparator = new DefaultRemovePreambleImpl
 
-    val zippedDataset = testPreparator.findPreableByTypesOfChars(customDataset)
+    val zippedDataset = testPreparator.findPreambleByTypesOfChars(customDataset)
 
     zippedDataset.filter(row => row.get(2) == 1).collect.length shouldEqual 15
   }
@@ -99,11 +99,68 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val testPreparator = new DefaultRemovePreambleImpl
 
-    val result = testPreparator.findPreableByTypesOfChars(customDataset)
-    val cluster = testPreparator.identifyPreambleCluster(result)
-    cluster shouldEqual 1.0
+    val result = testPreparator.findPreambleByTypesOfChars(customDataset)
+    val cluster = testPreparator.identifyDataCluster(result)
+    result.filter(r => r.getAs[Int](2) == cluster.toInt).collect().length shouldEqual 90
   }
 
+  "CharTypeClusterer" should "use most homogeneous column for preamble detection" in {
+    val localContext = sparkContext
+    val fileData = localContext.read
+      .option("sep", "\t")
+      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
+    val customDataset = fileData
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val result = testPreparator.findPreambleByTypesOfChars(customDataset)
+    val cluster = testPreparator.identifyDataCluster(result)
+
+    testPreparator.decideOnRowsToDelete(result, cluster).length shouldEqual 5
+
+    import result.sparkSession.implicits._
+    val filteredSet = result
+      .filter(r => r.getAs[Int](2) != cluster.toInt)
+      .groupByKey(r => r.getAs[Long](1))
+      .mapGroups((l, iter) => (l,iter.toList.length))
+
+    val maxAgreeingCols = filteredSet.reduce((a,b) => if(a._2 > b._2) a else b)._2
+
+    var maxHomogenetyScore = 0
+    var optimalCols = 0
+    for(agreeingCols <- (1 to maxAgreeingCols).inclusive){
+      val preambleRows = filteredSet
+        .filter(r => r._2 <= agreeingCols)
+        .map(r => r._1)
+        .collect
+
+      val currentScore = testPreparator.homogenityOfList(preambleRows.toList)
+
+      if(currentScore >= maxHomogenetyScore){
+        optimalCols = agreeingCols
+        maxHomogenetyScore = currentScore
+      }
+    }
+
+    maxHomogenetyScore shouldEqual 4
+    optimalCols shouldEqual 3
+  }
+
+  "Homogenety of List" should "give a good indication of how close together lines are" in {
+    val homogenList = List(1,2,3,4,5,6).map(_.toLong)
+    val unhomogenList = List(1,3,4,5,7,10,20).map(_.toLong)
+    val homogenButSplitList = List(1,2,3,30,31,32).map(_.toLong)
+
+    val testPreparator = new DefaultRemovePreambleImpl
+
+    val homogenValue = testPreparator.homogenityOfList(homogenList)
+    val unhomogenValue = testPreparator.homogenityOfList(unhomogenList)
+    val partialHomogenValue = testPreparator.homogenityOfList(homogenButSplitList)
+
+    homogenValue shouldEqual 5
+    partialHomogenValue shouldEqual 4
+    unhomogenValue shouldEqual 0
+  }
 
   // TODO: rework following tests - they are way to long
 
