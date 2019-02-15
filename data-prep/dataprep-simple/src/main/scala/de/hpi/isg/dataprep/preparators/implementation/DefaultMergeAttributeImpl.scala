@@ -17,7 +17,7 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 		//find a name for the merged column
 		val newColumnName = findName(preparator.attributes(0),preparator.attributes(1))
 		//select the right merge function
-		val mergeFunc = if (preparator.connector.isEmpty) merge else if (preparator.mergeDate) mergeDate else merge(preparator.connector)
+		val mergeFunc = if (preparator.mergeDate) mergeDate else if (preparator.connector.isEmpty) merge else merge(preparator.connector)
 		//merge
 		val df = dataFrame.withColumn(newColumnName, mergeFunc(col(preparator.attributes(0)),col(preparator.attributes(1))))
 		//delete old columns
