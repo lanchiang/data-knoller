@@ -249,7 +249,6 @@ class RemovePreamble extends PreparatorScalaTest {
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
     val customDataset = fileData
-    customDataset.columns.length shouldEqual(3)
 
     val testPreparator = new DefaultRemovePreambleImpl
 

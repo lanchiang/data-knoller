@@ -78,6 +78,46 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       })
   }
 
+  def findPreableByTypesOfChars(dataFrame: DataFrame) = {
+    val sparkBuilder = SparkSession
+      .builder()
+      .master("local[4]")
+    val sparkContext = sparkBuilder.getOrCreate()
+    import sparkContext.implicits._
+
+    val charTypeCounts = dataFrame
+      .rdd
+      .zipWithIndex()
+      .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
+      .toDF("features", "rownumber")
+
+    var collectorDataFrame:DataFrame = Seq(Tuple3(Vectors.dense(1,2,3),1L, 3 )).toDF("a", "b", "c").filter(r => r.get(2).toString != "3")
+
+    for( col <- dataFrame.columns.indices){
+      val oneColumnDataframe = charTypeCounts
+        .map(row => (row.get(0).asInstanceOf[mutable.WrappedArray[DenseVector]](col),row.getAs[Long](1)))
+        .toDF("features", "rownumber")
+      val colResult = kmeansForColumn(oneColumnDataframe)
+      collectorDataFrame = collectorDataFrame.union(colResult)
+    }
+    collectorDataFrame
+  }
+
+  def kmeansForColumn(dataFrame: DataFrame) = {
+    val kmeans = new KMeans()
+      .setK(2)
+      .setSeed(1L)
+      .setTol(0.1)
+      .setInitMode("k-means||")
+      .setInitSteps(3)
+      .setDistanceMeasure("cosine")
+    val model = kmeans.fit(dataFrame)
+
+    model.transform(dataFrame)
+  }
+
+  //TODO: refactor, delete useless stuff
+
   def findMedianSepCount(dataFrame: DataFrame, separator:String): Double = {
     import dataFrame.sparkSession.implicits._
     val sepCountFrame = dataFrame
@@ -227,44 +267,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       val r = l + 1
       (sorted.lookup(l).head + sorted.lookup(r).head).toDouble / 2
     } else sorted.lookup(count / 2).head.toDouble
-  }
-
-  def findPreableByTypesOfChars(dataFrame: DataFrame) = {
-    val sparkBuilder = SparkSession
-      .builder()
-      .master("local[4]")
-    val sparkContext = sparkBuilder.getOrCreate()
-    import sparkContext.implicits._
-
-    val charTypeCounts = dataFrame
-      .rdd
-      .zipWithIndex()
-      .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
-      .toDF("features", "rownumber")
-
-    var collectorDataFrame:DataFrame = Seq(Tuple3(Vectors.dense(1,2,3),1L, 3 )).toDF("a", "b", "c").filter(r => r.get(2).toString != "3")
-
-    for( col <- dataFrame.columns.indices){
-      val oneColumnDataframe = charTypeCounts
-        .map(row => (row.get(0).asInstanceOf[mutable.WrappedArray[DenseVector]](col),row.getAs[Long](1)))
-        .toDF("features", "rownumber")
-      val colResult = kmeansForColumn(oneColumnDataframe)
-      collectorDataFrame = collectorDataFrame.union(colResult)
-    }
-    collectorDataFrame
-  }
-
-  def kmeansForColumn(dataFrame: DataFrame) = {
-    val kmeans = new KMeans()
-      .setK(2)
-      .setSeed(1L)
-      .setTol(0.1)
-      .setInitMode("k-means||")
-      .setInitSteps(3)
-      .setDistanceMeasure("cosine")
-    val model = kmeans.fit(dataFrame)
-
-    model.transform(dataFrame)
   }
 
   private def createBuilderAndFindSeparator(dataframe: DataFrame, separator: String) = {
