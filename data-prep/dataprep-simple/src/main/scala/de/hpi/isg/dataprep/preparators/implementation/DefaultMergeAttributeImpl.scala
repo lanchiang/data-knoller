@@ -4,9 +4,9 @@ import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.MergeAttribute
+import de.hpi.isg.dataprep.preparators.define.{MergeAttribute, MergeUtil}
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, udf, max}
+import org.apache.spark.sql.functions.{col, max, udf}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
@@ -16,8 +16,12 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 		val preparator = abstractPreparator.asInstanceOf[MergeAttribute];
 		//find a name for the merged column
 		val newColumnName = findName(preparator.attributes(0),preparator.attributes(1))
+
+		//find conflict resolution function
+		val conflictFunc = if (preparator.handleMergeConflict != null) preparator.handleMergeConflict else MergeUtil.handleMergeConflicts _
 		//select the right merge function
-		val mergeFunc = if (preparator.connector.isEmpty) merge else if (preparator.mergeDate) mergeDate else merge(preparator.connector)
+		val mergeFunc = if (preparator.mergeDate) mergeDate else if (preparator.connector.isEmpty) merge(conflictFunc) else merge(preparator.connector)
+
 		//merge
 		val df = dataFrame.withColumn(newColumnName, mergeFunc(col(preparator.attributes(0)),col(preparator.attributes(1))))
 		//delete old columns
@@ -37,9 +41,9 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 			col1 + connector + col2
 	})
 
-	def merge():UserDefinedFunction =
+	def merge(handleConflicts:(String,String)=>String):UserDefinedFunction =
 	udf((col1: String,col2: String) => {
-		if (col1.equals(col2)) col1 else if (col2.trim.nonEmpty) col2 else col1
+		if (col1.equals(col2)) col1 else if (MergeUtil.isNull(col1)) col2 else if (MergeUtil.isNull(col2)) col1 else handleConflicts(col1,col2)
 	})
 
 	def getAllSubstrings(str: String): Set[String] = {
@@ -51,6 +55,8 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 
 		str1Substrings.intersect(str2Substrings).maxBy(_.length)
 	}
+
+
 
 	def findName(a:String, b:String) = {
 		val lcs =  longestCommonSubstring(a,b)

@@ -11,7 +11,8 @@ import spire.std.float
 
 import scala.collection.JavaConverters._
 class MergeAttribute (var attributes:List[String]
-					 ,val connector:String)
+					 ,val connector:String
+					 ,val handleMergeConflict:(String,String) => String = null)
 		extends AbstractPreparator{
 	var mergeDate = false
 	def this()
@@ -21,7 +22,7 @@ class MergeAttribute (var attributes:List[String]
 
 	def this(attributes: java.util.List[String], connector:String)
 	{
-		this((attributes.asScala.toList), connector)
+		this((attributes.asScala.toList), connector,null)
 	}
 
 	//def this(attributes: java.util.List[Integer], connector: String)
@@ -163,5 +164,8 @@ object MergeUtil extends Serializable{
 			1
 		else
 			0
+	}
+	def handleMergeConflicts(a:String,b:String) = {
+		a + " " + b
 	}
 }
