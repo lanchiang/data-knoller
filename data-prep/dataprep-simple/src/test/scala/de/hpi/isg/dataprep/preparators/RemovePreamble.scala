@@ -89,7 +89,7 @@ class RemovePreamble extends PreparatorScalaTest {
     result.collect shouldEqual expectedDataset.collect
   }
 
-  "Initial char" should "remove # lines but not # with space" in {
+  "Initial char with space" should "remove # lines with space" in {
     val localContext = sparkContext
     import localContext.implicits._
     val fileData = localContext.read

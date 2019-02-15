@@ -1,7 +1,6 @@
 #preamble
-	#preamble2
-	#preamble3
-12 2
+#preamble2
+#preamble3
 43 12
 3 9
 23 48
@@ -9,16 +8,16 @@
 54 93
 92 12
 2 43
- #postamble
- #postamble2
+ #postambleWithSpace
+ #postambleWithSpace
 93 43
 2 44
 43 1
- #postamble3
+ #postambleWithSpace
 94 32
 42 55
 83 29
 93 2
 03 12
 #postamble4
- #postamble5
+ #postambleWithSpace
