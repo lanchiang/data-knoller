@@ -36,8 +36,6 @@ abstract public class AbstractPreparator implements Executable {
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
 
-//        impl = newImpl();
-
         String simpleClassName = this.getClass().getSimpleName();
 
         String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
@@ -54,13 +52,13 @@ abstract public class AbstractPreparator implements Executable {
     abstract public void buildMetadataSetup() throws ParameterNotSpecifiedException;
 
     @Override
-    public ExecutionContext execute() throws Exception {
+    public ExecutionContext execute(Dataset<Row> dataset) throws Exception {
         checkMetadataPrerequisite();
         if (!invalid.isEmpty()) {
             throw new PreparationHasErrorException("Metadata prerequisite not met.");
         }
 
-        return executePreparator();
+        return executePreparator(dataset);
     }
 
     /**
@@ -96,8 +94,8 @@ abstract public class AbstractPreparator implements Executable {
     /**
      * The execution of the preparator.
      */
-    protected ExecutionContext executePreparator() throws Exception {
-        return impl.execute(this);
+    protected ExecutionContext executePreparator(Dataset<Row> dataset) throws Exception {
+        return impl.execute(this, dataset);
     }
 
     /**

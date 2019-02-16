@@ -6,12 +6,12 @@ import scala.collection.JavaConverters._
 
 trait PreparatorLoader {
   val path: String
-  val preparator: Set[Class[_ <: AbstractPreparator]] = loadAllPreparator()
+  val preparators: List[Class[_ <: AbstractPreparator]] = loadAllPreparator()
 
-  private def loadAllPreparator(): Set[Class[_ <: AbstractPreparator]] = {
+  private def loadAllPreparator(): List[Class[_ <: AbstractPreparator]] = {
     val reflections = new Reflections(path)
 
-    reflections.getSubTypesOf(classOf[AbstractPreparator]).asScala.toSet
+    reflections.getSubTypesOf(classOf[AbstractPreparator]).asScala.toList
   }
 
 }

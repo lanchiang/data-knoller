@@ -1,56 +1,50 @@
 package de.hpi.isg.dataprep.selection
 
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
+import de.hpi.isg.dataprep.context.DataContext
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.preparators.DummyPreparator
+import de.hpi.isg.dataprep.preparators.define.{ChangeDataType, DeleteProperty}
 
-class MultiBranchPipelineCreatorTest extends FlatSpecLike with Matchers with BeforeAndAfterAll {
+class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
 
-  var preparators: List[DummyPreparator] = _
-  val spark: SparkSession = SparkSession.builder().master("local").getOrCreate()
-  var df: DataFrame = _
-
-  override def beforeAll(): Unit = {
-    val dummyPrep1 = new DummyPreparator("prep1")
-    val dummyPrep2 = new DummyPreparator("prep2")
-    val dummyPrep3 = new DummyPreparator("prep3")
-
-    preparators = List(dummyPrep1, dummyPrep2, dummyPrep3)
-    import spark.implicits._
-    val testData = List((1,2,3,4))
-    df = testData.toDF("col1", "col2", "col3", "col4")
-  }
+  lazy val df = dataContext.getDataFrame
+  val columns = "id,identifier,species_id,height,weight,base_experience,order,is_default,date,stemlemma,stemlemma2,stemlemma_wrong".split(",").toList
 
   "MultiBranchPipelineCreator" should "generate correct column combinations" in {
-    val dummyPrep = new DummyPreparator("prep")
-
-    val pipelineCreator = new MultiBranchPipelineCreator(df)
-    val columnCombinations = pipelineCreator.generateColumnCombinations(df, Set("col1"))
+    val pipelineCreator = new TestMultiBranchCreator(dataContext)
+    val columnCombinations = pipelineCreator.generateColumnCombinations(df, columns.drop(3).toSet)
 
     columnCombinations should have size 7
   }
 
   it should "find the affected columns for a branch" in {
-    val root = MultiBranchPipelineCreator.Root(df)
-    val innerNode1 = MultiBranchPipelineCreator.Child(root, preparators(0), Set("col1"), df, 0.8f)
-    val innerNode2 = MultiBranchPipelineCreator.Child(innerNode1, preparators(1), Set("col4"), df, 0.8f)
-    val leaf = MultiBranchPipelineCreator.Child(innerNode2, preparators(0), Set("col2", "col3"), df, 0.5f)
+    val dummy1 = new DeleteProperty()
+    val dummy2 = new ChangeDataType()
 
-    val pipelineCreator = new MultiBranchPipelineCreator(df)
-    pipelineCreator.getBranchAffectedCols(leaf) should be (Map(preparators(0)->Set("col1", "col2", "col3"),preparators(1)->Set("col4")))
+    val root = MultiBranchPipelineCreator.Root(df)
+    val innerNode1 = MultiBranchPipelineCreator.Child(root, dummy1, Set("weight"), df, 0.8f)
+    val innerNode2 = MultiBranchPipelineCreator.Child(innerNode1, dummy2, Set("height"), df, 0.8f)
+    val leaf = MultiBranchPipelineCreator.Child(innerNode2, dummy1, Set("stemlemma", "height"), df, 0.5f)
+
+    val pipelineCreator = new MultiBranchPipelineCreator(dataContext)
+    pipelineCreator.getBranchAffectedCols(leaf) should be(Map(dummy1.getClass -> Set("weight", "height", "stemlemma"), dummy2.getClass -> Set("height")))
   }
 
   it should "calculate the correct branch score" in {
+    val dummy1 = new DummyPreparator("dummy1")
+    val dummy2 = new DummyPreparator("dummy2")
+
     val root = MultiBranchPipelineCreator.Root(df)
-    val innerNode = MultiBranchPipelineCreator.Child(root, preparators(0), Set.empty, df, 0.8f)
-    val leaf = MultiBranchPipelineCreator.Child(innerNode, preparators(1), Set.empty, df, 0.5f)
+    val innerNode = MultiBranchPipelineCreator.Child(root, dummy1, Set.empty, df, 0.8f)
+    val leaf = MultiBranchPipelineCreator.Child(innerNode, dummy2, Set.empty, df, 0.5f)
 
-    val pipelineCreator = new MultiBranchPipelineCreator(df)
-    pipelineCreator.getBranchScore(leaf) should equal (1.3f)
+    val pipelineCreator = new TestMultiBranchCreator(dataContext)
+    pipelineCreator.getBranchScore(leaf) should equal(1.3f)
   }
+}
 
-  it should "test" in {
-    val pipelineCreator = new MultiBranchPipelineCreator(df.select("col1", "col2", "col3"))
-    pipelineCreator.createPipeline()
-  }
+
+class TestMultiBranchCreator(dataContext: DataContext) extends MultiBranchPipelineCreator(dataContext) {
+  override val preparators: List[Class[_ <: AbstractPreparator]] = List(classOf[DummyPreparator])
 }

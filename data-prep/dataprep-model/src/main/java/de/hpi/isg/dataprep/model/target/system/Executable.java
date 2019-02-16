@@ -12,5 +12,5 @@ import org.apache.spark.sql.Row;
  */
 public interface Executable {
 
-    ExecutionContext execute() throws Exception;
+    ExecutionContext execute(Dataset<Row> dataset) throws Exception;
 }

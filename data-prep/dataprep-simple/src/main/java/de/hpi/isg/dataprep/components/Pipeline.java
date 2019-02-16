@@ -270,7 +270,7 @@ public class Pipeline implements AbstractPipeline {
         ExecutionContext executionContext;
         //execute the added preparation
         try {
-            executionContext = preparation.getAbstractPreparator().execute();
+            executionContext = preparation.getAbstractPreparator().execute(this.rawData);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

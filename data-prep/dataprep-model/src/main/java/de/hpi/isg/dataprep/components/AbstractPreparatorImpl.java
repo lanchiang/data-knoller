@@ -46,17 +46,9 @@ abstract public class AbstractPreparatorImpl {
         return preparator.getPreparation().getPipeline().getRawData();
     }
 
-    public final ExecutionContext execute(AbstractPreparator preparator) throws Exception {
+    public final ExecutionContext execute(AbstractPreparator preparator, Dataset<Row> dataset) throws Exception {
         // getDataset
-        Dataset<Row> dataset = this.getDataSet(preparator);
-
-        ExecutionContext executionContext = executePreparator(preparator, dataset);
-
-        // TODO remove
-        preparator.getPreparation().setExecutionContext(executionContext);
-        preparator.setUpdatedTable(executionContext.newDataFrame());
-
-        return executionContext;
+        return executePreparator(preparator, dataset);
     }
 
     public final <T> T getPreparatorInstance(AbstractPreparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
