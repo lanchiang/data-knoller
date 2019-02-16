@@ -22,10 +22,13 @@ object SplitPropertyUtils {
       .groupBy { case (_, count) => Math.abs(count + 1 - numCols) }
       .minBy { case (diff, _) => diff }
       ._2
-    val maxLength = sameDiffCandidates.map{case (candidate, _) => candidate.length}.max
-    sameDiffCandidates.filter{ case (candidate, _) => candidate.length == maxLength}
+    val maxLength = sameDiffCandidates.map { case (candidate, _) => candidate.length }.max
+    sameDiffCandidates.filter { case (candidate, _) => candidate.length == maxLength }
   }
 
+  /*
+  equivalent to getCharacterClassTransitions(value: String)
+   */
   def allCharacterClassCandidates(value: String): Vector[(String, Int)] = {
     getCharacterClassTransitions(value)
   }
@@ -86,6 +89,11 @@ object SplitPropertyUtils {
       .toMap
   }
 
+
+  /*
+    Transforms input string into its CharacterClasses, e.g. 'DataKnoller' becomes 'AaaaAaaaaaa'
+    returns tuple with (CharacterClassesString, OriginalString)
+   */
   def toCharacterClasses(input: String): (String, String) = {
     val characterClasses = input.map(c => {
       if (Character.isDigit(c)) '1'
@@ -100,9 +108,11 @@ object SplitPropertyUtils {
   }
 
   /*
-  Removes duplicated characters in a row, e.g. fooboo becomes fobo
+  Removes duplicated characters in a row, e.g. 'fooboo' becomes 'fobo'
+   returns tuple with (ReducedCharacterClassesString, CharacterClassesString, OriginalString)
    */
   def reduceCharacterClasses(input: (String, String)): (String, String, String) = {
+    //map each character to '\0'
     var last = '\0'
     var reduced = input._1.map(c => {
       var mapped = '\0'
@@ -110,53 +120,25 @@ object SplitPropertyUtils {
       last = c
       mapped
     })
+    //replace all '\0' with nothing
     reduced = reduced.replace("\0", "")
 
     (reduced, input._1, input._2)
   }
 
+
   /*
-  extracts all seperations which can used either used as splitt candidates or resulting splitt elements
+    Extracts the transitions between CharacterClasses, eg. find for String 'DataPrep' the vector ((Aa,2),(aA,1))
    */
-  def extractSeperatorCandidatesFromCharacterClasses(input: (String, String, String)): List[String] = {
-    var erg = new ListBuffer[String]
-    val candidates = input._1.slice(1, input._1.length).distinct.toList
-
-    if (candidates.isEmpty) {
-      val start = getOriginCharacters(input._1.charAt(0), input)
-      val end = getOriginCharacters(input._1.charAt(input._1.length - 1), input)
-
-      start.foreach(str => {
-        erg += str
-      })
-
-      end.foreach(str => {
-        erg += str
-      })
-    }
-    else {
-      candidates + input._1.charAt(input._1.length - 1).toString
-
-      candidates.foreach(candidate => {
-        val elems = getOriginCharacters(candidate, input)
-        elems.foreach(str => {
-          erg += str
-        })
-      })
-    }
-
-    erg.toList
-  }
-
   def getCharacterClassTransitions(input: String): Vector[(String, Int)] = {
     var results = ListBuffer[String]()
     val characterClasses = reduceCharacterClasses(toCharacterClasses(input))
     var i = 0
+    //apply sliding window of length 2 on ReducedClassesString
     while (i < characterClasses._1.length - 1) {
       results += characterClasses._1.substring(i, i + 2)
       i += 1
     }
-
     results
       .groupBy(identity)
       .mapValues(_.size)
@@ -164,113 +146,73 @@ object SplitPropertyUtils {
   }
 
   /*
-  returns the origin sequence for mapped and reduced string
+   Returns the origin sequence for the CharacterClass on the specified index. CharacterClass is passed as Tuple containing the Transformation History.
+   'AaAa' in tuple ('AaAa','AaaaAaaa','DataPrep')with given index 1 becomes 'aaa' in CharacterClass representation and finally 'ata'. With index 4 it becomes 'rep'
    */
-  def getOriginCharacters(input: Char, array: (String, String, String)): Set[String] = {
-    var results = Set[String]()
-    val intermediate = array._2
-    val origin = array._3
-    var index = intermediate.indexOf(input)
-    var allidx = new ListBuffer[Integer]
-
-    while (index >= 0) {
-      allidx += index
-      index = intermediate.indexOf(input, index + 1)
-    }
-
-    var erg = ""
-    var i = 0
-    while (i < origin.length) {
-      if (allidx.contains(i)) {
-        erg += origin.charAt(i)
-        if (i == origin.length - 1) results += erg
-      }
-      else if (!erg.equals("")) {
-        results += erg
-        erg = ""
-      }
-      i += 1
-    }
-    results
-  }
-
   def getOriginCharacters(index: Integer, array: (String, String, String)): String = {
     val reduced = array._1
     val intermediate = array._2
     val origin = array._3
 
+    //get CharacterClass at specified index
     val characterClass = reduced.charAt(index)
+    //get indices of the characterclass of specified index
     val thisIdxOfSameCharacters = reduced.substring(0, index).count(_ == characterClass)
 
     var i = 0
     var metalist = ListBuffer[List[Integer]]()
     var list = ListBuffer[Integer]()
+
+    //iterate over CharacterClass representation to restore indices of character class.
+    // 'AaAa' with given index 1 becomes 'aaa' in CharacterClass repräsentation 'DataPrep' with indices [1,2,3]
     while (i < intermediate.length) {
       if (characterClass == intermediate.charAt(i)) {
         list += i
+
         if (i == intermediate.length - 1)
           metalist += list.toList
       }
-      else if (list.nonEmpty) {
-        metalist += list.toList
-        list.clear()
+      else {
+
+        if (list.nonEmpty) {
+          metalist += list.toList
+          list.clear()
+        }
       }
       i += 1
     }
 
     val idxlist = metalist.toList(thisIdxOfSameCharacters)
+
+    //map each idx of the CharacterClass representation to its origin character
     val erg = idxlist.map(idx => origin.charAt(idx) + "").reduce(_ + _)
     erg
   }
 
+  /*
+  returns for a string and a given CharacterClass Transition a String with default splitterator Charactor between the transition.
+  'DataPrep' with transition 'aA' returns 'Data|Prep',
+  'DataPrep' with transition 'Aa' returns 'D|ataP|rep'
+   */
   def addSplitteratorBetweenCharacterTransition(input: String, transition: String): String = {
     val characterClasses = reduceCharacterClasses(toCharacterClasses(input))
     var i = 0
-    var erg = ""
-    var lastChar = 'z'
 
+    var erg = ""
+    var lastChar = 'z' //is no characterclass and this why valid
+
+    //iterates over characterclass string and adds spliterator between the inpüut transition
     while (i < characterClasses._1.length) {
       val thisChar = characterClasses._1.charAt(i)
       if (lastChar == transition.charAt(0) && thisChar == transition.charAt(1))
         erg += SplitPropertyUtils.defaultSplitterator
-
+      //maps to originalCharacters
       erg += getOriginCharacters(i, characterClasses)
       lastChar = thisChar
       i += 1
     }
+
     erg
-  }
-
-  def getCharacterClassCandidates(input: String): List[String] = {
-    val res = filterFirstAndLastPartOut(
-      extractSeperatorCandidatesFromCharacterClasses(
-        reduceCharacterClasses(
-          toCharacterClasses(
-            input
-          )
-        )
-      ),
-      input
-    )
-    res
-  }
-
-  def getCharacterClassParts(input: String): List[String] = {
-    val res = extractSeperatorCandidatesFromCharacterClasses(
-      reduceCharacterClasses(
-        toCharacterClasses(
-          input
-        )
-      )
-    )
-    res
-  }
-
-  def filterFirstAndLastPartOut(candidates: List[String], input: String): List[String] = {
-    candidates.filter(candidate => {
-      !(input.startsWith(candidate) || input.endsWith(candidate))
-    })
-
   }
 
   abstract class Separator() {
