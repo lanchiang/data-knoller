@@ -2,12 +2,10 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import org.apache.spark.sql.Dataset
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
-//noinspection SimplifyBoolean
 object SplitPropertyUtils {
-  val defaultSplitterator="#!#"
+  val defaultSplitterator = "#!#"
   private val nonAlpaShort = """[^a-zA-Z\d]""".r
   private val nonAlpaLong = """[^a-zA-Z\d]{2,}""".r
 
@@ -20,10 +18,12 @@ object SplitPropertyUtils {
   }
 
   def bestStringSeparatorCandidates(value: String, numCols: Int): Vector[(String, Int)] = {
-    allStringSeparatorCandidates(value)
+    val sameDiffCandidates = allStringSeparatorCandidates(value)
       .groupBy { case (_, count) => Math.abs(count + 1 - numCols) }
       .minBy { case (diff, _) => diff }
       ._2
+    val maxLength = sameDiffCandidates.map{case (candidate, _) => candidate.length}.max
+    sameDiffCandidates.filter{ case (candidate, _) => candidate.length == maxLength}
   }
 
   def allCharacterClassCandidates(value: String): Vector[(String, Int)] = {
@@ -82,10 +82,11 @@ object SplitPropertyUtils {
       .groupByKey(identity)
       .mapGroups { case (candidate, occurrences) => (candidate, occurrences.length) }
       .collect()
-      .toMap.filterNot(_._1.equals("Aa"))
+      .filter { case (candidate, _) => !candidate.equals("Aa") }
+      .toMap
   }
 
-  def toCharacterClasses(input: String): Tuple2[String, String] = {
+  def toCharacterClasses(input: String): (String, String) = {
     val characterClasses = input.map(c => {
       if (Character.isDigit(c)) '1'
       else if (Character.isUpperCase(c)) 'A'
@@ -101,7 +102,7 @@ object SplitPropertyUtils {
   /*
   Removes duplicated characters in a row, e.g. fooboo becomes fobo
    */
-  def reduceCharacterClasses(input: Tuple2[String, String]): Tuple3[String, String, String] = {
+  def reduceCharacterClasses(input: (String, String)): (String, String, String) = {
     var last = '\0'
     var reduced = input._1.map(c => {
       var mapped = '\0'
@@ -109,7 +110,7 @@ object SplitPropertyUtils {
       last = c
       mapped
     })
-    reduced=reduced.replace("\0", "")
+    reduced = reduced.replace("\0", "")
 
     (reduced, input._1, input._2)
   }
@@ -117,12 +118,9 @@ object SplitPropertyUtils {
   /*
   extracts all seperations which can used either used as splitt candidates or resulting splitt elements
    */
-  def extractSeperatorCandidatesFromCharacterClasses(input: Tuple3[String, String, String]): List[String] = {
-
-
-
+  def extractSeperatorCandidatesFromCharacterClasses(input: (String, String, String)): List[String] = {
     var erg = new ListBuffer[String]
-    var candidates = input._1.slice(1, input._1.length).distinct.toList
+    val candidates = input._1.slice(1, input._1.length).distinct.toList
 
     if (candidates.isEmpty) {
       val start = getOriginCharacters(input._1.charAt(0), input)
@@ -152,11 +150,11 @@ object SplitPropertyUtils {
 
   def getCharacterClassTransitions(input: String): Vector[(String, Int)] = {
     var results = ListBuffer[String]()
-    var characterClasses = reduceCharacterClasses(toCharacterClasses(input))
-    var i=0
-    while(i<characterClasses._1.length-1){
-      results+=characterClasses._1.substring(i,i+2)
-      i+=1
+    val characterClasses = reduceCharacterClasses(toCharacterClasses(input))
+    var i = 0
+    while (i < characterClasses._1.length - 1) {
+      results += characterClasses._1.substring(i, i + 2)
+      i += 1
     }
 
     results
@@ -168,120 +166,107 @@ object SplitPropertyUtils {
   /*
   returns the origin sequence for mapped and reduced string
    */
-  def getOriginCharacters(input: Char, array: Tuple3[String, String, String]): Set[String] = {
-
+  def getOriginCharacters(input: Char, array: (String, String, String)): Set[String] = {
     var results = Set[String]()
     val intermediate = array._2
     val origin = array._3
-
     var index = intermediate.indexOf(input)
     var allidx = new ListBuffer[Integer]
+
     while (index >= 0) {
       allidx += index
       index = intermediate.indexOf(input, index + 1)
     }
 
-    var allidxs = allidx.toList
-
-
     var erg = ""
-
-    var block = false
     var i = 0
     while (i < origin.length) {
       if (allidx.contains(i)) {
         erg += origin.charAt(i)
         if (i == origin.length - 1) results += erg
       }
-      else {
-        block = false
-        if (erg.equals("") == false) results += erg
+      else if (!erg.equals("")) {
+        results += erg
         erg = ""
       }
-
-
       i += 1
-      i - 1
     }
-
     results
   }
 
-  def getOriginCharacters(inputIndex: Integer, array: Tuple3[String, String, String]): String = {
-
-    var results = ""
+  def getOriginCharacters(index: Integer, array: (String, String, String)): String = {
     val reduced = array._1
     val intermediate = array._2
     val origin = array._3
 
-    var index = inputIndex
+    val characterClass = reduced.charAt(index)
+    val thisIdxOfSameCharacters = reduced.substring(0, index).count(_ == characterClass)
 
-    val characterClass=reduced.charAt(index)
-    val numberOfCharacterClasses=reduced.count(_==characterClass)
-    val thisIdxOfSameCharacters=reduced.substring(0,index).count(_==characterClass)
-
-    //Console.println(numberOfCharacterClasses+" "+thisIdxOfSameCharacters)
-
-    var i=0
-    var block=false
+    var i = 0
     var metalist = ListBuffer[List[Integer]]()
     var list = ListBuffer[Integer]()
     while (i < intermediate.length) {
-      if (characterClass==intermediate.charAt(i)) {
-        list+=i
-
-        if(i==intermediate.length-1)
-          metalist+=list.toList
+      if (characterClass == intermediate.charAt(i)) {
+        list += i
+        if (i == intermediate.length - 1)
+          metalist += list.toList
       }
-      else {
-
-        if(list.nonEmpty){
-          metalist+=list.toList
-          list.clear()
-        }
+      else if (list.nonEmpty) {
+        metalist += list.toList
+        list.clear()
       }
-
       i += 1
     }
 
-    val idxlist=metalist.toList(thisIdxOfSameCharacters)
-    val erg=idxlist.map(idx=>origin.charAt(idx)+"").reduce(_+_)
+    val idxlist = metalist.toList(thisIdxOfSameCharacters)
+    val erg = idxlist.map(idx => origin.charAt(idx) + "").reduce(_ + _)
     erg
   }
 
-  def addSplitteratorBetweenCharacterTransition(input: String, transition: String):String={
+  def addSplitteratorBetweenCharacterTransition(input: String, transition: String): String = {
     val characterClasses = reduceCharacterClasses(toCharacterClasses(input))
-    var i=0
+    var i = 0
+    var erg = ""
+    var lastChar = 'z'
 
-    var erg=""
-    var lastChar='z'
-    while(i<characterClasses._1.length){
-      val thisChar=  characterClasses._1.charAt(i)
-      if(lastChar==transition.charAt(0)&&thisChar==transition.charAt(1))
-        erg+=SplitPropertyUtils.defaultSplitterator
+    while (i < characterClasses._1.length) {
+      val thisChar = characterClasses._1.charAt(i)
+      if (lastChar == transition.charAt(0) && thisChar == transition.charAt(1))
+        erg += SplitPropertyUtils.defaultSplitterator
 
-      erg+=getOriginCharacters(i,characterClasses)
-
-
-      lastChar=thisChar
-      i+=1
+      erg += getOriginCharacters(i, characterClasses)
+      lastChar = thisChar
+      i += 1
     }
-
     erg
   }
 
   def getCharacterClassCandidates(input: String): List[String] = {
-    val res = filterFirstAndLastPartOut(extractSeperatorCandidatesFromCharacterClasses(reduceCharacterClasses(toCharacterClasses(input))), input)
+    val res = filterFirstAndLastPartOut(
+      extractSeperatorCandidatesFromCharacterClasses(
+        reduceCharacterClasses(
+          toCharacterClasses(
+            input
+          )
+        )
+      ),
+      input
+    )
     res
   }
 
   def getCharacterClassParts(input: String): List[String] = {
-    val res = extractSeperatorCandidatesFromCharacterClasses(reduceCharacterClasses(toCharacterClasses(input)))
+    val res = extractSeperatorCandidatesFromCharacterClasses(
+      reduceCharacterClasses(
+        toCharacterClasses(
+          input
+        )
+      )
+    )
     res
   }
 
   def filterFirstAndLastPartOut(candidates: List[String], input: String): List[String] = {
-
     candidates.filter(candidate => {
       !(input.startsWith(candidate) || input.endsWith(candidate))
     })
@@ -313,4 +298,5 @@ object SplitPropertyUtils {
       head :+ merge(tail, original = value)
     }
   }
+
 }
