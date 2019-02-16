@@ -63,11 +63,8 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
       if (candidates.size < MAX_BRANCHES) return branchHeads
 
       // Below order ensures that we only have to check k branches/candidates for equivalence.
-      //      val bestCandidates = kBestCandidates(MAX_BRANCHES, candidates)
-      //      val distinctCandidates = pruneEquivalentBranches(bestCandidates)
-
-      val bestCandidates = pruneEquivalentBranches(candidates)
-      val distinctCandidates = kBestCandidates(MAX_BRANCHES, bestCandidates)
+      val bestCandidates = kBestCandidates(MAX_BRANCHES, candidates)
+      val distinctCandidates = pruneEquivalentBranches(bestCandidates)
 
       rec(distinctCandidates.map(candidateToBranchHead), maxIterations - 1)
     }
@@ -79,7 +76,6 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
     }
   }
 
-  // Transforms a candidate to a tree node to append it to the graph.
   /**
     * Transforms a candidate to a tree node and appends it to the tree. Executes the candidates preparator to generate the
     * new intermediate dataset.
@@ -212,10 +208,8 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
     } yield Candidate(branchHead, prep, colComb.columns.toSet, branchScore + score, score)
   }
 
-  // This generates all the column combinations and allows to exclude certain columns.
-  // This allows us to prevent a preparator from affecting a column twice.
   /**
-    * Generate the column combinations and extend certain columns.
+    * Generate the column combinations and exclude certain columns.
     *
     * @param df original dataframe
     * @param excludeCols excluded columns
