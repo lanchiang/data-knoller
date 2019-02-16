@@ -63,7 +63,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val prep = new DefaultRemovePreambleImpl
     val result = prep.analyseLeadingCharacter(customDataset)
 
-    RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(customDataset) shouldEqual 1.0
+    RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(customDataset) shouldEqual 0.0
 
     result.collect shouldEqual expectedDataset.collect
   }
@@ -82,6 +82,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val prep = new DefaultRemovePreambleImpl
     val result = prep.analyseLeadingCharacter(customDataset)
 
+    //RemovePreambleHelper.calculateFirstCharOccurrence(customDataset) shouldEqual List(1)
     RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(customDataset) shouldEqual 1.0
 
     result.collect shouldEqual expectedDataset.collect
@@ -109,22 +110,26 @@ class RemovePreamble extends PreparatorScalaTest {
   "Separator Count" should "remove all preamble lines with an unusual amount of comma separators" in {
     val localContext = sparkContext
     import localContext.implicits._
-
+    val prep = new DefaultRemovePreambleImpl
     val customDataset = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/preamble_separator_comma.csv")
 
+    prep.fetchSeparatorChar(customDataset) shouldEqual ","
+
     RemovePreambleHelper.charsInEachLine(customDataset) shouldEqual 0.0
+
+    RemovePreambleHelper.calculateSeparatorSkew(customDataset) shouldEqual 2
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/preamble_separator_comma_expected.csv")
 
-    val prep = new DefaultRemovePreambleImpl
+
 
     val result = prep.analyseSeparatorCount(customDataset, separator = ",")
 
-    prep.fetchSeparatorChar(customDataset) shouldEqual ","
+
 
     result.collect shouldEqual expectedDataset.collect
   }

@@ -62,20 +62,19 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     var finalScore = 1.0
 
     val numberOfColumns = dataset.columns.length
-    if(numberOfColumns == 1)
-    {
+    if(numberOfColumns == 1) {
       finalScore *= 0.01
-    }else{
-      // dataset has one row, where there are missing values and they only occur in consecutive lines
-      finalScore *= 1 - RemovePreambleHelper.checkForConsecutiveEmptyRows(dataset)
     }
 
     // Consecutive lines starting with the same character
-    finalScore *= 1 -  RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataset)
+    finalScore *= RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
 
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
     finalScore *= RemovePreambleHelper.charsInEachLine(dataset)
+
+    //TODO: high separator occurrence skew
+
 
     //TODO: vastly different char types
 
@@ -103,47 +102,18 @@ object RemovePreambleHelper {
     // score chsrs less if the occur often with different streaks
     val longestSeq = charOccurence.maxBy(a => a._2)
     if(charOccurence.length == 1){
-      return 1.0
+      return 0.0
     }
     val secondSeq= charOccurence
-      .filter(e => e._2 < longestSeq._2)
+      .filter(e => e != longestSeq)
       .maxBy(a => a._2)
     val numberOfLongestSeq = charOccurence.count(e => e._2 == longestSeq._2)
-    val decisionBound = (numberOfLongestSeq+secondSeq._2)/longestSeq._2
+    val decisionBound = longestSeq._2/(numberOfLongestSeq + secondSeq._2)
 
     decisionBound > 1 match {
-      case true => 0.5
-      case _ => 1 - decisionBound
+      case false => 1
+      case _ => 1/decisionBound
     }
-  }
-
-  def checkForConsecutiveEmptyRows(dataset: Dataset[Row]): Double = {
-    val emptyGroups = dataset
-      .rdd
-      .zipWithIndex()
-      .flatMap(row => {
-        val tempRow = row._1.toSeq.zipWithIndex.map(entry =>
-          entry._1.toString match {
-            case "" =>  List(entry._2)
-            case _ => List()
-          }).reduce((a,b) => a.union(b))
-        tempRow.map(e => (e,row._2))
-      })
-      .map(e => (e._1,List(e._2)))
-      .reduceByKey(_.union(_))
-      .map(r => (r._1, r._2.groupBy(k => r._2.indexOf(k) - k)))
-      .map(e => e._2.toList.map(v => v._2))
-      .reduce(_.union(_))
-      .map(l => l.size)
-    val highestNumber = emptyGroups.max
-    val maxCount = emptyGroups.count(e => e == highestNumber)
-    val secondNumber = emptyGroups.filter(e => e < highestNumber).max
-    val decisionBound = (maxCount+secondNumber)/highestNumber
-    decisionBound > 1 match {
-      case true => 0.5
-      case _ => 1 - decisionBound
-    }
-
   }
 
   def charsInEachLine(dataset: Dataset[Row]): Double = {
@@ -158,5 +128,34 @@ object RemovePreambleHelper {
       return 0.0
     }
     1.0
+  }
+
+  def calculateSeparatorSkew(dataFrame: DataFrame): Double = {
+    import dataFrame.sparkSession.implicits._
+    val separator = (new DefaultRemovePreambleImpl).fetchSeparatorChar(dataFrame)
+
+    val sepCountFrame = dataFrame
+        .rdd
+        .zipWithIndex
+      .map(r => (separator.r.findAllIn(r._1.mkString("")).length, r._2))
+        .toDF("val", "index")
+
+    val median = sepCountFrame.stat.approxQuantile("val", Array(0.5), 0.1).head
+
+    val unusualRows = sepCountFrame
+      .filter(_.getAs[Int](0) != median)
+      .collect
+
+    if(unusualRows.length == 0){
+      return 1.0
+    }
+
+    val longestUnusualStreak = unusualRows
+      .groupBy(r => r.getAs[Long](1) - unusualRows.indexOf(r))
+      .mapValues(_.length)
+      .values
+      .max
+
+    longestUnusualStreak
   }
 }
