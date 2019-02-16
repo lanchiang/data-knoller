@@ -289,6 +289,8 @@ object SplitPropertyUtils {
   }
 
   abstract class Separator() {
+    def mostLikelySeparator: String
+
     def getNumSplits(value: String): Int
 
     def merge(split: Vector[String], original: String): String

@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.metadata._
 import de.hpi.isg.dataprep.model.target.objects.{FileMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row}
 
 /**
   *
@@ -67,34 +67,50 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
       finalScore *= 0.01
     }else{
       // dataset has one row, where there are missing values and they only occur in consecutive lines
-      finalScore *= 1 - checkForConsecutiveEmptyRows(dataset)
+      finalScore *= 1 - RemovePreambleHelper.checkForConsecutiveEmptyRows(dataset)
     }
 
     // Consecutive lines starting with the same character
-    finalScore *= 1 -  checkFirstCharacterInConsecutiveRows(dataset)
+    finalScore *= 1 -  RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
 
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
-    finalScore *= 1 - charsInEachLine(dataset)
+    finalScore *= RemovePreambleHelper.charsInEachLine(dataset)
+
+    //TODO: vastly different char types
+
     1 - finalScore.toFloat
   }
+}
 
-  def checkFirstCharacterInConsecutiveRows(dataset: Dataset[Row]): Double = {
+object RemovePreambleHelper {
 
-    val charOccurence = dataset
+  def calculateFirstCharOccurrence(dataFrame: DataFrame): Array[(Char, Int)] = {
+    dataFrame
       .rdd
       .zipWithIndex()
-      .map(e => (e._1.toString().charAt(1),List(e._2)))
+      .map(e => (e._1.mkString("").charAt(0),List(e._2)))
       .reduceByKey(_.union(_))
       .flatMap(row => row._2.groupBy(k => k - row._2.indexOf(k)).toList.map(group => (row._1, group._2.size)))
       .filter(row => row._1.toString.matches("[^0-9]"))
       .collect
+  }
+
+  def checkFirstCharacterInConsecutiveRows(dataset: Dataset[Row]): Double = {
+
+    val charOccurence = calculateFirstCharOccurrence(dataset)
 
     // score chsrs less if the occur often with different streaks
     val longestSeq = charOccurence.maxBy(a => a._2)
-    val secondSeq = charOccurence.filter(e => e._2 < longestSeq._2).maxBy(a => a._2)
+    if(charOccurence.length == 1){
+      return 1.0
+    }
+    val secondSeq= charOccurence
+      .filter(e => e._2 < longestSeq._2)
+      .maxBy(a => a._2)
     val numberOfLongestSeq = charOccurence.count(e => e._2 == longestSeq._2)
     val decisionBound = (numberOfLongestSeq+secondSeq._2)/longestSeq._2
+
     decisionBound > 1 match {
       case true => 0.5
       case _ => 1 - decisionBound
@@ -134,13 +150,13 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     val w2v = dataset
       .rdd
       .zipWithIndex()
-      .map( e => (e._2, e._1.toString().toList.groupBy(e => e).toList.map(tup => (tup._1, tup._2.size))
+      .map( e => (e._2, e._1.mkString("").toList.groupBy(e => e).toList.map(tup => (tup._1, tup._2.size))
       ))
 
     val reoccuringChars = w2v.fold(w2v.first())((tup1, tup2) => (tup2._1, tup1._2.intersect(tup2._2)))._2.size
     if(reoccuringChars == 0){
-      return 1.0
+      return 0.0
     }
-    0.0
+    1.0
   }
 }

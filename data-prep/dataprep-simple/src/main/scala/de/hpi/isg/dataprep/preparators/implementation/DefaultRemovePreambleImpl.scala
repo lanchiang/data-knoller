@@ -31,9 +31,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
                                       dataFrame_orig: Dataset[sql.Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
-    import dataFrame_orig.sparkSession.implicits._
-    val stringedDataset = dataFrame_orig.map {r => r.mkString("")}
-    val separatorChar = (new DefaultSplitPropertyImpl).findSeparator(stringedDataset, stringedDataset.columns.length)
+    val separatorChar = fetchSeparatorChar(dataFrame_orig)
 
     // by leading character
     val leadingCharRemovedDataset = analyseLeadingCharacter(dataFrame_orig)
@@ -45,6 +43,12 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val unequalCharTypesRemovedDataset = findPreambleChar(dataFrame_orig)
 
     new ExecutionContext(dataFrame_orig, errorAccumulator)
+  }
+
+  def fetchSeparatorChar(dataFrame: DataFrame): String = {
+    import dataFrame.sparkSession.implicits._
+    val stringedDataset = dataFrame.map {r => r.mkString("")}
+    (new DefaultSplitPropertyImpl).findSeparator(stringedDataset).mostLikelySeparator.toList.head.toString
   }
 
   def analyseLeadingCharacter(dataframe:DataFrame): DataFrame = {
