@@ -6,11 +6,14 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.DummyPreparator
 import de.hpi.isg.dataprep.preparators.define.{ChangeDataType, DeleteProperty}
 
+import scala.collection.JavaConversions._
+
 class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
 
   val columns = "id,identifier,species_id,height,weight,base_experience,order,is_default,date,stemlemma,stemlemma2,stemlemma_wrong".split(",").toList
 
   "MultiBranchPipelineCreator" should "generate correct column combinations" in {
+
     val pipelineCreator = new TestMultiBranchCreator(dataContext)
     val columnCombinations = pipelineCreator.generateColumnCombinations(dataContext.getDataFrame, columns.drop(3).toSet)
 
@@ -41,9 +44,25 @@ class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
     val pipelineCreator = new TestMultiBranchCreator(dataContext)
     pipelineCreator.getBranchScore(leaf) should equal(1.3f)
   }
-}
 
+  it should "select trivial preparator" in {
+    class TestMultiBranchCreator(dataContext: DataContext) extends MultiBranchPipelineCreator(dataContext) {
+      override val preparators: List[Class[_ <: AbstractPreparator]] = List(classOf[DeleteProperty])
+
+      val pipelineCreator = new TestMultiBranchCreator(dataContext)
+      val pipe = pipelineCreator.createPipeline()
+
+      val expected = new DeleteProperty("date")
+
+      pipe.getPreparations.map(_.getAbstractPreparator) should contain (expected)
+
+    }
+
+  }
+}
 
 class TestMultiBranchCreator(dataContext: DataContext) extends MultiBranchPipelineCreator(dataContext) {
   override val preparators: List[Class[_ <: AbstractPreparator]] = List(classOf[DummyPreparator])
 }
+
+
