@@ -112,7 +112,7 @@ object RemovePreambleHelper {
 
     decisionBound > 1 match {
       case false => 1
-      case _ => 1/decisionBound
+      case _ => 1.0/decisionBound.toDouble
     }
   }
 
@@ -156,6 +156,6 @@ object RemovePreambleHelper {
       .values
       .max
 
-    longestUnusualStreak
+    1.0/longestUnusualStreak.toDouble
   }
 }
