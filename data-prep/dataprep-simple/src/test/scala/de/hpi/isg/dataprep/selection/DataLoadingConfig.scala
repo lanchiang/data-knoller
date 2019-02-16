@@ -18,6 +18,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpecLike, Match
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
+import scala.reflect.io.File
 
 trait DataLoadingConfig extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
 
@@ -39,7 +40,8 @@ trait DataLoadingConfig extends FlatSpecLike with Matchers with BeforeAndAfterEa
     transforms = createTransformsManually
     // generate target metadata
     val targetMetadata = createTargetMetadataManually
-    dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("dataprep-simple\\src\\test\\resources\\pokemon.csv").buildDialect
+    val path = File("src") / "test" / "resources" / "pokemon.csv" toString()
+    dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url(path).buildDialect
     //        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, schemaMapping);
     val dataLoader: SparkDataLoader = new FlatFileDataLoader(dialect, targetMetadata.asJava, transforms.asJava)
     dataContext = dataLoader.load
