@@ -8,12 +8,11 @@ import de.hpi.isg.dataprep.preparators.define.{ChangeDataType, DeleteProperty}
 
 class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
 
-  lazy val df = dataContext.getDataFrame
   val columns = "id,identifier,species_id,height,weight,base_experience,order,is_default,date,stemlemma,stemlemma2,stemlemma_wrong".split(",").toList
 
   "MultiBranchPipelineCreator" should "generate correct column combinations" in {
     val pipelineCreator = new TestMultiBranchCreator(dataContext)
-    val columnCombinations = pipelineCreator.generateColumnCombinations(df, columns.drop(3).toSet)
+    val columnCombinations = pipelineCreator.generateColumnCombinations(dataContext.getDataFrame, columns.drop(3).toSet)
 
     columnCombinations should have size 7
   }
@@ -22,10 +21,10 @@ class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
     val dummy1 = new DeleteProperty()
     val dummy2 = new ChangeDataType()
 
-    val root = MultiBranchPipelineCreator.Root(df)
-    val innerNode1 = MultiBranchPipelineCreator.Child(root, dummy1, Set("weight"), df, 0.8f)
-    val innerNode2 = MultiBranchPipelineCreator.Child(innerNode1, dummy2, Set("height"), df, 0.8f)
-    val leaf = MultiBranchPipelineCreator.Child(innerNode2, dummy1, Set("stemlemma", "height"), df, 0.5f)
+    val root = MultiBranchPipelineCreator.Root(dataContext.getDataFrame)
+    val innerNode1 = MultiBranchPipelineCreator.Child(root, dummy1, Set("weight"), dataContext.getDataFrame, 0.8f)
+    val innerNode2 = MultiBranchPipelineCreator.Child(innerNode1, dummy2, Set("height"), dataContext.getDataFrame, 0.8f)
+    val leaf = MultiBranchPipelineCreator.Child(innerNode2, dummy1, Set("stemlemma", "height"), dataContext.getDataFrame, 0.5f)
 
     val pipelineCreator = new MultiBranchPipelineCreator(dataContext)
     pipelineCreator.getBranchAffectedCols(leaf) should be(Map(dummy1.getClass -> Set("weight", "height", "stemlemma"), dummy2.getClass -> Set("height")))
@@ -35,9 +34,9 @@ class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
     val dummy1 = new DummyPreparator("dummy1")
     val dummy2 = new DummyPreparator("dummy2")
 
-    val root = MultiBranchPipelineCreator.Root(df)
-    val innerNode = MultiBranchPipelineCreator.Child(root, dummy1, Set.empty, df, 0.8f)
-    val leaf = MultiBranchPipelineCreator.Child(innerNode, dummy2, Set.empty, df, 0.5f)
+    val root = MultiBranchPipelineCreator.Root(dataContext.getDataFrame)
+    val innerNode = MultiBranchPipelineCreator.Child(root, dummy1, Set.empty, dataContext.getDataFrame, 0.8f)
+    val leaf = MultiBranchPipelineCreator.Child(innerNode, dummy2, Set.empty, dataContext.getDataFrame, 0.5f)
 
     val pipelineCreator = new TestMultiBranchCreator(dataContext)
     pipelineCreator.getBranchScore(leaf) should equal(1.3f)
