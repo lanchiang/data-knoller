@@ -50,7 +50,7 @@ class MultiBranchPipelineCreatorTest extends FlatSpecLike with Matchers with Bef
   }
 
   it should "test" in {
-    val pipelineCreator = new MultiBranchPipelineCreator(df.select("col1", "col2"))
+    val pipelineCreator = new MultiBranchPipelineCreator(df.select("col1", "col2", "col3"))
     pipelineCreator.createPipeline()
   }
 }

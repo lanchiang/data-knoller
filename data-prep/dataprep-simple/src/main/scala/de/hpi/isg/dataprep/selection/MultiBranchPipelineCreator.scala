@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.selection
 import de.hpi.isg.dataprep.selection.MultiBranchPipelineCreator._
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
 
 
@@ -30,8 +30,14 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
 
       if (candidates.size < MAX_BRANCHES) return branchHeads
 
-      val bestCandidates = kBestCandidates(MAX_BRANCHES, candidates)
-      rec(bestCandidates.map(candidateToBranchHead), maxIterations-1)
+      // Below order ensures that we only have to check k branches/candidates for equivalence.
+//      val bestCandidates = kBestCandidates(MAX_BRANCHES, candidates)
+//      val distinctCandidates = pruneEquivalentBranches(bestCandidates)
+
+      val bestCandidates = pruneEquivalentBranches(candidates)
+      val distinctCandidates = kBestCandidates(MAX_BRANCHES, bestCandidates)
+
+      rec(distinctCandidates.map(candidateToBranchHead), maxIterations-1)
     }
     val branchHeads = rec(List(root), MAX_ITERATIONS)
     branchHeads match {
@@ -67,34 +73,44 @@ class MultiBranchPipelineCreator(dataFrame: DataFrame) {
   }
 
   def pruneEquivalentBranches(candidates: List[Candidate]): List[Candidate] = {
-    def getBranchStructure(branchHead: TreeNode): List[(DummyPreparator, Set[String])] = branchHead match {
+    def getBranchStructure(branchHead: TreeNode): List[(String, Set[String])] = branchHead match {
       case Root(_) => Nil
-      case Child(parent, preparator, affectedCols, _, _) => (preparator, affectedCols) :: getBranchStructure(parent)
+      case Child(parent, preparator, affectedCols, _, _) => (preparator.getClass.getSimpleName, affectedCols) :: getBranchStructure(parent)
     }
-    def reduceBranchStructure(structure: List[(DummyPreparator, Set[String])]): List[Set[(DummyPreparator, Set[String])]] = {
-      structure.foldLeft(List(Set.empty[(DummyPreparator, Set[String])])){case (reducedStruct, (prep, cols)) =>
+    def reduceBranchStructure(structure: List[(String, Set[String])]): List[Set[(String, Set[String])]] = {
+      structure.foldLeft(List(Set.empty[(String, Set[String])])){case (reducedStruct, (prep, cols)) =>
         val isIndependent = reducedStruct.head
-          .exists{case(prevPrep, prevCols) => cols.intersect(prevCols).nonEmpty}
+          .exists{case(prevPrep, prevCols) => prevCols.intersect(cols).nonEmpty}
 
           if(isIndependent) (reducedStruct.head + ((prep, cols))) :: reducedStruct.tail
           else Set((prep, cols)) :: reducedStruct
       }
     }
 
-
-    val currentBranchStructures = candidates
-      .map(c => (c, (c.preparator, c.affectedCols) :: getBranchStructure(c.branchHead)))
+    val distinctCandidates = candidates
+      .map(c => (c, (c.preparator.getClass.getSimpleName, c.affectedCols) :: getBranchStructure(c.branchHead)))
       .map{case (candidate, unreducedBranch) => (candidate, reduceBranchStructure(unreducedBranch))}
-      .groupBy{case (candidate, reducedBranch) => reducedBranch}
-      ???
+      .groupBy{case (candidate, reducedBranch) => reducedBranch} // Group equivalent candidates
+      .map{case(key, iterator) => iterator.head._1} // Map to unique candidate
+      .toList
 
+    distinctCandidates
   }
+
+  // This dummy functions just show how schema and metadata similarity could be applied to modify the selected preparators
+  def calculateSchemaSimilarity = 1
+  def calculateMetaDataSimilarity = 1
+
 
   // Filters the k best candidates from all potential candidates to extend the tree.
   def kBestCandidates(k: Int, candidates: List[Candidate]): List[Candidate] = {
     if(k == 0) Nil
+    else if(candidates.size <= k) candidates
     else {
-      val bestCandidate = candidates.maxBy(_.totalScore)
+
+      val bestCandidate = candidates.maxBy(c => {
+        c.totalScore * calculateSchemaSimilarity * calculateMetaDataSimilarity
+      })
       bestCandidate +: kBestCandidates(k-1, candidates.filterNot(_ == bestCandidate))
     }
   }
