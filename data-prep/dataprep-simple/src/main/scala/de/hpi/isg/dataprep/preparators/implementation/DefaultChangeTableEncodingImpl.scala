@@ -210,9 +210,10 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
   private val BUFFER_SIZE = 4096
 
   val buf = new Array[Byte](BUFFER_SIZE)
-  var fileEnd: Boolean = false  // have we reached the file's end?
   var length: Int = 0           // number of valid bytes in buf
-  var currentIndex = 0          // position in file
+  var currentIndex: Int = 0     // position in file, relative to the position where we started
+  var fileEnd: Boolean = false  // true if currentIndex is at the file end
+  private var lastValidIndex = this.buf.length  // marks the last valid byte in buf
 
 
   /**
@@ -222,19 +223,29 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
   def readLineBytes(): Boolean = {
     // make sure we don't overwrite bytes whose line end hasn't been found yet
     val bufOffset = if (this.length == 0) 0 else this.buf.length - this.length
-    val bytesRead = this.csvFile.read(this.buf, bufOffset, this.buf.length - bufOffset)
+    var bytesRead = this.csvFile.read(this.buf, bufOffset, this.buf.length - bufOffset)
+    if (bytesRead == -1) bytesRead = 0  // handle file end
 
-    if (bytesRead == -1) {
-      this.fileEnd = true
-      return true
+    if (bytesRead + bufOffset < this.buf.length) {  // we have reached the end of the file
+      // the rightmost part of this.buf can no longer be filled with new data
+      // move lastValidIndex to the left to ensure we don't read stale data
+      this.lastValidIndex -= this.buf.length - bytesRead - bufOffset
     }
 
     val lineEndIndex = this.buf.indexOf(NEWLINE_CHAR)
-    val hasFoundLineEnd = lineEndIndex != -1
-    this.length = if (hasFoundLineEnd) lineEndIndex + 1 else buf.length
+    var hasFoundLineEnd = lineEndIndex != -1 && lineEndIndex < lastValidIndex
+    this.length = if (hasFoundLineEnd) lineEndIndex + 1 else lastValidIndex
     this.currentIndex += this.length
+
+    if (hasReachedFileEnd && this.length == lastValidIndex) {
+      this.fileEnd = true
+      hasFoundLineEnd = true
+    }
+
     hasFoundLineEnd
   }
+
+  private def hasReachedFileEnd = this.lastValidIndex < this.buf.length
 
   /**
     * Moves bytes from the next line to the beginning of buf, make sure they don't get overwritten by next read
