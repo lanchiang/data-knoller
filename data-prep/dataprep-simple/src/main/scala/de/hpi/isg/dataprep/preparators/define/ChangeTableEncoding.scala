@@ -66,7 +66,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     val csvPath = this.getCsvPath.getOrElse(return 0)
     val csvFile = new File(csvPath)
 
-    // Right now we can only handle the complete table. If we don't get it, return 0
+    // only handle the complete table
     if (dataset != this.getPreparation.getPipeline.getRawData) {
       return 0
     }
@@ -77,8 +77,9 @@ class ChangeTableEncoding() extends AbstractPreparator {
     dataset.foreach(row => {
       errorCounter.add(row.toString().count(_ == replacementChar))
     })
+
     // make sure the replacement chars were added through decoding and were not already written in the csv
     val errors = errorCounter.value - countReplacementChars(csvPath)
-    if (errors.toFloat / csvFile.length() > 0.01) 1.0f else 0.0f
+    if (errors.toFloat / csvFile.length() > APPLICABILITY_THRESHOLD) 1.0f else 0.0f
   }
 }
