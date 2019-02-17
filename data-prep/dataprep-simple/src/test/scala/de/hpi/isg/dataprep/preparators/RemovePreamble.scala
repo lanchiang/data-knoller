@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators
 
+import de.hpi.isg.dataprep.cases.CharTypeVector
 import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.preparators.define.{ChangeDateFormat, RemovePreambleHelper}
@@ -35,7 +36,7 @@ class RemovePreamble extends PreparatorScalaTest {
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
 
-    fileData.columns.length shouldEqual 3
+    fileData.columns.length shouldEqual 1
   }
 
   "Initial char" should "find right counts for each char" in {
@@ -109,7 +110,6 @@ class RemovePreamble extends PreparatorScalaTest {
 
   "Separator Count" should "remove all preamble lines with an unusual amount of comma separators" in {
     val localContext = sparkContext
-    import localContext.implicits._
     val prep = new DefaultRemovePreambleImpl
     val customDataset = localContext.read
       .option("sep", "\t")
@@ -118,25 +118,18 @@ class RemovePreamble extends PreparatorScalaTest {
     prep.fetchSeparatorChar(customDataset) shouldEqual ","
 
     RemovePreambleHelper.charsInEachLine(customDataset) shouldEqual 0.0
-
-    RemovePreambleHelper.calculateSeparatorSkew(customDataset) shouldEqual 2
+    RemovePreambleHelper.calculateSeparatorSkew(customDataset) shouldEqual 0.5
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/preamble_separator_comma_expected.csv")
 
-
-
     val result = prep.analyseSeparatorCount(customDataset, separator = ",")
-
-
-
     result.collect shouldEqual expectedDataset.collect
   }
 
   "Separator Count" should "remove all preamble lines with an unusual amount of slash separators" in {
     val localContext = sparkContext
-    import localContext.implicits._
 
     val customDataset = localContext.read
       .option("sep", "\t")
@@ -157,17 +150,14 @@ class RemovePreamble extends PreparatorScalaTest {
 
   "Separator Count" should "fail with an unusual amount of comma separators" in {
     val localContext = sparkContext
-    import localContext.implicits._
 
-    val fileData = localContext.read
+    val customDataset = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/preamble_separator_fail.csv")
-    val customDataset = fileData
 
-    val fileDataExpected = localContext.read
+    val expectedDataset = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/preamble_separator_fail_expected.csv")
-    val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
 
@@ -176,47 +166,33 @@ class RemovePreamble extends PreparatorScalaTest {
     result.collect shouldEqual expectedDataset.collect
   }
 
-  "CharTypeClusterer" should "generate Vectors correctly" in {
+  "CharTypeClusterer" should "find correct rows to delete" in {
     val localContext = sparkContext
-    val fileData = localContext.read
-      .option("sep", "\t")
+    val customDataset = localContext.read
+      .option("sep", " ")
       .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
-    val customDataset = fileData
 
-    val testPreparator = new DefaultRemovePreambleImpl
+    val prep = new DefaultRemovePreambleImpl
 
-    val zippedDataset = testPreparator.findPreambleByTypesOfChars(customDataset)
+    val zippedDataFrame = customDataset.rdd.zipWithIndex
+    val collectorDataFrame = prep.createDFforPreambleAnalysis(zippedDataFrame, customDataset)
 
-    zippedDataset.filter(row => row.get(2) == 1).collect.length shouldEqual 15
+    val rowsToDelete = prep.decideOnRowsToDelete(collectorDataFrame, prep.identifyDataCluster(collectorDataFrame))
+
+    rowsToDelete.sorted shouldEqual Array(0,1,2,3,4)
   }
 
-  "CharTypeClusterer" should "find Preamble Cluster on its own" in {
+  "CharTypeClusterer" should "remove preamble" in {
     val localContext = sparkContext
-    val fileData = localContext.read
+    val customDataset = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
-    val customDataset = fileData
 
     val testPreparator = new DefaultRemovePreambleImpl
 
     val result = testPreparator.findPreambleByTypesOfChars(customDataset)
-    val cluster = testPreparator.identifyDataCluster(result)
-    result.filter(r => r.getAs[Int](2) == cluster.toInt).collect().length shouldEqual 90
-  }
 
-  "CharTypeClusterer" should "use most homogeneous column for preamble detection" in {
-    val localContext = sparkContext
-    val fileData = localContext.read
-      .option("sep", "\t")
-      .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
-    val customDataset = fileData.rdd.zipWithIndex
-
-    val testPreparator = new DefaultRemovePreambleImpl
-
-    val result = testPreparator.createDFforPreambleAnalysis(customDataset, fileData)
-    val cluster = testPreparator.identifyDataCluster(result)
-
-    testPreparator.decideOnRowsToDelete(result, cluster).length shouldEqual 5
+    result.collect.length shouldEqual 30
   }
 
   "Homogenety of List" should "give a good indication of how close together lines are" in {
@@ -235,17 +211,14 @@ class RemovePreamble extends PreparatorScalaTest {
     unhomogenValue shouldEqual 0
   }
 
-  "CharTypeClusterer" should "remove preamble" in {
+  "Calculate Character skew" should "give low values for many different types" in {
     val localContext = sparkContext
-    val fileData = localContext.read
-      .option("sep", "\t")
+    val prep = new DefaultRemovePreambleImpl
+    val customDataset = localContext.read
+      .option("sep", " ")
       .csv("../dataprep-simple/src/test/resources/test_space_preamble.csv")
-    val customDataset = fileData
 
-    val testPreparator = new DefaultRemovePreambleImpl
-
-    val result = testPreparator.findPreambleByTypesOfChars(customDataset)
-
-    result.collect.length shouldEqual 30
+    RemovePreambleHelper.calculateCharacterTypeSkew(customDataset) shouldEqual 0.25
   }
+
 }

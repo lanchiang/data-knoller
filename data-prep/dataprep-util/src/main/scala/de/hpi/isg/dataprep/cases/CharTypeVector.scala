@@ -11,6 +11,27 @@ case class CharTypeVector(lowerCaseChars:Int, upperCaseChars:Int, numbers:Int, s
     }
     Vectors.dense(allChars, numbers, specialChars)
   }
+
+  def simplify: CharTypeVector = {
+    val smallestPart = List(allChars, numbers, specialChars).filter(_ != 0).min
+    val updatedLowers = simplifySingleValue(lowerCaseChars , smallestPart)
+    val updatedUppers = simplifySingleValue(upperCaseChars , smallestPart)
+    val updatedNumbers = simplifySingleValue(numbers , smallestPart)
+    val updatedSpecials = simplifySingleValue(specialChars , smallestPart)
+
+    CharTypeVector(updatedLowers, updatedUppers, updatedNumbers, updatedSpecials)
+  }
+
+  def simplifySingleValue(value:Int, smallestNumber:Int): Int = {
+    val updatedVal = Math.round(lowerCaseChars / smallestNumber)
+    if(updatedVal > 2){
+      return 2
+    }
+    if(updatedVal == 0){
+      return 0
+    }
+    1
+  }
 }
 
 object CharTypeVector{

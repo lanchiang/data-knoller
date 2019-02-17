@@ -2,12 +2,14 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.{lang, util}
 
+import de.hpi.isg.dataprep.cases.CharTypeVector
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata._
 import de.hpi.isg.dataprep.model.target.objects.{FileMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 
 /**
@@ -73,10 +75,11 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
     finalScore *= RemovePreambleHelper.charsInEachLine(dataset)
 
-    //TODO: high separator occurrence skew
+    //high separator occurrence skew
+    finalScore *= RemovePreambleHelper.calculateSeparatorSkew(dataset)
 
-
-    //TODO: vastly different char types
+    //vastly different char types
+    finalScore *= RemovePreambleHelper.calculateCharacterTypeSkew(dataset)
 
     1 - finalScore.toFloat
   }
@@ -157,5 +160,23 @@ object RemovePreambleHelper {
       .max
 
     1.0/longestUnusualStreak.toDouble
+  }
+
+  def calculateCharacterTypeSkew(dataFrame: DataFrame): Double = {
+    import dataFrame.sparkSession.implicits._
+
+    var maxTypes = 0L
+
+    for(col <- dataFrame.columns){
+      val thisCount = dataFrame
+        .map(_.getAs[String](col))
+        .map(row => (CharTypeVector.fromString(row.toString).simplify,1))
+        .groupByKey(_._1)
+        .count()
+        .count()
+
+      maxTypes = Math.max(maxTypes,thisCount)
+    }
+    1.0/Math.pow(maxTypes.toDouble,2)
   }
 }
