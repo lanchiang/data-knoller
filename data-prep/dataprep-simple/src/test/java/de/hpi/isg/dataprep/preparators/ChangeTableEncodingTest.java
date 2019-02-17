@@ -9,6 +9,7 @@ import de.hpi.isg.dataprep.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.define.ChangeTableEncoding;
+import de.hpi.isg.dataprep.preparators.implementation.EncodingUnmixer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,6 +23,7 @@ public class ChangeTableEncodingTest extends PreparatorTest {
     private static final String IN_CSV_URL = CSV_DIR + "error_character.csv";
     private static final String ERRORS_URL = CSV_DIR + "encoding_error.csv";
     private static final String ERRORS_AND_IN_CSV_URL = CSV_DIR + "both_error_and_error_character.csv";
+    private static final String MERGED_CSV_URL = CSV_DIR + "telefonbuchalpha_merged.csv";
     
     private static final String ENCODING = "UTF-8";
     private static DialectBuilder dialectBuilder;
@@ -61,6 +63,22 @@ public class ChangeTableEncodingTest extends PreparatorTest {
     public void testErrorsAndAlreadyInCSV() {
         DataContext context = load(ERRORS_AND_IN_CSV_URL);
         Assert.assertTrue(calApplicability(context) > 0);
+    }
+
+    @Test
+    public void testMergedCSV() {
+        DataContext context = load(MERGED_CSV_URL);
+        Assert.assertTrue(calApplicability(context) > 0);
+    }
+
+    @Test
+    public void testMixedEncodingInCSV() {
+        FileLoadDialect dialect = dialectBuilder.url(MERGED_CSV_URL).buildDialect();
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataLoader.load();
+
+        FileLoadDialect unmixedDialect = new EncodingUnmixer(MERGED_CSV_URL).unmixEncoding(dialect);
+        Assert.assertEquals("UTF-8", unmixedDialect.getEncoding());
     }
     
     private float calApplicability(DataContext context) {
