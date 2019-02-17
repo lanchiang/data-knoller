@@ -157,7 +157,9 @@ private class EncodingUnmixer(csvPath: String) {
       reader.prepareForNextLine()
     } while (!detector.isDone && !reader.fileEnd)  // at the end of every line, check if done
 
-    detector.getDetectedCharset
+    // detector bug: if it only read ASCII characters it doesn't detect any encoding
+    // either that, or it wasn't able to detect the encoding, which we can't do anything about
+    if (detector.getDetectedCharset == null) "ascii" else detector.getDetectedCharset
   }
 
   /**
@@ -168,11 +170,11 @@ private class EncodingUnmixer(csvPath: String) {
     this.csvFile.seek(first.startIndex)
     val reader = new ByteLineReader(this.csvFile)
     var lineBytes = Vector[Byte]()
-    var lineStartIndex = reader.currentIndex
+    var lineStartIndex = first.startIndex
     var validEncoding = true
 
     do {  // go through file until we find a line that can't be decoded with first.encoding
-      lineStartIndex = reader.currentIndex
+      lineStartIndex = first.startIndex + reader.currentIndex
       var lineEnd = false
       do {
         lineEnd = reader.readLineBytes()
@@ -211,7 +213,6 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
   var fileEnd: Boolean = false  // have we reached the file's end?
   var length: Int = 0           // number of valid bytes in buf
   var currentIndex = 0          // position in file
-  private var bufOffset = 0     // position in buf where to start writing (data before bufOffset is already valid)
 
 
   /**
@@ -219,8 +220,9 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
     * @return true if a line (or file) end was found
     */
   def readLineBytes(): Boolean = {
-    val bytesRead = this.csvFile.read(this.buf, this.bufOffset, this.buf.length - this.bufOffset)
-    this.bufOffset = 0
+    // make sure we don't overwrite bytes whose line end hasn't been found yet
+    val bufOffset = if (this.length == 0) 0 else this.buf.length - this.length
+    val bytesRead = this.csvFile.read(this.buf, bufOffset, this.buf.length - bufOffset)
 
     if (bytesRead == -1) {
       this.fileEnd = true
@@ -239,6 +241,5 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
     */
   def prepareForNextLine(): Unit = {
     System.arraycopy(this.buf, this.length, this.buf, 0, this.buf.length - this.length)
-    this.bufOffset = this.length
   }
 }
