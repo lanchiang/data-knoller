@@ -1,5 +1,15 @@
 package de.hpi.isg.dataprep.preparators;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -10,12 +20,6 @@ import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.define.ChangeTableEncoding;
 import de.hpi.isg.dataprep.preparators.implementation.EncodingUnmixer;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ChangeTableEncodingTest extends PreparatorTest {
     private static final String CSV_DIR = "./src/test/resources/encoding/";
@@ -112,7 +116,7 @@ public class ChangeTableEncodingTest extends PreparatorTest {
     }
     
     @Test
-    public void testMixedEncodingInCSV() {
+    public void testMixedEncodingInCSV() throws IOException {
         FileLoadDialect dialect = dialectBuilder.url(MERGED_CSV_URL).buildDialect();
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         long previousRecordCount = dataLoader.load().getDataFrame().count();
@@ -122,6 +126,7 @@ public class ChangeTableEncodingTest extends PreparatorTest {
 
         dataLoader = new FlatFileDataLoader(unmixedDialect);
         DataContext context = dataLoader.load();
+        long currentRecordCount = context.getDataFrame().count();
 
         Pipeline pipeline = new Pipeline(context);
         pipeline.initMetadataRepository();
@@ -129,9 +134,13 @@ public class ChangeTableEncodingTest extends PreparatorTest {
         ChangeTableEncoding preparator = new ChangeTableEncoding();
         pipeline.addPreparation(new Preparation(preparator));
 
-        Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getRawData(), null), 0);
-        Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
-        Assert.assertEquals(previousRecordCount, pipeline.getRawData().count());
+        try {
+            Assert.assertEquals(previousRecordCount, currentRecordCount);
+            Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getRawData(), null), 0);
+            Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
+        } finally {
+            Files.delete(Paths.get(unmixedDialect.getUrl()));
+        }
     }
     
     private float calApplicability(DataContext context) {
