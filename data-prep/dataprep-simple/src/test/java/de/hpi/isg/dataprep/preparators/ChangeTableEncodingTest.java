@@ -64,19 +64,59 @@ public class ChangeTableEncodingTest extends PreparatorTest {
         DataContext context = load(ERRORS_AND_IN_CSV_URL);
         Assert.assertTrue(calApplicability(context) > 0);
     }
-
+    
     @Test
     public void testMergedCSV() {
         DataContext context = load(MERGED_CSV_URL);
+        System.out.println(calApplicability(context));
         Assert.assertTrue(calApplicability(context) > 0);
     }
-
+    
+    @Test
+    public void testGetCSVPath() {
+        DataContext context = load(MERGED_CSV_URL);
+        Assert.assertEquals(MERGED_CSV_URL, getCSVPath(context));
+    }
+    
+    @Test
+    public void testGetCurrentEncoding() {
+        DataContext context = load(MERGED_CSV_URL);
+        Assert.assertEquals("UTF-8", getCurrentEncoding(context));
+    }
+    
+    @Test
+    public void testFileNotFoundHandling() throws Exception {
+        DataContext context = load(ERRORS_URL);
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+        
+        FileLoadDialect newDialect = dialectBuilder.url("lala.csv").buildDialect();
+        pipeline.setDialect(newDialect);
+        
+        ChangeTableEncoding preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
+        pipeline.executePipeline();
+    }
+    
+    @Test
+    public void testWrongEncodingInCSV() throws Exception {
+        DataContext context = load(ERRORS_URL);
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+        
+        ChangeTableEncoding preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
+        pipeline.executePipeline();
+        
+        Assert.assertEquals("WINDOWS-1252", pipeline.getDialect().getEncoding());
+    }
+    
     @Test
     public void testMixedEncodingInCSV() {
         FileLoadDialect dialect = dialectBuilder.url(MERGED_CSV_URL).buildDialect();
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataLoader.load();
-
+        
         FileLoadDialect unmixedDialect = new EncodingUnmixer(MERGED_CSV_URL).unmixEncoding(dialect);
         Assert.assertEquals("UTF-8", unmixedDialect.getEncoding());
     }
@@ -88,6 +128,24 @@ public class ChangeTableEncodingTest extends PreparatorTest {
         AbstractPreparator preparator = new ChangeTableEncoding();
         pipeline.addPreparation(new Preparation(preparator));
         return preparator.calApplicability(null, pipeline.getRawData(), null);
+    }
+    
+    private String getCSVPath(DataContext context) {
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+        
+        ChangeTableEncoding preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
+        return preparator.getCsvPath().get();
+    }
+    
+    private String getCurrentEncoding(DataContext context) {
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+        
+        ChangeTableEncoding preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
+        return preparator.getCurrentEncoding().get();
     }
     
     private DataContext load(String url) {
