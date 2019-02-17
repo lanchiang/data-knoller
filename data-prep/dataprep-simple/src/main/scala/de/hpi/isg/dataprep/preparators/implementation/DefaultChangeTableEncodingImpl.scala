@@ -83,7 +83,7 @@ private class EncodingUnmixer(csvPath: String) {
   }
 
   def unmixEncoding(dialect: FileLoadDialect): FileLoadDialect = {
-    val path = "TODO"
+    val path = generateNewPath(dialect.getUrl)
     this.csvFile = new RandomAccessFile(this.csvPath, "r")
 
     val units = findUnits()
@@ -95,6 +95,12 @@ private class EncodingUnmixer(csvPath: String) {
     dialect.setEncoding(WRITE_ENCODING)
     dialect.setUrl(path)
     dialect
+  }
+
+  private def generateNewPath(str: String): String = {
+    val oldPath = Paths.get(str)
+    val filename = System.currentTimeMillis.toString + "_unmixed_" + oldPath.getFileName
+    Paths.get(oldPath.getParent.toString, filename).toString
   }
 
   private def findUnits(): Seq[DetectionUnit] = {
