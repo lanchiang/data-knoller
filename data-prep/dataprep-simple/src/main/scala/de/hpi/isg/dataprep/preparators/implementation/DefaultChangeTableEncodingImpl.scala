@@ -114,8 +114,8 @@ private class EncodingUnmixer(csvPath: String) {
   }
 
   private def correctUnits(units: Seq[DetectionUnit]): Seq[DetectionUnit] = {
-    var correctedUnits = Vector[DetectionUnit]()
     var previousUnit = units.head
+    var correctedUnits = Vector[DetectionUnit](units.head)
 
     for (unit <- units.drop(1)) {
       if (unit.encoding != previousUnit.encoding) {
@@ -143,6 +143,7 @@ private class EncodingUnmixer(csvPath: String) {
       val str = new String(buf, 0, unit.length, unit.encoding)
       newFile.write(str)
     }
+    newFile.close()
   }
 
   private def detectUnitEncoding(reader: ByteLineReader, detector: UniversalDetector): String = {

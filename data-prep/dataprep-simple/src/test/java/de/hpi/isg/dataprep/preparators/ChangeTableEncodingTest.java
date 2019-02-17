@@ -115,7 +115,7 @@ public class ChangeTableEncodingTest extends PreparatorTest {
     public void testMixedEncodingInCSV() {
         FileLoadDialect dialect = dialectBuilder.url(MERGED_CSV_URL).buildDialect();
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
-        dataLoader.load();
+        long previousRecordCount = dataLoader.load().getDataFrame().count();
         
         FileLoadDialect unmixedDialect = new EncodingUnmixer(MERGED_CSV_URL).unmixEncoding(dialect);
         Assert.assertEquals("UTF-8", unmixedDialect.getEncoding());
@@ -131,6 +131,7 @@ public class ChangeTableEncodingTest extends PreparatorTest {
 
         Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getRawData(), null), 0);
         Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
+        Assert.assertEquals(previousRecordCount, pipeline.getRawData().count());
     }
     
     private float calApplicability(DataContext context) {
