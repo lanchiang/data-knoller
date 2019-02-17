@@ -25,7 +25,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     // TODO path metadata required
   }
 
-  private def countReplacementChars(csvPath: String): Int = {
+  def countReplacementChars(csvPath: String): Int = {
     val encoding = getCurrentEncoding.getOrElse(System.getProperty("file.encoding"))
     val replacementChar = REPLACEMENT_CHAR.toString
     val replacementBytes = replacementChar.getBytes(encoding)

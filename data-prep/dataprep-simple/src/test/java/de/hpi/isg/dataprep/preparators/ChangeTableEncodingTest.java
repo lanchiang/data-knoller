@@ -119,6 +119,18 @@ public class ChangeTableEncodingTest extends PreparatorTest {
         
         FileLoadDialect unmixedDialect = new EncodingUnmixer(MERGED_CSV_URL).unmixEncoding(dialect);
         Assert.assertEquals("UTF-8", unmixedDialect.getEncoding());
+
+        dataLoader = new FlatFileDataLoader(unmixedDialect);
+        DataContext context = dataLoader.load();
+
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+
+        ChangeTableEncoding preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
+
+        Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getRawData(), null), 0);
+        Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
     }
     
     private float calApplicability(DataContext context) {
