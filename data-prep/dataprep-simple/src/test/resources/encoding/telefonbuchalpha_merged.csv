@@ -1,4 +1,4 @@
-Nachname,Vorname,Zimmer,Telefon,Telefax,Anrede
+ï»¿ï»¿Nachname,Vorname,Zimmer,Telefon,Telefax,Anrede
 Achten,Klara,O.337,233,380,Frau
 "Agris von",Klaus,"","02821 7447-53","02821 7447-48",Herr
 Althoff,Tanja,E.503,373,590,Frau
@@ -249,9 +249,9 @@ Joosten,Simone,O.368,214,589,Frau
 Jungk,Ute,E.505,377,590,Frau
 Kaas,Hubert,E.232,631,660,Herr
 KÃ¤mmerer,Viktor,"","02821 8960699","",Herr
-KÙ„seberg,Michael,"",576/299,151,Herr
+Käseberg,Michael,"",576/299,151,Herr
 Kaja,Marit,E.752,167,530,Frau
-Kalenberg,JïŸ±rgen,O.320,245,380,Herr
+Kalenberg,Jürgen,O.320,245,380,Herr
 Kalkof,Thorben,E.615,194,190,Herr
 Kamps,Katrin,E.222,469,310,Frau
 Kanders,Christian,"","02831 9230-10","02831 9230-55",Herr
@@ -270,12 +270,12 @@ Killewald,Bianca,D.456,282,277,Frau
 Killewald,Claudia,E.219,470,310,Frau
 Killewald,Franziska,O.403,422,573,Frau
 Kipp,Susanne,E.235,450,700,Frau
-Kisters,SïŸ«ren,O.423,408,573,Herr
+Kisters,Sören,O.423,408,573,Herr
 Klaus,Beatrix,1.123,830,860,Frau
 Klein,Dirk,E.506,523,708,Herr
 Kleuskens,Mareile,0.769,355,230,Frau
 Klever,Dagmar,E.733,313,530,Frau
-KlïŸ±sener,Margit,E.150,157,510,Frau
+Klüsener,Margit,E.150,157,510,Frau
 Kluitmann,Alwin,E.504,306,360,Herr
 Kluitmann,Karin,E.615,101,190,Frau
 Kmieckowiak,Marco,006,291/391,500,Herr
@@ -284,7 +284,7 @@ Knieriem,Angelika,O.303,243,589,Frau
 Koch,Renate,E.242,438,705,Frau
 Kock,Susanne,E.248,430,700,Frau
 Koenen,Andrea,O.315,259,457,Frau
-KïŸ«sters,Martina,2.151,851,860,Frau
+Kösters,Martina,2.151,851,860,Frau
 Kohn,Sonja,E.206,484,310,Frau
 Konopka,Viola,O.389,605,660,Frau
 Kosel,Margit,2.165,865,"02821 85-",Frau
@@ -294,11 +294,11 @@ Krebber,Svenja,E.610,140,190,Frau
 Kreis,Artur,O.625,193,588,Herr
 Kroll,Norbert,E.217,392,562,Herr
 Kromwyk,Wolfgang,"","02823 8790332","02823 8790199",Herr
-KrïŸ±ïŸ§,Nina,D.460,242,277,Frau
+Krüß,Nina,D.460,242,277,Frau
 Krukow,Manuela,D.454,274,277,Frau
 Kruse,Barbara,O.770,813,230,Frau
 Kuballa,Hubert,O.629,197,588,Herr
-KïŸ±lkens,Martina,E.197,272,550,Frau
+Külkens,Martina,E.197,272,550,Frau
 Kuenen,Norbert,E.179,135,550,Herr
 Kutschera,Andrea,"","02831 9230-16","02831 9230-55",Frau
 Laakmann,Jan,"","02835 446154","02835 446158",Herr
@@ -312,7 +312,7 @@ Lamers,Monika,E.151,169,510,Frau
 Lamers,Silke,D.785,511,587,Frau
 Lamers,Silke,O.323,542,380,Frau
 Lampe,Simone,E.171,284,550,Frau
-LappïŸ«hn,Dominique,E.100,842,840,Frau
+Lappöhn,Dominique,E.100,842,840,Frau
 Lauk,Jakob,D.789,514,587,Herr
 Leenen,Elena,"","02837 910195","02837 910170",Frau
 Leenen,Marc,E.602,292,588,Herr
@@ -328,7 +328,7 @@ Lipke-Barsch,Inga,2.155,864,860,Frau
 Loer,Petra,O.407,411,573,Frau
 Lohschelder,Ursula,U.510,374,590,Frau
 Ludwig,Alexander,E.192,563,550,Herr
-LïŸ±mmen,Monika,E.151,271,510,Frau
+Lümmen,Monika,E.151,271,510,Frau
 Luipers,Hans-Josef,U.121,456,500,Herr
 Lukas,Stefan,E.260,546,705,Herr
 Lux,Ingo,O.419,478,705,Herr
@@ -336,7 +336,7 @@ Maas,Daniel,"","02823 87900","02823 8790199",Herr
 Maas,Johann-Martin,E.225,649,660,Herr
 Maas,Matthias,E.197,116,550,Herr
 Maciszonek,Daniel,E.232,655,620,Herr
-MÙ„nnchen,Erich,O.395,667,660,Herr
+Männchen,Erich,O.395,667,660,Herr
 Makel,Birgit,E.198,251,550,Frau
 Makel,Daniel,O.359,248,500,Herr
 Mandel,Barbara,D.795,216,587,Frau
@@ -346,7 +346,7 @@ Marschall,Christina,E.252,153,705,Frau
 Marzian,Anna,D.800,201,591,Frau
 Marzian,Margarethe,O.359,188,500,Frau
 Masuch,Alina,E.168,407,550,Frau
-MeiïŸ§ner,Andreas,E.215,263,562,Herr
+Meißner,Andreas,E.215,263,562,Herr
 Menting,Michael,O.356,475,585,Herr
 Mergens,Carolin,126,"02821 504-1222","02821 504-1238",Frau
 Merkert,Nick,O.420,662,705,Herr
@@ -360,28 +360,28 @@ Michels,Janina,"","","",Frau
 Miesen,Adelheid,O.308,240,457,Frau
 Miesen,Uwe,U.134,444,593,Herr
 Modzel,Jasmin,U.128,744,500,Frau
-MïŸ«lders,Jan,E.211,641,310,Herr
-Mohn,JïŸ«rg,"","02821 7135816","02821 7135819",Herr
-MïŸ±lder,Erich,O.311,545,457,Herr
-MïŸ±ller,Kira,E.199,339,550,Frau
-MïŸ±ller,Ludger,O.375,633,660,Herr
-MïŸ±ller,Rainer,D.461,207,277,Herr
-MïŸ±nchen,Petra,E.259,365,705,Frau
-MïŸ±nnekhoff,Rainer,O.41a,"02821 7447-24","02821 744748",Herr
-MïŸ±skens,Andreas,E.228,646,660,Herr
+Mölders,Jan,E.211,641,310,Herr
+Mohn,Jörg,"","02821 7135816","02821 7135819",Herr
+Mülder,Erich,O.311,545,457,Herr
+Müller,Kira,E.199,339,550,Frau
+Müller,Ludger,O.375,633,660,Herr
+Müller,Rainer,D.461,207,277,Herr
+München,Petra,E.259,365,705,Frau
+Münnekhoff,Rainer,O.41a,"02821 7447-24","02821 744748",Herr
+Müskens,Andreas,E.228,646,660,Herr
 Mulder,Anke,E.500,521,590,Frau
-Mundi,JïŸ±rgen,121,"02821 504-1200","02821 504-1205",Herr
+Mundi,Jürgen,121,"02821 504-1200","02821 504-1205",Herr
 Muth,Hans,D.789,514,587,Herr
 Nauta,Nadine,O.332,399,500,Frau
 Nehring,Stephanie,O.329,238,594,Frau
-NelleïŸ§en,Fred,D.460,164,277,Herr
+Nelleßen,Fred,D.460,164,277,Herr
 Nienhaus,Diana,O.771,520,230,Frau
 Nienhuysen,Anja,E.178,118,550,Frau
-Nobis,JïŸ±rgen,O.418,420,705,Herr
+Nobis,Jürgen,O.418,420,705,Herr
 Noeldner,Birgit,2.152,852,860,Frau
-Nokta,BirgïŸ±l,E.616,"","",Frau
-NïŸ±nninghoff,Dieter,1.136,836,860,Herr
-Ohlen?kamp,Inken,1.129,817,860,Frau
+Nokta,Birgül,E.616,"","",Frau
+Nünninghoff,Dieter,1.136,836,860,Herr
+Ohlenkamp,Inken,1.129,817,860,Frau
 Okos,Joachim,1.124,821,860,Herr
 Onckels,Birgit,E.217,632,562,Frau
 "op de Kamp",Waltraud,E.240,448,700,Frau
@@ -391,11 +391,11 @@ Otten,Alfons,1.121,824,860,Herr
 Otten,Jan-Wellem,O.412,435,573,Herr
 Otto,Joachim,D.786,524,587,Herr
 Otto,Svenja,E.176,132,550,Frau
-PaeïŸ§ens,Anika,"","","",Frau
+Paeßens,Anika,"","","",Frau
 Pape,Jens,2.153,823,860,Herr
-Parplies,AndrÙ‰,E.232,"2821 85 640","2821 85 620",Herr
+Parplies,André,E.232,"2821 85 640","2821 85 620",Herr
 Pastoors,Elke,D.803,337,591,Frau
-Pastoors,JïŸ±rgen,O.328,244,594,Herr
+Pastoors,Jürgen,O.328,244,594,Herr
 Pastoors,Nicole,"","02821 71358-0","02821 71358-19",Frau
 Pauls,Alina,O.301,512,589,Frau
 Pelser,Gerhard,"","","",Herr
@@ -407,7 +407,7 @@ Peters,Klaus,E.254,516,705,Herr
 Peters,Simone,D.783,347,587,Frau
 Petry,Stephanie,E.500,521,590,Frau
 Pfeiffer,Rabea,O.300,301,589,Frau
-Philippi,AndrÙ‰,O.393,624,660,Herr
+Philippi,André,O.393,624,660,Herr
 Philippi,Anna,E.207,471,310,Frau
 Pieper,Kurt,E.245,405,705,Herr
 Pieper,Sabine,E.202,480,310,Frau
@@ -440,7 +440,7 @@ Reintjes-Ageling,Sylvia,O.392,650,660,Frau
 Reintjes-Remy,Susanne,D.798,329,587,Frau
 Remmen,Johannes,O.769,355,230,Herr
 Rettke,Caroline,E.254,433,705,Frau
-ReuïŸ§,Andreas,U.119,203,500,Herr
+Reuß,Andreas,U.119,203,500,Herr
 Reuter,Silvia,D.800,584,587,Frau
 Reuter-Pritzlaff,Barbara,E.263,447,705,Frau
 Reynders,Hermann,E.249,431,700,Herr
@@ -456,12 +456,12 @@ Ripkens,Vanessa,O.399,610,660,Frau
 Rosenberg,Denise,D.802,368,591,Frau
 Rosendahl,Tanja,E.192,626,550,Frau
 Rouenhoff,Clemens,"","02821 744723","02821 744748",Herr
-RïŸ±ter,Beate,E.252,153,705,Frau
-RïŸ±tjes,Andrea,D.462,208,277,Frau
-RïŸ±tten,Monika,E.612,173,588,Frau
-RïŸ±tten,Volker,O.307,253,457,Herr
+Rüter,Beate,E.252,153,705,Frau
+Rütjes,Andrea,D.462,208,277,Frau
+Rütten,Monika,E.612,173,588,Frau
+Rütten,Volker,O.307,253,457,Herr
 Ruffen,Andreas,D.782,513,587,Herr
-SÙ„nger,Martina,E.745,344,530,Frau
+Sänger,Martina,E.745,344,530,Frau
 Sanders,Carl-Heinz,E.251,386,705,Herr
 Sanders,Elke,O.326,128,380,Frau
 Schaap,Peter,"","02831 86207","02831 973493",Herr
@@ -471,10 +471,10 @@ Schatschneider,Irina,"","02821 7447-14","02821 7447-48",Frau
 Scheers,Yvonne,O.774,719,230,Frau
 Scherbaum,Martina,E.741,320,530,Frau
 Schlaghecken,Walter,O.373,658,660,Herr
-Schlimpert,JïŸ±rgen,E.225,606,620,Herr
+Schlimpert,Jürgen,E.225,606,620,Herr
 Schlootz,Sandra,"","02836 915538","02836 9155700",Frau
-SchlïŸ±ter,Melanie,E.615,160,190,Frau
-SchlïŸ±ter,Michael,2.152,859,860,Herr
+Schlüter,Melanie,E.615,160,190,Frau
+Schlüter,Michael,2.152,859,860,Herr
 Schmidt,Anke,"","","",Frau
 Schmidt,Susanne,O.334,701,151,Frau
 Schmitz,Miriam,"","02824 13175","02824 13175",Frau
@@ -489,9 +489,9 @@ Schoof,Eva,"O.776 / 1.120",741/820,230,Frau
 Schoofs,Wilfried,O.314,287,457,Herr
 Schrickel,Gerlinde,E.737,413,530,Frau
 Schrievers,Lena,O.382,664,660,Frau
-SchrïŸ«der,Cornelia,O.362,462,707,Frau
-SchïŸ±rmann,Jessica,"","","",Frau
-SchïŸ±tten,JïŸ«rg,"","","",Herr
+Schröder,Cornelia,O.362,462,707,Frau
+Schürmann,Jessica,"","","",Frau
+Schütten,Jörg,"","","",Herr
 "Schultze-van Acken",Susanne,O.327,542,380,Frau
 Schumann,Karl,D.789,514,567,Herr
 Schwan,Andrea,E.185,109,550,Frau
@@ -509,7 +509,7 @@ Simon,Ulrike,E.194,452,550,Frau
 Simons,Veronica,1.125,825,860,Frau
 Sleuser,Sima,E.604,292,588,Frau
 Smitmans,Franz-Josef,O.759,321,230,Herr
-Smits,JïŸ«rg,"","02851 51156","02851 51925",Herr
+Smits,Jörg,"","02851 51156","02851 51925",Herr
 Smits,Magdalena,"","","",Frau
 Souhjoud,Adil,E.616,246,588,Herr
 Spaan,Detlef,D.789,180,587,Herr
@@ -537,18 +537,18 @@ Tenhaft,Kurt,006,291/391,500,Herr
 Terhorst,Julia,E.213,517,152,Frau
 Terhorst,Klaus,E.223,652,620,Herr
 Thesing,Julia,E.200,395,310,Frau
-TheuïŸ§en,Horst,U.102,400,"02821 85-",Herr
+Theußen,Horst,U.102,400,"02821 85-",Herr
 Thimm,Andrea,E.500,521,590,Frau
 Thimm,Reinhold,E.175,136,550,Herr
 Thissen,Daniela,D.468,223,279,Frau
 Thissen,Elvira,E.500,305,590,Frau
-ThïŸ«nneïŸ§en,Lena,O.396,603,660,Frau
+Thönneßen,Lena,O.396,603,660,Frau
 Thormann,Silke,O.382,643,660,Frau
-ThïŸ±s,Benedikt,E.502,359,590,Herr
-ThïŸ±s,Georg,O.342,221,500,Herr
+Thüs,Benedikt,E.502,359,590,Herr
+Thüs,Georg,O.342,221,500,Herr
 Thyssen,Christin,O.403,422,705,Frau
 Thyssen,Stefanie,E.204,486,310,Frau
-TïŸ«nnissen,Katja,E.184,105,550,Frau
+Tönnissen,Katja,E.184,105,550,Frau
 Tophoven,Lukas,"","02823 8790332","02823 8790199",Herr
 Topic,Dunja,E.203,482,310,Frau
 Tuschmann,Harald,2.111,"02831 9230-71","02831 9230-55",Herr
@@ -556,20 +556,20 @@ Tuxhorn,Michaela,E.500,376,590,Frau
 Ufermann,Susanne,O.402,198,573,Frau
 Ullmann,Jens,E.609,745,587,Herr
 Unruh,Frank,E.205,485,310,Herr
-Urban,JïŸ±rgen,U.102,400,"02821 85-",Herr
+Urban,Jürgen,U.102,400,"02821 85-",Herr
 "van Appeldorn",Nicole,E.616,487,190,Frau
 "van Baal",Stefanie,D.804,383,591,Frau
 "van Bebber",Margret,311,"02851 51155","02851 51925",Frau
 "van Beeck",Jan,"","02823 7272","02823 7447/877924",Herr
 "van Beek",Wolfgang,D.789,514,587,Herr
-"van Briel",JïŸ«rg,"","02821 71358-0","",Herr
+"van Briel",Jörg,"","02821 71358-0","",Herr
 "van Cuyck",Barbara,O.765,437,230,Frau
 "van de Loo",Maren,D.461,307,277,Frau
 "van den Boom",Lydia,E.502,595,590,Frau
 "van den Wyenberg",Peter,"","02834 562","",Herr
 "van der Cruysen",Judith,"","02821 744713","02821 744748",Frau
 "van Dick",Stephan,E.187,215,550,Herr
-"van DïŸ±lmen",Annegret,O.758,231,230,Frau
+"van Dülmen",Annegret,O.758,231,230,Frau
 "van Egeren",Franz,"","","",Herr
 "van Esch",Heiner,"","02821 97709-0","02821 97709-29",Herr
 "van Hagen",Tanja,E.100,844,840,Frau
@@ -585,19 +585,19 @@ Urban,JïŸ±rgen,U.102,400,"02821 85-",Herr
 Veltkamp,Thomas,E.256,612,705,Herr
 Venmanns,Ursula,E.221,257,562,Frau
 Verbeet,Lutz,E.614,195,190,Herr
-VerfïŸ±rth,Liesel,E.187,168,550,Frau
+Verfürth,Liesel,E.187,168,550,Frau
 Vergeest,Angelika,O.305,237,457,Frau
 Verhalen,Volker,O.385,645,660,Herr
-VerhïŸ±lsdonk,Anna,E.200,639,310,Frau
-VerhïŸ±lsdonk,Lisa,E.621,292,588,Frau
-VerhïŸ±lsdonk,Martin,"","","",Herr
-Vermeulen,BÙ„rbel,D.462,502,277,Frau
+Verhülsdonk,Anna,E.200,639,310,Frau
+Verhülsdonk,Lisa,E.621,292,588,Frau
+Verhülsdonk,Martin,"","","",Herr
+Vermeulen,Bärbel,D.462,502,277,Frau
 Verstegen,Bettina,O.363,362,707,Frau
 Verstegen,Josef,O.380,628,620,Herr
-Vervoorst,GïŸ±nther,E.257,432,705,Herr
+Vervoorst,Günther,E.257,432,705,Herr
 Vervoorts,Cordula,D.801,426,591,Frau
-VïŸ«lling,Oliver,E.616,487,190,Herr
-VïŸ«lling,Ursula,O.377,627,660,Frau
+Völling,Oliver,E.616,487,190,Herr
+Völling,Ursula,O.377,627,660,Frau
 Vogel,Tobias,O.629,"","",Herr
 Volkmann,Pia,E.621,199,190,Frau
 Vollmar-Vernier,Donatienne,E.731,340,530,Frau
@@ -605,7 +605,7 @@ Vollmar-Vernier,Donatienne,E.731,340,530,Frau
 Vopel,Karina,E.749,316,530,Frau
 Wagner,Janina,E.734,328,530,Frau
 Wagner,Stephan,"D.805 ",367,591,Herr
-Wahl,JïŸ«rg,O.416,419,573,Herr
+Wahl,Jörg,O.416,419,573,Herr
 Wallmeyer,Leonard,E.233,166,700,Herr
 Walter,Linda,O.415,611,585,Frau
 Weinreich,Christof,1.137,829,860,Herr
@@ -637,4 +637,4 @@ Zaadelaar,Alfred,O.41a,"02821 7447-24","02821 744748",Herr
 Zdrenka,Kornelia,D.781,224,587,Frau
 Ziggert,Angelika,E.736,327,530,Frau
 Zimny,Sandra,E.216,518,550,Frau
-ZurmïŸ±hlen,Barbara,E.214,390,310,Frau
+Zurmühlen,Barbara,E.214,390,310,Frau
