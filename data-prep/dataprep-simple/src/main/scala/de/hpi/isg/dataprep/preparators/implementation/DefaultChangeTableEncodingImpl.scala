@@ -140,7 +140,7 @@ private class EncodingUnmixer(csvPath: String) {
     for (unit <- units) {
       this.csvFile.seek(unit.startIndex)
       this.csvFile.read(buf, 0, unit.length)
-      val str = new String(buf, unit.encoding)
+      val str = new String(buf, 0, unit.length, unit.encoding)
       newFile.write(str)
     }
   }
@@ -159,14 +159,15 @@ private class EncodingUnmixer(csvPath: String) {
       reader.prepareForNextLine()
       attempts += 1
 
-      // if we have tried MAX_ATTEMPTS lines without finding the encoding, pick the encoding with the highest confidence
-      if (attempts > MAX_ATTEMPTS) {
+      // if we have tried MAX_ATTEMPTS lines without finding the encoding, or if the file has ended, pick the encoding with the highest confidence
+      if (attempts > MAX_ATTEMPTS || reader.fileEnd) {
         detector.dataEnd()
-        // if even that didn't help, try turning the detector off and on again
-        if (detector.getDetectedCharset == null) {
-          detector.reset()
-          attempts = 0
-        }
+      }
+
+      // if even that didn't help, try turning the detector off and on again
+      if (attempts > MAX_ATTEMPTS && detector.getDetectedCharset == null) {
+        detector.reset()
+        attempts = 0
       }
     } while (detector.getDetectedCharset == null && !reader.fileEnd)  // at the end of every line, check if done
 
