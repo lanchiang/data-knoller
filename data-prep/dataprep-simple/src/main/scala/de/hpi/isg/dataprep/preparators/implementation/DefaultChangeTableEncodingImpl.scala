@@ -173,7 +173,6 @@ private class EncodingUnmixer(csvPath: String) {
     } while (detector.getDetectedCharset == null && !reader.fileEnd)  // at the end of every line, check if done
 
     // detector bug: if it only read ASCII characters it doesn't detect any encoding
-    // either that, or it wasn't able to detect the encoding, which we can't do anything about
     if (detector.getDetectedCharset == null) "ascii" else detector.getDetectedCharset
   }
 
