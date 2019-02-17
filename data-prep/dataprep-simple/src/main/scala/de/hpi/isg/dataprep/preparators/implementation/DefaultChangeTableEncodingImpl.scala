@@ -146,6 +146,8 @@ private class EncodingUnmixer(csvPath: String) {
   }
 
   private def detectUnitEncoding(reader: ByteLineReader, detector: UniversalDetector): String = {
+    val MAX_ATTEMPTS = 50
+    var attempts = 0
     detector.reset()
 
     do {
@@ -155,7 +157,18 @@ private class EncodingUnmixer(csvPath: String) {
         detector.handleData(reader.buf, 0, reader.length)
       } while (!lineEnd)  // process data until we reach the line end
       reader.prepareForNextLine()
-    } while (!detector.isDone && !reader.fileEnd)  // at the end of every line, check if done
+      attempts += 1
+
+      // if we have tried MAX_ATTEMPTS lines without finding the encoding, pick the encoding with the highest confidence
+      if (attempts > MAX_ATTEMPTS) {
+        detector.dataEnd()
+        // if even that didn't help, try turning the detector off and on again
+        if (detector.getDetectedCharset == null) {
+          detector.reset()
+          attempts = 0
+        }
+      }
+    } while (detector.getDetectedCharset == null && !reader.fileEnd)  // at the end of every line, check if done
 
     // detector bug: if it only read ASCII characters it doesn't detect any encoding
     // either that, or it wasn't able to detect the encoding, which we can't do anything about
