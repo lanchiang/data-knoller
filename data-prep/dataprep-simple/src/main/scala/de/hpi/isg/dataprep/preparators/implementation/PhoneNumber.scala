@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.metadata.{IllegalPhoneNumberFormatException, PhoneNumberFormat, PhoneNumberFormatComponent, PhoneNumberFormatComponentType}
+import de.hpi.isg.dataprep.metadata.{IllegalPhoneNumberFormatException, PhoneNumberFormat, PhoneNumberFormatComponent}
 
 import scala.util.{Failure, Success, Try}
 
@@ -8,7 +8,7 @@ import scala.util.{Failure, Success, Try}
 	* Phone number
 	* @param components Mapping from component type to part of the phone number
 	*/
-case class PhoneNumber(components: Map[PhoneNumberFormatComponentType, String]) extends AnyVal {
+case class PhoneNumber[A](components: Map[A, String]) extends AnyVal {
 	import PhoneNumberFormatComponent._
 
 	/**
@@ -16,10 +16,10 @@ case class PhoneNumber(components: Map[PhoneNumberFormatComponentType, String]) 
 		* @param format Format the phone number is converted to
 		* @return Try of the converted phone number
 		*/
-	def convert(format: PhoneNumberFormat): Try[PhoneNumber] = {
+	def convert(format: PhoneNumberFormat[A]): Try[PhoneNumber[A]] = {
 		val convertedComponents = format.components.map {
-			case Required(componentType) => components.get(componentType).map(componentType -> _)
-			case Optional(componentType, defaultValue) => components.get(componentType).orElse(Option(defaultValue)).map(componentType -> _)
+			case component: Required[A] => components.get(component.componentType).map(component.componentType -> _)
+			case component: Optional[A] => components.get(component.componentType).orElse(Option(component.defaultValue)).map(component.componentType -> _)
 		}
 
 		if (convertedComponents.exists(_.isEmpty)) Failure(IllegalPhoneNumberFormatException("Missing required component(s)"))
@@ -36,6 +36,6 @@ case class PhoneNumber(components: Map[PhoneNumberFormatComponentType, String]) 
 object PhoneNumber {
 	import TaggerSyntax._
 
-	def apply(value: String)(implicit tagger: Tagger[PhoneNumberFormatComponentType]): PhoneNumber =
+	def apply[A](value: String)(implicit tagger: Tagger[A]): PhoneNumber[A] =
 		new PhoneNumber(value.tagged)
 }

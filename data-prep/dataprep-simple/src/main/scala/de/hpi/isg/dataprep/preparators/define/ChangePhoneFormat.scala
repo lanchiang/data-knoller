@@ -4,24 +4,23 @@ import java.util
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PhoneNumberFormat, PhoneNumberFormatComponentType, PropertyDataType}
+import de.hpi.isg.dataprep.metadata.{DINPhoneNumberFormat, NANPPhoneNumberFormat, PhoneNumberFormat, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangePhoneFormatImpl
-import de.hpi.isg.dataprep.preparators.implementation.{CheckerInstances, CheckerSyntax, TaggerInstances}
+import de.hpi.isg.dataprep.preparators.implementation.{DefaultChangePhoneFormatImpl, TaggerInstances}
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
 
 import collection.JavaConverters._
 
-class ChangePhoneFormat(
+class ChangePhoneFormat[A](
   val propertyName: String,
-  val sourceFormat: PhoneNumberFormat,
-  val targetFormat: PhoneNumberFormat
+  val sourceFormat: PhoneNumberFormat[A],
+  val targetFormat: PhoneNumberFormat[A]
 ) extends AbstractPreparator {
 
-  def this(propertyName: String, targetFormat: PhoneNumberFormat) {
+  def this(propertyName: String, targetFormat: PhoneNumberFormat[A]) {
     this(propertyName, null, targetFormat)
   }
 
@@ -51,36 +50,39 @@ class ChangePhoneFormat(
     targetMetadata: util.Collection[Metadata]
   ): Float = {
     import dataset.sparkSession.implicits._
-    import CheckerInstances._
-    import CheckerSyntax._
     import TaggerInstances._
 
     val impl = this.impl.asInstanceOf[DefaultChangePhoneFormatImpl]
-    val tagger = phoneNumberTagger(PhoneNumberFormatComponentType.ordered)
 
     targetMetadata.asScala.toSet
-      .foldLeft[Option[PhoneNumberFormat]](None) {
-        case (_, metadata: PhoneNumberFormat) => Some(metadata)
+      .foldLeft[Option[PhoneNumberFormat[A]]](None) {
+        case (_, metadata: PhoneNumberFormat[A]) => Some(metadata)
         case (optTargetFormat, _) => optTargetFormat
-      }.fold(0.0f) { format =>
-        dataset.schema.toList.map { column =>
-          column.dataType match {
-            case StringType =>
-              val samples = dataset.sample(false, 0.01)
-              val filteredSamples = samples.filter(samples(column.name).isNotNull)
-
-              val forallMatching = filteredSamples
-                .map(_.getAs[String](column.name).matchesFormat(format))
-                .reduce(_ && _)
-
-              val convertibles = filteredSamples
-                .map(_.getAs[String](column.name))
-                .flatMap(number => impl.convert(number, format)(tagger).toOption)
-
-              if (forallMatching) 0f else convertibles.count().toFloat / samples.count().toFloat
-            case _ => 0f
-          }
-        }.max
+      }.fold(0.0f) {
+        case format: PhoneNumberFormat[NANPPhoneNumberFormat] =>
+          dataset.schema.toList.map { column =>
+            column.dataType match {
+              case StringType =>
+                dataset
+                  .filter(dataset(column.name).isNotNull)
+                  .map(_.getAs[String](column.name))
+                  .flatMap(number => impl.convert[NANPPhoneNumberFormat](number, format)(nanpTagger()).toOption.filterNot(_ == number))
+                  .count().toFloat / dataset.count().toFloat
+              case _ => 0f
+            }
+          }.max
+        case format: PhoneNumberFormat[DINPhoneNumberFormat] =>
+          dataset.schema.toList.map { column =>
+            column.dataType match {
+              case StringType =>
+                dataset
+                  .filter(dataset(column.name).isNotNull)
+                  .map(_.getAs[String](column.name))
+                  .flatMap(number => impl.convert[DINPhoneNumberFormat](number, format)(dinTagger()).toOption.filterNot(_ == number))
+                  .count().toFloat / dataset.count().toFloat
+              case _ => 0f
+            }
+          }.max
       }
   }
 }

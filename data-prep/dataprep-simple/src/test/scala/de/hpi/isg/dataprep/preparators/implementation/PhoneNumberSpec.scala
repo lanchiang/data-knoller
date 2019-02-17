@@ -1,42 +1,56 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.metadata.{IllegalPhoneNumberFormatException, PhoneNumberFormat, PhoneNumberFormatComponentType}
+import de.hpi.isg.dataprep.metadata.{IllegalPhoneNumberFormatException, PhoneNumberFormat, PhoneNumberFormatComponent, NANPPhoneNumberFormat}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success}
 
 class PhoneNumberSpec extends FlatSpec with Matchers {
-	import PhoneNumberFormatComponentType._
+	import NANPPhoneNumberFormat._
+	import PhoneNumberFormatComponent._
 	import TaggerInstances._
 
 	"PhoneNumber" should "create an instance from a given number and a format" in {
 		val number = "310-246-1501"
-		val tagger = phoneNumberTagger(List(AreaCode, CentralOfficeCode, LineNumber))
-		val expected = Map[PhoneNumberFormatComponentType, String](AreaCode -> "310", CentralOfficeCode -> "246", LineNumber -> "1501")
+		val tagger = nanpTagger(Some(List(AreaCode, CentralOfficeCode, LineNumber)))
+		val expected = Map[NANPPhoneNumberFormat, String](AreaCode -> "310", CentralOfficeCode -> "246", LineNumber -> "1501")
 
 		PhoneNumber(number)(tagger).components shouldEqual expected
 	}
 
 	it should "create an instance from a given number and a tagger" in {
 		val number = "3102461501"
-		val tagger = phoneNumberTagger(PhoneNumberFormatComponentType.ordered)
-		val expected = Map[PhoneNumberFormatComponentType, String](AreaCode -> "310", CentralOfficeCode -> "246", LineNumber -> "1501")
+		val tagger = nanpTagger()
+		val expected = Map[NANPPhoneNumberFormat, String](AreaCode -> "310", CentralOfficeCode -> "246", LineNumber -> "1501")
 
 		PhoneNumber(number)(tagger).components shouldEqual expected
 	}
 
 	it should "convert a phone number to another format" in {
-		val number = PhoneNumber(Map[PhoneNumberFormatComponentType, String](AreaCode -> "310", CentralOfficeCode -> "246", LineNumber -> "1501"))
+		val number = PhoneNumber(Map[NANPPhoneNumberFormat, String](
+			AreaCode -> "310",
+			CentralOfficeCode -> "246",
+			LineNumber -> "1501"
+		))
 
-		val validFormat = PhoneNumberFormat(List(CountryCode.optional("+1"), AreaCode.optional("200"), CentralOfficeCode.required))
-		val invalidFormat = PhoneNumberFormat(List(CountryCode.required, AreaCode.required, CentralOfficeCode.required, LineNumber.required))
+		val validFormat = PhoneNumberFormat[NANPPhoneNumberFormat](List(
+			Optional(CountryCode, "+1"),
+			Optional(AreaCode, "200"),
+			Required(CentralOfficeCode)
+		))
+		val invalidFormat = PhoneNumberFormat[NANPPhoneNumberFormat](List(
+			Required(CountryCode),
+			Required(AreaCode),
+			Required(CentralOfficeCode),
+			Required(LineNumber)
+		))
 
 		val valid = number.convert(validFormat)
 		val invalid = number.convert(invalidFormat)
 
 		val validExpected = Success {
 			PhoneNumber {
-				Map[PhoneNumberFormatComponentType, String](
+				Map[NANPPhoneNumberFormat, String](
 					CountryCode -> "+1",
 					AreaCode -> "310",
 					CentralOfficeCode -> "246"
@@ -55,7 +69,7 @@ class PhoneNumberSpec extends FlatSpec with Matchers {
 
 	it should "convert a phone number to correctly formatted string" in {
 		PhoneNumber {
-			Map[PhoneNumberFormatComponentType, String](
+			Map[NANPPhoneNumberFormat, String](
 				CountryCode -> "+1",
 				AreaCode -> "310",
 				CentralOfficeCode -> "246",
