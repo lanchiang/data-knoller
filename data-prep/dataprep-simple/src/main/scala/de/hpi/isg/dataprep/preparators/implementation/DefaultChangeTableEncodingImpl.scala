@@ -157,7 +157,9 @@ private class EncodingUnmixer(csvPath: String) {
       reader.prepareForNextLine()
     } while (!detector.isDone && !reader.fileEnd)  // at the end of every line, check if done
 
-    detector.getDetectedCharset
+    // detector bug: if it only read ASCII characters it doesn't detect any encoding
+    // either that, or it wasn't able to detect the encoding, which we can't do anything about
+    if (detector.getDetectedCharset == null) "ascii" else detector.getDetectedCharset
   }
 
   /**
@@ -168,11 +170,11 @@ private class EncodingUnmixer(csvPath: String) {
     this.csvFile.seek(first.startIndex)
     val reader = new ByteLineReader(this.csvFile)
     var lineBytes = Vector[Byte]()
-    var lineStartIndex = reader.currentIndex
+    var lineStartIndex = first.startIndex
     var validEncoding = true
 
     do {  // go through file until we find a line that can't be decoded with first.encoding
-      lineStartIndex = reader.currentIndex
+      lineStartIndex = first.startIndex + reader.currentIndex
       var lineEnd = false
       do {
         lineEnd = reader.readLineBytes()
@@ -208,10 +210,10 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
   private val BUFFER_SIZE = 4096
 
   val buf = new Array[Byte](BUFFER_SIZE)
-  var fileEnd: Boolean = false  // have we reached the file's end?
   var length: Int = 0           // number of valid bytes in buf
-  var currentIndex = 0          // position in file
-  private var bufOffset = 0     // position in buf where to start writing (data before bufOffset is already valid)
+  var currentIndex: Int = 0     // position in file, relative to the position where we started
+  var fileEnd: Boolean = false  // true if currentIndex is at the file end
+  private var lastValidIndex = this.buf.length  // marks the last valid byte in buf
 
 
   /**
@@ -219,26 +221,36 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
     * @return true if a line (or file) end was found
     */
   def readLineBytes(): Boolean = {
-    val bytesRead = this.csvFile.read(this.buf, this.bufOffset, this.buf.length - this.bufOffset)
-    this.bufOffset = 0
+    // make sure we don't overwrite bytes whose line end hasn't been found yet
+    val bufOffset = if (this.length == 0) 0 else this.buf.length - this.length
+    var bytesRead = this.csvFile.read(this.buf, bufOffset, this.buf.length - bufOffset)
+    if (bytesRead == -1) bytesRead = 0  // handle file end
 
-    if (bytesRead == -1) {
-      this.fileEnd = true
-      return true
+    if (bytesRead + bufOffset < this.buf.length) {  // we have reached the end of the file
+      // the rightmost part of this.buf can no longer be filled with new data
+      // move lastValidIndex to the left to ensure we don't read stale data
+      this.lastValidIndex -= this.buf.length - bytesRead - bufOffset
     }
 
     val lineEndIndex = this.buf.indexOf(NEWLINE_CHAR)
-    val hasFoundLineEnd = lineEndIndex != -1
-    this.length = if (hasFoundLineEnd) lineEndIndex + 1 else buf.length
+    var hasFoundLineEnd = lineEndIndex != -1 && lineEndIndex < lastValidIndex
+    this.length = if (hasFoundLineEnd) lineEndIndex + 1 else lastValidIndex
     this.currentIndex += this.length
+
+    if (hasReachedFileEnd && this.length == lastValidIndex) {
+      this.fileEnd = true
+      hasFoundLineEnd = true
+    }
+
     hasFoundLineEnd
   }
+
+  private def hasReachedFileEnd = this.lastValidIndex < this.buf.length
 
   /**
     * Moves bytes from the next line to the beginning of buf, make sure they don't get overwritten by next read
     */
   def prepareForNextLine(): Unit = {
     System.arraycopy(this.buf, this.length, this.buf, 0, this.buf.length - this.length)
-    this.bufOffset = this.length
   }
 }
