@@ -26,7 +26,7 @@ public class FileLoadDialect {
         QUOTE_ALL,
         QUOTE_MINIMAL,
         QUOTE_NONNUMERIC,
-        QUOTE_NONE;
+        QUOTE_NONE
     }
 
     public String getDelimiter() {

@@ -21,13 +21,14 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.define.ChangeTableEncoding;
 import de.hpi.isg.dataprep.preparators.implementation.EncodingUnmixer;
 
-public class ChangeTableEncodingTest extends PreparatorTest {
+public class ChangeTableEncodingTest {
     private static final String CSV_DIR = "./src/test/resources/encoding/";
     private static final String NO_ERRORS_URL = CSV_DIR + "no_encoding_error.csv";
     private static final String IN_CSV_URL = CSV_DIR + "error_character.csv";
     private static final String ERRORS_URL = CSV_DIR + "encoding_error.csv";
     private static final String ERRORS_AND_IN_CSV_URL = CSV_DIR + "both_error_and_error_character.csv";
     private static final String MIXED_CSV_URL = CSV_DIR + "telefonbuchalpha_merged.csv";
+    private static final String SINGLE_LINE_URL = CSV_DIR + "one_line.csv";
     private static final String NON_EXISTENT_URL = CSV_DIR + "list_of_all_the_friends_i_have.csv";
 
     private static final String ENCODING = "UTF-8";
@@ -148,6 +149,25 @@ public class ChangeTableEncodingTest extends PreparatorTest {
         }
     }
 
+    @Test
+    public void testSingleLine() throws IOException {
+        FileLoadDialect dialect = dialectBuilder.url(SINGLE_LINE_URL).buildDialect();
+        FileLoadDialect unmixedDialect = new EncodingUnmixer(SINGLE_LINE_URL).unmixEncoding(dialect);
+
+        DataContext context = new FlatFileDataLoader(unmixedDialect).load();
+        Pipeline pipeline = new Pipeline(context);
+        pipeline.initMetadataRepository();
+        ChangeTableEncoding preparator = new ChangeTableEncoding();
+        pipeline.addPreparation(new Preparation(preparator));
+
+        try {
+            Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getRawData(), null), 0);
+            Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
+        } finally {
+            Files.delete(Paths.get(unmixedDialect.getUrl()));
+        }
+    }
+
     /*
      * helpers
      */
@@ -182,9 +202,5 @@ public class ChangeTableEncodingTest extends PreparatorTest {
         FileLoadDialect dialect = dialectBuilder.url(url).buildDialect();
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         return dataLoader.load();
-    }
-
-    @Override
-    public void cleanUpPipeline() {
     }
 }
