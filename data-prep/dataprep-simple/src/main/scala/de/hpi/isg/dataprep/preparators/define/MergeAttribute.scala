@@ -133,8 +133,35 @@ class MergeAttribute (var attributes:List[String]
 		val result = (Math.max(applicability + bias,0) * weight).toFloat
 		//remember columns for later merge operation
 		this.attributes = columns.toList
+		chi2Test(dataset)
 		//return weighted mergeGoodness
 		result
+	}
+	def chi2Test(dataset: Dataset[Row])={
+		import dataset.sparkSession.implicits._
+	//	if dataset.columns.length != 2 throw Exception("Bla")
+//		val colA = dataset.select(dataset.columns(0))
+//		val colB = dataset.select(dataset.columns(1))
+//		val nA = colA.groupBy(colA.columns(0)).count()
+//		val nB = colB.groupBy(colB.columns(0)).count()
+
+		dataset
+			.groupBy(dataset.columns(0),dataset.columns(1))
+			.count()
+			.show()
+
+//		val countA = nA.map(_.getInt(0)).reduce(_+_)
+//		val countB = nB.map(_.getInt(0)).reduce(_+_)
+//
+//		val n = countA + countB
+//
+//		val Ea = nA
+//        		.map(x => countA * x.getInt(0) / n)
+//		val Eb = nB
+//				.map(x => countB * x.getInt(0) / n)
+//
+//		val chi2 = nA.
+
 	}
 }
 
