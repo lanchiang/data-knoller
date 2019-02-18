@@ -24,7 +24,7 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
     *
     * @return finished Pipeline
     */
-  def createPipeline(): Pipeline = {
+  override def createPipeline(): Pipeline = {
     val bestBranch = findBestBranch(root)
     val newPipe = new Pipeline(bestBranch.dataFrame)
     addToPipe(bestBranch).foreach(newPipe.addPreparation)
