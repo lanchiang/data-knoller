@@ -38,7 +38,7 @@ public class RemovePreambleTest extends PreparatorTest {
                 .inferSchema(true)
                 //.delimiter("\t")
                 //x: works
-                //.url("./src/test/resources/pokemon.csv")//->X
+                .url("./src/test/resources/pokemon.csv")//->X
                 //.url("./src/test/resources/restaurants.tsv")//->x
                 //.url("./src/test/resources/test.csv")//->x
                 //.url("./src/test/resources/test2.csv")//->x
@@ -50,7 +50,7 @@ public class RemovePreambleTest extends PreparatorTest {
                 //.url("./src/test/resources/test7.csv")//->x
                 //.url("./src/test/resources/test8.csv")//-> x,
                 //.url("./src/test/resources/test9.csv")//->x
-                .url("./src/test/resources/test10.csv")//->x
+                //.url("./src/test/resources/test10.csv")//->x
                 //.url("./src/test/resources/test11.csv")//->x
                 .buildDialect();
 

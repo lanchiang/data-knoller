@@ -1,22 +1,8 @@
 package de.hpi.isg.dataprep.preparators
 
-import de.hpi.isg.dataprep.cases.CharTypeVector
-import de.hpi.isg.dataprep.components.Preparation
-import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.model.target.system.{AbstractPreparation, AbstractPreparator}
-import de.hpi.isg.dataprep.preparators.define.{ChangeDateFormat, RemovePreambleHelper}
-import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
-import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import de.hpi.isg.dataprep.preparators.define.RemovePreambleHelper
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
-import org.apache.spark.ml.clustering.BisectingKMeans
-import org.apache.spark.ml.feature.Word2Vec
-import org.apache.spark.ml.linalg.{DenseVector, Vector, Vectors}
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
-
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import org.apache.spark.sql.SparkSession
 
 class RemovePreamble extends PreparatorScalaTest {
 
@@ -92,7 +78,6 @@ class RemovePreamble extends PreparatorScalaTest {
 
   "Initial char with space" should "remove # lines with space" in {
     val localContext = sparkContext
-    import localContext.implicits._
     val fileData = localContext.read
       .option("sep", "\t")
       .csv("../dataprep-simple/src/test/resources/preamble_initial_char_space_fail.csv")
@@ -221,30 +206,4 @@ class RemovePreamble extends PreparatorScalaTest {
 
     RemovePreambleHelper.calculateCharacterTypeSkew(customDataset) shouldEqual 0.25
   }
-
-  "Preparator" should "work in Pipeline" in {
-    /*val preparator = new RemovePreamble
-    val preparation:AbstractPreparation = new Preparation(preparator)
-
-    pipeline.addPreparation(preparation)
-    pipeline.executePipeline()
-
-    pipeline.getErrorRepository.getErrorLogs.size shouldEqual 0
-
-    pipeline.getRawData.collect()shouldEqual List(1)*/
-    val localContext = sparkContext
-    val prep = new DefaultRemovePreambleImpl
-    val customDataset = localContext.read
-      .csv("../dataprep-simple/src/test/resources/test7.csv")
-
-    prep.findPreambleChar(customDataset) shouldEqual "#"
-    prep.fetchSeparatorChar(customDataset) shouldEqual ","
-
-    RemovePreambleHelper.charsInEachLine(customDataset) shouldEqual 0.0
-    RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(customDataset) < 0.1 shouldEqual true
-    RemovePreambleHelper.checkNumberOfColuns(customDataset) shouldEqual 1.0
-
-    RemovePreambleHelper.calculateSeparatorSkew(customDataset) shouldEqual 0.25
-  }
-
 }

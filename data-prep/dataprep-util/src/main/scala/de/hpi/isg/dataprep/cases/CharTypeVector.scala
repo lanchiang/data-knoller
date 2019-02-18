@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.cases
 
-import org.apache.spark.ml.linalg.{DenseVector, Vectors}
+import org.apache.spark.ml.linalg.Vectors
 
 case class CharTypeVector(lowerCaseChars:Int, upperCaseChars:Int, numbers:Int, specialChars:Int) {
   def allChars:Int = lowerCaseChars + upperCaseChars

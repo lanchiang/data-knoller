@@ -1,21 +1,17 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import de.hpi.isg.dataprep.ExecutionContext
+import de.hpi.isg.dataprep.cases.CharTypeVector
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{DatasetError, PreparationError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.{RemovePreamble, RemovePreambleHelper}
-import de.hpi.isg.dataprep.ExecutionContext
-import de.hpi.isg.dataprep.cases.CharTypeVector
+import de.hpi.isg.dataprep.preparators.define.RemovePreambleHelper
+import org.apache.spark.ml.clustering.KMeans
+import org.apache.spark.ml.linalg.{DenseVector, Vectors}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkContext, sql}
+import org.apache.spark.sql
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
-import org.apache.spark.ml.clustering.{BisectingKMeans, KMeans}
-import org.apache.spark.ml.feature._
-import org.apache.spark.ml.linalg.{DenseVector, Vector, VectorUDT, Vectors}
-import org.apache.spark.ml.linalg.SQLDataTypes.VectorType
-import org.apache.spark.ml.param.Param
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 
 import scala.collection.mutable
 /**
@@ -37,9 +33,14 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     val firstCharMetric = RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataFrame_orig)
     var reoccurringCharsMetric = RemovePreambleHelper.charsInEachLine(dataFrame_orig)
 
+    var leadingCharAlgWasApplied = false
+
     // by leading character
-    if(firstCharMetric * reoccurringCharsMetric < 0.25)
+    if(firstCharMetric * reoccurringCharsMetric < 0.25){
       cleanedDataFrame = analyseLeadingCharacter(cleanedDataFrame)
+      leadingCharAlgWasApplied = true
+    }
+
 
     val separatorChar = fetchSeparatorChar(cleanedDataFrame)
 
@@ -50,13 +51,13 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
     val separatorIsNonAlphaNumeric = "[^A-Za-z0-9]".r.pattern.matcher(separatorChar).find()
 
-    if(numberOfColumnsMetric * reoccurringCharsMetric * separatorSkewMetric < 0.125 && separatorIsNonAlphaNumeric)
+    if(numberOfColumnsMetric * reoccurringCharsMetric * separatorSkewMetric < 0.125 && separatorIsNonAlphaNumeric && !leadingCharAlgWasApplied)
       cleanedDataFrame = analyseSeparatorCount(cleanedDataFrame, separatorChar.toString)
 
 
     val typeSkewMetric = RemovePreambleHelper.calculateCharacterTypeSkew(cleanedDataFrame)
     // by clustering
-    if(typeSkewMetric < 0.5)
+    if(typeSkewMetric < 0.5 && !leadingCharAlgWasApplied)
      cleanedDataFrame = findPreambleByTypesOfChars(cleanedDataFrame)
 
     if(cleanedDataFrame.count() == 0)
