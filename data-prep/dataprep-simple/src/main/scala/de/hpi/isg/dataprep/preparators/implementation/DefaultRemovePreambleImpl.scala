@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-import de.hpi.isg.dataprep.model.error.PreparationError
+import de.hpi.isg.dataprep.model.error.{DatasetError, PreparationError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.{RemovePreamble, RemovePreambleHelper}
 import de.hpi.isg.dataprep.ExecutionContext
@@ -32,31 +32,35 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
 
-
-    val numberOfColumnsMetric = RemovePreambleHelper.checkNumberOfColuns(dataFrame_orig)
-    val firstCharMetric = RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataFrame_orig)
-    val reoccurringCharsMetric = RemovePreambleHelper.charsInEachLine(dataFrame_orig)
-    val separatorSkewMetric = RemovePreambleHelper.calculateSeparatorSkew(dataFrame_orig)
-    val typeSkewMetric = RemovePreambleHelper.calculateCharacterTypeSkew(dataFrame_orig)
-
     var cleanedDataFrame = dataFrame_orig
 
+    val firstCharMetric = RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataFrame_orig)
+    var reoccurringCharsMetric = RemovePreambleHelper.charsInEachLine(dataFrame_orig)
+
     // by leading character
-    if(firstCharMetric * reoccurringCharsMetric < 0.5)
+    if(firstCharMetric * reoccurringCharsMetric < 0.25)
       cleanedDataFrame = analyseLeadingCharacter(cleanedDataFrame)
 
     val separatorChar = fetchSeparatorChar(cleanedDataFrame)
 
     // by separator occurrence
-    if(numberOfColumnsMetric*reoccurringCharsMetric*separatorSkewMetric < 0.5)
+    val numberOfColumnsMetric = RemovePreambleHelper.checkNumberOfColuns(cleanedDataFrame)
+    reoccurringCharsMetric = RemovePreambleHelper.charsInEachLine(cleanedDataFrame)
+    val separatorSkewMetric = RemovePreambleHelper.calculateSeparatorSkew(cleanedDataFrame)
+
+    val separatorIsNonAlphaNumeric = "[^A-Za-z0-9]".r.pattern.matcher(separatorChar).find()
+
+    if(numberOfColumnsMetric * reoccurringCharsMetric * separatorSkewMetric < 0.125 && separatorIsNonAlphaNumeric)
       cleanedDataFrame = analyseSeparatorCount(cleanedDataFrame, separatorChar.toString)
 
+
+    val typeSkewMetric = RemovePreambleHelper.calculateCharacterTypeSkew(cleanedDataFrame)
     // by clustering
-    if(typeSkewMetric <= 0.5)
+    if(typeSkewMetric < 0.5)
      cleanedDataFrame = findPreambleByTypesOfChars(cleanedDataFrame)
 
     if(cleanedDataFrame.count() == 0)
-      errorAccumulator.add(PreparationError)
+      errorAccumulator.add(new DatasetError)
 
     new ExecutionContext(cleanedDataFrame, errorAccumulator)
   }
@@ -78,7 +82,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     import dataframe.sparkSession.implicits._
     dataframe
       .map {r => r.mkString.charAt(0).toString}
-      .filter(c => !"[A-Za-z0-9]".r.pattern.matcher(c).find())
+      .filter(c => "[^A-Za-z0-9]".r.pattern.matcher(c).find())
       .groupBy("value")
       .count()
       .toDF("char", "count")
@@ -89,7 +93,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   def analyseSeparatorCount(dataFrame: DataFrame, separator:String): DataFrame = {
 
     val medianSepCount = findMedianSepCount(dataFrame, separator)
-
     dataFrame
       .filter(r => {
         val separatorCounts = separator.r.findAllIn(r.mkString("")).length.toDouble
@@ -113,7 +116,11 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   def dataFrameToCharTypeVectors(dataFrame: RDD[(Row, Long)], session:SparkSession): DataFrame = {
     import session.implicits._
     dataFrame
-      .map(rowTuple => (rowTuple._1.toSeq.map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
+      .map(rowTuple =>
+        (rowTuple._1
+          .toSeq
+          .map(e => if(e == null) "" else e)
+          .map(e => CharTypeVector.fromString(e.toString).toDenseVector), rowTuple._2))
       .toDF("features", "rownumber")
   }
 
@@ -153,6 +160,9 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .filter(r => r.getAs[Int](2) != dataCluster.toInt)
       .groupByKey(r => r.getAs[Long](1))
       .mapGroups((l, iter) => (l,iter.toList.length))
+
+    if(filteredSet.isEmpty)
+      return Array()
 
     // how many cols are there?
     val maxAgreeingCols = filteredSet.reduce((a,b) => if(a._2 > b._2) a else b)._2
@@ -218,10 +228,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
     collectorDataFrame
   }
 
-  //TODO: refactor, delete useless stuff
-
-
-
   def findMedianSepCount(dataFrame: DataFrame, separator:String): Double = {
     import dataFrame.sparkSession.implicits._
     val sepCountFrame = dataFrame
@@ -235,158 +241,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .head
   }
 
-  def outlierWordToVec(dataframe:DataFrame): DataFrame = {
-    val sparkBuilder = SparkSession
-      .builder()
-      .appName("SparkTutorial")
-      .master("local[4]")
-    val sparkContext = sparkBuilder.getOrCreate()
-    import sparkContext.implicits._
-
-    val zippedDataset = dataframe
-      .rdd
-      .zipWithIndex()
-      .flatMap(row => row._1.toSeq.map( v => (v.toString.split(""), row._2, row._1.toSeq.indexOf(v))))
-      .toDF("value", "line", "column")
-
-    for(columnIndex <- dataframe.columns.indices){
-      findPreableForColumn(zippedDataset.filter(r => r.getInt(2) == columnIndex), sparkContext)
-    }
-    dataframe
-  }
-
-  def findPreableForColumn(dataframe:DataFrame, sparkContext: SparkSession): DataFrame  = {
-
-    import sparkContext.implicits._
-
-    val vocabSize = dataframe
-      .map(r => r.getAs[mutable.WrappedArray[String]]("value").head.split("").toList)
-      .reduce(_.union(_))
-      .toSet
-      .size
-
-    val cvModel: CountVectorizerModel = new CountVectorizer()
-      .setInputCol("value")
-      .setOutputCol("features")
-      .setVocabSize(vocabSize)
-      .setMinDF((dataframe.count()*0.1).toInt)
-      .fit(dataframe)
-
-    val result = cvModel.transform(dataframe)
-    val bkm = new KMeans().setK(2).setSeed(1)  //new BisectingKMeans().setK(2).setSeed(1)
-    val modelBM = bkm.fit(result)
-
-    val clusteredVecs = modelBM
-      .transform(result)
-      .toDF
-      .rdd
-      .map { r =>
-        (r.getAs[mutable.WrappedArray[String]](0), r.getLong(1), r.getAs[Int](2), r.getInt(4))
-      }
-      .persist
-      .toDF("value","line", "column", "cluster")
-
-    val largestCluster = clusteredVecs.stat.approxQuantile("cluster",Array(0.5),0.1).head
-
-    clusteredVecs.filter(r => r.getAs("cluster") != largestCluster)
-  }
-
-  def findPreambleByClustering(dataframe: DataFrame,  separator: String): DataFrame ={
-
-    val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
-    import sparkContext.implicits._
-    val kmeans = new KMeans().setK(2).setSeed(1L)
-    val model = kmeans.fit(separatorOcc)
-
-    val predictions = model.transform(separatorOcc)
-
-    val maxCluster = predictions
-      .groupBy("prediction")
-      .count()
-      .collect
-      .maxBy(row => row.getLong(1))
-      .getInt(0)
-
-    val filteredLines = predictions
-      .filter(row => row.getAs("prediction") == maxCluster)
-      .select("rownumber")
-      .map(row => row.getLong(0))
-      .collect
-
-    val resultRDD = dataframe
-      .rdd.zipWithIndex()
-      .filter(row => filteredLines contains row._2)
-      .map(row => row._1)
-      .persist
-
-    sparkContext.createDataFrame(resultRDD, dataframe.schema)
-  }
-
-
-  def findPreambleByMedian(dataframe: DataFrame, separator: String): DataFrame ={
-
-    val (sparkContext: SparkSession, separatorOcc: DataFrame) = createBuilderAndFindSeparator(dataframe, separator)
-
-    val kmeans = new KMeans().setK(2).setSeed(1L).fit(separatorOcc)
-
-    val predictions = kmeans.transform(separatorOcc)
-
-    val maxCluster = predictions
-      .groupBy("prediction")
-      .count()
-      .collect
-      .maxBy(row => row.getLong(1))
-      .getInt(0)
-
-    //get List of Int cluster
-/*
-   val rdd: RDD[Int] = sc.parallelize((1), (2), (5), (3), (2), (4))
-
-    val median = calculateMedian(rdd)
-
-    val filteredLinesByMedian = predictions
-      .filter(row => row.getAs("prediction") == median)
-      .select("rownumber")
-      .map(row => row.getLong(0))
-      .collect
-
-    val resultRDD = dataframe
-      .rdd.zipWithIndex()
-      .filter(row => filteredLinesByMedian contains row._2)
-      .map(row => row._1)
-      .persist
-
-    sparkContext.createDataFrame(resultRDD, dataframe.schema)*/
-    dataframe
-  }
-
-  private def calculateMedian(rdd: RDD[Int]) = {
-    val sorted = rdd.sortBy(identity).zipWithIndex().map {
-      case (v, idx) => (idx, v)
-    }
-    val count = sorted.count()
-
-    val median: Double = if (count % 2 == 0) {
-      val l = count / 2 - 1
-      val r = l + 1
-      (sorted.lookup(l).head + sorted.lookup(r).head).toDouble / 2
-    } else sorted.lookup(count / 2).head.toDouble
-  }
-
-  private def createBuilderAndFindSeparator(dataframe: DataFrame, separator: String) = {
-    val sparkBuilder = SparkSession
-      .builder()
-      .master("local[4]")
-    val sparkContext = sparkBuilder.getOrCreate()
-    import sparkContext.implicits._
-
-    val separatorOcc = dataframe
-      .rdd
-      .zipWithIndex()
-      .map(row => (Vectors.dense(separator.r.findAllIn(row._1.mkString).length), row._2))
-      .toDF("features", "rownumber")
-    (sparkContext, separatorOcc)
-  }
 
 
   /**

@@ -36,6 +36,7 @@ case class CharTypeVector(lowerCaseChars:Int, upperCaseChars:Int, numbers:Int, s
 
 object CharTypeVector{
   def fromString(input:String): CharTypeVector ={
+
     val lcPattern = "([a-z])".r
     val ucPattern = "([A-Z])".r
     val numPattern = "([0-9])".r
@@ -49,7 +50,11 @@ object CharTypeVector{
       }
     })
 
-    val reducedList = b.reduce((a,b) => a.zip(b).map{case(x,y) => x+y})
+    if(b.isEmpty){
+      return CharTypeVector(0,0,0,0)
+    }
+
+    val reducedList = b.reduce((a,b) => (a,b).zipped.map(_ + _))
 
     CharTypeVector(reducedList(0), reducedList(1), reducedList(2), reducedList(3))
   }

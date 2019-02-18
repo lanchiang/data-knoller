@@ -17,19 +17,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row}
   * @author Justus Eilers, Theresia Bruns
   * @since 2018/29/15
   */
-class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamble: Boolean, val rowsToRemove: Integer, val commentCharacter: String) extends AbstractPreparator {
-
-  def this(delimiter: String, hasHeader: String, rowsToRemove: Integer) = this(delimiter, hasHeader, true, rowsToRemove, "")
-
-  def this(delimiter: String, hasHeader: String, commentCharacter: String) = this(delimiter, hasHeader, true, 0, commentCharacter)
-
-  def this(delimiter: String, hasHeader: String) = this(delimiter, hasHeader, true, 0, "")
-
-  def this(delimiter: String, hasHeader: String, hasPreamble: Boolean, rowsToRemove: Integer) = this(delimiter, hasHeader, hasPreamble, rowsToRemove, "")
-
-  def this(delimiter: String, hasHeader: String, hasPreamble: Boolean, commentCharacter: String) = this(delimiter, hasHeader, hasPreamble, 0, commentCharacter)
-
-  def this(delimiter: String, hasHeader: String, hasPreamble: Boolean) = this(delimiter, hasHeader, hasPreamble, 0, "")
+class RemovePreamble extends AbstractPreparator {
 
 
   this.impl = new DefaultRemovePreambleImpl
@@ -41,21 +29,6 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     * @throws Exception
     */
   override def buildMetadataSetup(): Unit = {
-    val prerequisites = new util.ArrayList[Metadata]
-    val tochanges = new util.ArrayList[Metadata]
-
-    if (delimiter == null) throw new ParameterNotSpecifiedException(String.format("Delimiter not specified."))
-    if (hasHeader == null) throw new ParameterNotSpecifiedException(String.format("No information about header"))
-
-    prerequisites.add(new CommentCharacter(delimiter, new FileMetadata("")))
-    prerequisites.add(new RowsToRemove(-1, new FileMetadata("")))
-    prerequisites.add(new Delimiter(delimiter, new FileMetadata("")))
-    prerequisites.add(new HeaderExistence(hasHeader.toBoolean, new FileMetadata("")))
-    prerequisites.add(new PreambleExistence(true))
-    tochanges.add(new PreambleExistence(false))
-
-    this.prerequisites.addAll(prerequisites)
-    this.updates.addAll(tochanges)
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
@@ -100,7 +73,7 @@ object RemovePreambleHelper {
       .map(e => (e._1.mkString("").charAt(0),List(e._2)))
       .reduceByKey(_.union(_))
       .flatMap(row => row._2.groupBy(k => k - row._2.indexOf(k)).toList.map(group => (row._1, group._2.size)))
-      .filter(row => row._1.toString.matches("[^0-9]"))
+      .filter(row => row._1.toString.matches("[^0-9a-zA-Z]"))
       .collect
   }
 
@@ -108,15 +81,22 @@ object RemovePreambleHelper {
 
     val charOccurence = calculateFirstCharOccurrence(dataset)
 
+    if(charOccurence.isEmpty)
+      return 1.0
+
     // score chsrs less if the occur often with different streaks
     val longestSeq = charOccurence.maxBy(a => a._2)
-    if(charOccurence.length == 1){
-      return 0.0
-    }
-    val secondSeq= charOccurence
-      .filter(e => e != longestSeq)
-      .maxBy(a => a._2)
     val numberOfLongestSeq = charOccurence.count(e => e._2 == longestSeq._2)
+
+    if(charOccurence.length == 1){
+      return numberOfLongestSeq.toDouble/longestSeq._2
+    }
+
+    val secondSeq = charOccurence
+      .filter(e => e._1 != longestSeq._1 || e._2 != longestSeq._2)
+      .maxBy(a => a._2)
+
+
     val decisionBound = longestSeq._2/(numberOfLongestSeq + secondSeq._2)
 
     decisionBound > 1 match {
@@ -176,7 +156,8 @@ object RemovePreambleHelper {
     for(col <- dataFrame.columns){
       val thisCount = dataFrame
         .map(_.getAs[String](col))
-        .map(row => (CharTypeVector.fromString(row.toString).simplify,1))
+        .filter(r => !r.isEmpty)
+        .map(row => (CharTypeVector.fromString(row.toString).simplify, 1))
         .groupByKey(_._1)
         .count()
         .count()
