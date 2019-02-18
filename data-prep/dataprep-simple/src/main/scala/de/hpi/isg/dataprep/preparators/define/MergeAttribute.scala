@@ -53,7 +53,7 @@ class MergeAttribute (var attributes:List[String]
       .map(x => if (x.getInt(0) <= 2100 && x.getInt(0) > 0 ) 1 else 0)
       .reduce(_+_)
 
-    if (sumYear / columnWithoutNull.count() == 1)
+    if (sumYear / columnWithoutNull.count() >= 1)
       true
     else
       false
@@ -70,7 +70,7 @@ class MergeAttribute (var attributes:List[String]
 			.map(x => if (x.getInt(0) <= 12 && x.getInt(0) > 0 ) 1 else 0)
 			.reduce(_+_)
 
-    if (sumMonth / columnWithoutNull.count() == 1)
+    if (sumMonth / columnWithoutNull.count() >= 0.95)
       true
     else
       false
@@ -110,8 +110,25 @@ class MergeAttribute (var attributes:List[String]
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]) :Float={
 		import dataset.sparkSession.implicits._
 
-		this.mergeDate = true
-		0
+    val dateCombi =  dataset.columns.seq.flatMap( x=>
+      dataset.columns.map(y=>(y,x))
+    ).filter(x=> x._1 != x._2)
+      .flatMap( x=>
+        dataset.columns.map(y=>(y,x._1,x._2))
+      ).filter(x=> x._3 != x._2)
+      .filter(x=> x._3 != x._1)
+      .filter(x => headerIsDay(x._1) && headerIsMonth(x._2) && headerIsYear(x._3))
+
+
+    if (dateCombi.seq.length>0){
+
+      val result = dateCombi.seq(0)
+      this.attributes = List(result._1,result._2,result._3)
+
+      this.mergeDate = true
+
+      1
+    } else 0
 	}
 
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
