@@ -10,7 +10,6 @@ trait PreparatorLoader {
 
   private def loadAllPreparator(): List[Class[_ <: AbstractPreparator]] = {
     val reflections = new Reflections(path)
-
     reflections.getSubTypesOf(classOf[AbstractPreparator]).asScala.toList
   }
 

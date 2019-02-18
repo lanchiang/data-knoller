@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.preparators.define.DeleteProperty
 class DecisionEngineTest extends DataLoadingConfig {
 
   "The decision engine" should "find the correct prepartor" in {
-    val decisionEngine = new SimpleDecisionEngine()
+    val decisionEngine = new DecisionEngine()
     val expectedPreparator = new DeleteProperty("date")
 
     val preparator = decisionEngine.selectNextPreparation(List[Class[_ <: AbstractPreparator]](classOf[DeleteProperty]), pipeline.getSchemaMapping, pipeline.getRawData, pipeline.getTargetMetadata).get
