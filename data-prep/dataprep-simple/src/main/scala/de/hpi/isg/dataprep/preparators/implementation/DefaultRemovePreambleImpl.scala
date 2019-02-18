@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.RemovePreamble
+import de.hpi.isg.dataprep.preparators.define.{RemovePreamble, RemovePreambleHelper}
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.cases.CharTypeVector
 import org.apache.spark.rdd.RDD
@@ -31,18 +31,34 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
                                       dataFrame_orig: Dataset[sql.Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
 
-    val separatorChar = fetchSeparatorChar(dataFrame_orig)
+
+
+    val numberOfColumnsMetric = RemovePreambleHelper.checkNumberOfColuns(dataFrame_orig)
+    val firstCharMetric = RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataFrame_orig)
+    val reoccurringCharsMetric = RemovePreambleHelper.charsInEachLine(dataFrame_orig)
+    val separatorSkewMetric = RemovePreambleHelper.calculateSeparatorSkew(dataFrame_orig)
+    val typeSkewMetric = RemovePreambleHelper.calculateCharacterTypeSkew(dataFrame_orig)
+
+    var cleanedDataFrame = dataFrame_orig
 
     // by leading character
-    val leadingCharRemovedDataset = analyseLeadingCharacter(dataFrame_orig)
+    if(firstCharMetric * reoccurringCharsMetric < 0.5)
+      cleanedDataFrame = analyseLeadingCharacter(cleanedDataFrame)
+
+    val separatorChar = fetchSeparatorChar(cleanedDataFrame)
 
     // by separator occurrence
-    val unexpectedSepAmountRemovedDataset = analyseSeparatorCount(dataFrame_orig, separatorChar.toString)
+    if(numberOfColumnsMetric*reoccurringCharsMetric*separatorSkewMetric < 0.5)
+      cleanedDataFrame = analyseSeparatorCount(cleanedDataFrame, separatorChar.toString)
 
     // by clustering
-    val unequalCharTypesRemovedDataset = findPreambleChar(dataFrame_orig)
+    if(typeSkewMetric <= 0.5)
+     cleanedDataFrame = findPreambleByTypesOfChars(cleanedDataFrame)
 
-    new ExecutionContext(dataFrame_orig, errorAccumulator)
+    if(cleanedDataFrame.count() == 0)
+      errorAccumulator.add(PreparationError)
+
+    new ExecutionContext(cleanedDataFrame, errorAccumulator)
   }
 
   def fetchSeparatorChar(dataFrame: DataFrame): String = {

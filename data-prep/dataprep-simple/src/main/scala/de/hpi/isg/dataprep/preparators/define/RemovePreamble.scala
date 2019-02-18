@@ -63,10 +63,8 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
     //represents the chance the dataset doesnt have a preamble
     var finalScore = 1.0
 
-    val numberOfColumns = dataset.columns.length
-    if(numberOfColumns == 1) {
-      finalScore *= 0.01
-    }
+    // does the dataframe have more than one column?
+    finalScore *= RemovePreambleHelper.checkNumberOfColuns(dataset)
 
     // Consecutive lines starting with the same character
     finalScore *= RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataset)
@@ -86,6 +84,14 @@ class RemovePreamble(val delimiter: String, val hasHeader: String, val hasPreamb
 }
 
 object RemovePreambleHelper {
+
+  def checkNumberOfColuns(dataFrame: DataFrame): Double = {
+    val numberOfColumns = dataFrame.columns.length
+    if(numberOfColumns == 1) {
+      return 0.25
+    }
+    1
+  }
 
   def calculateFirstCharOccurrence(dataFrame: DataFrame): Array[(Char, Int)] = {
     dataFrame
