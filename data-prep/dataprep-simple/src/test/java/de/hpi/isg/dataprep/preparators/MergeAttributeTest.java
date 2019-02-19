@@ -69,7 +69,6 @@ public class MergeAttributeTest {
 			.url("./src/test/resources/restaurants.tsv")
 			.buildDialect();
 
-//        FileLoadDialect pokemons = new DialectBuilder()
         FileLoadDialect benke = new DialectBuilder()
                 .hasHeader(true)
                 .delimiter(";")
@@ -77,25 +76,14 @@ public class MergeAttributeTest {
                 .url("./src/test/resources/BenkeKarsch.csv")
                 .buildDialect();
 
-//        FileLoadDialect dialect = new DialectBuilder()
-//                .hasHeader(true)
-//                .delimiter("\t")
-//                .inferSchema(true)
-//                .url("./src/test/resources/restaurants.tsv")
-//                .buildDialect();
-
 		SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons);
 		dataContext = dataLoader.load();
 
 		SparkDataLoader dataLoader1 = new FlatFileDataLoader(restaurants);
 		restaurantsContext = dataLoader1.load();
 
-        SparkDataLoader dataLoader2 = new FlatFileDataLoader(benke);
+        SparkDataLoader dataLoader2 = new FlatFileDataLoader(benke,createTargetMetadataManuallyBenke(),createTransformsManuallyBenke());
         benkeContext = dataLoader2.load();
-
-
-//        dataContext.getDataFrame().show();
-		return;
 	}
 
 	@Before
@@ -145,6 +133,8 @@ public class MergeAttributeTest {
     public void mergeUrlTest() throws Exception{
 	    pipeline = new Pipeline(benkeContext);
         List<String> columns = new ArrayList<>();
+        columns.add("url");
+        columns.add("biourl");
         AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
@@ -166,7 +156,7 @@ public class MergeAttributeTest {
 		List<String> columns = new ArrayList<>();
 //		columns.add("stemlemma");
 //		columns.add("stemlemma2");
-		AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
+		AbstractPreparator abstractPreparator = new MergeAttribute();
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
 
@@ -190,27 +180,37 @@ public class MergeAttributeTest {
     public void testMergeDateFunc() throws Exception{
         pipeline = new Pipeline(benkeContext);
 
-        List<String> columns = new ArrayList<>();
-        AbstractPreparator abstractPreparator = new MergeAttribute(columns,"");
+		List<String> columns = new ArrayList<>();
+		columns.add("dateofbirth_day");
+		columns.add("dateofbirth_month");
+		columns.add("dateofbirth_year");
+
+		MergeAttribute abstractPreparator = new MergeAttribute(columns,".");
+
+		//dateofbirth_year|dateofbirth_month|dateofbirth_day
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
+//        DecisionEngine decisionEngine = DecisionEngine.getInstance();
+//        AbstractPreparator selectedPrep =  decisionEngine.selectBestPreparator(pipeline);
+//        pipeline = new Pipeline(benkeContext);
+//        pipeline.addPreparation(new Preparation(selectedPrep));
         pipeline.executePipeline();
         pipeline.getRawData().show();
     }
 
 
-	private Set<Metadata> createTargetMetadataManually() {
+	private static Set<Metadata> createTargetMetadataManually() {
 		Set<Metadata> targetMetadata = new HashSet<>();
-
 		targetMetadata.add(new PreambleExistence(false));
-//        targetMetadata.add(new PropertyDatePattern(DatePattern.DatePatternEnum.MonthDayYear, new ColumnMetadata("date")));
 		targetMetadata.add(new PropertyExistence("stem", true));
-//		targetMetadata.add(new PropertyExistence("day", true));
-//		targetMetadata.add(new PropertyExistence("year", true));
 		targetMetadata.add(new PropertyDataType("stem", DataType.PropertyType.STRING));
-//		targetMetadata.add(new PropertyDataType("day", DataType.PropertyType.STRING));
-//		targetMetadata.add(new PropertyDataType("year", DataType.PropertyType.STRING));
-
+		return targetMetadata;
+	}
+	private static Set<Metadata> createTargetMetadataManuallyBenke() {
+		Set<Metadata> targetMetadata = new HashSet<>();
+		targetMetadata.add(new PreambleExistence(false));
+		targetMetadata.add(new PropertyExistence("firstname", true));
+		targetMetadata.add(new PropertyDataType("firstname", DataType.PropertyType.STRING));
 		return targetMetadata;
 	}
 	private static List<Transform> createTransformsManually() {
@@ -221,6 +221,19 @@ public class MergeAttributeTest {
 			,new Attribute(new StructField("stemlemma2", DataTypes.StringType, true, emptyMetadata))
 		};
 		Attribute targetAttribute = new Attribute(new StructField("stem",DataTypes.StringType,true,  emptyMetadata));
+		Transform mergeAttribute = new TransMergeAttribute(sourceAttributes,targetAttribute);
+		transforms.add(mergeAttribute);
+
+		return transforms;
+	}
+	private static List<Transform> createTransformsManuallyBenke() {
+		// generate schema mapping
+		List<Transform> transforms = new ArrayList<>();
+		Attribute sourceAttributes [] =  new  Attribute[] {
+			new Attribute(new StructField("firstname", DataTypes.StringType, true, emptyMetadata))
+			,new Attribute(new StructField("firstname", DataTypes.StringType, true, emptyMetadata))
+		};
+		Attribute targetAttribute = new Attribute(new StructField("lastname",DataTypes.StringType,true,  emptyMetadata));
 		Transform mergeAttribute = new TransMergeAttribute(sourceAttributes,targetAttribute);
 		transforms.add(mergeAttribute);
 
