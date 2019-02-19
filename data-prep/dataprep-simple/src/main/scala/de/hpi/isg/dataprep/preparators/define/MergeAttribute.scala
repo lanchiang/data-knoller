@@ -138,20 +138,21 @@ class MergeAttribute(var attributes: List[String]
 	  * @return 0 if list of rows is not (day, month, year) or more or less than 3 columns are given. returns 1 if date if found
 	  */
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-		import dataset.sparkSession.implicits._
-		val columns = dataset.columns.toSeq
-		if (columns.length != 3)
-			return 0
-		if(headerIsDay(columns(0)) && headerIsMonth(columns(1)) && headerIsYear(columns(2)))
-		{
-			this.attributes = columns.toList
-			this.connector = "."
-			return 1
-		}
-		else
-			return 0
-	}
-
+    import dataset.sparkSession.implicits._
+    val columns = dataset.columns.toSeq
+    this.attributes = columns.toList
+    this.connector = "."
+    if (columns.length != 3)
+      return 0
+    if (headerIsDay(columns(0)) && headerIsMonth(columns(1)) && headerIsYear(columns(2))) {
+      return 1
+    }
+    else if (isDay(dataset, columns(0)) && isMonth(dataset, columns(1)) && isYear(dataset, columns(2))) {
+      return 1
+    }
+    else
+      return 0
+  }
 	/***
 	  * Calculates calApplicability for columns to merge.
 	  * Expects 2 columns for normal merge and 3 columns for date-parts-merge.
