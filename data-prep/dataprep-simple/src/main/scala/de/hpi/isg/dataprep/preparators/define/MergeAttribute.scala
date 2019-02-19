@@ -11,10 +11,9 @@ import spire.std.float
 
 import scala.collection.JavaConverters._
 class MergeAttribute (var attributes:List[String]
-					 ,val connector:String
+					 ,var connector:String
 					 ,val handleMergeConflict:(String,String) => String = null)
 		extends AbstractPreparator{
-	var mergeDate = false
 	def this()
 	{
 		this(List[String](),"")
@@ -29,7 +28,6 @@ class MergeAttribute (var attributes:List[String]
 	//{
 	//	this(Right(attributes.asScala.toList), connector)
 	//}
-	def isNull(value:String) = value.trim.isEmpty
 
 
 	def mapMerge(row: Row) = MergeUtil.isGoodToMerge(row.getString(0),row.getString(1))
@@ -108,7 +106,7 @@ class MergeAttribute (var attributes:List[String]
 	val bias = -0.75
 
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]) :Float={
-		import dataset.sparkSession.implicits._
+	import dataset.sparkSession.implicits._
 
     val dateCombi =  dataset.columns.seq.flatMap( x=>
       dataset.columns.map(y=>(y,x))
@@ -121,14 +119,12 @@ class MergeAttribute (var attributes:List[String]
 
 
     if (dateCombi.seq.length>0){
-
-      val result = dateCombi.seq(0)
-      this.attributes = List(result._1,result._2,result._3)
-
-      this.mergeDate = true
-
-      1
-    } else 0
+      	val result = dateCombi.seq(0)
+      	this.attributes = List(result._1,result._2,result._3)
+		this.connector = "."
+		1
+    }
+	else 0
 	}
 
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
@@ -141,8 +137,8 @@ class MergeAttribute (var attributes:List[String]
 
 		val applicability = dataset
 				.map( x => {
-					val a = x.get(0).toString
-					val b = x.get(1).toString
+					val a = if (x.isNullAt(0)) null else x.get(0).toString
+					val b = if (x.isNullAt(1)) null else x.get(1).toString
 					MergeUtil.isGoodToMerge(a,b) //calculate mergeGoodness for each row
 				})
 				.reduce(_+_) / dataset.count().toFloat
@@ -150,7 +146,7 @@ class MergeAttribute (var attributes:List[String]
 		val result = (Math.max(applicability + bias,0) * weight).toFloat
 		//remember columns for later merge operation
 		this.attributes = columns.toList
-		chi2Test(dataset)
+//		chi2Test(dataset)
 		//return weighted mergeGoodness
 		result
 	}
@@ -183,11 +179,18 @@ class MergeAttribute (var attributes:List[String]
 }
 
 object MergeUtil extends Serializable{
-	def isNull(value:String) = value.trim.isEmpty
+	def isNull(value:String):Boolean = {
+		if (value == null)
+			true
+ 		else if (value.toLowerCase == "null")
+			true
+		else
+			value.trim.isEmpty
+	}
 	def isGoodToMerge(a:String, b:String):Integer = {
-		if (a.equals(b))
+		if ( isNull(a) || isNull(b))
 			1
-		else if ( isNull(a) || isNull(b))
+		else if (a.equals(b))
 			1
 		else
 			0
