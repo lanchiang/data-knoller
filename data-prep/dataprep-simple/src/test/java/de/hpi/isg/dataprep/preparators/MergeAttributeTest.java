@@ -44,6 +44,8 @@ public class MergeAttributeTest {
 	protected static AbstractPipeline pipeline;
 	protected static DataContext dataContext;
     protected static  DataContext benkeContext;
+	protected static  DataContext benkeContextFull;
+
 	protected static  DataContext restaurantsContext;
 
 	static FileLoadDialect restaurants;
@@ -74,8 +76,15 @@ public class MergeAttributeTest {
                 .hasHeader(true)
                 .delimiter(";")
                 .inferSchema(true)
-                .url("./src/test/resources/BenkeKarsch.csv")
+                .url("./src/test/resources/BenkeKarsch.short.csv")
                 .buildDialect();
+
+		FileLoadDialect benkeFull = new DialectBuilder()
+			.hasHeader(true)
+			.delimiter(";")
+			.inferSchema(true)
+			.url("./src/test/resources/BenkeKarsch.csv")
+			.buildDialect();
 
 		SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons);
 		dataContext = dataLoader.load();
@@ -85,6 +94,9 @@ public class MergeAttributeTest {
 
         SparkDataLoader dataLoader2 = new FlatFileDataLoader(benke,createTargetMetadataManuallyBenke(),createTransformsManuallyBenke());
         benkeContext = dataLoader2.load();
+
+        SparkDataLoader dataLoader3 = new FlatFileDataLoader(benkeFull,createTargetMetadataManuallyBenke(),createTransformsManuallyBenke());
+        benkeContextFull = dataLoader3.load();
 	}
 
 	@Before
@@ -132,7 +144,7 @@ public class MergeAttributeTest {
 
 	@Test
     public void mergeUrlTest() throws Exception{
-	    pipeline = new Pipeline(benkeContext);
+	    pipeline = new Pipeline(benkeContextFull);
         List<String> columns = new ArrayList<>();
         columns.add("url");
         columns.add("biourl");
@@ -179,7 +191,7 @@ public class MergeAttributeTest {
 
 	@Test
     public void testMergeDateFunc() throws Exception{
-        pipeline = new Pipeline(benkeContext);
+        pipeline = new Pipeline(benkeContextFull);
 
 		List<String> columns = new ArrayList<>();
 		columns.add("dateofbirth_day");
@@ -198,22 +210,22 @@ public class MergeAttributeTest {
         pipeline.executePipeline();
         pipeline.getRawData().show();
     }
-//	@Test
-//	public void testMergeDateFuncAppl() throws Exception{
-//		pipeline = new Pipeline(benkeContext);
-//
-//		MergeAttribute abstractPreparator = new MergeAttribute();
-//
-//		//dateofbirth_year|dateofbirth_month|dateofbirth_day
-//		AbstractPreparation preparation = new Preparation(abstractPreparator);
-//		pipeline.addPreparation(preparation);
-//        DecisionEngine decisionEngine = DecisionEngine.getInstance();
-//        AbstractPreparator selectedPrep =  decisionEngine.selectBestPreparator(pipeline);
-//        pipeline = new Pipeline(benkeContext);
-//        pipeline.addPreparation(new Preparation(selectedPrep));
-//		pipeline.executePipeline();
-//		pipeline.getRawData().show();
-//	}
+	@Test
+	public void testMergeDateFuncAppl() throws Exception{
+		pipeline = new Pipeline(benkeContext);
+
+		MergeAttribute abstractPreparator = new MergeAttribute();
+
+		//dateofbirth_year|dateofbirth_month|dateofbirth_day
+		AbstractPreparation preparation = new Preparation(abstractPreparator);
+		pipeline.addPreparation(preparation);
+        DecisionEngine decisionEngine = DecisionEngine.getInstance();
+        AbstractPreparator selectedPrep =  decisionEngine.selectBestPreparator(pipeline);
+        pipeline = new Pipeline(benkeContext);
+        pipeline.addPreparation(new Preparation(selectedPrep));
+		pipeline.executePipeline();
+		pipeline.getRawData().show();
+	}
 
 	@Test
 	public void testMerge() throws Exception{
