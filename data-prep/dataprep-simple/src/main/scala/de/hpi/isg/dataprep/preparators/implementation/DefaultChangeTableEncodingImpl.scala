@@ -32,10 +32,10 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
 
 
     /**
-      * compare the encoding in the metadata with the detected one. On missmatch reload the data with the correct encoding
+      * compare the encoding in the metadata with the detected one. On mismatch reload the data with the correct encoding
       * @return a new ExecutionContext with the correct encoded data
       */
-    val csvPath = preparator.getCsvPath.get  // TODO
+    val csvPath = preparator.getCsvPath.get
     val loadEncoding = preparator.getCurrentEncoding
     val actualEncoding = detectEncoding(csvPath)
     val hasCorrectLoadEncoding = loadEncoding.isDefined && loadEncoding.get == actualEncoding
@@ -61,6 +61,7 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     */
   private def reloadWith(dialect: FileLoadDialect, pipeline: AbstractPipeline): DataFrame = {
     val createdDataset = new FlatFileDataLoader(dialect).load().getDataFrame
+    pipeline.getMetadataRepository.reset()
     pipeline.initMetadataRepository()
     createdDataset
   }

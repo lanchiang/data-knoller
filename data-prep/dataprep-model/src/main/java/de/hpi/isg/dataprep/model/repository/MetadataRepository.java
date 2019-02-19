@@ -55,10 +55,10 @@ public class MetadataRepository implements Serializable {
      */
     public Metadata getMetadata(Metadata metadata) {
         Optional<Metadata> first = metadataPool.stream().filter(metadata_ -> metadata_.equals(metadata)).findFirst();
-        if (first.isPresent()) {
-            return first.get();
-        } else {
-            return null;
-        }
+        return first.orElse(null);
+    }
+
+    public void reset() {
+        metadataPool.clear();
     }
 }

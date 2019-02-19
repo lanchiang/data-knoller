@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -96,11 +97,11 @@ public class ChangeTableEncodingTest {
     /*
      * impl tests
      */
-    @Test
+    @Test(expected = FileNotFoundException.class)
     public void testFileNotFoundHandling() throws Exception {
         DataContext context = load(ERRORS_URL);
         Pipeline pipeline = new Pipeline(context);
-        pipeline.initMetadataRepository();
+        pipeline.getMetadataRepository().reset();
 
         FileLoadDialect newDialect = dialectBuilder.url(NON_EXISTENT_URL).buildDialect();
         pipeline.setDialect(newDialect);
@@ -114,7 +115,6 @@ public class ChangeTableEncodingTest {
     public void testWrongEncodingInCSV() throws Exception {
         DataContext context = load(ERRORS_URL);
         Pipeline pipeline = new Pipeline(context);
-        pipeline.initMetadataRepository();
 
         ChangeTableEncoding preparator = new ChangeTableEncoding();
         pipeline.addPreparation(new Preparation(preparator));

@@ -1,9 +1,10 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 import java.nio.file.{Files, Paths}
 import java.util
 
+import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException
 import de.hpi.isg.dataprep.metadata.{CSVSourcePath, UsedEncoding}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
@@ -20,11 +21,14 @@ class ChangeTableEncoding() extends AbstractPreparator {
   val REPLACEMENT_CHAR = '�'
 
   /**
-    * adds requirements for the tableEncodingPreparator. With the current implementation it is not possible to request a not empty csvPath
+    * Adds requirements for the tableEncodingPreparator.
     */
-
   override def buildMetadataSetup(): Unit = {
-    // TODO path metadata required
+    // manually check metadata since looking for metadata with any value is not suported
+    val csvPath = getCsvPath.getOrElse(throw new MetadataNotFoundException("CSV path not specified in the metadata"))
+    if (!Files.exists(Paths.get(csvPath))) throw new FileNotFoundException("CSV file %s specified in metadata does not exist".format(csvPath))
+
+    getCurrentEncoding.getOrElse(throw new MetadataNotFoundException("CSV read encoding not specified in the metadata"))
   }
 
   /**
@@ -75,7 +79,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     val csvFile = new File(csvPath)
 
     // only handle the complete table
-    if (dataset.columns.sameElements(this.getPreparation.getPipeline.getRawData.columns)) {
+    if (!dataset.columns.sameElements(this.getPreparation.getPipeline.getRawData.columns)) {
       return 0
     }
 
