@@ -29,7 +29,7 @@ class DateScorer(modelFile: String = "model.hdf5", vocabularyFile: String = "voc
   def score(date: String): Float = {
     // dl4j can't handle inputs with size 1 (i.e., only one character)
     // those inputs will also not be a date. therefore we just return 0.0
-    if (date.length == 1) {
+    if (date.length <= 1) {
       return 0.0f
     }
 
