@@ -167,6 +167,18 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     regexValidCount.maxBy(_._2)._1
   }
 
+  /**
+    * This scoring is the implementation of our presented approach. It uses two different kinds of regexes and a keras
+    * deep learning model that is wrapped in the DateScorer class.
+    * The strict regex that is used is the one with the most matches over the whole columns (in regards to the order of
+    * day, month and year). For the fuzzy regex we try out every combination of the order since its purpose is
+    * validating the score of the deep learning model (the model can handle any of the orders of day, month and year).
+    *
+    * @param date the date that is scored
+    * @param scorer wrapper of the deep learning model
+    * @param strictRegex the strict regex with the most matches over the dataset
+    * @return the resulting score of the date (either 1.0 if it is a date or 0.0 if it isn't)
+    */
   def scoreDate(date: String, scorer: DateScorer, strictRegex: DateRegex): Float = {
     val targetPattern = DatePatternEnum.DayMonthYear
     val threshold = 0.5f
@@ -188,6 +200,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
       return 0.0f
     }
 
+    // if any of the fuzzy regexes match the maximum in the result list will be 1.0 (otherwise 0.0)
     val fuzzyScores = fuzzyRegexes.map { regex =>
       try {
         toDate(date, targetPattern, regex)
@@ -196,8 +209,6 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
         case e: Exception => 0.0f
       }
     }
-
-    // if any of the fuzzy regexes matches this will be 1.0 and otherwise it will be 0.0
     fuzzyScores.max
   }
 }

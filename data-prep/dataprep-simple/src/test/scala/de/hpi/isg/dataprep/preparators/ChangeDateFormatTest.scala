@@ -2,6 +2,8 @@ package de.hpi.isg.dataprep.preparators
 
 import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
+import de.hpi.isg.dataprep.metadata.PropertyDatePattern
+import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
 import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
@@ -89,12 +91,34 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
     an[IllegalArgumentException] should be thrownBy implementation.toDate("1/1/1", DatePatternEnum.DayMonthYear, regex)
   }
 
-  "Score" should "be calculated" in {
+  "Applicability score" should "be calculated" in {
+    val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
+    val pokemonData = pipeline.getRawData.select("date")
+    val total = pokemonData.count()
+    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
+    val expectedScore = (pokemonDates.size + pokemonDatesDifferentFormat.size).toFloat / total.toFloat
+    score shouldEqual expectedScore
+  }
+
+  "Applicability score calculation" should "return 0.0 for multiple columns" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
     val pokemonData = pipeline.getRawData
-    val total = pokemonData.count()
-    val expectedScore = pokemonDates.size.toFloat / total.toFloat
-    val score = preparator.calApplicability(null, pokemonData, null)
-    score shouldEqual expectedScore
+    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
+    score shouldEqual 0.0f
+  }
+
+  it should "return 0.0 if the preparator was already executed" in {
+    val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
+    val pokemonData = pipeline.getRawData.select("date")
+    val metadata: Set[Metadata] = Set(new PropertyDatePattern(DatePatternEnum.DayMonthYear, new ColumnMetadata("date")))
+    val score = preparator.calApplicability(null, pokemonData, metadata.asJavaCollection)
+    score shouldEqual 0.0f
+  }
+
+  it should "return 0.0 if the input is not a string column" in {
+    val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
+    val pokemonData = pipeline.getRawData.select("height")
+    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
+    score shouldEqual 0.0f
   }
 }
