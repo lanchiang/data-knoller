@@ -1,6 +1,6 @@
 id,identifier,species_id,height,weight,base_experience,order,is_default,date,stemlemma,stemlemma2,stemlemma_wrong
-1,bulb  asa ur,1,7,69,64,1,1,1989-12-11,worst,worst,worst
-2,ivysaur,2,10,130,141&h(*2,2,1,1988-11-12,best,best,best
+1,bulb  asa ur,1,7,69,64,1,1,1989-12-11,está abierto,worst,worst
+2,ivysaur,2,10,130,141&h(*2,2,1,1988-11-12,murió en 1923,best,best
 three,ven us   aur,3,20,1000,236,3,1,thisIsDate,You are,You are,You are
 4,charmander,4,6,85,62,5,1,1966-02-24,amazingly,amazingly,amazingly
 5,charmeleon,5,11,190,142,6,1,1957-02-05,I am,I am,I am
