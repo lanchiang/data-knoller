@@ -5,15 +5,14 @@ import java.util.Date
 
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
 import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
 import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -22,6 +21,8 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
+  import DefaultChangeDateFormatImpl._
+
   /**
     * The abstract class of preparator implementation.
     *
@@ -100,18 +101,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
                             fieldName: String,
                             targetPattern: DatePatternEnum
                           ): Dataset[Row] = {
-    val regexValidCount = dataset.rdd
-      .flatMap { row =>
-        val date = row.getAs[String](fieldName)
-        DateRegex.allRegexes.map { regex =>
-          val isValid = regex.validMatch(date)
-          val count = if (isValid) 1 else 0
-          (regex, count)
-        }
-      }.reduceByKey(_ + _)
-      .collect
-      .toList
-    val mostMatchedRegex = regexValidCount.maxBy(_._2)._1
+    val dateRegex = getMostMatchedRegex(dataset.rdd.map(_.getAs[String](fieldName)), fuzzy=false)
 
     val errorAccumulator = errorAccumulatorOption.getOrElse(this.createErrorAccumulator(dataset))
     dataset.flatMap { row =>
@@ -121,7 +111,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
       val backpart = seq.takeRight(row.length - index - 1)
 
       val tryRow = Try {
-        val convertedValue = toDate(row.getAs[String](fieldName), targetPattern, mostMatchedRegex)
+        val convertedValue = toDate(row.getAs[String](fieldName), targetPattern, dateRegex)
 
         val newSeq = (forepart :+ convertedValue) ++ backpart
         val newRow = Row.fromSeq(newSeq)
@@ -167,6 +157,24 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
   }
 }
 
+object DefaultChangeDateFormatImpl {
+  def getMostMatchedRegex(dates: RDD[String], fuzzy: Boolean): DateRegex = {
+    val regexValidCount = dates
+      .flatMap { date =>
+        DateRegex.allRegexes(fuzzy).map { regex =>
+          val isValid = regex.validMatch(date)
+          val count = if (isValid) 1 else 0
+          (regex, count)
+        }
+      }.reduceByKey(_ + _)
+        .collect
+        .toList
+
+    // get the tuple with the most matches and select the key of that entry (the regex)
+    regexValidCount.maxBy(_._2)._1
+  }
+}
+
 case class DateRegex(regex: Regex, yearIndex: Int, monthIndex: Int, dayIndex: Int) {
   def validMatch(date: String): Boolean = {
     val matches = regex.findAllMatchIn(date)
@@ -196,12 +204,12 @@ object DateRegex {
   val monthPattern = "(1[012]|0?[1-9])"
   val yearPattern = "(\\d{4})"
 
-  def apply(regexIndex: Int): DateRegex = regexIndex match {
+  def apply(regexIndex: Int, fuzzy: Boolean = false): DateRegex = regexIndex match {
     case 0 =>
       // match any 4 digit year, only 1-12 and 01-12 for the month and 1-31 and 01-31 for the day
       // format DD-MM-YYYY
       DateRegex(
-        s"$dayPattern.*?$monthPattern.*?$yearPattern".r,
+        makeRegex(List(dayPattern, monthPattern, yearPattern), fuzzy),
         dayIndex = 1,
         monthIndex = 2,
         yearIndex = 3)
@@ -209,7 +217,7 @@ object DateRegex {
       // match any 4 digit year, only 1-12 and 01-12 for the month and 1-31 and 01-31 for the day
       // format MM-DD-YYYY
       DateRegex(
-        s"$monthPattern.*?$dayPattern.*?$yearPattern".r,
+        makeRegex(List(monthPattern, dayPattern, yearPattern), fuzzy),
         dayIndex = 2,
         monthIndex = 1,
         yearIndex = 3)
@@ -217,7 +225,7 @@ object DateRegex {
       // match any 4 digit year, only 1-12 and 01-12 for the month and 1-31 and 01-31 for the day
       // format YYYY-MM-DD
       DateRegex(
-        s"$yearPattern.*?$monthPattern.*?$dayPattern".r,
+        makeRegex(List(yearPattern, monthPattern, dayPattern), fuzzy),
         dayIndex = 3,
         monthIndex = 2,
         yearIndex = 1)
@@ -225,12 +233,20 @@ object DateRegex {
       // match any 4 digit year, only 1-12 and 01-12 for the month and 1-31 and 01-31 for the day
       // format YYYY-DD-MM
       DateRegex(
-        s"$yearPattern.*?$dayPattern.*?$monthPattern".r,
+        makeRegex(List(yearPattern, dayPattern, monthPattern), fuzzy),
         dayIndex = 2,
         monthIndex = 3,
         yearIndex = 1)
     case _ => throw new IllegalArgumentException("There are no more regexes")
   }
 
-  def allRegexes: List[DateRegex] = (0 to 3).map(this.apply).toList
+  private def makeRegex(pattern: List[String], fuzzy: Boolean): Regex = {
+    if (fuzzy) {
+      s".*?${pattern.mkString(".*?")}.*?".r
+    } else {
+      pattern.mkString(".?").r
+    }
+  }
+
+  def allRegexes(fuzzy: Boolean = false): List[DateRegex] = (0 to 3).map(this.apply(_, fuzzy)).toList
 }
