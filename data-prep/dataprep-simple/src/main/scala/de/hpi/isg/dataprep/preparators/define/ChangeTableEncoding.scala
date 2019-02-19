@@ -8,7 +8,6 @@ import de.hpi.isg.dataprep.metadata.{CSVSourcePath, UsedEncoding}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import org.apache.directory.api.util.Unicode
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -21,16 +20,27 @@ class ChangeTableEncoding() extends AbstractPreparator {
   val APPLICABILITY_THRESHOLD = 0.001
   val REPLACEMENT_CHAR = '�'
 
+  /**
+    * adds requirements for the tableEncodingPreparator. With the current implementation it is not possible to request a not empty csvPath
+    */
+
   override def buildMetadataSetup(): Unit = {
     // TODO path metadata required
   }
+
+  /**
+    * counts replacement characters in a given csv
+    *
+    * @param csvPath the dialect with which the original file was loaded
+    * @return counted number as int
+    */
 
   def countReplacementChars(csvPath: String): Int = {
     val encoding = getCurrentEncoding.getOrElse(System.getProperty("file.encoding"))
     val replacementChar = REPLACEMENT_CHAR.toString
     val replacementBytes = replacementChar.getBytes(encoding)
     if (!replacementChar.equals(new String(replacementBytes, encoding))) {
-      return 0  // current encoding cannot encode replacementChar => every replacementChar represents an error
+      return 0 // current encoding cannot encode replacementChar => every replacementChar represents an error
     }
 
     var errorCount = 0
@@ -41,7 +51,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     // read the csv byte by byte and search for the byte combination of the replacement char
     var hasNext = inStream.read(buf)
     while (hasNext > 0) {
-      bytesRead = bytesRead.drop(1) :+ buf(0)  // shift array left and append new char
+      bytesRead = bytesRead.drop(1) :+ buf(0) // shift array left and append new char
       if (bytesRead.sameElements(replacementBytes)) {
         errorCount += 1
       }

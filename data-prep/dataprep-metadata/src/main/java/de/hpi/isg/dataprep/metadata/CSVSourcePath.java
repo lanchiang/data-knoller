@@ -39,6 +39,10 @@ public class CSVSourcePath extends Metadata {
                 .map(metadata -> (CSVSourcePath) metadata)
                 .collect(Collectors.toList());
 
+        /**
+         * the metadataRepository should hold exactly one CSVSourcePath, which should be the same as specified in this
+         */
+
         if (matchedInRepo.size() == 0) {
             throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", getClass().getSimpleName()));
         } else if (matchedInRepo.size() > 1) {
