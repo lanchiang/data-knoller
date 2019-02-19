@@ -139,7 +139,6 @@ object AdaptiveDateUtils {
     maybeLocaleDatePattern
   }
 
-  // TODO: the following methods were part of DefaultAdaptive...-class. Check if it's ok to define it here
   def formatToTargetPattern(date: String, targetPattern: DatePatternEnum, maybeDatePattern: Option[LocalePattern])
   : String = {
     if (maybeDatePattern.isDefined) {

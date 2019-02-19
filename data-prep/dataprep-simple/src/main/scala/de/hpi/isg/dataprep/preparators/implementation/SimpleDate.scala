@@ -15,7 +15,6 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
   val splitDate: List[String] = originalDate.split(AdaptiveDateUtils.nonAlphaNumericPattern).toList
   //--------------------------------------------------------
 
-
   def toPattern(alreadyFoundPatterns: List[Option[LocalePattern]]): Option[LocalePattern] = {
     val undeterminedBlocks = ListBuffer[String]()
     // Use already found text patterns
@@ -45,7 +44,6 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
   }
 
   def applyNumberRules(undeterminedBlocks: List[String]): Unit = {
-    // TODO: If multiple blocks are the same, it wouldn't matter which is which
     var leftoverBlocks: List[String] = undeterminedBlocks
 
     for (block <- undeterminedBlocks) { // if there are no undetermined parts left, function will return
@@ -152,10 +150,6 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
   def getSeparators: List[String] = {
     val separatorPattern: Regex = AdaptiveDateUtils.nonAlphaNumericPattern.r
     separatorPattern.findAllMatchIn(originalDate).map(_.toString).toList
-  }
-
-  private def padSingleDigitDates(dates: List[String]): List[String] = {
-    dates.map( date => if (date.length == 1 && date.forall(Character.isDigit)) "0" + date else date )
   }
 
   override def toString: String ={

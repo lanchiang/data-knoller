@@ -10,7 +10,6 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.implementation.{AdaptiveDateUtils, DefaultAdaptiveChangeDateFormatImpl, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
@@ -67,36 +66,30 @@ class AdaptiveChangeDateFormat(val propertyName : String,
         return 0
       }
 
-      // TODO: see if there is a way to prevent building class by either inlining it or circumventing it completely
-      object AgeOrdering extends Ordering[(Int, (PatternCriteria, Iterable[String]))] {
-        def compare(a: (Int, (PatternCriteria, Iterable[String])), b: (Int, (PatternCriteria, Iterable[String]))) = {
+      object ClusterSizeOrdering extends Ordering[(Int, (PatternCriteria, Iterable[String]))] {
+        def compare(a: (Int, (PatternCriteria, Iterable[String])), b: (Int, (PatternCriteria, Iterable[String]))): Int = {
           a._1 compare b._1
         }
       }
 
-      // Num dates in cluster, (Pattern Criteria, clustered dates)
-      val largestClusters = dataset.rdd
+      val largestClusters: Array[(Int, (PatternCriteria, Iterable[String]))] = dataset.rdd
         .map(_(0).toString)
         .groupBy(AdaptiveDateUtils.getSimilarityCriteria)
-        // TODO: check if there's a workaround for explicitly map the size of the clusters here
         .map(group => (group._2.size, group))
-        .takeOrdered(3)(AgeOrdering.reverse)
+        .takeOrdered(3)(ClusterSizeOrdering.reverse)
 
-      var totalNumberOfValues: Int = 0
-      for (entry <- largestClusters) {
-        totalNumberOfValues = totalNumberOfValues + entry._1
-      }
+      val totalNumberOfValues: Float = largestClusters.map(_._1).sum
 
-      // Option[LocalePattern], cluster
-      val datePatternCluster = largestClusters
-        // TODO: ._2._2 looks ugly and is not maintainable if there is a better way use it
-        .map(clusteredDates => (AdaptiveDateUtils.extractClusterDatePattern(clusteredDates._2._2.toList),
-          clusteredDates._2._2.toList))
+      val dateClusters = largestClusters.map(_._2._2)
+
+      val datePatternClusters: Array[(Option[LocalePattern], List[String])] = dateClusters
+        .map(clusteredDates => (AdaptiveDateUtils.extractClusterDatePattern(clusteredDates.toList),
+          clusteredDates.toList))
 
       var failedNumberOfValues = 0
       val targetPattern = DatePatternEnum.DayMonthYear
 
-      for (entry <- datePatternCluster) {
+      for (entry <- datePatternClusters) {
         val optionLocalePattern = entry._1
         for (date <- entry._2) {
           Try{
@@ -108,7 +101,7 @@ class AdaptiveChangeDateFormat(val propertyName : String,
         }
       }
 
-      1.0f - failedNumberOfValues.toFloat / totalNumberOfValues
+      1.0f - failedNumberOfValues / totalNumberOfValues
     }
 
     def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {
