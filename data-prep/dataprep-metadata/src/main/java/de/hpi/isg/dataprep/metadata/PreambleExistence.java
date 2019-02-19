@@ -38,9 +38,4 @@ public class PreambleExistence extends Metadata {
     public boolean isPreambleExistence() {
         return preambleExistence;
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
 }

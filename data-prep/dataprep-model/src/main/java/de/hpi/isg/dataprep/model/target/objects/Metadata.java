@@ -35,7 +35,7 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     transient protected MetadataRepository belongs;
 
     /**
-     * Check whether the value of this metadata reconciles with that in the metadata repository.
+     * Check whether the value of this metadata conform to those in the metadata repository.
      *
      * @param metadataRepository represents the {@link MetadataRepository} of this {@link de.hpi.isg.dataprep.model.target.system.AbstractPipeline}.
      * @throws Exception
@@ -57,10 +57,15 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return scope.getName();
     }
 
+    /**
+     * Equals if this metadata has the same scope as that.
+     * @param o the compared metadata object.
+     * @return
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
