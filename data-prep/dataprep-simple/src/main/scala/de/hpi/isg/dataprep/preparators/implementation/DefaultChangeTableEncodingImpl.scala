@@ -56,7 +56,6 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
 
   /**
     * reload the data with the specified encoding and initialise  the metadataRepository new
-    *
     * @param dialect  the dialect with which the data should be reloaded
     * @param pipeline the actual pipeline for which the metadataRepository has to be reinitialized
     * @return a dataframe with the correct encoding
@@ -70,7 +69,6 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
 
   /**
     * detect the encoding of a csv
-    *
     * @param csvPath the path to the file on which the encoding should be detected
     * @return the detected encoding as a string
     */
