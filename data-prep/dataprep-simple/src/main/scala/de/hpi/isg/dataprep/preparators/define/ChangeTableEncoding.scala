@@ -38,7 +38,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     val replacementChar = REPLACEMENT_CHAR.toString
     val replacementBytes = replacementChar.getBytes(encoding)
     if (!replacementChar.equals(new String(replacementBytes, encoding))) {
-      return 0 // current encoding cannot encode replacementChar => every replacementChar represents an error
+      return 0  // current encoding cannot encode replacementChar => every replacementChar represents an error
     }
 
     var errorCount = 0
@@ -49,7 +49,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     // read the csv byte by byte and search for the byte combination of the replacement char
     var hasNext = inStream.read(buf)
     while (hasNext > 0) {
-      bytesRead = bytesRead.drop(1) :+ buf(0) // shift array left and append new char
+      bytesRead = bytesRead.drop(1) :+ buf(0)  // shift array left and append new char
       if (bytesRead.sameElements(replacementBytes)) {
         errorCount += 1
       }
@@ -75,7 +75,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     val csvFile = new File(csvPath)
 
     // only handle the complete table
-    if (dataset != this.getPreparation.getPipeline.getRawData) {
+    if (dataset.columns.sameElements(this.getPreparation.getPipeline.getRawData.columns)) {
       return 0
     }
 

@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
  * @since 2019/01/19
  */
 public class CSVSourcePath extends Metadata {
-
     private String csvSourcePath;
 
     private CSVSourcePath() {
@@ -39,10 +38,7 @@ public class CSVSourcePath extends Metadata {
                 .map(metadata -> (CSVSourcePath) metadata)
                 .collect(Collectors.toList());
 
-        /**
-         * the metadataRepository should hold exactly one CSVSourcePath, which should be the same as specified in this
-         */
-
+        // the metadataRepository should hold exactly one CSVSourcePath, which should be the same as specified in this
         if (matchedInRepo.size() == 0) {
             throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", getClass().getSimpleName()));
         } else if (matchedInRepo.size() > 1) {
@@ -50,7 +46,7 @@ public class CSVSourcePath extends Metadata {
         } else {
             CSVSourcePath metadataInRepo = matchedInRepo.get(0);
             if (!getCsvSourcePath().equals(metadataInRepo.getCsvSourcePath())) {
-                throw new MetadataNotMatchException(String.format("Metadata value does not match that in the repository."));
+                throw new MetadataNotMatchException("Metadata value does not match that in the repository.");
             }
         }
     }
@@ -58,7 +54,7 @@ public class CSVSourcePath extends Metadata {
     @Override
     public boolean equalsByValue(Metadata metadata) {
         CSVSourcePath o = (CSVSourcePath) metadata;
-        return o.getPath() == getPath();
+        return o.getPath().equals(getPath());
     }
 
     @Override

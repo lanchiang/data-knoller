@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
  * @since 2019/01/19
  */
 public class UsedEncoding extends Metadata {
-
     private String usedEncoding;
 
     private UsedEncoding() {
@@ -54,7 +53,7 @@ public class UsedEncoding extends Metadata {
     @Override
     public boolean equalsByValue(Metadata metadata) {
         UsedEncoding o = (UsedEncoding) metadata;
-        return o.getUsedEncoding() == getUsedEncoding();
+        return o.getUsedEncoding().equals(getUsedEncoding());
     }
 
     @Override
