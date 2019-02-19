@@ -11,6 +11,7 @@ import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 import org.languagetool.Language;
 import org.languagetool.language.*;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class LanguageMetadata extends Metadata {
 
-    public enum LanguageEnum {
+    public enum LanguageEnum implements Serializable {
         ENGLISH(English.class),
         GERMAN(German.class),
         FRENCH(French.class),
@@ -110,7 +111,7 @@ public class LanguageMetadata extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        if (!(metadata instanceof LanguageMetadata))
+        if (!(metadata instanceof LanguageMetadata) || !this.equals(metadata))
             return false;
         Map<Integer, LanguageEnum> otherLangs = ((LanguageMetadata) metadata).getLanguages();
         if(languages == null || otherLangs == null) // ANY

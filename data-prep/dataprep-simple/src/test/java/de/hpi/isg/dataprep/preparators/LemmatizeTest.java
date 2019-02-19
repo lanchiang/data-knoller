@@ -30,9 +30,10 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.executePipeline();
 
         Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
-        langMapping.put(0, LanguageMetadata.LanguageEnum.ENGLISH);
+        langMapping.put(0, null);
+        langMapping.put(1, LanguageMetadata.LanguageEnum.ENGLISH);
         pipeline.getMetadataRepository().getMetadataPool().add(
-                new LanguageMetadata("stemlemma", langMapping, 10)
+                new LanguageMetadata("stemlemma", langMapping, 5)
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
@@ -45,7 +46,7 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
         List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
-        List<String> expected = Arrays.asList("worst", "best", "you be", "amazingly", "I be", "be", "going", "war", "Fred s house", "succeed");
+        List<String> expected = Arrays.asList("está abierto", "murió en 1923", "Qué haces en mi casa?", "yo estoy muy cansado", "Vete al diablo!", "be", "amazingly", "you be", "Fred s house", "succeed");
         Assert.assertEquals(expected, actualStemlemma);
         Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LemmatizedMetadata("stemlemma")));
     }
@@ -59,14 +60,24 @@ public class LemmatizeTest extends PreparatorTest {
 
         Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
         langMapping.put(0, LanguageMetadata.LanguageEnum.SPANISH);
+        langMapping.put(1, null);
         pipeline.getMetadataRepository().getMetadataPool().add(
-                new LanguageMetadata("stemlemma", langMapping, 10)
+                new LanguageMetadata("stemlemma", langMapping, 5)
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();
 
         pipeline.getRawData().show();
+        pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
+        List<ErrorLog> errorLogs = new ArrayList<>();
+        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
+        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
+
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+        List<String> expected = Arrays.asList("estar abrir", "morir en 1923", "qué hacer en mi casa", "yo estar muy cansar", "vetar a+el diablo", "are", "amazingly", "You are", "Fred's house", "succeeded");
+        Assert.assertEquals(expected, actualStemlemma);
+        Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LemmatizedMetadata("stemlemma")));
     }
 
     @Test

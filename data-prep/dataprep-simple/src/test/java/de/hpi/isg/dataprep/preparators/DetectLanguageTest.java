@@ -21,7 +21,7 @@ public class DetectLanguageTest extends PreparatorTest {
 
     @Test
     public void testLanguageDetection() throws Exception {
-        AbstractPreparator abstractPreparator = new DetectLanguagePreparator("stemlemma", 10);
+        AbstractPreparator abstractPreparator = new DetectLanguagePreparator("stemlemma", 5);
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
@@ -33,7 +33,37 @@ public class DetectLanguageTest extends PreparatorTest {
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
         Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
-        langMapping.put(0, LanguageMetadata.LanguageEnum.ENGLISH);
+        langMapping.put(0, LanguageMetadata.LanguageEnum.SPANISH);
+        langMapping.put(1, LanguageMetadata.LanguageEnum.ENGLISH);
         Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LanguageMetadata("stemlemma", langMapping)));
     }
+
+    @Test
+    public void testUnsupportedLanguages() throws Exception {
+        AbstractPreparator abstractPreparator = new DetectLanguagePreparator("stemlemma", 2);
+
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
+
+        List<ErrorLog> realErrorLogs = pipeline.getErrorRepository().getErrorLogs();
+        Assert.assertEquals(2, realErrorLogs.size());
+
+        PreparationErrorLog italianError = (PreparationErrorLog) realErrorLogs.get(0);
+        Assert.assertEquals("DetectLanguagePreparator", italianError.getPreparation().getName());
+        Assert.assertEquals("LanguageMetadata class org.languagetool.language.Italian not supported",
+                            italianError.getErrorMessage());
+        Assert.assertEquals("stemlemma", italianError.getValue());
+
+        PreparationErrorLog bretonError = (PreparationErrorLog) realErrorLogs.get(1);
+        Assert.assertEquals("DetectLanguagePreparator", bretonError.getPreparation().getName());
+        Assert.assertEquals("LanguageMetadata class org.languagetool.language.Breton not supported",
+                bretonError.getErrorMessage());
+        Assert.assertEquals("stemlemma", bretonError.getValue());
+    }
+
+
+
 }

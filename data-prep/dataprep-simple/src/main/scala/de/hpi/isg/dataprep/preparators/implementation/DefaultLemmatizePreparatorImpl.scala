@@ -16,8 +16,6 @@ import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.sql.functions.lit
 import org.languagetool.{AnalyzedToken, AnalyzedTokenReadings, JLanguageTool, Language}
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
 
@@ -28,6 +26,7 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
 
   def lemmatizeString(str: String, language: Class[_ <: Language]): String = {
     val lt = new JLanguageTool(language.newInstance())
+    import scala.collection.JavaConverters._
     val analyzedSentences = lt.analyzeText(str).asScala
 
     val tokens = analyzedSentences.map(
@@ -37,7 +36,12 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
       throw new Exception("Empty field")
 
     val lemmatized = tokens.map(
-      t => if (t.getReadings.size() > 0) t.getReadings.get(0).getLemma else t.getToken
+      t => {
+        if (t.getReadings.size() > 0)
+          if(t.getReadings.get(0).getLemma == null) t.getReadings.get(0).getToken else t.getReadings.get(0).getLemma
+        else
+          t.getToken
+      }
     ).mkString(" ")
     lemmatized
   }
@@ -90,6 +94,8 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
         val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
           if (newIndex == index && language != null)
             lemmatizeString(operatedValue, language.getType)
+          else if (newIndex == index)
+            operatedValue
           else
             value
         }

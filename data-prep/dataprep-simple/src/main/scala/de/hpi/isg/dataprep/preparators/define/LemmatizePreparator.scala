@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
@@ -9,6 +10,7 @@ import de.hpi.isg.dataprep.metadata.{LanguageMetadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.util.DataType
+import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{Dataset, Row}
 
 class LemmatizePreparator extends AbstractPreparator with Serializable {
@@ -47,12 +49,13 @@ class LemmatizePreparator extends AbstractPreparator with Serializable {
       case 1 => {
         propertyName = schema.fields(0).name
 
-        val metadataRepository = this.getPreparation().getPipeline().getMetadataRepository()
-
+        import scala.collection.JavaConverters._
         val languageMetadata = new LanguageMetadata(propertyName, null) // any language
-        val hasLanguageMetadata = metadataRepository.containByValue(languageMetadata)
-        val stringMetadata = new PropertyDataType(propertyName, DataType.PropertyType.STRING)
-        val hasStringMetadata = metadataRepository.containByValue(stringMetadata)
+        val hasLanguageMetadata = targetMetadata.asScala.exists(md =>
+          md.isInstanceOf[LanguageMetadata] && md.asInstanceOf[LanguageMetadata].equalsByValue(languageMetadata))
+
+        val hasStringMetadata = DataType.getSparkTypeFromInnerType(
+          dataprep.util.DataType.PropertyType.STRING).equals(schema.fields(0).dataType)
 
         if (hasLanguageMetadata && hasStringMetadata) {
           1

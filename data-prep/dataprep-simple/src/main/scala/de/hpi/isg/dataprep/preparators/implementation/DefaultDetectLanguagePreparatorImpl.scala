@@ -1,18 +1,17 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
+import java.util
+
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
 import de.hpi.isg.dataprep.metadata.{LanguageMetadata, UnsupportedLanguageException}
-import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError, RecordError}
+import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator
-import org.apache.spark.sql.{Dataset, Row, functions}
+import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
-import org.languagetool.{JLanguageTool, Language}
 import org.languagetool.language.LanguageIdentifier
-
-import scala.collection.JavaConverters._
 
 /**
   * Created by znnr on 14.01.19.
@@ -33,7 +32,6 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
     val propertyName = preparator.propertyName
 
     val detector = new LanguageIdentifier(2000)
-
     val langPerChunk = dataFrame.select(propertyName)
       .collect().grouped(preparator.chunkSize).zipWithIndex.map(rowChunkWithId => {
       val rowChunk = rowChunkWithId._1
@@ -50,9 +48,11 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
           errorAccumulator.add(new PropertyError(propertyName, e))
           (index.asInstanceOf[Integer], null)
       }
-    }).toMap.asJava
+    }).toMap
+    val javaMap = new util.HashMap[Integer, LanguageEnum]()
+    langPerChunk.foreach(entry => javaMap.put(entry._1, entry._2))
 
-    val langMetadata = new LanguageMetadata(propertyName, langPerChunk, preparator.chunkSize)
+    val langMetadata = new LanguageMetadata(propertyName, javaMap, preparator.chunkSize)
     abstractPreparator.addUpdateMetadata(langMetadata)
 
     new ExecutionContext(dataFrame, errorAccumulator)
