@@ -55,5 +55,6 @@ class DateScorerTest extends FlatSpecLike with Matchers {
     val scorer = new DateScorer()
     scorer.score("1") shouldEqual 0.0f
     scorer.score("a") shouldEqual 0.0f
+    scorer.score("") shouldEqual 0.0f
   }
 }
