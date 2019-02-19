@@ -18,6 +18,10 @@ object SplitPropertyUtils {
   }
 
   def bestStringSeparatorCandidates(value: String, numCols: Int): Vector[(String, Int)] = {
+    val allCandidates = allStringSeparatorCandidates(value)
+    if (allCandidates.isEmpty) {
+      throw new IllegalArgumentException("Could not find any string separator candidates.")
+    }
     val sameDiffCandidates = allStringSeparatorCandidates(value)
       .groupBy { case (_, count) => Math.abs(count + 1 - numCols) }
       .minBy { case (diff, _) => diff }
@@ -34,7 +38,11 @@ object SplitPropertyUtils {
   }
 
   def bestCharacterClassSeparatorCandidates(value: String, numCols: Int): Vector[(String, Int)] = {
-    getCharacterClassTransitions(value)
+    val allCandidates = getCharacterClassTransitions(value)
+    if (allCandidates.isEmpty) {
+      throw new IllegalArgumentException("Could not find any character class separator candidates.")
+    }
+    allCandidates
       .groupBy { case (_, count) => Math.abs(count + 1 - numCols) }
       .minBy { case (diff, _) => diff }
       ._2
