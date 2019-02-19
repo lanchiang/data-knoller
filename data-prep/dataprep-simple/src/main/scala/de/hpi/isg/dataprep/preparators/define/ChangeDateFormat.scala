@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.types.StringType
@@ -20,6 +20,12 @@ import collection.JavaConverters._
 class ChangeDateFormat(val propertyName: String,
                        val sourceDatePattern: Option[DatePatternEnum] = None,
                        val targetDatePattern: Option[DatePatternEnum] = None) extends AbstractPreparator {
+
+  /**
+    * Empty parameter constructor for the decision engine.
+    */
+  def this() { this(null) }
+
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of
     * metadata into both prerequisite and toChange set.

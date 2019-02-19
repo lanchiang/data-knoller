@@ -27,6 +27,12 @@ class DateScorer(modelFile: String = "model.hdf5", vocabularyFile: String = "voc
     * @return the score as float since the underlying data type is float as well
     */
   def score(date: String): Float = {
+    // dl4j can't handle inputs with size 1 (i.e., only one character)
+    // those inputs will also not be a date. therefore we just return 0.0
+    if (date.length == 1) {
+      return 0.0f
+    }
+
     val tokens = tokenize(date)
     val data = new NDArray(new IntBuffer(tokens.toArray))
     val prediction = model.output(data)

@@ -50,4 +50,10 @@ class DateScorerTest extends FlatSpecLike with Matchers {
     // now the oov token is 1
     tokens shouldEqual List(5, 1, 1, 1, 1)
   }
+
+  it should "score single char strings without error" in {
+    val scorer = new DateScorer()
+    scorer.score("1") shouldEqual 0.0f
+    scorer.score("a") shouldEqual 0.0f
+  }
 }
