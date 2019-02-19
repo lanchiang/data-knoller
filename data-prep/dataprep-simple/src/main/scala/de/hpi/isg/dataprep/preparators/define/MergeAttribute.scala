@@ -136,11 +136,20 @@ class MergeAttribute(var attributes: List[String]
 
 	}
 
-	def getColumnsWithoutNull(dataset: Dataset[Row], columnName: String) = {
+	/***
+	  * Return a dataset with only the given column, all null rows removed and converted to int.
+	  * @param dataset input dataset
+	  * @param columnName name of the column to keep
+	  * @return	dataset[Int] none null rows in the given collumn
+	  */
+	def getColumnsWithoutNull(dataset: Dataset[Row], columnName: String):Dataset[Int] = {
 		import dataset.sparkSession.implicits._
 		dataset
 				.select(columnName)
-				.filter(x => !MergeUtil.isNull(x.getString(0)))
+				.filter(x => {
+					val str = if (x.isNullAt(0)) null else x.get(0).toString
+					!MergeUtil.isNull(str)
+				})
 				.map(x => x.getString(0).toInt)
 	}
 
@@ -264,6 +273,13 @@ object MergeUtil extends Serializable {
 		merge(a, b, " ")
 	}
 
+	/***
+	  * Merges two strings and use handleConflicts - function to handle mergeconflicts.
+	  * @param col1 String to merge
+	  * @param col2	2nd String to merge
+	  * @param handleConflicts function to handle merge-conflicts
+	  * @return merged string
+	  */
 	def merge(col1: String, col2: String, handleConflicts: (String, String) => String): String = {
 		if (MergeUtil.isNull(col1))
 			col2
@@ -275,6 +291,13 @@ object MergeUtil extends Serializable {
 			handleConflicts(col1, col2)
 	}
 
+	/***
+	  * Merge two strings by concatenation.
+	  * @param col1 first String
+	  * @param col2 second String
+	  * @param connector connector between Strings
+	  * @return	null if both strings are null, or one string only if the other is null, else col1 + connector + col2
+	  */
 	def merge(col1: String, col2: String, connector: String): String = {
 		if (MergeUtil.isNull(col1) && MergeUtil.isNull(col2))
 			null
