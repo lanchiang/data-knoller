@@ -58,14 +58,14 @@ class MergeAttribute(var attributes: List[String]
 	/***
 	  * Check column contents to check if it contains the year part of a date.
 	  * @param dataset dataset to find year in
-	  * @param header name of column to inspect
+	  * @param columnName name of column to inspect
 	  * @return true if column is year
 	  */
-	def isYear(dataset: Dataset[Row], header: String): Boolean = {
+	def isYear(dataset: Dataset[Row], columnName: String): Boolean = {
 		import dataset.sparkSession.implicits._
 
 		val columnWithoutNull = dataset
-				.select(header)
+				.select(columnName)
 				.filter(x => MergeUtil.isNull(x.get(0).toString))
 
 		val sumYear = columnWithoutNull
@@ -81,14 +81,14 @@ class MergeAttribute(var attributes: List[String]
 	/***
 	  * Check column contents to check if it contains the month part of a date.
 	  * @param dataset dataset to find month in
-	  * @param header name of column to inspect
+	  * @param columnName name of column to inspect
 	  * @return true if column is month
 	  */
-	def isMonth(dataset: Dataset[Row], header: String): Boolean = {
+	def isMonth(dataset: Dataset[Row], columnName: String): Boolean = {
 		import dataset.sparkSession.implicits._
 
 		val columnWithoutNull = dataset
-				.select(header)
+				.select(columnName)
 				.filter(x => x.get(0).toString.trim.isEmpty)
 
 		val sumMonth = columnWithoutNull
@@ -104,14 +104,14 @@ class MergeAttribute(var attributes: List[String]
 	/***
 	  * Check column contents to check if it contains the day part of a date.
 	  * @param dataset dataset to find day in
-	  * @param header name of column to inspect
+	  * @param columnName name of column to inspect
 	  * @return true if column is day
 	  */
-	def isDay(dataset: Dataset[Row], header: String): Boolean = {
+	def isDay(dataset: Dataset[Row], columnName: String): Boolean = {
 		import dataset.sparkSession.implicits._
 
 		val columnWithoutNull = dataset
-				.select(header)
+				.select(columnName)
 				.filter(x => x.get(0).toString.trim.isEmpty)
 
 		val sumDay = columnWithoutNull
@@ -123,7 +123,7 @@ class MergeAttribute(var attributes: List[String]
 		else
 			false
 	}
-	
+
 	override def buildMetadataSetup(): Unit = {
 
 	}
@@ -256,6 +256,28 @@ object MergeUtil extends Serializable {
 	  * @return merged string of a and b
 	  */
 	def handleMergeConflicts(a: String, b: String) = {
-		a + " " + b
+		merge(a,b, " ")
+	}
+
+	def merge(col1:String,col2:String, handleConflicts:(String,String)=>String): String = {
+		if (MergeUtil.isNull(col1))
+			col2
+		else if (MergeUtil.isNull(col2))
+			col1
+		else if (col1.equals(col2))
+			col1
+		else
+			handleConflicts(col1,col2)
+	}
+
+	def merge(col1:String, col2:String, connector: String):String = {
+		if(MergeUtil.isNull(col1) && MergeUtil.isNull(col2))
+			null
+		else if(MergeUtil.isNull(col1))
+			col2
+		else if (MergeUtil.isNull(col2))
+			col1
+		else
+			col1 + connector + col2
 	}
 }

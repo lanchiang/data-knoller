@@ -63,14 +63,7 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 
 	def merge(connector: String): UserDefinedFunction =
 		udf((col1: String,col2: String) => {
-			if(MergeUtil.isNull(col1) && MergeUtil.isNull(col2))
-				null
-			else if(MergeUtil.isNull(col1))
-				col2
-			else if (MergeUtil.isNull(col2))
-				col1
-			else
-				col1 + connector + col2
+			MergeUtil.merge(col1,col2,connector)
 	})
 
 	/***
@@ -85,7 +78,7 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 	  */
 	def merge(handleConflicts:(String,String)=>String):UserDefinedFunction =
 	udf((col1: String,col2: String) => {
-		if (MergeUtil.isNull(col1)) col2 else if (MergeUtil.isNull(col2)) col1 else if (col1.equals(col2)) col1  else handleConflicts(col1,col2)
+		MergeUtil.merge(col1,col2,handleConflicts)
 	})
 
 	/**

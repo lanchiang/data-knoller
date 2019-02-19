@@ -28,6 +28,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,14 +43,14 @@ public class MergeAttributeTest {
 	protected static Dataset<Row> dataset;
 	protected static AbstractPipeline pipeline;
 	protected static DataContext dataContext;
-
+    protected static  DataContext benkeContext;
 	protected static  DataContext restaurantsContext;
+
 	static FileLoadDialect restaurants;
 	static FileLoadDialect pokemons;
 
 	protected static org.apache.spark.sql.types.Metadata emptyMetadata = org.apache.spark.sql.types.Metadata.empty();
 
-    protected static  DataContext benkeContext;
 
 	@BeforeClass
 	public static void setUp() {
@@ -197,6 +198,43 @@ public class MergeAttributeTest {
         pipeline.executePipeline();
         pipeline.getRawData().show();
     }
+//	@Test
+//	public void testMergeDateFuncAppl() throws Exception{
+//		pipeline = new Pipeline(benkeContext);
+//
+//		MergeAttribute abstractPreparator = new MergeAttribute();
+//
+//		//dateofbirth_year|dateofbirth_month|dateofbirth_day
+//		AbstractPreparation preparation = new Preparation(abstractPreparator);
+//		pipeline.addPreparation(preparation);
+//        DecisionEngine decisionEngine = DecisionEngine.getInstance();
+//        AbstractPreparator selectedPrep =  decisionEngine.selectBestPreparator(pipeline);
+//        pipeline = new Pipeline(benkeContext);
+//        pipeline.addPreparation(new Preparation(selectedPrep));
+//		pipeline.executePipeline();
+//		pipeline.getRawData().show();
+//	}
+
+	@Test
+	public void testMerge() throws Exception{
+		String a = "Hallo";
+		String b = "Welt";
+		String connector = "-";
+		String expectedResult = a + connector + b;
+		String result = MergeUtil.merge(a,b,connector);
+
+		Assert.assertEquals(expectedResult,result);
+	}
+
+//	@Test
+//	public void testMergeConflict() throws Exception{
+//		String a = "Hallo";
+//		String b = "Welt";
+//		String expectedResult = a + " " + b;
+//		String result = MergeUtil.merge(a,b,MergeUtil::handleMergeConflicts);
+//
+//		Assert.assertEquals(expectedResult,result);
+//	}
 
 
 	private static Set<Metadata> createTargetMetadataManually() {
@@ -239,6 +277,7 @@ public class MergeAttributeTest {
 
 		return transforms;
 	}
+
 
 	@Test
 	public void testAttributeMergeWithInt() throws Exception {
