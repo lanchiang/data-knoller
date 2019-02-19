@@ -12,7 +12,6 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.{Dataset, Row}
 
 /**
-  *
   * @author Lukas Behrendt, Lisa Ihde, Oliver Clasen
   * @since 2018/11/29
   */
@@ -30,7 +29,6 @@ class ChangeTableEncoding() extends AbstractPreparator {
 
   /**
     * counts replacement characters in a given csv
-    *
     * @param csvPath the dialect with which the original file was loaded
     * @return counted number as int
     */

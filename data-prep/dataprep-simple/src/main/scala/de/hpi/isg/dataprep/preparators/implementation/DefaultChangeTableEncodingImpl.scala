@@ -18,7 +18,6 @@ import org.apache.spark.util.CollectionAccumulator
 import org.mozilla.universalchardet.UniversalDetector
 
 /**
-  *
   * @author Lukas Behrendt, Lisa Ihde, Oliver Clasen
   * @since 2018/11/29
   */
@@ -34,7 +33,6 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
 
     /**
       * compare the encoding in the metadata with the detected one. On missmatch reload the data with the correct encoding
-      *
       * @return a new ExecutionContext with the correct encoded data
       */
 
@@ -103,7 +101,6 @@ private class EncodingUnmixer(csvPath: String) {
 
   /**
     * Range of bytes for which an encoding was detected
-    *
     * @param startPos position of the first byte (inclusive)
     * @param endPos   position of the last byte (exclusive)
     * @param encoding the encoding that was detected
@@ -114,7 +111,6 @@ private class EncodingUnmixer(csvPath: String) {
 
   /**
     * Converts a file with multiple encodings into a consistently encoded file
-    *
     * @param dialect the dialect with which the original file was loaded
     * @return a dialect pointing to the new file and with the correct encoding
     */
@@ -229,7 +225,6 @@ private class EncodingUnmixer(csvPath: String) {
 
   /**
     * Moves the boundary between two units to the exact point where the encoding changes
-    *
     * @return the corrected units
     */
   private def correctBoundary(first: DetectionUnit, second: DetectionUnit): (DetectionUnit, DetectionUnit) = {
@@ -276,14 +271,13 @@ private class ByteLineReader(csvFile: RandomAccessFile) {
   private val BUFFER_SIZE = 4096
 
   val buf = new Array[Byte](BUFFER_SIZE)
-  var length: Int = 0 // number of valid bytes in buf
-  var currentPos: Int = 0 // position in file, relative to the position where we started
-  var fileEnd: Boolean = false // true if currentPos is at the file end
+  var length: Int = 0            // number of valid bytes in buf
+  var currentPos: Int = 0        // position in file, relative to the position where we started
+  var fileEnd: Boolean = false   // true if currentPos is at the file end
   private var lastValidIndex = this.buf.length // marks the last valid byte in buf
 
   /**
     * Reads bytes into the buffer until the buffer is full or a line end is found
-    *
     * @return true if a line (or file) end was found
     */
   def readLineBytes(): Boolean = {

@@ -57,7 +57,8 @@ public class CSVSourcePath extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        return false;
+        CSVSourcePath o = (CSVSourcePath) metadata;
+        return o.getPath() == getPath();
     }
 
     @Override
