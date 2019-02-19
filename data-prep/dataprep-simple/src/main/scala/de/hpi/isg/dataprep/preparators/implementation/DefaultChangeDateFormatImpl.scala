@@ -45,8 +45,8 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     val sourcePatternOpt = preparator.sourceDatePattern
 
     val createdDataset = sourcePatternOpt match {
-      case Some(pattern) => convertDateInDataset(dataFrame, rowEncoder, Option(errorAccumulator), fieldName, pattern, targetPattern)
-      case None => convertDateInDataset(dataFrame, rowEncoder, Option(errorAccumulator), fieldName, targetPattern)
+      case Some(pattern) => convertDateInDataset(dataFrame, rowEncoder, errorAccumulator, fieldName, pattern, targetPattern)
+      case None => convertDateInDataset(dataFrame, rowEncoder, errorAccumulator, fieldName, targetPattern)
     }
 
     createdDataset.persist()
@@ -60,12 +60,11 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
   def convertDateInDataset(
                             dataset: Dataset[Row],
                             rowEncoder: ExpressionEncoder[Row],
-                            errorAccumulatorOption: Option[CollectionAccumulator[PreparationError]],
+                            errorAccumulator: CollectionAccumulator[PreparationError],
                             fieldName: String,
                             sourcePattern: DatePatternEnum,
                             targetPattern: DatePatternEnum
                           ): Dataset[Row] = {
-    val errorAccumulator = errorAccumulatorOption.getOrElse(this.createErrorAccumulator(dataset))
     dataset.flatMap { row =>
       val index = row.fieldIndex(fieldName)
       val seq = row.toSeq
@@ -89,36 +88,64 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     }(rowEncoder)
   }
 
+  /**
+    * The date conversion uses a combination of regexes and a deep learning model. It takes the most frequent matching
+    * strict and fuzzy regex and applies them according to our presented approach (first strict, if it doesnt work
+    * and the score is high enough then the fuzzy regex).
+    *
+    * @param dataset the dataset that is preparated
+    * @param rowEncoder rowencoder used to work on the dataset
+    * @param errorAccumulator collects thrown errors
+    * @param fieldName the field that this preparator works on
+    * @param targetPattern the target date pattern to which the dates are converted
+    * @return dataset containing the converted column
+    */
   def convertDateInDataset(
                             dataset: Dataset[Row],
                             rowEncoder: ExpressionEncoder[Row],
-                            errorAccumulatorOption: Option[CollectionAccumulator[PreparationError]],
+                            errorAccumulator: CollectionAccumulator[PreparationError],
                             fieldName: String,
                             targetPattern: DatePatternEnum
                           ): Dataset[Row] = {
-    val dateRegex = getMostMatchedRegex(dataset.rdd.map(_.getAs[String](fieldName)), fuzzy = false)
+    val strictRegex = getMostMatchedRegex(dataset.rdd.map(_.getAs[String](fieldName)), fuzzy = false)
+    // for the conversion we use the fuzzy regex with the most matches (unlike the scoring)
+    val fuzzyRegex = getMostMatchedRegex(dataset.rdd.map(_.getAs[String](fieldName)), fuzzy = true)
+    val scorer = new DateScorer()
+    val threshold = 0.5f
 
-    val errorAccumulator = errorAccumulatorOption.getOrElse(this.createErrorAccumulator(dataset))
     dataset.flatMap { row =>
       val index = row.fieldIndex(fieldName)
       val seq = row.toSeq
       val forepart = seq.take(index)
       val backpart = seq.takeRight(row.length - index - 1)
+      val date = row.getAs[String](fieldName)
 
-      val tryRow = Try {
-        val convertedValue = toDate(row.getAs[String](fieldName), targetPattern, dateRegex)
+      // convert first with the strict regex and if that doesn't work and the score is high enough with the fuzzy regex
+      var convertedDate: String = null
+      var error: Exception = null
+      try {
+        convertedDate = toDate(date, targetPattern, strictRegex)
+      } catch {
+        case e: Exception => error = e
+      }
+      if (convertedDate == null && scorer.score(date) >= threshold) {
+        try {
+          convertedDate = toDate(date, targetPattern, fuzzyRegex)
+        } catch {
+          case e: Exception => error = e
+        }
+      }
 
-        val newSeq = (forepart :+ convertedValue) ++ backpart
-        val newRow = Row.fromSeq(newSeq)
-        newRow
+      // if the converted date is null then neither regex could extract a date
+      convertedDate match {
+        case null =>
+          errorAccumulator.add(new RecordError(date, error))
+          None
+        case conversionResult =>
+          val newSeq = (forepart :+ conversionResult) ++ backpart
+          val newRow = Row.fromSeq(newSeq)
+          Option(newRow)
       }
-      val trial = tryRow match {
-        case Failure(content) =>
-          errorAccumulator.add(new RecordError(row.getAs[String](fieldName), content))
-          tryRow
-        case Success(_) => tryRow
-      }
-      trial.toOption
     }(rowEncoder)
   }
 
