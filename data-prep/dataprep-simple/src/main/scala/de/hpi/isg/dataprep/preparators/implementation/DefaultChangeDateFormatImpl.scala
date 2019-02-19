@@ -3,7 +3,7 @@ package de.hpi.isg.dataprep.preparators.implementation
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import de.hpi.isg.dataprep.{ConversionHelper, DateFormatScorer, ExecutionContext}
+import de.hpi.isg.dataprep.{ConversionHelper, DateScorer, ExecutionContext}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -167,7 +167,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     regexValidCount.maxBy(_._2)._1
   }
 
-  def scoreDate(date: String, scorer: DateFormatScorer, strictRegex: DateRegex): Float = {
+  def scoreDate(date: String, scorer: DateScorer, strictRegex: DateRegex): Float = {
     val targetPattern = DatePatternEnum.DayMonthYear
     val threshold = 0.5f
     val fuzzyRegexes = DateRegex.allRegexes(fuzzy = true)

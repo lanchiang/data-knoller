@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.DateFormatScorer
+import de.hpi.isg.dataprep.DateScorer
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
@@ -79,7 +79,7 @@ class ChangeDateFormat(val propertyName: String,
     val scores = dates
       .mapPartitions({ partition =>
         // load the scorer for each partition (to avoid broadcasting)
-        val scorer = new DateFormatScorer()
+        val scorer = new DateScorer()
         partition.map(impl.scoreDate(_, scorer, strictRegex))
       }, true)
       .sum()
