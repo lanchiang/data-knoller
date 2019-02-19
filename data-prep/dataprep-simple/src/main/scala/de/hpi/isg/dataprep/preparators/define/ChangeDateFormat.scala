@@ -1,15 +1,20 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.{lang, util}
+import java.util
 
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
+import org.nd4j.linalg.factory.Nd4j
+import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
 
 import scala.collection.mutable.ListBuffer
 import collection.JavaConverters._
@@ -47,7 +52,42 @@ class ChangeDateFormat(val propertyName: String,
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    0
+    /*
+    val modelPath = getClass.getResource("/model_emb3_epochs2.hdf5").getPath
+    val model = KerasModelImport.importKerasSequentialModelAndWeights(modelPath)
+    val in = .. INDArray with input data
+    val output = model.output(in)
+    */
+    // THIS IS A PLACEHOLDER IMPLEMENTATION (for task 3 of Axel Stebner, Jan Ehmueller)
+    val impl = this.impl.asInstanceOf[DefaultChangeDateFormatImpl]
+    val schema = dataset.schema
+    val maxCount = dataset.count.toFloat
+
+    // try to convert every column and find the one with the highest score
+    val results = schema.toList.map { column =>
+      val columnName = column.name
+      column.dataType match {
+        // we can only convert string columns
+        case StringType =>
+          val converted = impl.convertDateInDataset(
+            dataset,
+            RowEncoder(schema),
+            None,
+            columnName,
+            this.targetDatePattern.getOrElse(DatePatternEnum.DayMonthYear)
+          )
+          converted.count
+        // any other column type results in a score of 0
+        case _ => 0
+      }
+    }
+
+    // choose the highest score and normalize it with the number of rows in the original dataset
+    if (results.nonEmpty && maxCount > 0) {
+      results.max.toFloat / maxCount
+    } else {
+      0.0f
+    }
   }
 }
 
