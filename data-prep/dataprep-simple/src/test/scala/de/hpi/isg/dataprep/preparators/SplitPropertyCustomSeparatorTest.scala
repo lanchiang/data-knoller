@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.preparators
 
 import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
-import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.MultiValueStringSeparator
+import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{MultiValueCharacterClassSeparator, MultiValueStringSeparator, SingleValueCharacterClassSeparator}
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils
 import org.apache.spark.sql.Encoders
 
@@ -30,6 +30,28 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
       2
     )
     val expected = List(("a", "b"), ("a", "b"), ("a", "b"), ("a", "b"), ("a", "b"))
+    splitShouldEqual(preparator, expected)
+  }
+
+  "SingleValueCharacterClassSeparator" should "split multiple rows with the same character class" in {
+    val column = pipeline.getRawData.select("single_char").as(Encoders.STRING)
+    val preparator = new SplitProperty(
+      "single_char",
+      SingleValueCharacterClassSeparator("aA")
+    )
+    val expected = List(("Aaaa", "Bbbb"), ("Dddd", "Eeee"), ("Gggg", "Hhhh"), ("Jjjj", "Kkkk"), ("Mmmm", "Nnnn"))
+    splitShouldEqual(preparator, expected)
+  }
+
+  "MultiValueCharacterClassSeparator" should "split multiple rows with different character classes" in {
+    val column = pipeline.getRawData.select("multi_char").as(Encoders.STRING)
+    val distribution = SplitPropertyUtils.globalTransitionSeparatorDistribution(column, 2)
+    val preparator = new SplitProperty(
+      "multi_char",
+      MultiValueCharacterClassSeparator(2, distribution),
+      2
+    )
+    val expected = List(("90", "$"), ("20", "a"), ("c", "30"), ("*", "11"), ("a", "A"))
     splitShouldEqual(preparator, expected)
   }
 
