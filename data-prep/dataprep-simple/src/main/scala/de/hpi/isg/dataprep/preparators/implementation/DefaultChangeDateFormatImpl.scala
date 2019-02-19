@@ -3,14 +3,11 @@ package de.hpi.isg.dataprep.preparators.implementation
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
+import de.hpi.isg.dataprep.{ConversionHelper, DateFormatScorer, ExecutionContext}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
-import de.hpi.isg.dataprep.schema.SchemaUtils
-import de.hpi.isg.dataprep.util.DataType
-import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.{ExpressionEncoder, RowEncoder}
@@ -21,8 +18,6 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializable {
-  import DefaultChangeDateFormatImpl._
-
   /**
     * The abstract class of preparator implementation.
     *
@@ -101,7 +96,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
                             fieldName: String,
                             targetPattern: DatePatternEnum
                           ): Dataset[Row] = {
-    val dateRegex = getMostMatchedRegex(dataset.rdd.map(_.getAs[String](fieldName)), fuzzy=false)
+    val dateRegex = getMostMatchedRegex(dataset.rdd.map(_.getAs[String](fieldName)), fuzzy = false)
 
     val errorAccumulator = errorAccumulatorOption.getOrElse(this.createErrorAccumulator(dataset))
     dataset.flatMap { row =>
@@ -155,9 +150,7 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     val parsedDate = new SimpleDateFormat(s"$yearPattern-$monthPattern-$dayPattern").parse(date)
     new SimpleDateFormat(target.getPattern).format(parsedDate)
   }
-}
 
-object DefaultChangeDateFormatImpl {
   def getMostMatchedRegex(dates: RDD[String], fuzzy: Boolean): DateRegex = {
     val regexValidCount = dates
       .flatMap { date =>
@@ -167,11 +160,45 @@ object DefaultChangeDateFormatImpl {
           (regex, count)
         }
       }.reduceByKey(_ + _)
-        .collect
-        .toList
+      .collect
+      .toList
 
     // get the tuple with the most matches and select the key of that entry (the regex)
     regexValidCount.maxBy(_._2)._1
+  }
+
+  def scoreDate(date: String, scorer: DateFormatScorer, strictRegex: DateRegex): Float = {
+    val targetPattern = DatePatternEnum.DayMonthYear
+    val threshold = 0.5f
+    val fuzzyRegexes = DateRegex.allRegexes(fuzzy = true)
+
+    // apply the strict regex
+    try {
+      toDate(date, targetPattern, strictRegex)
+      return 1.0f
+    } catch {
+      // an exception is thrown if the date is not parseable
+      case e: Exception =>
+    }
+
+    // if the strict regex does not match score the date and possibly apply the fuzzy regex
+    val score = scorer.score(date)
+    // scores below the threshold mean that the input is not a date
+    if (score < threshold) {
+      return 0.0f
+    }
+
+    val fuzzyScores = fuzzyRegexes.map { regex =>
+      try {
+        toDate(date, targetPattern, regex)
+        1.0f
+      } catch {
+        case e: Exception => 0.0f
+      }
+    }
+
+    // if any of the fuzzy regexes matches this will be 1.0 and otherwise it will be 0.0
+    fuzzyScores.max
   }
 }
 

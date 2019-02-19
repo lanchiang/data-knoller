@@ -2,19 +2,17 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.DateFormatScorer
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
+import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
-import org.nd4j.linalg.factory.Nd4j
-import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
 
 import scala.collection.mutable.ListBuffer
 import collection.JavaConverters._
@@ -52,42 +50,42 @@ class ChangeDateFormat(val propertyName: String,
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    /*
-    val modelPath = getClass.getResource("/model_emb3_epochs2.hdf5").getPath
-    val model = KerasModelImport.importKerasSequentialModelAndWeights(modelPath)
-    val in = .. INDArray with input data
-    val output = model.output(in)
-    */
-    // THIS IS A PLACEHOLDER IMPLEMENTATION (for task 3 of Axel Stebner, Jan Ehmueller)
     val impl = this.impl.asInstanceOf[DefaultChangeDateFormatImpl]
     val schema = dataset.schema
-    val maxCount = dataset.count.toFloat
 
-    // try to convert every column and find the one with the highest score
-    val results = schema.toList.map { column =>
-      val columnName = column.name
-      column.dataType match {
-        // we can only convert string columns
-        case StringType =>
-          val converted = impl.convertDateInDataset(
-            dataset,
-            RowEncoder(schema),
-            None,
-            columnName,
-            this.targetDatePattern.getOrElse(DatePatternEnum.DayMonthYear)
-          )
-          converted.count
-        // any other column type results in a score of 0
-        case _ => 0
-      }
+    val columns = schema.toList
+    // since this preparator only works on a single column we don't want to be selected for multiple columns
+    if (columns.length != 1) {
+      return 0.0f
     }
 
-    // choose the highest score and normalize it with the number of rows in the original dataset
-    if (results.nonEmpty && maxCount > 0) {
-      results.max.toFloat / maxCount
-    } else {
-      0.0f
+    val column = columns.head
+    // since this preparator only handles string columns we don't want to be selected for other columns
+    if (column.dataType != StringType) {
+      return 0.0f
     }
+
+    val maxCount = dataset.count
+    // if the dataset is empty we don't want to work on it
+    if (maxCount == 0L) {
+      return 0.0f
+    }
+
+    val dates = dataset.rdd.map(row => row.getString(row.fieldIndex(column.name)))
+    // get the strict regex by taking the one with the most matches
+    // for the fuzzy regexes we try every regex since they only validate the predicted score
+    val strictRegex = impl.getMostMatchedRegex(dates, fuzzy = false)
+
+    val scores = dates
+      .mapPartitions({ partition =>
+        // load the scorer for each partition (to avoid broadcasting)
+        val scorer = new DateFormatScorer()
+        partition.map(impl.scoreDate(_, scorer, strictRegex))
+      }, true)
+      .sum()
+
+    // average the resulting scores
+    scores.toFloat / maxCount.toFloat
   }
 }
 
