@@ -16,4 +16,4 @@ cache:
 install: true
 before_script:
   - echo "MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=512m'" >> ~/.mavenrc
-script: cd data-prep && mvn clean -B verify -DskipTests=true
+script: cd data-prep && mvn clean -B verify
