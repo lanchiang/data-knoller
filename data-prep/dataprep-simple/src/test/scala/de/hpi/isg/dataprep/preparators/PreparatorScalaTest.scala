@@ -13,12 +13,13 @@ trait PreparatorScalaTest extends FlatSpecLike with Matchers with BeforeAndAfter
   var dataset: Dataset[Row] = _
   var pipeline: AbstractPipeline = _
   var dataContext: DataContext = _
+  var resourcePath = "/pokemon.csv"
 
   override def beforeAll: Unit = {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
 
-    val filePath = getClass.getResource("/pokemon.csv").getPath
+    val filePath = getClass.getResource(resourcePath).getPath
     val dialect = new DialectBuilder()
       .hasHeader(true)
       .inferSchema(true)
@@ -26,7 +27,6 @@ trait PreparatorScalaTest extends FlatSpecLike with Matchers with BeforeAndAfter
       .buildDialect()
     val dataLoader = new FlatFileDataLoader(dialect)
     dataContext = dataLoader.load()
-    //        dataContext.getDataFrame().show()
     super.beforeAll()
   }
 
