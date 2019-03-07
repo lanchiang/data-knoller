@@ -38,7 +38,9 @@ public class DecisionEngine implements Engine {
      */
 //    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
 //            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
-    private final static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash"};
+    public static String[] preparatorCandidates = {
+            "AddProperty", "Collapse", "DeleteProperty", "Hash",
+    };
 
     private Set<AbstractPreparator> preparators;
     private Map<AbstractPreparator, Float> scores;
