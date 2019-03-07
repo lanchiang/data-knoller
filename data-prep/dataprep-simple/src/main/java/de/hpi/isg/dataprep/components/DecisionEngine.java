@@ -227,5 +227,12 @@ public class DecisionEngine implements Engine {
         this.preparatorCandidates = preparatorCandidates;
     }
 
+    public void printPreparatorCandidates() {
+        for (String preparatorName : preparatorCandidates) {
+            System.out.print(preparatorName + ", ");
+        }
+        System.out.println();
+    }
+
     // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.
 }
