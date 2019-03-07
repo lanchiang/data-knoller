@@ -39,7 +39,7 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();
 
-        pipeline.getRawData().show();
+//        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -68,7 +68,7 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();
 
-        pipeline.getRawData().show();
+//        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -96,7 +96,7 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         preparation.getAbstractPreparator().execute();
 
-        pipeline.getRawData().show();
+//        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
         List<ErrorLog> realErrorLogs = pipeline.getErrorRepository().getErrorLogs();
@@ -117,7 +117,7 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-        pipeline.getRawData().show();
+//        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
         List<ErrorLog> errorLogs = new ArrayList<>();

@@ -21,8 +21,6 @@ public class HashTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
-        pipeline.getRawData().show();
     }
 
     @Test
@@ -32,7 +30,5 @@ public class HashTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
-        pipeline.getRawData().show();
     }
 }

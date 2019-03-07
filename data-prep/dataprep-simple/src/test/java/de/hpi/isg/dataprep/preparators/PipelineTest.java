@@ -77,8 +77,6 @@ public class PipelineTest extends PreparatorTest {
         pipeline.addPreparation(preparation2);
 
         pipeline.executePipeline();
-
-        pipeline.getRawData().show();
     }
 
     @Test
