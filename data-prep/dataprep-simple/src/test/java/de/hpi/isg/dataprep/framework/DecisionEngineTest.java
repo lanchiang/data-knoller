@@ -20,6 +20,10 @@ public class DecisionEngineTest extends DataLoadingConfig {
 
         decisionEngine.printPreparatorCandidates();
 
+        decisionEngine.setPreparatorCandidates(new String[]{
+                "AddProperty", "Collapse", "DeleteProperty", "Hash"
+        });
+
         AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
 
         AbstractPreparator expectedPreparator = new DeleteProperty("date");
