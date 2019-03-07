@@ -65,8 +65,6 @@ public class PipelineTest extends PreparatorTest {
 
     @Test
     public void testPipelineOnPokemon() throws Exception {
-        pipeline.getRawData().show();
-        pipeline.getRawData().printSchema();
 
         AbstractPreparator prep1 = new ReplaceSubstring("identifier", "[(\\s)+]", "");
         AbstractPreparation preparation1 = new Preparation(prep1);
