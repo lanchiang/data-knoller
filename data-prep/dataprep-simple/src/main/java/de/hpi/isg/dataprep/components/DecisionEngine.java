@@ -38,8 +38,8 @@ public class DecisionEngine implements Engine {
      */
 //    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
 //            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
-    public static String[] preparatorCandidates = {
-            "AddProperty", "Collapse", "DeleteProperty", "Hash",
+    public String[] preparatorCandidates = {
+            "AddProperty", "Collapse", "DeleteProperty", "Hash"
     };
 
     private Set<AbstractPreparator> preparators;
@@ -221,6 +221,10 @@ public class DecisionEngine implements Engine {
             }
         }).count();
         return fulfilledCount==targetMetadata.size() ? true : false;
+    }
+
+    public void setPreparatorCandidates(String[] preparatorCandidates) {
+        this.preparatorCandidates = preparatorCandidates;
     }
 
     // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.
