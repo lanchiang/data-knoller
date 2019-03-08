@@ -1,13 +1,16 @@
-matrix:
-  include:
-    - language: java
-      jdk: oraclejdk8
-    - language: scala
-      scala:
-        - 2.11.12
+#matrix:
+#  include:
+#    - language: java
+#      jdk: oraclejdk8
+#    - language: scala
+#      scala:
+#        - 2.11.12
+
+language: java
+jdk: oraclejdk8
 
 notifications:
-  email: false
+  email:
 
 cache:
   directories:
