@@ -46,8 +46,6 @@ public class LemmatizedMetadata extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        if (!(metadata instanceof LemmatizedMetadata))
-            return false;
-        return true;
+        return metadata instanceof LemmatizedMetadata;
     }
 }

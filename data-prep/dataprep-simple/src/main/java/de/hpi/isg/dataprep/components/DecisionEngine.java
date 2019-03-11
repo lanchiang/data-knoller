@@ -192,10 +192,7 @@ public class DecisionEngine implements Engine {
      * @return true if one of the termination conditions is met, otherwise false.
      */
     private boolean forceStop() {
-        if (iteration_count == MAX_ITERATION) {
-            return true;
-        }
-        return false;
+        return iteration_count == MAX_ITERATION;
     }
 
     /**
@@ -211,16 +208,12 @@ public class DecisionEngine implements Engine {
         int fulfilledCount = (int) targetMetadata.stream().filter(metadata -> {
             Metadata stored = metadataRepository.getMetadata(metadata);
             if (stored != null) {
-                if (stored.equalsByValue(metadata)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return stored.equalsByValue(metadata);
             } else {
                 return false;
             }
         }).count();
-        return fulfilledCount==targetMetadata.size() ? true : false;
+        return fulfilledCount == targetMetadata.size();
     }
 
     public void setPreparatorCandidates(String[] preparatorCandidates) {

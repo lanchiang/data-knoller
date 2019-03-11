@@ -13,5 +13,5 @@ public interface Nameable {
      *
      * @return the name
      */
-    public String getName();
+    String getName();
 }

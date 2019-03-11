@@ -308,9 +308,7 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void updateTargetMetadata(Collection<Metadata> coming) {
         coming.stream().forEach(metadata -> {
-            if (targetMetadata.contains(metadata)) {
-                targetMetadata.remove(metadata);
-            }
+            targetMetadata.remove(metadata);
             targetMetadata.add(metadata);
         });
     }

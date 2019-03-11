@@ -101,8 +101,8 @@ public interface AbstractPipeline extends Nameable, Printable {
 
     void setRawData(Dataset<Row> rawData);
 
-    public FileLoadDialect getDialect();
+    FileLoadDialect getDialect();
 
-    public void setDialect(FileLoadDialect dialect);
+    void setDialect(FileLoadDialect dialect);
 
 }

@@ -31,7 +31,7 @@ public class LanguageMetadata extends Metadata {
         CHINESE(Chinese.class);
 
         private final Class<? extends Language> type;
-        private LanguageEnum(Class<? extends Language> type) {
+        LanguageEnum(Class<? extends Language> type) {
             this.type = type;
         }
 

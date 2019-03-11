@@ -52,8 +52,13 @@ public class UsedEncoding extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        UsedEncoding o = (UsedEncoding) metadata;
-        return o.getUsedEncoding().equals(getUsedEncoding());
+        if (metadata instanceof UsedEncoding) {
+            return this.usedEncoding.equals(((UsedEncoding)metadata).getUsedEncoding());
+        }
+        return false;
+
+//        UsedEncoding o = (UsedEncoding) metadata;
+//        return o.getUsedEncoding().equals(getUsedEncoding());
     }
 
     @Override
