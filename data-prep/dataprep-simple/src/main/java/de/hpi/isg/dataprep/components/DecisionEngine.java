@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class DecisionEngine implements Engine {
 
-    private final static int MAX_ITERATION = 100;
+    private final static int MAX_ITERATION = 10;
     private int iteration_count = 0;
 
     private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.preparators.define";

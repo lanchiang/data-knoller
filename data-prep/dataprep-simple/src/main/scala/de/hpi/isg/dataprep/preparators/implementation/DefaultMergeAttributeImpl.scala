@@ -38,10 +38,12 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 
 		//only remove merged columns (we only looked at the first 2 in the list)
 		//make a list of columns that should be deleted
-		val deleteColumns = preparator.attributes.splitAt(2)._1 filterNot List(newColumnName).contains
-		val columns = (df.columns diff deleteColumns).map(col(_))
+//		val deleteColumns = preparator.attributes.splitAt(2)._1 filterNot List(newColumnName).contains
+//		val columns = (df.columns diff deleteColumns).map(col(_))
 
-		val result = df.select(columns: _*)
+//		val result = df.select(columns: _*)
+		val result = df
+
 		//merge recursively if more than 2 columns are given
 		if(preparator.attributes.length>2)
 		{

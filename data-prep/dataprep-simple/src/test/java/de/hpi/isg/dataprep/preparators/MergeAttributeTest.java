@@ -28,10 +28,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.nio.channels.Pipe;
 import java.util.ArrayList;
@@ -79,12 +76,12 @@ public class MergeAttributeTest {
                 .url("./src/test/resources/BenkeKarsch.short.csv")
                 .buildDialect();
 
-		FileLoadDialect benkeFull = new DialectBuilder()
-			.hasHeader(true)
-			.delimiter(";")
-			.inferSchema(true)
-			.url("./src/test/resources/BenkeKarsch.csv")
-			.buildDialect();
+//		FileLoadDialect benkeFull = new DialectBuilder()
+//			.hasHeader(true)
+//			.delimiter(";")
+//			.inferSchema(true)
+//			.url("./src/test/resources/BenkeKarsch.csv")
+//			.buildDialect();
 
 		SparkDataLoader dataLoader = new FlatFileDataLoader(pokemons);
 		dataContext = dataLoader.load();
@@ -95,8 +92,8 @@ public class MergeAttributeTest {
         SparkDataLoader dataLoader2 = new FlatFileDataLoader(benke,createTargetMetadataManuallyBenke(),createTransformsManuallyBenke());
         benkeContext = dataLoader2.load();
 
-        SparkDataLoader dataLoader3 = new FlatFileDataLoader(benkeFull,createTargetMetadataManuallyBenke(),createTransformsManuallyBenke());
-        benkeContextFull = dataLoader3.load();
+//        SparkDataLoader dataLoader3 = new FlatFileDataLoader(benkeFull,createTargetMetadataManuallyBenke(),createTransformsManuallyBenke());
+//        benkeContextFull = dataLoader3.load();
 	}
 
 	@Before
@@ -142,6 +139,7 @@ public class MergeAttributeTest {
 		pipeline.getRawData().show();
 	}
 
+	@Ignore
 	@Test
     public void mergeUrlTest() throws Exception{
 	    pipeline = new Pipeline(benkeContextFull);
@@ -189,6 +187,7 @@ public class MergeAttributeTest {
 		//System.out.println(abstractPreparator.calApplicability(null,dataset,null));
 	}
 
+	@Ignore
 	@Test
     public void testMergeDateFunc() throws Exception{
         pipeline = new Pipeline(benkeContextFull);
