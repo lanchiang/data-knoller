@@ -21,11 +21,10 @@ public class SubsetIteratorTest {
     @Test
     public void instantiateTest() {
         List<String> preparatorCandidateList = Arrays.asList(preparatorCandidates);
-
-        int count = 0;
-
         SubsetIterator<String> iterator = new SubsetIterator<>(preparatorCandidateList, 3);
+        int count = 0;
         while (iterator.hasNext()) {
+            iterator.next();
             count++;
         }
         Assert.assertEquals(65, count);
