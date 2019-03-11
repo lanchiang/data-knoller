@@ -44,6 +44,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
+                <version>3.1.6</version>
                 <executions>
                     <execution>
                         <id>scala-compile-first</id>
@@ -63,6 +64,33 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.7</version>
+                <!--<configuration>-->
+                    <!--<skipTests>true</skipTests>-->
+                <!--</configuration>-->
+            </plugin>
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <filereports>WDF TestSuite.txt</filereports>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
              <!--may be use less-->
             <!--<plugin>-->
                 <!--<artifactId>maven-assembly-plugin</artifactId>-->
@@ -71,11 +99,11 @@
                     <!--<descriptorRefs>-->
                         <!--<descriptorRef>jar-with-dependencies</descriptorRef>-->
                     <!--</descriptorRefs>-->
-                    <!--<archive>-->
-                        <!--<manifest>-->
-                            <!--<mainClass>SparkPreparators</mainClass>-->
-                        <!--</manifest>-->
-                    <!--</archive>-->
+                    <!--&lt;!&ndash;<archive>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<manifest>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<mainClass>SparkPreparators</mainClass>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</manifest>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</archive>&ndash;&gt;-->
                 <!--</configuration>-->
                 <!--<executions>-->
                     <!--<execution>-->
@@ -87,25 +115,6 @@
                 <!--</executions>-->
             <!--</plugin>-->
 
-                <!-- see http://davidb.github.com/scala-maven-plugin -->
-                <!--<groupId>net.alchim31.maven</groupId>-->
-                <!--<artifactId>scala-maven-plugin</artifactId>-->
-                <!--<version>3.3.2</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>compile</goal>-->
-                            <!--<goal>testCompile</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<args>-->
-                                <!--<arg>-dependencyfile</arg>-->
-                                <!--<arg>${project.build.directory}/.scala_dependencies</arg>-->
-                            <!--</args>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 
@@ -141,24 +150,41 @@
             <artifactId>spark-xml_2.11</artifactId>
             <version>0.4.1</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>com.googlecode.juniversalchardet</groupId>
             <artifactId>juniversalchardet</artifactId>
             <version>1.0.3</version>
         </dependency>
         <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native-platform</artifactId>
+            <version>1.0.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>1.0.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-modelimport</artifactId>
+            <version>1.0.0-beta3</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.11</artifactId>
             <version>3.2.0-SNAP10</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.scalamock/scalamock-scalatest-support -->
         <dependency>
             <groupId>org.scalamock</groupId>
             <artifactId>scalamock-scalatest-support_2.11</artifactId>
@@ -176,6 +202,24 @@
             <artifactId>scalactic_2.11</artifactId>
             <version>3.2.0-SNAP10</version>
         </dependency>
+
+        <!-- scala dependency family -->
+        <!--<dependency>-->
+            <!--<groupId>org.scala-lang.modules</groupId>-->
+            <!--<artifactId>scala-xml_${scala.major.version}</artifactId>-->
+            <!--<version>1.1.1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.scala-lang.modules</groupId>-->
+            <!--<artifactId>scala-parser-combinators_${scala.major.version}</artifactId>-->
+            <!--<version>1.1.1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.scala-lang.modules</groupId>-->
+            <!--<artifactId>scala-swing_${scala.major.version}</artifactId>-->
+            <!--<version>2.0.3</version>-->
+        <!--</dependency>-->
+
 
         <!-- For inferring unknown datatypes -->
         <dependency>

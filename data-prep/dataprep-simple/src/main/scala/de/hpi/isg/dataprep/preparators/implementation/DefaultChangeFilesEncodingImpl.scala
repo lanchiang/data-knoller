@@ -12,7 +12,7 @@ import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 
-import de.hpi.isg.dataprep.preparators.define.ChangeEncoding
+import de.hpi.isg.dataprep.preparators.define.ChangeFilesEncoding
 import org.apache.spark.sql.execution.streaming.FileStreamSource.Timestamp
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions._
@@ -29,11 +29,11 @@ import scala.util.{Failure, Success, Try}
   * @author Lukas Behrendt, Lisa Ihde, Oliver Clasen
   * @since 2018/11/29
   */
-class DefaultChangeEncodingImpl extends AbstractPreparatorImpl {
+class DefaultChangeFilesEncodingImpl extends AbstractPreparatorImpl {
   override protected def executeLogic(abstractPreparator: AbstractPreparator,
                                       dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[ChangeEncoding]
+    val preparator = abstractPreparator.asInstanceOf[ChangeFilesEncoding]
     val propertyName = preparator.propertyName
     var sourceEncoding = preparator.userSpecifiedSourceEncoding
     if (sourceEncoding == null) sourceEncoding = getEncodingFromMetadata(preparator)
@@ -48,7 +48,7 @@ class DefaultChangeEncodingImpl extends AbstractPreparatorImpl {
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 
-  private def getEncodingFromMetadata(preparator: ChangeEncoding): String = {
+  private def getEncodingFromMetadata(preparator: ChangeFilesEncoding): String = {
     val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
     val mockMetadata = new FileEncoding(preparator.propertyName, null)
     val metadataOrNull = metadataRepository.getMetadata(mockMetadata)

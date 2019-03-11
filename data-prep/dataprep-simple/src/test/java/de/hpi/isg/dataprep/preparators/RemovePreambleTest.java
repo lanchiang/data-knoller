@@ -63,7 +63,7 @@ public class RemovePreambleTest extends PreparatorTest {
     @Test
     @Ignore("Preamble makes the struct fields bad-defined")
     public void testRemovePreamble() throws Exception {
-        AbstractPreparator abstractPreparator = new RemovePreamble(super.dialect.getDelimiter(), super.dialect.getHasHeader());
+        AbstractPreparator abstractPreparator = new RemovePreamble(dialect.getDelimiter(), dialect.getHasHeader());
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
@@ -79,7 +79,7 @@ public class RemovePreambleTest extends PreparatorTest {
     @Test(expected = ParameterNotSpecifiedException.class)
     public void nullHeaderTestPreamble() throws Exception {
 
-        AbstractPreparator abstractPreparator = new RemovePreamble(super.dialect.getDelimiter(), null);
+        AbstractPreparator abstractPreparator = new RemovePreamble(dialect.getDelimiter(), null);
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
@@ -95,7 +95,7 @@ public class RemovePreambleTest extends PreparatorTest {
     @Test(expected = ParameterNotSpecifiedException.class)
     public void nullDelimiterTestPreamble() throws Exception {
 
-        AbstractPreparator abstractPreparator = new RemovePreamble(null, super.dialect.getHasHeader());
+        AbstractPreparator abstractPreparator = new RemovePreamble(null, dialect.getHasHeader());
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);

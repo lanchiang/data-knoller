@@ -1,0 +1,6 @@
+multi_string,multi_string2,single_char,multi_char
+"a,b","a,!b",AaaaBbbb,90$
+a;b,a;:b,DdddEeee,20a
+a&b,a&-b,GgggHhhh,c30
+a-b,a%%%b,JjjjKkkk,*11
+a’b,a:‘:b,MmmmNnnn,aA

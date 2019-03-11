@@ -216,6 +216,10 @@ abstract public class AbstractPreparator implements Executable {
         return updates;
     }
 
+    public void addUpdateMetadata(Metadata metadata) {
+        this.updates.add(metadata);
+    }
+
     public AbstractPreparation getPreparation() {
         return preparation;
     }

@@ -235,6 +235,7 @@ public class SimpleSchemaMapping extends SchemaMapping {
     private static List<SchemaMappingNode> findLastNodesOfChain(SchemaMappingNode node) {
         List<SchemaMappingNode> lastNodes = new LinkedList<>();
         if (node.next == null) {
+            lastNodes.add(node);
             return lastNodes;
         }
 

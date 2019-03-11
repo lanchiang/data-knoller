@@ -7,5 +7,5 @@ package de.hpi.isg.dataprep.util;
 public enum RemoveCharactersMode {
     NUMERIC,
     NONALPHANUMERIC,
-    CUSTOM;
+    CUSTOM
 }

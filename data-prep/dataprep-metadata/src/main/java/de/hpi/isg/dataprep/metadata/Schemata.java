@@ -31,7 +31,10 @@ public class Schemata extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        long validCount = ((Schemata)metadata).attributes.stream().filter(attribute -> this.attributes.contains(attribute)).count();
-        return validCount == attributes.size() ? true:false;
+        if(metadata instanceof Schemata) {
+            long validCount = ((Schemata)metadata).attributes.stream().filter(attribute -> this.attributes.contains(attribute)).count();
+            return validCount == attributes.size();
+        }
+        return false;
     }
 }

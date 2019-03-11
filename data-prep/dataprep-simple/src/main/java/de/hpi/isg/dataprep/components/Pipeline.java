@@ -8,8 +8,8 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
-import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
@@ -58,7 +58,7 @@ public class Pipeline implements AbstractPipeline {
      */
     private Dataset<Row> rawData;
 
-    private DataContext dataContext;
+    private FileLoadDialect dialect;
     private String datasetName;
 
     private Pipeline() {
@@ -82,7 +82,7 @@ public class Pipeline implements AbstractPipeline {
 
     public Pipeline(DataContext dataContext) {
         this(dataContext.getDataFrame());
-        this.dataContext = dataContext;
+        this.dialect = dataContext.getDialect();
         this.schemaMapping = dataContext.getSchemaMapping();
         this.targetMetadata = dataContext.getTargetMetadata();
 
@@ -156,7 +156,8 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void initMetadataRepository() {
-        FileLoadDialect dialect = this.dataContext.getDialect();
+        CSVSourcePath csvPath = new CSVSourcePath(dialect.getUrl());
+        UsedEncoding usedEncoding = new UsedEncoding(dialect.getEncoding());
 
         Delimiter delimiter = new Delimiter(dialect.getDelimiter(), new TableMetadata(dialect.getTableName()));
         QuoteCharacter quoteCharacter = new QuoteCharacter(dialect.getQuoteChar(), new TableMetadata(dialect.getTableName()));
@@ -168,6 +169,8 @@ public class Pipeline implements AbstractPipeline {
         initMetadata.add(quoteCharacter);
         initMetadata.add(escapeCharacter);
         initMetadata.add(headerExistence);
+        initMetadata.add(csvPath);
+        initMetadata.add(usedEncoding);
 
         StructType structType = this.rawData.schema();
 //        Arrays.stream(structType.fields()).forEach(field -> {
@@ -273,6 +276,16 @@ public class Pipeline implements AbstractPipeline {
     }
 
     @Override
+    public FileLoadDialect getDialect() {
+        return this.dialect;
+    }
+
+    @Override
+    public void setDialect(FileLoadDialect dialect) {
+        this.dialect = dialect;
+    }
+
+    @Override
     public String getDatasetName() {
         return this.datasetName;
     }
@@ -295,9 +308,7 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void updateTargetMetadata(Collection<Metadata> coming) {
         coming.stream().forEach(metadata -> {
-            if (targetMetadata.contains(metadata)) {
-                targetMetadata.remove(metadata);
-            }
+            targetMetadata.remove(metadata);
             targetMetadata.add(metadata);
         });
     }

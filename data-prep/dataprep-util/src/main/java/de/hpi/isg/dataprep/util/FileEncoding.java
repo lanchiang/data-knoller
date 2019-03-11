@@ -11,6 +11,6 @@ public class FileEncoding {
         UTF_16_BE,
         UTF_16_SE,
         UTF_32_BE,
-        UTF_32_SE;
+        UTF_32_SE
     }
 }

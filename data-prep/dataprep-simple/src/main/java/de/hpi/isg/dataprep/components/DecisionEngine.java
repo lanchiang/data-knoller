@@ -38,7 +38,7 @@ public class DecisionEngine implements Engine {
      */
 //    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
 //            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
-    private final static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash","MergeAttribute"};
+    private static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash","MergeAttribute"};
 
     private Set<AbstractPreparator> preparators;
     private Map<AbstractPreparator, Float> scores;
@@ -190,10 +190,7 @@ public class DecisionEngine implements Engine {
      * @return true if one of the termination conditions is met, otherwise false.
      */
     private boolean forceStop() {
-        if (iteration_count == MAX_ITERATION) {
-            return true;
-        }
-        return false;
+        return iteration_count == MAX_ITERATION;
     }
 
     /**
@@ -209,16 +206,23 @@ public class DecisionEngine implements Engine {
         int fulfilledCount = (int) targetMetadata.stream().filter(metadata -> {
             Metadata stored = metadataRepository.getMetadata(metadata);
             if (stored != null) {
-                if (stored.equalsByValue(metadata)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return stored.equalsByValue(metadata);
             } else {
                 return false;
             }
         }).count();
-        return fulfilledCount==targetMetadata.size() ? true : false;
+        return fulfilledCount == targetMetadata.size();
+    }
+
+    public void setPreparatorCandidates(String[] preparatorCandidates) {
+        this.preparatorCandidates = preparatorCandidates;
+    }
+
+    public void printPreparatorCandidates() {
+        for (String preparatorName : preparatorCandidates) {
+            System.out.print(preparatorName + ", ");
+        }
+        System.out.println();
     }
 
     // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.
