@@ -1,17 +1,15 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
-import de.hpi.isg.dataprep.metadata.DINPhoneNumber
+import de.hpi.isg.dataprep.ExecutionContext
+import de.hpi.isg.dataprep.metadata.{DINPhoneNumberFormat, NANPPhoneNumberFormat, PhoneNumberFormat}
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.util.CollectionAccumulator
 
-import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializable {
@@ -24,32 +22,38 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
     * @return an instance of { @link ExecutionContext} that includes the new dataset, and produced errors.
     * @throws Exception
     */
-  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[ChangePhoneFormat]
-    val propertyName = preparator.propertyName
-    val sourceFormat = Option(preparator.sourceFormat)
-    val targetFormat = preparator.targetFormat
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
+    import TaggerInstances._
 
-    val rowEncoder = RowEncoder(dataFrame.schema)
+    val createdDataset = abstractPreparator match {
+      case preparator: ChangePhoneFormat[NANPPhoneNumberFormat] =>
+        val tagger = nanpTagger(Option(preparator.sourceFormat).map(_.components.map(_.componentType)))
+        createDataset(preparator, errorAccumulator)(dataFrame)(tagger)
+      case preparator: ChangePhoneFormat[DINPhoneNumberFormat] =>
+        val tagger = dinTagger(Option(preparator.sourceFormat).map(_.components.map(_.componentType)))
+        createDataset(preparator, errorAccumulator)(dataFrame)(tagger)
+      case _ => dataFrame
+    }
 
-    val createdDataset = dataFrame.flatMap(row => {
-      val indexTry = Try {
-        row.fieldIndex(propertyName)
-      }
-      val index = indexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
+    createdDataset.persist()
 
+    new ExecutionContext(createdDataset, errorAccumulator)
+  }
+
+  /**
+    * Creating the converted dataset
+    * @param preparator instance of an abstract preparator
+    * @param errorAccumulator the error repository
+    * @param dataFrame dataset that should be converted
+    * @param tagger instance of a tagger
+    * @return Dataset containing all successful converted entries
+    */
+  private def createDataset[A](preparator: ChangePhoneFormat[A], errorAccumulator: CollectionAccumulator[PreparationError])(dataFrame: DataFrame)(implicit tagger: Tagger[A]): DataFrame = {
+    dataFrame.flatMap { row =>
+      val index = row.fieldIndex(preparator.propertyName)
       val operatedValue = row.getAs[String](index)
-
-      val seq = row.toSeq
-      val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length - index - 1)
-
-      val convertTry = sourceFormat
-        .fold(convert(operatedValue, targetFormat))(source => convert(operatedValue, source, targetFormat))
-        .flatMap(number => Try(Row.fromSeq(forepart ++ Seq(number) ++ backpart)))
+      val (start, end) = row.toSeq.splitAt(index)
+      val convertTry = convert(operatedValue, preparator.targetFormat).flatMap(phoneNumber => Try(Row.fromSeq(start ++ Seq(phoneNumber) ++ end)))
 
       convertTry match {
         case Failure(exception) => errorAccumulator.add(new RecordError(operatedValue, exception))
@@ -58,102 +62,15 @@ class DefaultChangePhoneFormatImpl extends AbstractPreparatorImpl with Serializa
 
       convertTry.toOption
 
-    })(rowEncoder)
-
-    createdDataset.persist()
-
-    new ExecutionContext(createdDataset, errorAccumulator)
+    }(RowEncoder(dataFrame.schema))
   }
 
-  final case class NormalizedPhoneNumber(
-                                          number: String,
-                                          optCountryCode: Option[String] = None,
-                                          optAreaCode: Option[String] = None,
-                                          optSpecialNumber: Option[String] = None,
-                                          optExtensionNumber: Option[String] = None
-                                        ) extends {
-    override def toString: String = {
-      val prefix = List(optCountryCode, optAreaCode, optSpecialNumber).flatten.mkString(" ")
-      val postFix = optExtensionNumber.fold("")(extension => s"-$extension")
-
-      s"$prefix $number$postFix"
-    }
-  }
-
-  object NormalizedPhoneNumber {
-    def fromMeta(meta: DINPhoneNumber)(phoneNumber: String): Try[NormalizedPhoneNumber] = Try {
-      meta.getRegex.findFirstMatchIn(phoneNumber).map { matched =>
-
-        val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
-        val number = matched.group("number")
-
-        format.filter(_._2).keySet.foldLeft(NormalizedPhoneNumber(number)) {
-          case (normalized, "countryCode") => normalized.copy(optCountryCode = Some(matched.group("countryCode")))
-          case (normalized, "areaCode") => normalized.copy(optAreaCode = Some(matched.group("areaCode")))
-          case (normalized, "specialNumber") => normalized.copy(optSpecialNumber = Some(matched.group("specialNumber")))
-          case (normalized, "extensionNumber") => normalized.copy(optExtensionNumber = Some(matched.group("extensionNumber")))
-          case (normalized, _) => normalized
-        }
-      }.get
-    }
-
-    def toMeta(meta: DINPhoneNumber)(normalized: NormalizedPhoneNumber): Try[String] = Try {
-      val format = Map("countryCode" -> meta.getCountryCode, "areaCode" -> meta.getAreaCode, "specialNumber" -> meta.getSpecialNumber, "extensionNumber" -> meta.getExtensionNumber)
-
-      format.filterNot(_._2).keySet.foldLeft(normalized) {
-        case (phoneNumber, "countryCode") => phoneNumber.copy(optCountryCode = None)
-        case (phoneNumber, "areaCode") => phoneNumber.copy(optAreaCode = None)
-        case (phoneNumber, "specialNumber") => phoneNumber.copy(optSpecialNumber = None)
-        case (phoneNumber, "extensionNumber") => phoneNumber.copy(optExtensionNumber = None)
-        case (phoneNumber, _) => phoneNumber
-      }.toString
-    }
-  }
-
-  /*
-  private def convertPhoneNumber(phoneNumber: String, sourceFormat: String, targetFormat: String) : String = {
-    val digitsOnly = phoneNumber.replaceFirst("\\+", "00").replaceAll("\\D", "")
-    var formattedPhoneNumber = ""
-    var digitsOnlyCount = 0
-
-    //TODO: target[0] == +, but digitsOnly[0,1] != 00
-
-    //Insert non-digit characters from targetFormat into stripped phoneNumber
-    for (i <- 0 until targetFormat.length()) {
-      val targetChar = targetFormat.charAt(i)
-      if (targetChar.eq('d')) {
-        formattedPhoneNumber += digitsOnly.charAt(digitsOnlyCount)
-        digitsOnlyCount += 1
-      } else {
-        formattedPhoneNumber += targetChar
-      }
-    }
-
-    //append remaining digits from phoneNumber if longer than targetFormat
-    for (i <- digitsOnlyCount until digitsOnly.length) {
-      formattedPhoneNumber += digitsOnly.charAt(i)
-    }
-    formattedPhoneNumber
-  }
-  */
-
-  private def convert(phoneNumber: String, sourceFormat: DINPhoneNumber, targetFormat: DINPhoneNumber): Try[String] = {
-    NormalizedPhoneNumber.fromMeta(sourceFormat)(phoneNumber).flatMap(NormalizedPhoneNumber.toMeta(targetFormat))
-  }
-
-  private def convert(phoneNumber: String, targetFormat: DINPhoneNumber): Try[String] = {
-    val areaCoded = new Regex("""(\d+)\D+(\d+).*""", "areaCode", "number")
-    val extended = new Regex("""(\d+)\D+(\d+)\D+(\d*).*""", "areaCode", "number", "extensionNumber")
-    val specialNumbered = new Regex("""(\d+)\D+(\d)\D+(\d+).*""", "areaCode", "specialNumber", "number")
-    val countryCoded = new Regex("""(\+\d{2})\D+(\d+)\D+(\d+).*""", "countryCode", "areaCode", "number")
-
-    val sourceFormat = phoneNumber match {
-      case countryCoded(_*) => new DINPhoneNumber(true, true, false, false, countryCoded)
-      case specialNumbered(_*) => new DINPhoneNumber(false, true, true, false, specialNumbered)
-      case extended(_*) => new DINPhoneNumber(false, true, false, true, extended)
-      case areaCoded(_*) => new DINPhoneNumber(false, true, false, false, areaCoded)
-    }
-
-    convert(phoneNumber, sourceFormat, targetFormat)
-  }
+  /**
+    * Converting a phone number to a target format
+    * @param phoneNumber String containing the phone number
+    * @param targetFormat Source format of the phone number
+    * @return Try of the converted phone number
+    */
+  def convert[A](phoneNumber: String, targetFormat: PhoneNumberFormat[A])(implicit tagger: Tagger[A]): Try[String] =
+    PhoneNumber[A](phoneNumber).convert(targetFormat).map(_.toString)
 }
