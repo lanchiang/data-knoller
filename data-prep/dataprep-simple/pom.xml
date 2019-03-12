@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>dataprep-simple</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>de.hpi.isg</groupId>
@@ -36,17 +37,10 @@
             <artifactId>dataprep-tools</artifactId>
             <version>0.01-SNAPSHOT</version>
         </dependency>
-
         <dependency>
-            <groupId>edu.stanford.nlp</groupId>
-            <artifactId>stanford-corenlp</artifactId>
-            <version>3.9.2</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.stanford.nlp</groupId>
-            <artifactId>stanford-corenlp</artifactId>
-            <version>3.9.2</version>
-            <classifier>models</classifier>
+            <groupId>org.languagetool</groupId>
+            <artifactId>language-all</artifactId>
+            <version>4.4</version>
         </dependency>
     </dependencies>
 

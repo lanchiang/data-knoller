@@ -44,7 +44,7 @@ public class SchemaMappingGeneratorTest {
                 .option("header", "true")
                 .option("inferSchema", "true")
                 .csv(dataPath);
-        dataset.printSchema();
+//        dataset.printSchema();
     }
 
     @Test

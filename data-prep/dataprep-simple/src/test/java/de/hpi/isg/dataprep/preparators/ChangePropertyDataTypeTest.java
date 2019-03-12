@@ -32,7 +32,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-        pipeline.getRawData().show();
+//        pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
@@ -56,8 +56,6 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         trueErrorlogs.add(errorLog3);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 
-        pipeline.getRawData().show();
-
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
 
@@ -78,8 +76,6 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         trueErrorlogs.add(errorLog2);
         trueErrorlogs.add(errorLog3);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
-        pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
@@ -118,9 +114,6 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-        pipeline.getRawData().show();
-        pipeline.getRawData().printSchema();
-
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
     }
 
@@ -142,8 +135,6 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         trueErrorlogs.add(errorLog2);
         trueErrorlogs.add(errorLog3);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
-        pipeline.getRawData().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }

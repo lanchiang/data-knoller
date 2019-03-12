@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
+import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
@@ -99,4 +100,9 @@ public interface AbstractPipeline extends Nameable, Printable {
     String getDatasetName();
 
     void setRawData(Dataset<Row> rawData);
+
+    FileLoadDialect getDialect();
+
+    void setDialect(FileLoadDialect dialect);
+
 }

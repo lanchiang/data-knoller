@@ -41,7 +41,7 @@ public class ErrorLogPrinter {
             String errorMessage = casted.getErrorMessage();
 
             stringBuffer.append("{Pipeline: ").append(pipeline.getName()).append(", ");
-            stringBuffer.append("Position: ").append(String.valueOf(position)).append(", ");
+            stringBuffer.append("Position: ").append(position).append(", ");
             stringBuffer.append("Error type: ").append(errorType).append(", Error message: ").append(errorMessage).append("}");
         } else if (errorLog.getClass().isAssignableFrom(PreparationErrorLog.class)) {
             PreparationErrorLog casted = (PreparationErrorLog) errorLog;

@@ -115,47 +115,6 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       nullValue.collect() shouldBe (List(Row("xyz", "sss"), Row("gef", "fef"), Row("lfe", "das")).toArray)
     }
   }
-
-
-  //"Split dataset by datatype" should {
-  //"read csv files nicely" in withSparkContext{ (sparkContext) =>
-  //  val sc = SparkSession.builder
-  //    .master("local")
-  //    .appName("Word Count")
-  //    .getOrCreate()
-  //
-  //  val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("./src/test/resources/multipleFilesWithDataTypes.csv").buildDialect
-  //  val dataLoader = new FlatFileDataLoader(dialect)
-  //  val dataContext = dataLoader.load
-  //
-  //  dataFrame shouldBe(1)
-  //}
-
-  // "identify all the different datatypes in one column" in withSparkContext{ (sparkContext) =>
-  //   val data = Seq(("ID", "AGE"),(1, 10),(2, 30),("date", "time"), ("1.1.18", true), ("2.3.19", true))
-  //   val rdd = sparkContext.parallelize(data)
-  //   val sc = SparkSession.builder
-  //     .master("local")
-  //     .appName("Word Count")
-  //     .getOrCreate()
-  //   import sc.implicits._
-  //   val testFrame = rdd.toDF()
-  //   testFrame shouldBe(1)
-  //   var typeMap = collection.mutable.Map[String, List[DataType]]()
-  //   testFrame.collect.foreach( row => {
-  //     val typeIterator = row.schema.iterator
-  //     while(typeIterator.hasNext){
-  //       val field = typeIterator.next
-  //       if(typeMap.keySet.contains(field.name)){
-  //         typeMap(field.name) = field.dataType :: typeMap(field.name)
-  //       }else{
-  //         typeMap = typeMap + (field.name -> List[DataType]())
-  //       }
-  //     }
-  //   })
-  //   typeMap.toArray shouldBe(Array(1))
-  // }
-  //
 }
 
 trait SparkContextSetup {
