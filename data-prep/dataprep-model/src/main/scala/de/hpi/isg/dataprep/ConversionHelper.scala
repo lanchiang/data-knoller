@@ -14,7 +14,6 @@ import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.types.{StructField, StructType}
 
 import scala.collection.mutable.ListBuffer
-
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -54,6 +53,7 @@ object ConversionHelper extends Serializable {
         val targetDate = new SimpleDateFormat(target.getPattern).format(date.toOption.get)
         targetDate
       }
+
     }
   }
 

@@ -11,6 +11,7 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.RemovePreamble;
+import de.hpi.isg.dataprep.preparators.define.RemovePreambleHelper;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -33,19 +34,19 @@ public class RemovePreambleTest extends PreparatorTest {
         Logger.getLogger("akka").setLevel(Level.OFF);
 
         dialect = new DialectBuilder()
-                .hasHeader(true)
+                .hasHeader(false)
                 .inferSchema(true)
                 //.delimiter("\t")
                 //x: works
-                //.url("./src/test/resources/pokemon.csv")//->X
+                .url("./src/test/resources/pokemon.csv")//->X
                 //.url("./src/test/resources/restaurants.tsv")//->x
                 //.url("./src/test/resources/test.csv")//->x
                 //.url("./src/test/resources/test2.csv")//->x
                 //.url("./src/test/resources/test21.csv")//->x
-                // .url("./src/test/resources/test3.csv")//->x
+                //.url("./src/test/resources/test3.csv")//->x
                 //.url("./src/test/resources/test4.csv")//->x
                 //.url("./src/test/resources/test5.csv")//->x
-                .url("./src/test/resources/test6.csv")//->x
+                //.url("./src/test/resources/test6.csv")//->x
                 //.url("./src/test/resources/test7.csv")//->x
                 //.url("./src/test/resources/test8.csv")//-> x,
                 //.url("./src/test/resources/test9.csv")//->x
@@ -55,47 +56,47 @@ public class RemovePreambleTest extends PreparatorTest {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
-
-        return;
     }
 
-    //note: different testfilepaths in Preperatortest
     @Test
-    @Ignore("Preamble makes the struct fields bad-defined")
-    public void testRemovePreamble() throws Exception {
-        AbstractPreparator abstractPreparator = new RemovePreamble(dialect.getDelimiter(), dialect.getHasHeader());
+    public void preparatorWorksInPipeline() throws Exception {
 
-        AbstractPreparation preparation = new Preparation(abstractPreparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
+        AbstractPreparator abstractPreparator = new RemovePreamble();
+//     @Ignore("Preamble makes the struct fields bad-defined")
+//     public void testRemovePreamble() throws Exception {
+//         AbstractPreparator abstractPreparator = new RemovePreamble(dialect.getDelimiter(), dialect.getHasHeader());
 
-        pipeline.getRawData().show();
+//         AbstractPreparation preparation = new Preparation(abstractPreparator);
+//         pipeline.addPreparation(preparation);
+//         pipeline.executePipeline();
+//         List<ErrorLog> trueErrorlogs = new ArrayList<>();
+//         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-        Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
-    }
+//         pipeline.getRawData().show();
 
-    @Test(expected = ParameterNotSpecifiedException.class)
-    public void nullHeaderTestPreamble() throws Exception {
+//         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
+//     }
 
-        AbstractPreparator abstractPreparator = new RemovePreamble(dialect.getDelimiter(), null);
+//     @Test(expected = ParameterNotSpecifiedException.class)
+//     public void nullHeaderTestPreamble() throws Exception {
 
-        AbstractPreparation preparation = new Preparation(abstractPreparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
+//         AbstractPreparator abstractPreparator = new RemovePreamble(dialect.getDelimiter(), null);
 
-        pipeline.getRawData().show();
+//         AbstractPreparation preparation = new Preparation(abstractPreparator);
+//         pipeline.addPreparation(preparation);
+//         pipeline.executePipeline();
+//         List<ErrorLog> trueErrorlogs = new ArrayList<>();
+//         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-        Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
-    }
+//         pipeline.getRawData().show();
 
-    @Test(expected = ParameterNotSpecifiedException.class)
-    public void nullDelimiterTestPreamble() throws Exception {
+//         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
+//     }
 
-        AbstractPreparator abstractPreparator = new RemovePreamble(null, dialect.getHasHeader());
+//     @Test(expected = ParameterNotSpecifiedException.class)
+//     public void nullDelimiterTestPreamble() throws Exception {
+
+//         AbstractPreparator abstractPreparator = new RemovePreamble(null, dialect.getHasHeader());
 
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
