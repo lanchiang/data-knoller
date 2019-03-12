@@ -24,7 +24,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spark.version>2.2.0</spark.version>
+        <spark.version>2.4.0</spark.version>
         <scala.version>2.11.12</scala.version>
         <scala.major.version>2.11</scala.major.version>
         <hadoop.version>2.8.2</hadoop.version>
@@ -115,6 +115,25 @@
                 <!--</executions>-->
             <!--</plugin>-->
 
+                <!-- see http://davidb.github.com/scala-maven-plugin -->
+                <!--<groupId>net.alchim31.maven</groupId>-->
+                <!--<artifactId>scala-maven-plugin</artifactId>-->
+                <!--<version>3.3.2</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>compile</goal>-->
+                            <!--<goal>testCompile</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<args>-->
+                                <!--<arg>-dependencyfile</arg>-->
+                                <!--<arg>${project.build.directory}/.scala_dependencies</arg>-->
+                            <!--</args>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 
