@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep
 
+import java.io.File
+import java.nio.file.Paths
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -8,7 +10,7 @@ import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SaveMode}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.types.{StructField, StructType}
@@ -24,6 +26,9 @@ import scala.util.{Failure, Success, Try}
 object ConversionHelper extends Serializable {
 
   private val defaultDateFormat = DatePatternEnum.YearMonthDay
+
+  // currently everything in the tmp folder will be overwritten when the preparator is called again.
+  private val outputPath = Paths.get(System.getProperty("user.dir")).getParent.toString + "/tmp"
 
   /**
     * Converts the pattern of the date value into the desired pattern.
@@ -59,7 +64,6 @@ object ConversionHelper extends Serializable {
 
   def countSubstring(str: String, substr: String) = substr.r.findAllMatchIn(str).length
 
-
   def splitFileBySeparator(separator: String, source: Dataset[Row]): Dataset[Row] = {
     val dataList = source.collectAsList
     val rowWithMaxSeparators = dataList.toArray
@@ -70,8 +74,9 @@ object ConversionHelper extends Serializable {
       return source
     }
     val resultArray = dataList.subList(0, indexOfSplitLine).toArray
-    //
-    source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
+    // This is not precise. What if there are other lines in the second, or third etc. table that contains this row as well?
+//    source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
+    source.filter(row => !resultArray.contains(row)).write.mode(SaveMode.Overwrite).format("csv").save(outputPath)
     return source.filter(row => resultArray.contains(row))
   }
 
@@ -109,7 +114,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
+//    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
+    source.filter(row => !indexArray.contains(row)).write.mode(SaveMode.Overwrite).format("csv").save(outputPath)
     return source.filter(row => indexArray.contains(row))
   }
 
@@ -127,7 +133,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
+//    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
+    source.filter(row => !indexArray.contains(row)).write.mode(SaveMode.Overwrite).format("csv").save(outputPath)
     return source.filter(row => indexArray.contains(row))
   }
 

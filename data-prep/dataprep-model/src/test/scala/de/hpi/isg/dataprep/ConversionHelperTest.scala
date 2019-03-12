@@ -1,11 +1,16 @@
 package de.hpi.isg.dataprep
 
 import de.hpi.isg.dataprep.ConversionHelper.countSubstring
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Row, SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest._
 
 class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup {
+
+  Logger.getLogger("org").setLevel(Level.OFF)
+  Logger.getLogger("akka").setLevel(Level.OFF)
+
   "My analytics" should {
     "calculate the right thing" in withSparkContext { (sparkContext) =>
       val data = Seq(1, 2, 3, 4, 990)
@@ -49,6 +54,7 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       val testFrame = rdd.toDF
       val firstDataset = ConversionHelper.splitFileBySeparator("-", testFrame)
       firstDataset.collect shouldBe (List(Row("hallo")).toArray)
+      // but there is no unit test to check the content of the saved file.
     }
 
     "works on Datasets with multiple rows" in withSparkContext { (sparkContext) =>
