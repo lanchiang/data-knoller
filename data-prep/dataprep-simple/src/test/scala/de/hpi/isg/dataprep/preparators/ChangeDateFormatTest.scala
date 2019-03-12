@@ -11,6 +11,7 @@ import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import scala.collection.JavaConverters._
 
 class ChangeDateFormatTest extends PreparatorScalaTest {
+  override var resourcePath: String = "/pokemon.csv"
 
   val pokemonDates = Set("11-12-1989", "12-11-1988", "24-02-1966", "05-02-1957", "08-08-2008", "07-01-2017")
   val pokemonDatesDifferentFormat = Set("12-11-1989")

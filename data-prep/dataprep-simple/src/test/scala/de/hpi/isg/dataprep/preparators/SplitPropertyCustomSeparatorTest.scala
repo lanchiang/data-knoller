@@ -7,7 +7,8 @@ import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils
 import org.apache.spark.sql.Encoders
 
 class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializable {
-  resourcePath = "/split.csv"
+
+  override var resourcePath = "/split.csv"
 
   "MultiValueStringSeparator" should "work with single character as separator" in {
     val column = pipeline.getRawData.select("multi_string").as(Encoders.STRING)

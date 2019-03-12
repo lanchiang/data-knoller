@@ -7,6 +7,8 @@ import org.apache.spark.sql.SparkSession
 class RemovePreamble extends PreparatorScalaTest {
   var sparkContext:SparkSession = _
 
+  override var resourcePath: String = "/pokemon.csv"
+
   override def beforeAll: Unit = {
     val sparkBuilder = SparkSession
       .builder()

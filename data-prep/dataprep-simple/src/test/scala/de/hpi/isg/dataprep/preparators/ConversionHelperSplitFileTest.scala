@@ -8,6 +8,8 @@ import org.apache.spark.sql.{Row, SparkSession}
 class ConversionHelperSplitFileTest extends PreparatorScalaTest {
   var sparkContext:SparkSession = _
 
+  override var resourcePath = "/pokemon.csv"
+
   override def beforeAll: Unit = {
     val sparkBuilder = SparkSession
       .builder()
