@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lanchiang/data-knoller.svg?branch=master)](https://travis-ci.org/lanchiang/data-knoller)
+[![Build Status](https://travis-ci.com/sirexeclp/data-knoller.svg?branch=master)](https://travis-ci.com/sirexeclp/data-knoller)
 
 An under construction data preparation project.
 

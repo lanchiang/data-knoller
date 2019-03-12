@@ -100,3 +100,4 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     })
   }
 }
+

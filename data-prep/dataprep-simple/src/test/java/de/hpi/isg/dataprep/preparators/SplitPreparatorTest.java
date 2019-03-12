@@ -43,7 +43,7 @@ public class SplitPreparatorTest {
         DataContext dataContext = dataLoader.load();
         AbstractPipeline pipeline = new Pipeline(dataContext);
 
-        dataContext.getDataFrame().show();
+//        dataContext.getDataFrame().show();
 
         AbstractPreparation preparation = new Preparation(preperator);
         AbstractPreparation preparation1 = new Preparation(prep1);
@@ -51,7 +51,7 @@ public class SplitPreparatorTest {
         pipeline.addPreparation(preparation1);
         pipeline.executePipeline();
 
-        pipeline.getRawData().show(false);
+//        pipeline.getRawData().show(false);
 
     }
 

@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep;
 
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -21,8 +22,11 @@ public class SubsetIteratorTest {
     public void instantiateTest() {
         List<String> preparatorCandidateList = Arrays.asList(preparatorCandidates);
         SubsetIterator<String> iterator = new SubsetIterator<>(preparatorCandidateList, 3);
+        int count = 0;
         while (iterator.hasNext()) {
-            System.out.println(iterator.next().toString());
+            iterator.next();
+            count++;
         }
+        Assert.assertEquals(65, count);
     }
 }

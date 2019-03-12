@@ -1,13 +1,8 @@
 language: java
-jdk:
-- oraclejdk8
-
-sudo: false
+jdk: oraclejdk8
 
 notifications:
   email:
-    on_success: change
-    on_failure: change
 
 cache:
   directories:
@@ -16,4 +11,4 @@ cache:
 install: true
 before_script:
   - echo "MAVEN_OPTS='-Xmx2g -XX:MaxPermSize=512m'" >> ~/.mavenrc
-script: cd data-prep && mvn clean -B verify -DskipTests=true
+script: cd data-prep && mvn clean -B test

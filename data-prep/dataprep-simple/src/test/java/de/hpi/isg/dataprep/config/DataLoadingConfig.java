@@ -57,7 +57,7 @@ public class DataLoadingConfig {
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, transforms);
         dataContext = dataLoader.load();
 
-        dataContext.getDataFrame().show();
+//        dataContext.getDataFrame().show();
     }
 
     @Before

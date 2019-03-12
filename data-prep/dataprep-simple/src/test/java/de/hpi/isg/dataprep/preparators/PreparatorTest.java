@@ -50,7 +50,7 @@ public class PreparatorTest {
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
 
-        dataContext.getDataFrame().show();
+//        dataContext.getDataFrame().show();
         return;
     }
 

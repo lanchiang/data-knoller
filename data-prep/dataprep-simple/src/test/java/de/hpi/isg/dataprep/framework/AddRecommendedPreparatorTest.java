@@ -18,8 +18,8 @@ public class AddRecommendedPreparatorTest extends DataLoadingConfig {
 
     @Test
     public void addRecommendedPreparationTest() {
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("Internal error. Decision engine fails to select the best preparator.");
+//        expectedException.expect(RuntimeException.class);
+//        expectedException.expectMessage("Internal error. Decision engine fails to select the best preparator.");
 
         /**
          * Iteratively adding a new preparation to the pipeline. The preparation added by the method 'addRecommendedPreparation', which is
