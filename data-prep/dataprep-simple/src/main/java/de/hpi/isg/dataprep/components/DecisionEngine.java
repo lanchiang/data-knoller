@@ -215,7 +215,7 @@ public class DecisionEngine implements Engine {
     }
 
     public void setPreparatorCandidates(String[] preparatorCandidates) {
-        this.preparatorCandidates = preparatorCandidates;
+        DecisionEngine.preparatorCandidates = preparatorCandidates;
     }
 
     public void printPreparatorCandidates() {

@@ -6,16 +6,19 @@ import de.hpi.isg.dataprep.context.DataContext
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpecLike, Matchers}
 
 trait PreparatorScalaTest extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
+  var testFileName: String
+
   var dataset: Dataset[Row] = _
   var pipeline: AbstractPipeline = _
   var dataContext: DataContext = _
   var resourcePath = "/pokemon.csv"
 
   override def beforeAll: Unit = {
+
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
 

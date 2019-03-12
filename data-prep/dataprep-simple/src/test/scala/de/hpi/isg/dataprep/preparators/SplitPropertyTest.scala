@@ -9,6 +9,9 @@ import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.types.{DataTypes, Metadata, StructField, StructType}
 
 class SplitPropertyTest extends PreparatorScalaTest with Serializable {
+
+  override var testFileName = "pokemon.csv"
+
   "Column" should "be split correctly if only propertyName is given" in {
     splitShouldBeCorrect(new SplitProperty("date"))
   }
@@ -77,9 +80,9 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
       StructField("stemlemma", DataTypes.StringType, nullable = true, Metadata.empty),
       StructField("stemlemma2", DataTypes.StringType, nullable = true, Metadata.empty),
       StructField("stemlemma_wrong", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date1", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date2", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date3", DataTypes.StringType, nullable = true, Metadata.empty)
+      StructField("date1", DataTypes.StringType, nullable = false, Metadata.empty),
+      StructField("date2", DataTypes.StringType, nullable = false, Metadata.empty),
+      StructField("date3", DataTypes.StringType, nullable = false, Metadata.empty)
     )
   )
 

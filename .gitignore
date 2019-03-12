@@ -16,6 +16,6 @@
 # MacOS
 .DS_Store
 ._.*
-data-prep/dataprep-simple/src/test/resources/BenkeKarsch.csv
-data-prep/dataprep-simple/src/test/resources/facebook_foursquare_gowalla_sna.csv
-Grand_PräsiFelix.pptx
+
+# output folder
+data-prep/tmp

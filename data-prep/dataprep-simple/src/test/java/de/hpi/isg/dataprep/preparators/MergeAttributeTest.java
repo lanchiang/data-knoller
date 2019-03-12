@@ -123,7 +123,6 @@ public class MergeAttributeTest {
 		pipeline.addPreparation(new Preparation(new MergeAttribute(columns2, "")));
 		pipeline.addPreparation(new Preparation(new MergeAttribute(columns3, "")));
 		pipeline.executePipeline();
-		pipeline.getRawData().show();
 	}
 
 	@Test
@@ -136,7 +135,6 @@ public class MergeAttributeTest {
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
 		pipeline.executePipeline();
-		pipeline.getRawData().show();
 	}
 
 	@Ignore
@@ -150,10 +148,7 @@ public class MergeAttributeTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-        pipeline.getRawData().show();
     }
-
-
 
 	@Test
 	public void testAplicabilityFunc() throws Exception{
@@ -182,7 +177,6 @@ public class MergeAttributeTest {
 		pipeline = new Pipeline(dataLoader.load());
 		pipeline.addPreparation(new Preparation(actualPreparator));
 		pipeline.executePipeline();
-		pipeline.getRawData().show();
 		//AbstractPreparator abstractPreparator = new MergeAttribute(columns, " ");
 		//System.out.println(abstractPreparator.calApplicability(null,dataset,null));
 	}
@@ -207,7 +201,6 @@ public class MergeAttributeTest {
 //        pipeline = new Pipeline(benkeContext);
 //        pipeline.addPreparation(new Preparation(selectedPrep));
         pipeline.executePipeline();
-        pipeline.getRawData().show();
     }
 	@Test
 	public void testMergeDateFuncAppl() throws Exception{
@@ -223,7 +216,6 @@ public class MergeAttributeTest {
         pipeline = new Pipeline(benkeContext);
         pipeline.addPreparation(new Preparation(selectedPrep));
 		pipeline.executePipeline();
-		pipeline.getRawData().show();
 	}
 
 	@Test
@@ -265,10 +257,10 @@ public class MergeAttributeTest {
 	private static List<Transform> createTransformsManually() {
 		// generate schema mapping
 		List<Transform> transforms = new ArrayList<>();
-		Attribute sourceAttributes [] =  new  Attribute[] {
-			new Attribute(new StructField("stemlemma", DataTypes.StringType, true, emptyMetadata))
-			,new Attribute(new StructField("stemlemma2", DataTypes.StringType, true, emptyMetadata))
-		};
+        Attribute[] sourceAttributes = new Attribute[]{
+                new Attribute(new StructField("stemlemma", DataTypes.StringType, true, emptyMetadata))
+                , new Attribute(new StructField("stemlemma2", DataTypes.StringType, true, emptyMetadata))
+        };
 		Attribute targetAttribute = new Attribute(new StructField("stem",DataTypes.StringType,true,  emptyMetadata));
 		Transform mergeAttribute = new TransMergeAttribute(sourceAttributes,targetAttribute);
 		transforms.add(mergeAttribute);
@@ -278,10 +270,10 @@ public class MergeAttributeTest {
 	private static List<Transform> createTransformsManuallyBenke() {
 		// generate schema mapping
 		List<Transform> transforms = new ArrayList<>();
-		Attribute sourceAttributes [] =  new  Attribute[] {
-			new Attribute(new StructField("firstname", DataTypes.StringType, true, emptyMetadata))
-			,new Attribute(new StructField("firstname", DataTypes.StringType, true, emptyMetadata))
-		};
+        Attribute[] sourceAttributes = new Attribute[]{
+                new Attribute(new StructField("firstname", DataTypes.StringType, true, emptyMetadata))
+                , new Attribute(new StructField("firstname", DataTypes.StringType, true, emptyMetadata))
+        };
 		Attribute targetAttribute = new Attribute(new StructField("lastname",DataTypes.StringType,true,  emptyMetadata));
 		Transform mergeAttribute = new TransMergeAttribute(sourceAttributes,targetAttribute);
 		transforms.add(mergeAttribute);

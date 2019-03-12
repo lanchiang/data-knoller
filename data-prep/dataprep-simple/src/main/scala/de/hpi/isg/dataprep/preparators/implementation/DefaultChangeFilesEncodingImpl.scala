@@ -43,7 +43,9 @@ class DefaultChangeFilesEncodingImpl extends AbstractPreparatorImpl {
       errorAccumulator)
 
     val createdDataset = dataFrame.withColumn(propertyName, convertEncodingFunc(col(propertyName)))
-    createdDataset.first() // Spark is lazy => we force it to execute the transformation immediately to populate errorAccumulator
+//    createdDataset.first() // Spark is lazy => we force it to execute the transformation immediately to populate errorAccumulator
+
+    createdDataset.foreach(row => Unit)
 
     new ExecutionContext(createdDataset, errorAccumulator)
   }
