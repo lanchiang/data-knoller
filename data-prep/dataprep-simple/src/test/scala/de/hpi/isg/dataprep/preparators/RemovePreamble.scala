@@ -81,12 +81,12 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("./dataprep-simple/src/test/resources/preamble_initial_char_space_fail.csv")
+      .csv("./src/test/resources/preamble_initial_char_space_fail.csv")
     val customDataset = fileData
 
     val fileDataExpected = localContext.read
       .option("sep", "\t")
-      .csv("./dataprep-simple/src/test/resources/preamble_initial_char_space_fail_expected.csv")
+      .csv("./src/test/resources/preamble_initial_char_space_fail_expected.csv")
     val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
