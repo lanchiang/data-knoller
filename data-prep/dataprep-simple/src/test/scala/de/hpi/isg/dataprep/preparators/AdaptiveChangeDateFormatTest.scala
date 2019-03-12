@@ -4,7 +4,9 @@ import java.text.ParseException
 import java.util
 import java.util.Locale
 
-import de.hpi.isg.dataprep.components.Preparation
+import de.hpi.isg.dataprep.DialectBuilder
+import de.hpi.isg.dataprep.components.{Pipeline, Preparation}
+import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern
 import de.hpi.isg.dataprep.model.repository.ErrorRepository
 import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
@@ -13,6 +15,7 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
 import de.hpi.isg.dataprep.util.DatePattern
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.functions.col
 
 /**
@@ -22,7 +25,7 @@ import org.apache.spark.sql.functions.col
   */
 class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
 
-  override var testFileName = "dates_applicability.csv"
+  override var resourcePath: String = "/dates_applicability.csv"
 
   "calApplicability on the date column" should "return a score of 6/16" in {
     val columnName = "date"

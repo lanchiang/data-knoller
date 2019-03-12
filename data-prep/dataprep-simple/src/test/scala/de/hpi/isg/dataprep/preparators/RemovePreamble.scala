@@ -7,6 +7,8 @@ import org.apache.spark.sql.SparkSession
 class RemovePreamble extends PreparatorScalaTest {
   var sparkContext:SparkSession = _
 
+  override var resourcePath: String = "/pokemon.csv"
+
   override def beforeAll: Unit = {
     val sparkBuilder = SparkSession
       .builder()
@@ -79,12 +81,12 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_space_fail.csv")
+      .csv("./dataprep-simple/src/test/resources/preamble_initial_char_space_fail.csv")
     val customDataset = fileData
 
     val fileDataExpected = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_space_fail_expected.csv")
+      .csv("./dataprep-simple/src/test/resources/preamble_initial_char_space_fail_expected.csv")
     val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl

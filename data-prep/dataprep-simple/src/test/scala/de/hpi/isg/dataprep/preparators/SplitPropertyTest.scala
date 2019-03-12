@@ -10,7 +10,7 @@ import org.apache.spark.sql.types.{DataTypes, Metadata, StructField, StructType}
 
 class SplitPropertyTest extends PreparatorScalaTest with Serializable {
 
-  override var testFileName = "pokemon.csv"
+  override var resourcePath: String = "/pokemon.csv"
 
   "Column" should "be split correctly if only propertyName is given" in {
     splitShouldBeCorrect(new SplitProperty("date"))
