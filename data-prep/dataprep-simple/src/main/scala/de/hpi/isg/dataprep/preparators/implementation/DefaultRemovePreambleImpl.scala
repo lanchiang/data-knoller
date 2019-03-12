@@ -81,14 +81,20 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
 
   def findPreambleChar(dataframe:DataFrame): String = {
     import dataframe.sparkSession.implicits._
-    dataframe
+    val preambleChars = dataframe
       .map {r => r.mkString.charAt(0).toString}
       .filter(c => "[^A-Za-z0-9]".r.pattern.matcher(c).find())
       .groupBy("value")
       .count()
       .toDF("char", "count")
-      .reduce((a,b) => if (a.getLong(1) > b.getLong(1)) a else b )
-      .getString(0)
+
+      if(preambleChars.count() > 0){
+        preambleChars
+          .reduce((a,b) => if (a.getLong(1) > b.getLong(1)) a else b )
+          .getString(0)
+      }else{
+        ""
+      }
   }
 
   def analyseSeparatorCount(dataFrame: DataFrame, separator:String): DataFrame = {
