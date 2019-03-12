@@ -70,9 +70,9 @@ object ConversionHelper extends Serializable {
       return source
     }
     val resultArray = dataList.subList(0, indexOfSplitLine).toArray
-    //
-    source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
-    return source.filter(row => resultArray.contains(row))
+    // uncomment if you want to write the secnod dataset to disk
+    // source.filter(row => !resultArray.contains(row)).write.format("csv").save("./secondDataset.csv")
+    source.filter(row => resultArray.contains(row))
   }
 
   def findUnknownFileSeparator(source: Dataset[Row]): (String, Float) = {
@@ -109,8 +109,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
-    return source.filter(row => indexArray.contains(row))
+    //source.filter(row => !indexArray.contains(row)).write.format("csv").save("./secondDataset.csv")
+    source.filter(row => indexArray.contains(row))
   }
 
   def splitFileByNewValuesAfterEmpty(source: Dataset[Row]): Dataset[Row] = {
@@ -127,8 +127,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
-    return source.filter(row => indexArray.contains(row))
+    //source.filter(row => !indexArray.contains(row)).write.format("csv").save("./secondDataset.csv")
+    source.filter(row => indexArray.contains(row))
   }
 
   def getDefaultDate(): String = {

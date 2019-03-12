@@ -5,7 +5,6 @@ import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
 import org.apache.spark.sql.SparkSession
 
 class RemovePreamble extends PreparatorScalaTest {
-
   var sparkContext:SparkSession = _
 
   override def beforeAll: Unit = {
