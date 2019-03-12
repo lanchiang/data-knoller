@@ -1,11 +1,11 @@
 id,identifier,species_id,height,weight,base_experience,order,is_default,date,stemlemma,stemlemma2,stemlemma_wrong
-1,bulb  asa ur,1,7,69,64,1,1,1989-12-11,worst,worst,worst
-2,ivysaur,2,10,130,141&h(*2,2,1,1988-11-12,best,best,best
-three,ven us   aur,3,20,1000,236,3,1,thisIsDate,You are,You are,You are
-4,charmander,4,6,85,62,5,1,1966-02-24,amazingly,amazingly,amazingly
-5,charmeleon,5,11,190,142,6,1,1957-02-05,I am,I am,I am
+1,bulb  asa ur,1,7,69,64,1,1,1989-12-11,está abierto,worst,worst
+2,ivysaur,2,10,130,141&h(*2,2,1,1988-11-12,murió en 1923,best,best
+three,ven us   aur,3,20,1000,236,3,1,thisIsDate,Qué haces en mi casa?,You are,You are
+4,charmander,4,6,85,62,5,1,1966-02-24,yo estoy muy cansado,amazingly,amazingly
+5,charmeleon,5,11,190,142,6,1,1957-02-05,Vete al diablo!,I am,I am
 six,cha riz ard,6,17,905,*24)~(0,7,1,12-11-1989,are,are,are
-7,squirtle,7,5,90,63,10,1,2008-08-08,going,going,going
-8,war  to rtle,8,10,225,142,11,1,2017-01-07,warring,warring,warring
+7,squirtle,7,5,90,63,10,1,2008-08-08,amazingly,going,going
+8,war  to rtle,8,10,225,142,11,1,2017-01-07,You are,warring,warring
 9,blabtbise,9,16,855,2^^39,12,1,2014-13-31,Fred's house,Fred's house,  ,
 ten,cat  erpie,10,3,29,39,14,1,2000-01-32,succeeded,succeeded,succeeded

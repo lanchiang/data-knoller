@@ -28,8 +28,6 @@ public class RemoveCharactersTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-        pipeline.getRawData().show();
-
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
@@ -44,8 +42,6 @@ public class RemoveCharactersTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-        pipeline.getRawData().show();
-
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
@@ -59,8 +55,6 @@ public class RemoveCharactersTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
-        pipeline.getRawData().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);

@@ -16,3 +16,6 @@
 # MacOS
 .DS_Store
 ._.*
+
+# output folder
+data-prep/tmp

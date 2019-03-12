@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep
 
+import java.io.File
+import java.nio.file.Paths
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -8,13 +10,12 @@ import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import de.hpi.isg.dataprep.util.{HashAlgorithm, RemoveCharactersMode}
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SaveMode}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.expressions._
 import org.apache.spark.sql.types.{StructField, StructType}
 
 import scala.collection.mutable.ListBuffer
-
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -25,6 +26,9 @@ import scala.util.{Failure, Success, Try}
 object ConversionHelper extends Serializable {
 
   private val defaultDateFormat = DatePatternEnum.YearMonthDay
+
+  // currently everything in the tmp folder will be overwritten when the preparator is called again.
+  private val outputPath = Paths.get(System.getProperty("user.dir")).getParent.toString + "/tmp"
 
   /**
     * Converts the pattern of the date value into the desired pattern.
@@ -54,11 +58,11 @@ object ConversionHelper extends Serializable {
         val targetDate = new SimpleDateFormat(target.getPattern).format(date.toOption.get)
         targetDate
       }
+
     }
   }
 
   def countSubstring(str: String, substr: String) = substr.r.findAllMatchIn(str).length
-
 
   def splitFileBySeparator(separator: String, source: Dataset[Row]): Dataset[Row] = {
     val dataList = source.collectAsList
@@ -70,9 +74,9 @@ object ConversionHelper extends Serializable {
       return source
     }
     val resultArray = dataList.subList(0, indexOfSplitLine).toArray
-    //
-    source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
-    return source.filter(row => resultArray.contains(row))
+    // uncomment if you want to write the secnod dataset to disk
+    // source.filter(row => !resultArray.contains(row)).write.format("csv").save("./secondDataset.csv")
+    source.filter(row => resultArray.contains(row))
   }
 
   def findUnknownFileSeparator(source: Dataset[Row]): (String, Float) = {
@@ -109,8 +113,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
-    return source.filter(row => indexArray.contains(row))
+    //source.filter(row => !indexArray.contains(row)).write.format("csv").save("./secondDataset.csv")
+    source.filter(row => indexArray.contains(row))
   }
 
   def splitFileByNewValuesAfterEmpty(source: Dataset[Row]): Dataset[Row] = {
@@ -127,8 +131,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
-    return source.filter(row => indexArray.contains(row))
+    //source.filter(row => !indexArray.contains(row)).write.format("csv").save("./secondDataset.csv")
+    source.filter(row => indexArray.contains(row))
   }
 
   def getDefaultDate(): String = {

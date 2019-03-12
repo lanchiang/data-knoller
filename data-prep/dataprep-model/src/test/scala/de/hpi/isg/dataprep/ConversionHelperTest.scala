@@ -1,11 +1,16 @@
 package de.hpi.isg.dataprep
 
 import de.hpi.isg.dataprep.ConversionHelper.countSubstring
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{Row, SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest._
 
 class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup {
+
+  Logger.getLogger("org").setLevel(Level.OFF)
+  Logger.getLogger("akka").setLevel(Level.OFF)
+
   "My analytics" should {
     "calculate the right thing" in withSparkContext { (sparkContext) =>
       val data = Seq(1, 2, 3, 4, 990)
@@ -49,6 +54,7 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       val testFrame = rdd.toDF
       val firstDataset = ConversionHelper.splitFileBySeparator("-", testFrame)
       firstDataset.collect shouldBe (List(Row("hallo")).toArray)
+      // but there is no unit test to check the content of the saved file.
     }
 
     "works on Datasets with multiple rows" in withSparkContext { (sparkContext) =>
@@ -76,7 +82,6 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       import sc.implicits._
       val testFrame = rdd.toDF()
       val separator = ConversionHelper.findUnknownFileSeparator(testFrame)
-
       separator._1 shouldBe ("-")
     }
   }
@@ -92,7 +97,6 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       import sc.implicits._
       val testFrame = rdd.toDF()
       val nullValue = ConversionHelper.splitFileByEmptyValues(testFrame)
-
       nullValue.collect() shouldBe (List(Row("hallo", "ballo"), Row("world", "noerld")).toArray)
     }
   }
@@ -114,51 +118,9 @@ class ConversionHelperTest extends WordSpec with Matchers with SparkContextSetup
       import sc.implicits._
       val testFrame = rdd.toDF()
       val nullValue = ConversionHelper.splitFileByNewValuesAfterEmpty(testFrame)
-
       nullValue.collect() shouldBe (List(Row("xyz", "sss"), Row("gef", "fef"), Row("lfe", "das")).toArray)
     }
   }
-
-
-  //"Split dataset by datatype" should {
-  //"read csv files nicely" in withSparkContext{ (sparkContext) =>
-  //  val sc = SparkSession.builder
-  //    .master("local")
-  //    .appName("Word Count")
-  //    .getOrCreate()
-  //
-  //  val dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url("./src/test/resources/multipleFilesWithDataTypes.csv").buildDialect
-  //  val dataLoader = new FlatFileDataLoader(dialect)
-  //  val dataContext = dataLoader.load
-  //
-  //  dataFrame shouldBe(1)
-  //}
-
-  // "identify all the different datatypes in one column" in withSparkContext{ (sparkContext) =>
-  //   val data = Seq(("ID", "AGE"),(1, 10),(2, 30),("date", "time"), ("1.1.18", true), ("2.3.19", true))
-  //   val rdd = sparkContext.parallelize(data)
-  //   val sc = SparkSession.builder
-  //     .master("local")
-  //     .appName("Word Count")
-  //     .getOrCreate()
-  //   import sc.implicits._
-  //   val testFrame = rdd.toDF()
-  //   testFrame shouldBe(1)
-  //   var typeMap = collection.mutable.Map[String, List[DataType]]()
-  //   testFrame.collect.foreach( row => {
-  //     val typeIterator = row.schema.iterator
-  //     while(typeIterator.hasNext){
-  //       val field = typeIterator.next
-  //       if(typeMap.keySet.contains(field.name)){
-  //         typeMap(field.name) = field.dataType :: typeMap(field.name)
-  //       }else{
-  //         typeMap = typeMap + (field.name -> List[DataType]())
-  //       }
-  //     }
-  //   })
-  //   typeMap.toArray shouldBe(Array(1))
-  // }
-  //
 }
 
 trait SparkContextSetup {

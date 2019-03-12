@@ -17,6 +17,7 @@ class DefaultSplitFileImpl extends AbstractPreparatorImpl {
     val preparator = abstractPreparator.asInstanceOf[SplitFile]
     val fileSeparator = preparator.fileSeparator
 
+
     if (fileSeparator == "") {
       val (foundSeparator, sepConfidence) = ConversionHelper.findUnknownFileSeparator(dataFrame)
       if (sepConfidence >= 1) {

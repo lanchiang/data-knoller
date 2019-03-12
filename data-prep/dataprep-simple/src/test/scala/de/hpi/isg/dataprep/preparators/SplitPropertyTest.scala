@@ -80,9 +80,9 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
       StructField("stemlemma", DataTypes.StringType, nullable = true, Metadata.empty),
       StructField("stemlemma2", DataTypes.StringType, nullable = true, Metadata.empty),
       StructField("stemlemma_wrong", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date1", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date2", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date3", DataTypes.StringType, nullable = true, Metadata.empty)
+      StructField("date1", DataTypes.StringType, nullable = false, Metadata.empty),
+      StructField("date2", DataTypes.StringType, nullable = false, Metadata.empty),
+      StructField("date3", DataTypes.StringType, nullable = false, Metadata.empty)
     )
   )
 
@@ -103,3 +103,4 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     })
   }
 }
+

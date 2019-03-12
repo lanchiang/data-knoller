@@ -26,6 +26,8 @@ object DefaultSplitPropertyImpl {
 
     override def merge(split: Vector[String], original: String): String =
       split.mkString(separatorValue)
+
+    override def mostLikelySeparator: String = separatorValue
   }
 
   case class MultiValueStringSeparator(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
@@ -49,6 +51,8 @@ object DefaultSplitPropertyImpl {
 
       split.mkString(separatorValue)
     }
+
+    override def mostLikelySeparator: String = globalDistribution.maxBy(_._2)._1
   }
 
   case class SingleValueCharacterClassSeparator(separatorValue: String) extends Separator {
@@ -61,6 +65,8 @@ object DefaultSplitPropertyImpl {
 
     override def merge(split: Vector[String], original: String): String =
       split.mkString("")
+
+    override def mostLikelySeparator: String = separatorValue
   }
 
   case class MultiValueCharacterClassSeparator(numCols: Int, globalDistribution: Map[String, Int]) extends Separator {
@@ -81,6 +87,8 @@ object DefaultSplitPropertyImpl {
     override def merge(split: Vector[String], original: String): String = {
       split.mkString("")
     }
+
+    override def mostLikelySeparator: String = globalDistribution.maxBy(_._2)._1
   }
 
 }

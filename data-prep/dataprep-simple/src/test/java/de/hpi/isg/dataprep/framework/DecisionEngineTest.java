@@ -17,6 +17,13 @@ public class DecisionEngineTest extends DataLoadingConfig {
     public void selectBestPreparatorTest() {
         // imperfect test. Now the test is done step-by-step in debugging mode.
         DecisionEngine decisionEngine = DecisionEngine.getInstance();
+
+        decisionEngine.printPreparatorCandidates();
+
+        decisionEngine.setPreparatorCandidates(new String[]{
+                "AddProperty", "Collapse", "DeleteProperty", "Hash"
+        });
+
         AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
 
         AbstractPreparator expectedPreparator = new DeleteProperty("date");
