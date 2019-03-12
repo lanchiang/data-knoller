@@ -77,15 +77,17 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
       StructField("stemlemma", DataTypes.StringType, nullable = true, Metadata.empty),
       StructField("stemlemma2", DataTypes.StringType, nullable = true, Metadata.empty),
       StructField("stemlemma_wrong", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date1", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date2", DataTypes.StringType, nullable = true, Metadata.empty),
-      StructField("date3", DataTypes.StringType, nullable = true, Metadata.empty)
+      StructField("date1", DataTypes.StringType, nullable = false, Metadata.empty),
+      StructField("date2", DataTypes.StringType, nullable = false, Metadata.empty),
+      StructField("date3", DataTypes.StringType, nullable = false, Metadata.empty)
     )
   )
 
   def splitShouldBeCorrect(preparator: AbstractPreparator): Unit = {
     pipeline.addPreparation(new Preparation(preparator))
     pipeline.executePipeline()
+
+    pipeline.getRawData.show()
 
     pipeline.getErrorRepository.getErrorLogs.size shouldEqual 0
     pipeline.getRawData.schema shouldEqual newSchema

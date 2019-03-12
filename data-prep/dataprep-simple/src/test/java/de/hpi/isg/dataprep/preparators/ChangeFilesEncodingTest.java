@@ -102,7 +102,6 @@ public class ChangeFilesEncodingTest extends PreparatorTest {
 
     /* Test I/O errors */
 
-    @Ignore
     @Test
     public void testFileNotFound() throws Exception {
         Dataset<Row> oldData = pipeline.getRawData();
@@ -115,7 +114,6 @@ public class ChangeFilesEncodingTest extends PreparatorTest {
         pipeline.setRawData(oldData);  // restore actual paths so cleanUp doesn't complain
     }
 
-    @Ignore
     @Test
     public void testWrongSourceEncoding() throws Exception {
         String oldEncoding = "ASCII";
@@ -124,7 +122,6 @@ public class ChangeFilesEncodingTest extends PreparatorTest {
         assertErrorCount((int) pipeline.getRawData().count());
     }
 
-    @Ignore
     @Test
     public void testTargetEncodingCannotEncodeSource() throws Exception {
         String newEncoding = "ASCII";
