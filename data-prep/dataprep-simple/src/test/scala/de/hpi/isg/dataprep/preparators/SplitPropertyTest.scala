@@ -87,8 +87,6 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     pipeline.addPreparation(new Preparation(preparator))
     pipeline.executePipeline()
 
-    pipeline.getRawData.show()
-
     pipeline.getErrorRepository.getErrorLogs.size shouldEqual 0
     pipeline.getRawData.schema shouldEqual newSchema
 
