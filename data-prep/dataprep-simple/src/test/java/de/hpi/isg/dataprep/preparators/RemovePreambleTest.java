@@ -104,7 +104,7 @@ public class RemovePreambleTest extends PreparatorTest {
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-        pipeline.getRawData().show();
+//        pipeline.getRawData().show();
 
         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
     }
