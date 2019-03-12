@@ -74,16 +74,9 @@ object ConversionHelper extends Serializable {
       return source
     }
     val resultArray = dataList.subList(0, indexOfSplitLine).toArray
-<<<<<<< HEAD
-    // This is not precise. What if there are other lines in the second, or third etc. table that contains this row as well?
-//    source.filter(row => !resultArray.contains(row)).write.format("csv").save(".")
-    source.filter(row => !resultArray.contains(row)).write.mode(SaveMode.Overwrite).format("csv").save(outputPath)
-    return source.filter(row => resultArray.contains(row))
-=======
     // uncomment if you want to write the secnod dataset to disk
     // source.filter(row => !resultArray.contains(row)).write.format("csv").save("./secondDataset.csv")
     source.filter(row => resultArray.contains(row))
->>>>>>> 51fc1c081134673ec75e4ea7094ca31673c68fc3
   }
 
   def findUnknownFileSeparator(source: Dataset[Row]): (String, Float) = {
@@ -120,14 +113,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-<<<<<<< HEAD
-//    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
-    source.filter(row => !indexArray.contains(row)).write.mode(SaveMode.Overwrite).format("csv").save(outputPath)
-    return source.filter(row => indexArray.contains(row))
-=======
     //source.filter(row => !indexArray.contains(row)).write.format("csv").save("./secondDataset.csv")
     source.filter(row => indexArray.contains(row))
->>>>>>> 51fc1c081134673ec75e4ea7094ca31673c68fc3
   }
 
   def splitFileByNewValuesAfterEmpty(source: Dataset[Row]): Dataset[Row] = {
@@ -144,14 +131,8 @@ object ConversionHelper extends Serializable {
         }
       }
     }
-<<<<<<< HEAD
-//    source.filter(row => !indexArray.contains(row)).write.format("csv").save(".")
-    source.filter(row => !indexArray.contains(row)).write.mode(SaveMode.Overwrite).format("csv").save(outputPath)
-    return source.filter(row => indexArray.contains(row))
-=======
     //source.filter(row => !indexArray.contains(row)).write.format("csv").save("./secondDataset.csv")
     source.filter(row => indexArray.contains(row))
->>>>>>> 51fc1c081134673ec75e4ea7094ca31673c68fc3
   }
 
   def getDefaultDate(): String = {
