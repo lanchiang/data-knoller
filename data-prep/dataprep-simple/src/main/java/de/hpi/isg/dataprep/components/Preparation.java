@@ -56,7 +56,8 @@ public class Preparation implements AbstractPreparation {
         // update metadata repository. This shall be done even if the metadata fail to agree, because the following preparations need to
         // check the pipeline error with this presumably correct metadata.
         // actually we need to update the metadata repository with the toChange list.
-        metadataRepository.updateMetadata(toChangeMetadata);
+//        metadataRepository.updateMetadata(toChangeMetadata);
+        pipeline.updateMetadataRepository(toChangeMetadata);
     }
 
     @Override

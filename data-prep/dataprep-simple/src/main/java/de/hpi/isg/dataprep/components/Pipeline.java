@@ -230,7 +230,8 @@ public class Pipeline implements AbstractPipeline {
         Schemata schemata = new Schemata("table", attributes);
         initMetadata.add(schemata);
 
-        this.metadataRepository.updateMetadata(initMetadata);
+//        this.metadataRepository.updateMetadata(initMetadata);
+        updateMetadataRepository(initMetadata);
     }
 
     @Override
@@ -281,7 +282,8 @@ public class Pipeline implements AbstractPipeline {
 
         recordErrorLog(executionContext, preparation);
         this.setRawData(executionContext.newDataFrame());
-        UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
+//        UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
+        this.updateMetadataRepository(preparation.getAbstractPreparator().getUpdateMetadata());
         recordProvenance();
     }
 
@@ -346,13 +348,16 @@ public class Pipeline implements AbstractPipeline {
     }
 
     @Override
-    public void updateTargetMetadata(Collection<Metadata> coming) {
-//        coming.stream().forEach(metadata -> {
-//            targetMetadata.remove(metadata);
-//            targetMetadata.add(metadata);
-//        });
-
+    public void updateMetadataRepository(Collection<Metadata> coming) {
         metadataRepository.updateMetadata(coming);
+    }
+
+    @Override
+    public void updateTargetMetadata(Collection<Metadata> coming) {
+        coming.stream().forEach(metadata -> {
+            targetMetadata.remove(metadata);
+            targetMetadata.add(metadata);
+        });
     }
 
     @Override

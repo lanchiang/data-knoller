@@ -93,6 +93,16 @@ public interface AbstractPipeline extends Nameable, Printable {
 
     Set<Metadata> getTargetMetadata();
 
+    /**
+     * Update the metadata repository with the new metadata modified by executing the preparator.
+     * @param coming is the updated metadata
+     */
+    void updateMetadataRepository(Collection<Metadata> coming);
+
+    /**
+     * Update the target metadata set with newly created metadata.
+     * @param coming is the newly created metadata set
+     */
     void updateTargetMetadata(Collection<Metadata> coming);
 
     Dataset<Row> getRawData();
