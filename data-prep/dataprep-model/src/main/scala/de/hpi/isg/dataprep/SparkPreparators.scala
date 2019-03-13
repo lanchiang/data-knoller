@@ -72,7 +72,6 @@ object SparkPreparators {
     })
     System.out.println(transformed)
     System.out.println(accumulatorV2)
-    0
   }
 
 }

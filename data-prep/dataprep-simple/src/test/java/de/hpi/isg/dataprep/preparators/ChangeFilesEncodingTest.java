@@ -160,7 +160,7 @@ public class ChangeFilesEncodingTest extends PreparatorTest {
         executePreparator(preparator);
     }
 
-    @Test(expected = PreparationHasErrorException.class)
+    @Test(expected = RuntimeException.class)
     public void testInvalidProperty() throws Exception {
         ChangeFilesEncoding preparator = new ChangeFilesEncoding("fake property", NEW_ENCODING);
         executePreparator(preparator);
