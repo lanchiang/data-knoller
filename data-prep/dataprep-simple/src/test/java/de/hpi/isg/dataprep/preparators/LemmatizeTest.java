@@ -14,6 +14,7 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -23,6 +24,7 @@ import java.util.*;
  */
 public class LemmatizeTest extends PreparatorTest {
 
+    @Ignore
     @Test
     public void testValidColumn() throws Exception {
         AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma");
@@ -53,6 +55,7 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LemmatizedMetadata("stemlemma")));
     }
 
+    @Ignore
     @Test
     public void testValidSpanishColumn() throws Exception {
         AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma");
@@ -84,6 +87,7 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LemmatizedMetadata("stemlemma")));
     }
 
+    @Ignore
     @Test
     public void testInvalidColumn() throws Exception {
         AbstractPreparator abstractPreparator = new LemmatizePreparator("stemlemma_wrong");
@@ -112,6 +116,7 @@ public class LemmatizeTest extends PreparatorTest {
         Assert.assertEquals("  ", emptyStringError.getValue());
     }
 
+    @Ignore
     //    @Test(expected = SparkException.class)
     @Test(expected = PreparationHasErrorException.class)
     public void testMissingColumn() throws Exception {
