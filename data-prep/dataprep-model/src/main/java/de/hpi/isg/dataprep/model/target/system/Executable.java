@@ -1,5 +1,6 @@
-package de.hpi.isg.dataprep.util;
+package de.hpi.isg.dataprep.model.target.system;
 
+import de.hpi.isg.dataprep.ExecutionContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
@@ -11,5 +12,5 @@ import org.apache.spark.sql.Row;
  */
 public interface Executable {
 
-    void execute() throws Exception;
+    ExecutionContext execute(Dataset<Row> dataset) throws Exception;
 }

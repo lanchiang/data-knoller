@@ -4,20 +4,14 @@ import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
-import de.hpi.isg.dataprep.model.error.PropertyError;
-import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
-import de.hpi.isg.dataprep.util.Executable;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 /**
  * This interface defines all the common behaviors of every preparator.
@@ -42,8 +36,6 @@ abstract public class AbstractPreparator implements Executable {
         prerequisites = new CopyOnWriteArrayList<>();
         updates = new CopyOnWriteArrayList<>();
 
-//        impl = newImpl();
-
         String simpleClassName = this.getClass().getSimpleName();
 
         String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
@@ -60,21 +52,13 @@ abstract public class AbstractPreparator implements Executable {
     abstract public void buildMetadataSetup() throws ParameterNotSpecifiedException;
 
     @Override
-    public void execute() throws Exception {
+    public ExecutionContext execute(Dataset<Row> dataset) throws Exception {
         checkMetadataPrerequisite();
         if (!invalid.isEmpty()) {
             throw new PreparationHasErrorException("Metadata prerequisite not met.");
         }
 
-        try {
-            executePreparator();
-        } catch (PreparationHasErrorException e) {
-            recordErrorLog();
-        }
-
-        // update metadata and dataset.
-        postExecConfig();
-
+        return executePreparator(dataset);
     }
 
     /**
@@ -85,9 +69,9 @@ abstract public class AbstractPreparator implements Executable {
      * the data slices. For example, for the preparator SplitAttribute, the data slice represents a single
      * column, and the caller will call this method for each column in the data.
      *
-     * @param schemaMapping is the schema of the input data towards the schema of the output data.
-     * @param dataset is the input dataset slice. A slice can be a subset of the columns of the data,
-     *                or a subset of the rows of the data.
+     * @param schemaMapping  is the schema of the input data towards the schema of the output data.
+     * @param dataset        is the input dataset slice. A slice can be a subset of the columns of the data,
+     *                       or a subset of the rows of the data.
      * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
      * @return the score that is calculated by the signature of this preparator instance.
      */
@@ -110,8 +94,8 @@ abstract public class AbstractPreparator implements Executable {
     /**
      * The execution of the preparator.
      */
-    protected void executePreparator() throws Exception {
-        impl.execute(this);
+    protected ExecutionContext executePreparator(Dataset<Row> dataset) throws Exception {
+        return impl.execute(this, dataset);
     }
 
     /**
@@ -141,68 +125,11 @@ abstract public class AbstractPreparator implements Executable {
 //                .forEach(metadata -> this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(metadata));
     }
 
-    /**
-     * Call this method whenever an error occurs during the preparator execution in order to
-     * record an error log.
-     */
-    private void recordErrorLog() {
-        ExecutionContext executionContext = this.getPreparation().getExecutionContext();
-
-        List<ErrorLog> errorLogs = executionContext.errorsAccumulator().value().stream()
-                .map(error -> {
-                    ErrorLog errorLog = null;
-                    switch (error.getErrorLevel()) {
-                        case RECORD: {
-                            RecordError pair = (RecordError) error;
-                            String value = pair.getErrRecord();
-                            Throwable exception = pair.getError();
-                            errorLog = new PreparationErrorLog(this.getPreparation(), value, exception);
-                            break;
-                        }
-                        case PROPERTY: {
-                            PropertyError pair = (PropertyError) error;
-                            String value = pair.getProperty();
-                            Throwable throwable = pair.getThrowable();
-                            errorLog = new PreparationErrorLog(this.getPreparation(), value, throwable);
-                            break;
-                        }
-                        case DATASET: {
-                            break;
-                        }
-                        default: {
-                            break;
-                        }
-                    }
-                    return errorLog;
-                }).collect(Collectors.toList());
-        this.getPreparation().getPipeline().getErrorRepository().addErrorLogs(errorLogs);
-    }
-
-    private void recordProvenance() {
-
-    }
-
-    private void updateMetadataRepository() {
-        MetadataRepository metadataRepository = this.getPreparation().getPipeline().getMetadataRepository();
-        metadataRepository.updateMetadata(updates);
-    }
-
-    private void updateDataset() {
-        this.getPreparation().getPipeline().setRawData(updatedTable);
-    }
 
     /**
      * After the execution of this preparator finishes, call this method to post config the pipeline.
      * For example, update the dataset, update the metadata repository.
      */
-
-    public void postExecConfig() {
-        recordProvenance();
-        updateMetadataRepository();
-        updateDataset();
-
-        // updateSchemaMapping
-    }
 
     public List<Metadata> getInvalidMetadata() {
         return invalid;
@@ -234,6 +161,7 @@ abstract public class AbstractPreparator implements Executable {
 
     /**
      * The preparator is equal to another only when they belong to the same kind of preparator, i.e., having the same preparator name.
+     *
      * @param o
      * @return
      */
