@@ -117,7 +117,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
     }
 
-    @Test(expected = PreparationHasErrorException.class)
+    @Test(expected = RuntimeException.class)
     public void testChangeToStringSourceTypeSpecifiedWrong() throws Exception {
         AbstractPreparator abstractPreparator = new ChangeDataType("id", DataType.PropertyType.INTEGER, DataType.PropertyType.STRING);
 

@@ -62,11 +62,16 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val customDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_fail.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char_fail.csv").toString)
+//      .csv(System.getProperty("user.dir") + "/src/test/resources/preamble_initial_char_fail.csv")
+//            .csv("./dataprep-simple/src/test/resources/preamble_initial_char_fail.csv")
+
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_fail_expected.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char_fail_expected.csv").toString)
+//      .csv(System.getProperty("user.dir") + "/src/test/resources/preamble_initial_char_fail_expected.csv")
+//            .csv("./dataprep-simple/src/test/resources/preamble_initial_char_fail_expected.csv")
 
     val prep = new DefaultRemovePreambleImpl
     val result = prep.analyseLeadingCharacter(customDataset)
