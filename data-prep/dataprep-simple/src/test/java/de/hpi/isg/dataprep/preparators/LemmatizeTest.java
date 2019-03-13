@@ -37,7 +37,7 @@ public class LemmatizeTest extends PreparatorTest {
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
-        preparation.getAbstractPreparator().execute();
+        preparation.getAbstractPreparator().execute(pipeline.getRawData());
 
 //        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
@@ -66,7 +66,7 @@ public class LemmatizeTest extends PreparatorTest {
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
-        preparation.getAbstractPreparator().execute();
+        preparation.getAbstractPreparator().execute(pipeline.getRawData());
 
 //        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
@@ -94,7 +94,7 @@ public class LemmatizeTest extends PreparatorTest {
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
-        preparation.getAbstractPreparator().execute();
+        preparation.getAbstractPreparator().execute(pipeline.getRawData());
 
 //        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
