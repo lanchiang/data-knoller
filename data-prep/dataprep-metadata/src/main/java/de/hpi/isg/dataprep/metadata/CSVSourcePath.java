@@ -6,6 +6,7 @@ import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,8 +54,10 @@ public class CSVSourcePath extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        CSVSourcePath o = (CSVSourcePath) metadata;
-        return o.getPath().equals(getPath());
+        if (metadata instanceof CSVSourcePath) {
+            return this.csvSourcePath.equals(((CSVSourcePath)metadata).csvSourcePath);
+        }
+        return false;
     }
 
     @Override
