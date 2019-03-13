@@ -68,7 +68,8 @@ public class LemmatizeTest extends PreparatorTest {
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
-        ExecutionContext executionContext = preparation.getAbstractPreparator().execute(pipeline.getRawData());
+        pipeline.executePipeline();
+//        ExecutionContext executionContext = preparation.getAbstractPreparator().execute(pipeline.getRawData());
 
 //        pipeline.getRawData().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
@@ -76,8 +77,8 @@ public class LemmatizeTest extends PreparatorTest {
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-//        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
-        List<String> actualStemlemma = executionContext.newDataFrame().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+//        List<String> actualStemlemma = executionContext.newDataFrame().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("estar abrir", "morir en 1923", "qué hacer en mi casa", "yo estar muy cansar", "vetar a+el diablo", "are", "amazingly", "You are", "Fred's house", "succeeded");
         Assert.assertEquals(expected, actualStemlemma);
         Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LemmatizedMetadata("stemlemma")));
