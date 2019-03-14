@@ -52,7 +52,7 @@ public interface AbstractPipeline extends Nameable, Printable {
     void executePipeline() throws Exception;
 
     /**
-     * Insert the metadata whose values are already known into the {@link MetadataRepository}.
+     * Insert the metadata whose values are already known into the {@link MetadataRepository}. This metadata can be derived manually, or derived by data profiling.
      * This should be done when initializing the pipeline, before calling the executePipeline method.
      */
     void initMetadataRepository();

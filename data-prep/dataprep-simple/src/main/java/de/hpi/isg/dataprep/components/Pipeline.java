@@ -3,10 +3,12 @@ package de.hpi.isg.dataprep.components;
 import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
+import de.hpi.isg.dataprep.initializer.ManualMetadataInitializer;
 import de.hpi.isg.dataprep.metadata.*;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
+import de.hpi.isg.dataprep.model.metadata.MetadataInitializer;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
@@ -100,8 +102,6 @@ public class Pipeline implements AbstractPipeline {
     public void addPreparation(AbstractPreparation preparation) {
         preparation.setPipeline(this);
         preparation.setPosition(index++);
-
-//        preparation.getAbstractPreparator().buildMetadataSetup();
         this.preparations.add(preparation);
     }
 
@@ -194,44 +194,8 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void initMetadataRepository() {
-        CSVSourcePath csvPath = new CSVSourcePath(dialect.getUrl());
-        UsedEncoding usedEncoding = new UsedEncoding(dialect.getEncoding());
-
-        Delimiter delimiter = new Delimiter(dialect.getDelimiter(), new TableMetadata(dialect.getTableName()));
-        QuoteCharacter quoteCharacter = new QuoteCharacter(dialect.getQuoteChar(), new TableMetadata(dialect.getTableName()));
-        EscapeCharacter escapeCharacter = new EscapeCharacter(dialect.getEscapeChar(), new TableMetadata(dialect.getTableName()));
-        HeaderExistence headerExistence = new HeaderExistence(dialect.getHasHeader().equals("true"), new TableMetadata(dialect.getTableName()));
-
-        List<Metadata> initMetadata = new ArrayList<>();
-        initMetadata.add(delimiter);
-        initMetadata.add(quoteCharacter);
-        initMetadata.add(escapeCharacter);
-        initMetadata.add(headerExistence);
-        initMetadata.add(csvPath);
-        initMetadata.add(usedEncoding);
-
-        StructType structType = this.rawData.schema();
-//        Arrays.stream(structType.fields()).forEach(field -> {
-//            DataType dataType = field.dataType();
-//            String fieldName = field.name();
-//            PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
-//            initMetadata.add(propertyDataType);
-//        });
-
-        List<Attribute> attributes = new LinkedList<>();
-        Arrays.stream(structType.fields()).forEach(field -> {
-            DataType dataType = field.dataType();
-            String fieldName = field.name();
-            PropertyDataType propertyDataType = new PropertyDataType(fieldName, de.hpi.isg.dataprep.util.DataType.getTypeFromSparkType(dataType));
-            Attribute attribute = new Attribute(field);
-            attributes.add(attribute);
-            initMetadata.add(propertyDataType);
-        });
-        Schemata schemata = new Schemata("table", attributes);
-        initMetadata.add(schemata);
-
-//        this.metadataRepository.updateMetadata(initMetadata);
-        updateMetadataRepository(initMetadata);
+        MetadataInitializer metadataInitializer = new ManualMetadataInitializer(this);
+        metadataInitializer.initializeMetadataRepository();
     }
 
     @Override
