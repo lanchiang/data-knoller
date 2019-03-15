@@ -1,9 +1,17 @@
 package de.hpi.isg.dataprep.selection
 
 import de.hpi.isg.dataprep.preparators.define.DeleteProperty
-import org.scalatest.{FlatSpecLike, Matchers}
+import org.apache.log4j.{Level, Logger}
+import org.scalatest.{BeforeAndAfterAll, FlatSpecLike, Matchers}
 
-class PreparatorLoaderTest  extends FlatSpecLike with Matchers {
+class PreparatorLoaderTest  extends FlatSpecLike with Matchers with BeforeAndAfterAll {
+
+  override def beforeAll: Unit = {
+
+    Logger.getLogger("org").setLevel(Level.OFF)
+    Logger.getLogger("akka").setLevel(Level.OFF)
+    super.beforeAll()
+  }
 
   "The PreparatorLoader" should "load a preparator" in {
     class TestLoader extends PreparatorLoader {

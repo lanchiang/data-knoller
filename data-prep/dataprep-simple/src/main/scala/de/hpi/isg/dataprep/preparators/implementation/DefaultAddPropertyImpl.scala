@@ -63,6 +63,10 @@ class DefaultAddPropertyImpl extends AbstractPreparatorImpl {
           val col = lit(ConversionHelper.getDefaultDate())
           SchemaUtils.lastToNewPosition(dataFrame.withColumn(targetPropertyName, col.cast(DateType)), positionInSchema)
         }
+          // now the default is not working, just return the same dataFrame
+        case _ => {
+          dataFrame
+        }
       }
     }
     new ExecutionContext(resultDataFrame, errorAccumulator)

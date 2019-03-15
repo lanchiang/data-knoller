@@ -74,6 +74,10 @@ class DefaultChangeDataTypeImpl extends AbstractPreparatorImpl {
                 ConversionHelper.toDate(row.getAs[String](fieldName).toString,
                   sourceDatePattern, targetDatePattern)
               }
+                // default is not determined yet, simply return None
+              case _ => {
+                None
+              }
             }
           }
           case PropertyType.DOUBLE => {
@@ -85,6 +89,10 @@ class DefaultChangeDataTypeImpl extends AbstractPreparatorImpl {
                 ConversionHelper.toDate(row.getAs[Double](fieldName).toString,
                   sourceDatePattern, targetDatePattern)
               }
+                // default is not determined yet, simply return None
+              case _ => {
+                None
+              }
             }
           }
           case PropertyType.DATE => {
@@ -95,6 +103,10 @@ class DefaultChangeDataTypeImpl extends AbstractPreparatorImpl {
               case PropertyType.DATE => {
                 ConversionHelper.toDate(row.getAs[String](fieldName).toString,
                   sourceDatePattern, targetDatePattern)
+              }
+                // default is not determined yet, simply return None
+              case _ => {
+                None
               }
             }
           }

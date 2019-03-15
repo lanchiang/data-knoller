@@ -45,7 +45,6 @@ trait DataLoadingConfig extends FlatSpecLike with Matchers with BeforeAndAfterEa
     //        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, schemaMapping);
     val dataLoader: SparkDataLoader = new FlatFileDataLoader(dialect, targetMetadata.asJava, transforms.asJava)
     dataContext = dataLoader.load
-    dataContext.getDataFrame.show()
   }
 
 
