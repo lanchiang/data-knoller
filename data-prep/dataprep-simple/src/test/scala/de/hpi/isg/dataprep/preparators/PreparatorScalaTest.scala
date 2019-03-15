@@ -21,7 +21,7 @@ trait PreparatorScalaTest extends FlatSpecLike with Matchers with BeforeAndAfter
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
 
-    val filePath = getClass.getResource(resourcePath).getPath
+    val filePath = getClass.getResource(resourcePath).toURI.getPath
     val dialect = new DialectBuilder()
       .hasHeader(true)
       .inferSchema(true)

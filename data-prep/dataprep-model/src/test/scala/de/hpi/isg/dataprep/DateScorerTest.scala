@@ -17,7 +17,7 @@ class DateScorerTest extends FlatSpecLike with Matchers {
     val scorer = new DateScorer()
     scorer.vocabulary should not be empty
     val oldSize = scorer.vocabulary.size
-    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary"))
+    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary").toURI)
     scorer.vocabulary should not be empty
     scorer.vocabulary.size should not equal oldSize
   }
@@ -25,13 +25,13 @@ class DateScorerTest extends FlatSpecLike with Matchers {
   it should "use the correct oov index" in {
     val scorer = new DateScorer()
     scorer.oovTokenIndex() shouldEqual 0
-    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary"))
+    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary").toURI)
     scorer.oovTokenIndex() shouldEqual 1
   }
 
   it should "tokenize strings" in {
     val scorer = new DateScorer()
-    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary"))
+    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary").toURI)
     val input = "$%&%%&&"
     val tokens = scorer.tokenize(input)
     tokens shouldEqual List(5, 6, 7, 6, 6, 7, 7)
@@ -45,7 +45,7 @@ class DateScorerTest extends FlatSpecLike with Matchers {
     var tokens = scorer.tokenize(input)
     tokens shouldEqual List(5, 66, 67, 68, 0)
 
-    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary"))
+    scorer.loadVocabulary(getClass.getResource(s"/date_format/$testVocabulary").toURI)
     tokens = scorer.tokenize(input)
     // now the oov token is 1
     tokens shouldEqual List(5, 1, 1, 1, 1)
