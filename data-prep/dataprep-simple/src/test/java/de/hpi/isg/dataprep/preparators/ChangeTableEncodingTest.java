@@ -112,11 +112,6 @@ public class ChangeTableEncodingTest {
         pipeline.executePipeline();
     }
 
-    /**
-     * This test does not pass, because reloading dataset operation complains about "IllegalAccessError: tried to access method com.google.common.base.Stopwatch"
-     * @throws Exception
-     */
-    @Ignore
     @Test
     public void testWrongEncodingInCSV() throws Exception {
         DataContext context = load(ERRORS_URL);
