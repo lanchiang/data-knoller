@@ -11,7 +11,7 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
   override var resourcePath = "/split.csv"
 
   "MultiValueStringSeparator" should "work with single character as separator" in {
-    val column = pipeline.getRawData.select("multi_string").as(Encoders.STRING)
+    val column = pipeline.getDataset.select("multi_string").as(Encoders.STRING)
     val distribution = SplitPropertyUtils.globalStringSeparatorDistribution(column, 2)
     val preparator = new SplitProperty(
       "multi_string",
@@ -23,7 +23,7 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
   }
 
   "MultiValueStringSeparator" should "work with multiple characters as separator" in {
-    val column = pipeline.getRawData.select("multi_string2").as(Encoders.STRING)
+    val column = pipeline.getDataset.select("multi_string2").as(Encoders.STRING)
     val distribution = SplitPropertyUtils.globalStringSeparatorDistribution(column, 2)
     val preparator = new SplitProperty(
       "multi_string2",
@@ -35,7 +35,7 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
   }
 
   "SingleValueCharacterClassSeparator" should "split multiple rows with the same character class" in {
-    val column = pipeline.getRawData.select("single_char").as(Encoders.STRING)
+    val column = pipeline.getDataset.select("single_char").as(Encoders.STRING)
     val preparator = new SplitProperty(
       "single_char",
       SingleValueCharacterClassSeparator("aA")
@@ -45,7 +45,7 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
   }
 
   "MultiValueCharacterClassSeparator" should "split multiple rows with different character classes" in {
-    val column = pipeline.getRawData.select("multi_char").as(Encoders.STRING)
+    val column = pipeline.getDataset.select("multi_char").as(Encoders.STRING)
     val distribution = SplitPropertyUtils.globalTransitionSeparatorDistribution(column, 2)
     val preparator = new SplitProperty(
       "multi_char",
@@ -57,7 +57,7 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
   }
 
   def splitShouldEqual(preparator: SplitProperty, expectedResult: List[(String, String)]): Unit = {
-    val spark = pipeline.getRawData.sparkSession
+    val spark = pipeline.getDataset.sparkSession
     import spark.implicits._
 
     pipeline.addPreparation(new Preparation(preparator))
@@ -65,7 +65,7 @@ class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializ
     pipeline.getErrorRepository.getErrorLogs.size shouldEqual 0
 
     val result = pipeline
-      .getRawData.map(row => {
+      .getDataset.map(row => {
       (row.get(4).toString, row.get(5).toString)
     })
       .collect()

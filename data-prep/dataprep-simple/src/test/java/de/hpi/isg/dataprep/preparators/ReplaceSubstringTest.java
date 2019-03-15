@@ -100,7 +100,7 @@ public class ReplaceSubstringTest extends PreparatorTest {
 //        errorLogs.add(pipelineErrorLog);
 //        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 //
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 //
 //        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 //    }

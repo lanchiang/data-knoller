@@ -69,7 +69,7 @@ public class LanguageLemmatizeDecisionEngineTest extends DataLoadingConfig {
         pipeline.addRecommendedPreparation(); // detect language
         pipeline.addRecommendedPreparation(); // lemmatize stemlemma
 
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getDataset().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("estar abrir", "morir en 1923", "qué hacer en mi casa", "yo estar muy cansar", "vetar a+el diablo",
                 "be", "amazingly", "you be", "Fred s house", "succeed");
         Assert.assertEquals(expected, actualStemlemma);

@@ -34,7 +34,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
     pipeline.addPreparation(preparation)
     pipeline.executePipeline()
 
-    val parsedData = pipeline.getRawData
+    val parsedData = pipeline.getDataset
     parsedData.count() shouldBe 6
 
     val dates = parsedData.rdd
@@ -60,7 +60,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
     pipeline.addPreparation(preparation)
     pipeline.executePipeline()
 
-    val parsedData = pipeline.getRawData
+    val parsedData = pipeline.getDataset
     parsedData.count() shouldBe 6
 
     val dates = parsedData.rdd
@@ -97,7 +97,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
 
   "Applicability score" should "be calculated" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
-    val pokemonData = pipeline.getRawData.select("date")
+    val pokemonData = pipeline.getDataset.select("date")
     val total = pokemonData.count()
     val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
     val expectedScore = (pokemonDates.size + pokemonDatesDifferentFormat.size).toFloat / total.toFloat
@@ -106,14 +106,14 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
 
   "Applicability score calculation" should "return 0.0 for multiple columns" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
-    val pokemonData = pipeline.getRawData
+    val pokemonData = pipeline.getDataset
     val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
     score shouldEqual 0.0f
   }
 
   it should "return 0.0 if the preparator was already executed" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
-    val pokemonData = pipeline.getRawData.select("date")
+    val pokemonData = pipeline.getDataset.select("date")
     val metadata: Set[Metadata] = Set(new PropertyDatePattern(DatePatternEnum.DayMonthYear, new ColumnMetadata("date")))
     val score = preparator.calApplicability(null, pokemonData, metadata.asJavaCollection)
     score shouldEqual 0.0f
@@ -121,7 +121,7 @@ class ChangeDateFormatTest extends PreparatorScalaTest {
 
   it should "return 0.0 if the input is not a string column" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
-    val pokemonData = pipeline.getRawData.select("height")
+    val pokemonData = pipeline.getDataset.select("height")
     val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
     score shouldEqual 0.0f
   }

@@ -79,7 +79,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     val csvFile = new File(csvPath)
 
     // only handle the complete table
-    if (!dataset.columns.sameElements(this.getPreparation.getPipeline.getRawData.columns)) {
+    if (!dataset.columns.sameElements(this.getPreparation.getPipeline.getDataset.columns)) {
       return 0
     }
 

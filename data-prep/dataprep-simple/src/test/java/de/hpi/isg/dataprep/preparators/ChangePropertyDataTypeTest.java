@@ -32,7 +32,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }
@@ -101,7 +101,7 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 //        trueErrorlogs.add(errorLog4);
 //        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 //
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 //
 //        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
 //    }

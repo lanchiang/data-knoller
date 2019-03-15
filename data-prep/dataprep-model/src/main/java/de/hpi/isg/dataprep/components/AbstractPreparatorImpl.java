@@ -1,7 +1,6 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.ExecutionContext;
-import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.error.PreparationError;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
@@ -43,7 +42,7 @@ abstract public class AbstractPreparatorImpl {
     }
 
     private final Dataset<Row> getDataSet(AbstractPreparator preparator) {
-        return preparator.getPreparation().getPipeline().getRawData();
+        return preparator.getPreparation().getPipeline().getDataset();
     }
 
     public final ExecutionContext execute(AbstractPreparator preparator, Dataset<Row> dataset) throws Exception {

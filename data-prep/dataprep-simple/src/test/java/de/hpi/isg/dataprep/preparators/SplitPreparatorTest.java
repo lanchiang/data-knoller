@@ -51,7 +51,7 @@ public class SplitPreparatorTest {
         pipeline.addPreparation(preparation1);
         pipeline.executePipeline();
 
-//        pipeline.getRawData().show(false);
+//        pipeline.getDataset().show(false);
 
     }
 

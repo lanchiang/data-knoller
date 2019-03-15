@@ -41,7 +41,7 @@ public class AddPropertyTest extends PreparatorTest {
         // First test error log repository
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
 
-        Dataset<Row> updated = pipeline.getRawData();
+        Dataset<Row> updated = pipeline.getDataset();
         StructType updatedSchema = updated.schema();
 
         StructType trueSchema = new StructType(new StructField[]{
@@ -78,7 +78,7 @@ public class AddPropertyTest extends PreparatorTest {
         // First test error log repository
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
 
-        Dataset<Row> updated = pipeline.getRawData();
+        Dataset<Row> updated = pipeline.getDataset();
         StructType updatedSchema = updated.schema();
 
         StructType trueSchema = new StructType(new StructField[]{
@@ -115,7 +115,7 @@ public class AddPropertyTest extends PreparatorTest {
         // First test error log repository
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
 
-        Dataset<Row> updated = pipeline.getRawData();
+        Dataset<Row> updated = pipeline.getDataset();
         StructType updatedSchema = updated.schema();
 
         StructType trueSchema = new StructType(new StructField[]{
@@ -152,7 +152,7 @@ public class AddPropertyTest extends PreparatorTest {
         // First test error log repository
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
 
-        Dataset<Row> updated = pipeline.getRawData();
+        Dataset<Row> updated = pipeline.getDataset();
         StructType updatedSchema = updated.schema();
 
         StructType trueSchema = new StructType(new StructField[]{
@@ -192,7 +192,7 @@ public class AddPropertyTest extends PreparatorTest {
         // First test error log repository
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
 
-        Dataset<Row> updated = pipeline.getRawData();
+        Dataset<Row> updated = pipeline.getDataset();
         StructType updatedSchema = updated.schema();
 
         StructType trueSchema = new StructType(new StructField[]{

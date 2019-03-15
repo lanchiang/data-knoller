@@ -72,7 +72,7 @@ public class RemovePreambleTest extends PreparatorTest {
 //         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 //         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-//         pipeline.getRawData().show();
+//         pipeline.getDataset().show();
 
 //         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
 //     }
@@ -88,7 +88,7 @@ public class RemovePreambleTest extends PreparatorTest {
 //         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 //         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-//         pipeline.getRawData().show();
+//         pipeline.getDataset().show();
 
 //         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
 //     }
@@ -104,7 +104,7 @@ public class RemovePreambleTest extends PreparatorTest {
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
     }

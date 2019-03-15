@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.components;
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
@@ -116,7 +115,7 @@ public class DecisionEngine implements Engine {
         // every time this method is called, instantiate all the preparator candidates again.
         initDecisionEngine();
 
-        Dataset<Row> dataset = pipeline.getRawData();
+        Dataset<Row> dataset = pipeline.getDataset();
         // first the column combinations need to be generated.
         StructField[] fields = dataset.schema().fields();
         List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());

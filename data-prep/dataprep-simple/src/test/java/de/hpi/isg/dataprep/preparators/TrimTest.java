@@ -38,7 +38,7 @@ public class TrimTest extends PreparatorTest {
 //        trueErrorlogs.add(pipelineError);
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
     }

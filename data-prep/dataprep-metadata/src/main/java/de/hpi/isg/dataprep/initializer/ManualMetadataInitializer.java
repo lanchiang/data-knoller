@@ -29,10 +29,10 @@ public class ManualMetadataInitializer extends MetadataInitializer {
     private FileLoadDialect dialect;
     private Dataset<Row> dataset;
 
-    public ManualMetadataInitializer(AbstractPipeline pipeline) {
-        this.dialect = pipeline.getDialect();
-        this.dataset = pipeline.getRawData();
-        this.metadataRepository = pipeline.getMetadataRepository();
+    public ManualMetadataInitializer(FileLoadDialect dialect, Dataset<Row> dataset) {
+        this.dialect = dialect;
+        this.dataset = dataset;
+        this.metadataRepository = new MetadataRepository();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ManualMetadataInitializer extends MetadataInitializer {
         EscapeCharacter escapeCharacter = new EscapeCharacter(dialect.getEscapeChar(), new TableMetadata(dialect.getTableName()));
         HeaderExistence headerExistence = new HeaderExistence(dialect.getHasHeader().equals("true"), new TableMetadata(dialect.getTableName()));
 
-        List<Metadata> initMetadata = new ArrayList<>();
+        initMetadata = new ArrayList<>();
         initMetadata.add(delimiter);
         initMetadata.add(quoteCharacter);
         initMetadata.add(escapeCharacter);

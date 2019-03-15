@@ -105,11 +105,11 @@ public interface AbstractPipeline extends Nameable, Printable {
      */
     void updateTargetMetadata(Collection<Metadata> coming);
 
-    Dataset<Row> getRawData();
+    Dataset<Row> getDataset();
 
     String getDatasetName();
 
-    void setRawData(Dataset<Row> rawData);
+    void setDataset(Dataset<Row> dataset);
 
     FileLoadDialect getDialect();
 

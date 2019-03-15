@@ -31,9 +31,9 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     pipeline.executePipeline()
 
     pipeline.getErrorRepository.getErrorLogs.size shouldEqual 0
-    pipeline.getRawData.schema shouldEqual newSchema
+    pipeline.getDataset.schema shouldEqual newSchema
 
-    pipeline.getRawData.collect().foreach(row => {
+    pipeline.getDataset.collect().foreach(row => {
       val expectedSplit = row.get(8).toString.split("-").reverse
       val split = Array(row.get(12).toString, row.get(13).toString, row.get(14).toString)
       if (expectedSplit.length == 1)
@@ -46,7 +46,7 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
   "Applicability score" should "be calculated correctly" in {
     val separator = SingleValueStringSeparator("-")
     val impl = new DefaultSplitPropertyImpl()
-    val column  = pipeline.getRawData.select("date").as(Encoders.STRING)
+    val column  = pipeline.getDataset.select("date").as(Encoders.STRING)
     val score = impl.evaluateSplit(column, separator, 3)
     score shouldEqual 0.9f
 
@@ -91,9 +91,9 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     pipeline.executePipeline()
 
     pipeline.getErrorRepository.getErrorLogs.size shouldEqual 0
-    pipeline.getRawData.schema shouldEqual newSchema
+    pipeline.getDataset.schema shouldEqual newSchema
 
-    pipeline.getRawData.collect().foreach(row => {
+    pipeline.getDataset.collect().foreach(row => {
       val expectedSplit = row.get(8).toString.split("-")
       val split = Array(row.get(12).toString, row.get(13).toString, row.get(14).toString)
       if (expectedSplit.length == 1)

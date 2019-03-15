@@ -171,7 +171,7 @@ public class MergeAttributeTest {
 		//columns.add("address");
 		//columns.add("city");
 //		pipeline.executePipeline();
-//		pipeline.getRawData().show();
+//		pipeline.getDataset().show();
 		DecisionEngine decisionEngine = DecisionEngine.getInstance();
 		AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
 		pipeline = new Pipeline(dataLoader.load());
@@ -291,7 +291,7 @@ public class MergeAttributeTest {
 //		AbstractPreparator abstractPreparator = new MergeAttribute(columns, "|");
 //		AbstractPreparation preparation = new Preparation(abstractPreparator);
 ////		pipeline.executePipeline();
-	//	pipeline.getRawData().show();
+	//	pipeline.getDataset().show();
 	}
 
 }

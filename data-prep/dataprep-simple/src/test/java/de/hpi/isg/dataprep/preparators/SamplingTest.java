@@ -68,7 +68,7 @@ public class SamplingTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
     }
 
     @Test
@@ -79,8 +79,8 @@ public class SamplingTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        pipeline.getRawData().show();
-        Assert.assertEquals(pipeline.getRawData().count(), sampleSize);
+//        pipeline.getDataset().show();
+        Assert.assertEquals(pipeline.getDataset().count(), sampleSize);
     }
 
 

@@ -13,7 +13,7 @@ import java.util.List;
  */
 abstract public class MetadataInitializer {
 
-    protected List<Metadata> metadataList;
+    protected List<Metadata> initMetadata;
     protected MetadataRepository metadataRepository;
 
     abstract public void initializeMetadataRepository();

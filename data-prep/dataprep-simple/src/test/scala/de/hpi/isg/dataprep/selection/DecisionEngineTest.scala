@@ -11,7 +11,7 @@ class DecisionEngineTest extends DataLoadingConfig {
     val decisionEngine = new DecisionEngine()
     val expectedPreparator = new DeleteProperty("date")
 
-    val preparator = decisionEngine.selectNextPreparation(List[Class[_ <: AbstractPreparator]](classOf[DeleteProperty]), pipeline.getSchemaMapping, pipeline.getRawData, pipeline.getTargetMetadata).get
+    val preparator = decisionEngine.selectNextPreparation(List[Class[_ <: AbstractPreparator]](classOf[DeleteProperty]), pipeline.getSchemaMapping, pipeline.getDataset, pipeline.getTargetMetadata).get
 
     pipeline.addPreparation(new Preparation(preparator))
     preparator shouldEqual expectedPreparator

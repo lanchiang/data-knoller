@@ -64,7 +64,7 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -95,7 +95,7 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -119,7 +119,7 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -149,7 +149,7 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
 
         Assert.assertTrue(pipeline.getErrorRepository().getErrorLogs().isEmpty());
     }

@@ -40,15 +40,15 @@ public class LemmatizeTest extends PreparatorTest {
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
-        ExecutionContext executionContext = preparation.getAbstractPreparator().execute(pipeline.getRawData());
+        ExecutionContext executionContext = preparation.getAbstractPreparator().execute(pipeline.getDataset());
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-//        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+//        List<String> actualStemlemma = pipeline.getDataset().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> actualStemlemma = executionContext.newDataFrame().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("está abierto", "murió en 1923", "Qué haces en mi casa?", "yo estoy muy cansado", "Vete al diablo!", "be", "amazingly", "you be", "Fred s house", "succeed");
         Assert.assertEquals(expected, actualStemlemma);
@@ -72,15 +72,15 @@ public class LemmatizeTest extends PreparatorTest {
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        ExecutionContext executionContext = preparation.getAbstractPreparator().execute(pipeline.getRawData());
+//        ExecutionContext executionContext = preparation.getAbstractPreparator().execute(pipeline.getDataset());
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 
-        List<String> actualStemlemma = pipeline.getRawData().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
+        List<String> actualStemlemma = pipeline.getDataset().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
 //        List<String> actualStemlemma = executionContext.newDataFrame().select("stemlemma_lemmatized").as(Encoders.STRING()).collectAsList();
         List<String> expected = Arrays.asList("estar abrir", "morir en 1923", "qué hacer en mi casa", "yo estar muy cansar", "vetar a+el diablo", "are", "amazingly", "You are", "Fred's house", "succeeded");
         Assert.assertEquals(expected, actualStemlemma);
@@ -102,9 +102,9 @@ public class LemmatizeTest extends PreparatorTest {
         );
         // Needs to be done outside of executePipeline to avoid overwriting english lang metadata...
         pipeline.addPreparation(preparation);
-        preparation.getAbstractPreparator().execute(pipeline.getRawData());
+        preparation.getAbstractPreparator().execute(pipeline.getDataset());
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
         List<ErrorLog> realErrorLogs = pipeline.getErrorRepository().getErrorLogs();
@@ -126,7 +126,7 @@ public class LemmatizeTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-//        pipeline.getRawData().show();
+//        pipeline.getDataset().show();
         pipeline.getErrorRepository().getPrintedReady().forEach(System.out::println);
 
         List<ErrorLog> errorLogs = new ArrayList<>();
