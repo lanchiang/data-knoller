@@ -12,9 +12,12 @@ import org.apache.spark.sql.Row;
 import java.util.List;
 
 /**
+ * This is the class to provide update related utility functions.
+ *
  * @author lan.jiang
  * @since 1/25/19
  */
+@Deprecated
 public class UpdateUtils {
 
     /**

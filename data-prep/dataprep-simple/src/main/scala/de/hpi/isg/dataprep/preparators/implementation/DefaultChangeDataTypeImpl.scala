@@ -110,6 +110,9 @@ class DefaultChangeDataTypeImpl extends AbstractPreparatorImpl {
               }
             }
           }
+          case _ => {
+            None
+          }
         }
 
         val newSeq = (forepart :+ tryConvert) ++ backpart

@@ -14,6 +14,8 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import java.util.List;
 
 /**
+ * A concrete class of {@link AbstractPreparation} that wraps {@link AbstractPreparator}
+ *
  * @author Lan Jiang
  * @since 2018/9/10
  */
@@ -22,7 +24,6 @@ public class Preparation implements AbstractPreparation {
     private String name;
 
     private AbstractPreparator abstractPreparator;
-    private ExecutionContext executionContext;
 
     private int position;
 
@@ -53,10 +54,11 @@ public class Preparation implements AbstractPreparation {
         }
         List<Metadata> toChangeMetadata = abstractPreparator.getUpdateMetadata();
 
-        // update metadata repository. This shall be done even if the metadata fail to agree, because the following preparations need to
-        // check the pipeline error with this presumably correct metadata.
-        // actually we need to update the metadata repository with the toChange list.
-//        metadataRepository.updateMetadata(toChangeMetadata);
+        /**
+         * update metadata repository. This shall be done even if the metadata fail to agree, because the following
+         * preparations need to check the pipeline error with this presumably correct metadata. actually we need to
+         * update the metadata repository with the toChange list.
+         */
         pipeline.updateMetadataRepository(toChangeMetadata);
     }
 
@@ -83,16 +85,6 @@ public class Preparation implements AbstractPreparation {
     @Override
     public void setPosition(int position) {
         this.position = position;
-    }
-
-    @Override
-    public void setExecutionContext(ExecutionContext executionContext) {
-        this.executionContext = executionContext;
-    }
-
-    @Override
-    public ExecutionContext getExecutionContext() {
-        return executionContext;
     }
 
     @Override

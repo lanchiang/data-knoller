@@ -3,6 +3,8 @@ package de.hpi.isg.dataprep.schema
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
 /**
+  * This class provides the utility functions that manipulate the schema of a spark [[org.apache.spark.sql.DataFrame]]
+  *
   * @author Lan Jiang
   * @since 2018/9/17
   */

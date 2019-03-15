@@ -44,10 +44,6 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
 
     abstract public boolean equalsByValue(Metadata metadata);
 
-    public MetadataRepository getBelongs() {
-        return belongs;
-    }
-
     public void setBelongs(MetadataRepository belongs) {
         this.belongs = belongs;
     }

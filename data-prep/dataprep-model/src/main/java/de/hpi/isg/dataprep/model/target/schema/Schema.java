@@ -27,11 +27,7 @@ public class Schema {
             this.attributes.add(new Attribute(structField));
         }
     }
-
-    public void addAttribute(Attribute attribute) {
-        attributes.add(attribute);
-    }
-
+    
     public boolean attributeExist(Attribute attribute) {
         return attributes.contains(attribute);
     }

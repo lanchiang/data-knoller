@@ -1,9 +1,8 @@
 package de.hpi.isg.dataprep.app;
 
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-
 /**
+ * This app create a preparator in a given pipeline.
+ *
  * @author Lan Jiang
  * @since 2018/8/6
  */

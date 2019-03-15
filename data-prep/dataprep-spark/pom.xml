@@ -6,7 +6,6 @@
         <artifactId>data-prep</artifactId>
         <groupId>de.hpi.isg</groupId>
         <version>0.01-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

@@ -119,20 +119,6 @@ abstract public class AbstractPreparator implements Executable {
                         invalid.add(metadata);
                     }
                 });
-        // not found, add.
-//        prerequisite.stream()
-//                .filter(metadata -> !metadataRepository.getMetadataPool().contains(metadata))
-//                .forEach(metadata -> this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(metadata));
-    }
-
-
-    /**
-     * After the execution of this preparator finishes, call this method to post config the pipeline.
-     * For example, update the dataset, update the metadata repository.
-     */
-
-    public List<Metadata> getInvalidMetadata() {
-        return invalid;
     }
 
     public List<Metadata> getPrerequisiteMetadata() {
@@ -149,10 +135,6 @@ abstract public class AbstractPreparator implements Executable {
 
     public AbstractPreparation getPreparation() {
         return preparation;
-    }
-
-    public void setUpdatedTable(Dataset<Row> updatedTable) {
-        this.updatedTable = updatedTable;
     }
 
     public void setPreparation(AbstractPreparation preparation) {

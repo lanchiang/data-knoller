@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This engine is due to conduct all the operations related to metadata manipulation.
+ *
  * @author lan.jiang
  * @since 12/18/18
  */

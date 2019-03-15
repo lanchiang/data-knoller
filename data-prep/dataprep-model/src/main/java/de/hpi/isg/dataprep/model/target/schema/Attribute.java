@@ -38,14 +38,6 @@ public class Attribute implements Serializable {
         return name;
     }
 
-    public DataType getDataType() {
-        return dataType;
-    }
-
-    public boolean isNullable() {
-        return nullable;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -63,20 +63,14 @@ class RemovePreamble extends PreparatorScalaTest {
     val customDataset = localContext.read
       .option("sep", "\t")
             .csv(getClass.getClassLoader.getResource("preamble_initial_char_fail.csv").toString)
-//      .csv(System.getProperty("user.dir") + "/src/test/resources/preamble_initial_char_fail.csv")
-//            .csv("./dataprep-simple/src/test/resources/preamble_initial_char_fail.csv")
-
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
             .csv(getClass.getClassLoader.getResource("preamble_initial_char_fail_expected.csv").toString)
-//      .csv(System.getProperty("user.dir") + "/src/test/resources/preamble_initial_char_fail_expected.csv")
-//            .csv("./dataprep-simple/src/test/resources/preamble_initial_char_fail_expected.csv")
 
     val prep = new DefaultRemovePreambleImpl
     val result = prep.analyseLeadingCharacter(customDataset)
 
-    //RemovePreambleHelper.calculateFirstCharOccurrence(customDataset) shouldEqual List(1)
     RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(customDataset) shouldEqual 1.0
 
     result.collect shouldEqual expectedDataset.collect
@@ -86,12 +80,12 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_space_fail.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char_space_fail.csv").toString);
     val customDataset = fileData
 
     val fileDataExpected = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_space_fail_expected.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char_space_fail_expected.csv").toString)
     val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl

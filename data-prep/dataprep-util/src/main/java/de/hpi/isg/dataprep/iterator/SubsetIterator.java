@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * Iterator over all the subsets of a given set.
+ *
  * @author lan.jiang
  * @since 1/20/19
  */

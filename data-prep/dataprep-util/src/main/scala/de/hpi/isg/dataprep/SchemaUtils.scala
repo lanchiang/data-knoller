@@ -8,6 +8,7 @@ import org.apache.spark.sql.functions.col
   * @author Lan Jiang
   * @since 2018/8/21
   */
+// Todo: this class can be merged with the SchemaUtils under dataprep-spark module.
 object SchemaUtils {
 
   def positionValidation(positionInSchema: Int, schema: Array[String]): Boolean = {

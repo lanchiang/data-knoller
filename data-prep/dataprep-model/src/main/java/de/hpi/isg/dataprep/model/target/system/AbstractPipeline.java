@@ -4,7 +4,6 @@ import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.util.Nameable;
@@ -63,11 +62,6 @@ public interface AbstractPipeline extends Nameable, Printable {
      */
     void buildMetadataSetup();
 
-//    /**
-//     * Build the set of {@link ColumnCombination}s for the dataset used in this pipeline.
-//     */
-//    void buildColumnCombination();
-
     /**
      * Add the preparation that recommended by the decision engine to the end of the pipeline, and execute it. Finally update metadata, dataset, and schema mapping.
      *
@@ -75,19 +69,11 @@ public interface AbstractPipeline extends Nameable, Printable {
      */
     boolean addRecommendedPreparation();
 
-    /**
-     * Execute the recommended preparator that is added into this pipeline. Followed by this execution, data, metadata
-     * and other dynamic information must be updated.
-     */
-//    void executeRecommendedPreparation();
-
     List<AbstractPreparation> getPreparations();
 
     ErrorRepository getErrorRepository();
 
     MetadataRepository getMetadataRepository();
-
-    ProvenanceRepository getProvenanceRepository();
 
     SchemaMapping getSchemaMapping();
 
@@ -106,8 +92,6 @@ public interface AbstractPipeline extends Nameable, Printable {
     void updateTargetMetadata(Collection<Metadata> coming);
 
     Dataset<Row> getDataset();
-
-    String getDatasetName();
 
     void setDataset(Dataset<Row> dataset);
 

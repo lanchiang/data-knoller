@@ -5,6 +5,10 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.util.CollectionAccumulator
 
 /**
+  * An [[ErrorAccumulator]] records all the preparation errors captured while exeucting a preparator.
+  * In the preparator logic implementation, an [[ErrorAccumulator]] is created and passed as a parameter
+  * of an [[de.hpi.isg.dataprep.ExecutionContext]].
+  *
   * @author Lan Jiang
   * @since 2018/9/17
   */

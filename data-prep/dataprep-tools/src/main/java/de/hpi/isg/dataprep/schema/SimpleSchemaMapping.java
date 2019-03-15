@@ -63,21 +63,8 @@ public class SimpleSchemaMapping extends SchemaMapping {
     }
 
     @Override
-    public boolean hasMapped(Attribute attribute) {
-        return targetSchema.getAttributes().contains(attribute);
-    }
-
-    @Override
     public boolean hasMapped() {
         return targetSchema.equals(currentSchema);
-    }
-
-    @Override
-    public Set<Attribute> getTargetBySourceAttribute(Attribute attribute) {
-        if (attribute == null) {
-            throw new RuntimeException(new NullPointerException("The specified attribute is null."));
-        }
-        return getTargetBySourceAttributeName(attribute.getName());
     }
 
     @Override
@@ -183,12 +170,6 @@ public class SimpleSchemaMapping extends SchemaMapping {
         this.targetSchema = currentSchema;
         SchemaMapping newInstance = new SimpleSchemaMapping(this.sourceSchema, this.targetSchema, root);
         return newInstance;
-    }
-
-    @Override
-    public void print() {
-        System.out.println(this.sourceSchema);
-        System.out.println(this.targetSchema);
     }
 
     private List<SchemaMappingNode> excludeNodeInPreviousLayer(List<SchemaMappingNode> schemaMappingNodes) {

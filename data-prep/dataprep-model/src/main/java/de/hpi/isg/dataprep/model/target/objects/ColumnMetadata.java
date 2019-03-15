@@ -17,10 +17,6 @@ public class ColumnMetadata extends MetadataScope {
         this.columnName = propertyName;
     }
 
-    public String getColumnName() {
-        return columnName;
-    }
-
     @Override
     public String getName() {
         return columnName;

@@ -35,8 +35,6 @@ public class DecisionEngine implements Engine {
     /**
      * specifies the preparator candidates that the decision engine may call. Could be moved to the controller.
      */
-//    private final static String[] preparatorCandidates = {"SplitProperty", "MergeProperty", "ChangeDateFormat", "RemovePreamble",
-//            "ChangePhoneFormat", "ChangeEncoding", "StemPreparator"};
     private static String[] preparatorCandidates = {"AddProperty", "Collapse", "DeleteProperty", "Hash","MergeAttribute"};
 
     private Set<AbstractPreparator> preparators;

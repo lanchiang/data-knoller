@@ -208,12 +208,4 @@ object ConversionHelper extends Serializable {
     }
     bytes.map("%02x".format(_)).mkString
   }
-
-  def ngram(value: String, n: Int): String = {
-    ""
-  }
-
-  def unicode(value: String): String = {
-    ""
-  }
 }

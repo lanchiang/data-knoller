@@ -10,7 +10,6 @@ import de.hpi.isg.dataprep.model.error.RecordError;
 import de.hpi.isg.dataprep.model.metadata.MetadataInitializer;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.repository.ProvenanceRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
@@ -41,7 +40,6 @@ public class Pipeline implements AbstractPipeline {
     private final static int MAX_CARDINALITY = Integer.MIN_VALUE;
 
     private MetadataRepository metadataRepository = new MetadataRepository();
-    private ProvenanceRepository provenanceRepository = new ProvenanceRepository();
     private ErrorRepository errorRepository = new ErrorRepository();
 
     private List<AbstractPreparation> preparations = new LinkedList<>();
@@ -61,8 +59,6 @@ public class Pipeline implements AbstractPipeline {
     private Dataset<Row> dataset;
 
     private FileLoadDialect dialect;
-    private String datasetName;
-
 
     public Pipeline(Dataset<Row> dataset) {
         this.dataset = dataset;
@@ -78,8 +74,6 @@ public class Pipeline implements AbstractPipeline {
         this.dialect = dataContext.getDialect();
         this.schemaMapping = dataContext.getSchemaMapping();
         this.targetMetadata = dataContext.getTargetMetadata();
-
-        this.datasetName = dataContext.getDialect().getTableName();
 
         // initialize and configure the pipeline.
         initPipeline();
@@ -262,11 +256,6 @@ public class Pipeline implements AbstractPipeline {
     }
 
     @Override
-    public ProvenanceRepository getProvenanceRepository() {
-        return provenanceRepository;
-    }
-
-    @Override
     public Dataset<Row> getDataset() {
         return dataset;
     }
@@ -284,11 +273,6 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void setDialect(FileLoadDialect dialect) {
         this.dialect = dialect;
-    }
-
-    @Override
-    public String getDatasetName() {
-        return this.datasetName;
     }
 
     @Override

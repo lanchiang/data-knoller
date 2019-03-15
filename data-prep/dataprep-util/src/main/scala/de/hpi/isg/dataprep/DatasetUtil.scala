@@ -14,6 +14,7 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2018/6/4
   */
+// Todo: this class can be moved to dataprep-spark module.
 object DatasetUtil {
 
   def createDataset(config: DatasetConfig): DataFrame = {
@@ -26,10 +27,6 @@ object DatasetUtil {
     for ((optionName, optionValue) <- options) {
       dataFrameReader = dataFrameReader.option(optionName, optionValue)
     }
-    //      config.getInputFileFormat match {
-    //          case DatasetConfig.InputFileFormat.CSV => dataFrameReader.csv(config.getFilePath)
-    //          case DatasetConfig.InputFileFormat.TEXTFILE => dataFrameReader.textFile(config.getFilePath).toDF()
-    //      }
     dataFrameReader.textFile(config.getFilePath).toDF();
   }
 

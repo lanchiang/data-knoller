@@ -14,10 +14,6 @@ public class TableMetadata extends MetadataScope {
         this.tableName = tableName;
     }
 
-    public String getTableName() {
-        return tableName;
-    }
-
     @Override
     public String getName() {
         return tableName;

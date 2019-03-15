@@ -27,8 +27,4 @@ public interface AbstractPreparation extends Nameable {
     int getPosition();
 
     void setPosition(int position);
-
-    void setExecutionContext(ExecutionContext executionContext);
-
-    ExecutionContext getExecutionContext();
 }
