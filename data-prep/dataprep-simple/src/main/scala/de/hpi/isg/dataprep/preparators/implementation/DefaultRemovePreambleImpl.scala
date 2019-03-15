@@ -75,8 +75,7 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   def analyseLeadingCharacter(dataframe:DataFrame): DataFrame = {
     val prominentChar = findPreambleChar(dataframe)
 
-    dataframe
-      .filter(r => r.mkString("").head.toString != prominentChar)
+    dataframe.filter(r => r.mkString("").head.toString != prominentChar)
   }
 
   def findPreambleChar(dataframe:DataFrame): String = {
@@ -247,16 +246,4 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       .approxQuantile("sepCount",Array(0.5),0.01)
       .head
   }
-
-
-
-  /**
-    * The abstract class of preparator implementation.
-    *
-    * @param abstractPreparator is the instance of { @link AbstractPreparator}. It needs to be converted to the corresponding subclass in the implementation body.
-    * @param dataFrame        contains the intermediate dataset
-    * @param errorAccumulator is the { @link CollectionAccumulator} to store preparation errors while executing the preparator.
-    * @return an instance of { @link ExecutionContext} that includes the new dataset, and produced errors.
-    * @throws Exception
-    */
 }

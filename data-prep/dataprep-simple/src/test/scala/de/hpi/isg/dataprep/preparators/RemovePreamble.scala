@@ -57,7 +57,8 @@ class RemovePreamble extends PreparatorScalaTest {
     result.collect shouldEqual expectedDataset.collect
   }
 
-
+  // this test fails when the number of some other leading non-alphanumeric characters is the same as the one expected.
+  // then the result is non-determined.
   "Initial char" should "remove # lines but not ." in {
     val localContext = sparkContext
     val customDataset = localContext.read
@@ -78,15 +79,13 @@ class RemovePreamble extends PreparatorScalaTest {
 
   "Initial char with space" should "remove # lines with space" in {
     val localContext = sparkContext
-    val fileData = localContext.read
+    val customDataset = localContext.read
       .option("sep", "\t")
-            .csv(getClass.getClassLoader.getResource("preamble_initial_char_space_fail.csv").toString);
-    val customDataset = fileData
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char_space_fail.csv").toString)
 
-    val fileDataExpected = localContext.read
+    val expectedDataset = localContext.read
       .option("sep", "\t")
             .csv(getClass.getClassLoader.getResource("preamble_initial_char_space_fail_expected.csv").toString)
-    val expectedDataset = fileDataExpected
 
     val prep = new DefaultRemovePreambleImpl
     val result = prep.analyseLeadingCharacter(customDataset)
