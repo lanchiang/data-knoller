@@ -182,6 +182,13 @@
             <artifactId>juniversalchardet</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <!-- pin Guava dependency - This is a temporary fix! -->
+        <!-- When a Spark version that depends on Guava 17 or later is released, consider using that version and removing this Guava dependency-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>16.0.1</version>
+        </dependency>
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
