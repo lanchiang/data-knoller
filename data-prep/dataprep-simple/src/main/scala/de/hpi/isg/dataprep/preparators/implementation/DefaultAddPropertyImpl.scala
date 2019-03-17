@@ -1,14 +1,13 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.AddProperty
+import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.DataType.PropertyType
-import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext, SchemaUtils}
+import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.types.DateType
 import org.apache.spark.sql.{Dataset, Row}
@@ -37,7 +36,7 @@ class DefaultAddPropertyImpl extends AbstractPreparatorImpl {
       errorAccumulator.add(error)
     }
 
-    if (!SchemaUtils.positionValidation(positionInSchema, schema)) {
+    if (!SchemaUtils.positionIsInTheRange(dataFrame, positionInSchema)) {
       errorAccumulator.add(new PropertyError(targetPropertyName,
         new PreparationHasErrorException(String.format("Position %d is out of bound.", positionInSchema: Integer))))
     }

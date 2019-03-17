@@ -1,5 +1,7 @@
 package de.hpi.isg.dataprep.schema
 
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
 /**
@@ -30,4 +32,30 @@ object SchemaUtils {
     newSchema
   }
 
+  /**
+    * Move the column in the last to the specified position.
+    *
+    * @param dataFrame is the operated [[DataFrame]]
+    * @param position is the new position
+    * @return
+    */
+  def lastToNewPosition(dataFrame: DataFrame, position: Int): DataFrame = {
+    val columns = dataFrame.columns
+
+    val headPart = columns.slice(0, position)
+    val tailPart = columns.slice(position, columns.length - 1)
+    val reorderedSchema = headPart ++ columns.slice(columns.length - 1, columns.length) ++ tailPart
+
+    dataFrame.select(reorderedSchema.map(column => col(column)): _*)
+  }
+
+  /**
+    * Judge whether the specified position is inside the range of this [[DataFrame]]
+    * @param dataFrame is the operated [[DataFrame]]
+    * @param position is the specified position
+    * @return true if the position is inside the range of the schema
+    */
+  def positionIsInTheRange(dataFrame: DataFrame, position: Int): Boolean = {
+    position >=0 && position < dataFrame.schema.length
+  }
 }
