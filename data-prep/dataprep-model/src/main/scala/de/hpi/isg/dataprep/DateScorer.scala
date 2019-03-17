@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep
 
-import java.net.URL
+import java.net.URI
 
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
@@ -61,15 +61,15 @@ class DateScorer(modelFile: String = "model.hdf5", vocabularyFile: String = "voc
     * Wrapper method that uses the vocabulary file specified at object creation.
     */
   def loadVocabulary(): Unit = {
-    loadVocabulary(getClass.getResource(s"/date_format/$vocabularyFile"))
+    loadVocabulary(getClass.getResource(s"/date_format/$vocabularyFile").toURI)
   }
 
   /**
     * Loads a CSV vocabulary file in the format "index,token".
     * @param path URL to the vocabulary file
     */
-  def loadVocabulary(path: URL): Unit = {
-    val file = Source.fromURL(path)
+  def loadVocabulary(path: URI): Unit = {
+    val file = Source.fromURI(path)
     vocabulary = file
         .getLines()
         .map { line =>
@@ -82,14 +82,14 @@ class DateScorer(modelFile: String = "model.hdf5", vocabularyFile: String = "voc
     * Wrapper method that uses the model file specified at object creation.
     */
   def loadModel(): Unit = {
-    loadModel(getClass.getResource(s"/date_format/$modelFile"))
+    loadModel(getClass.getResource(s"/date_format/$modelFile").toURI)
   }
 
   /**
     * Loads a Sequential Keras model (hdf5) with DL4J.
     * @param path URL to the model file
     */
-  def loadModel(path: URL): Unit = {
+  def loadModel(path: URI): Unit = {
     // since we only predict we don't need a training config
     model = KerasModelImport.importKerasSequentialModelAndWeights(path.getPath, false)
   }
