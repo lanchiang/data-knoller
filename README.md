@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.com/sirexeclp/data-knoller.svg?branch=master)](https://travis-ci.com/sirexeclp/data-knoller)
+# Data preparation system
+
+**Status:** [![Build Status](https://travis-ci.com/sirexeclp/data-knoller.svg?branch=master)](https://travis-ci.com/sirexeclp/data-knoller)
 
 An under construction data preparation project.
 
