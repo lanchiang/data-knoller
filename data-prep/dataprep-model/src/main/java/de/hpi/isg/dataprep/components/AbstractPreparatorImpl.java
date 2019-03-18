@@ -9,12 +9,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.util.CollectionAccumulator;
 
 /**
+ * This is the abstract preparator implementation class that must be extended by the implementation class of a concrete preparator.
+ *
  * @author Lan Jiang
  * @since 2018/8/18
  */
 abstract public class AbstractPreparatorImpl {
-
-//    abstract protected ExecutionContext executePreparator(AbstractPreparator preparator, Dataset<Row> dataFrame) throws Exception;
 
     protected final ExecutionContext executePreparator(AbstractPreparator preparator, Dataset<Row> dataFrame) throws Exception {
         CollectionAccumulator<PreparationError> errorAccumulator = this.createErrorAccumulator(dataFrame);
@@ -41,10 +41,6 @@ abstract public class AbstractPreparatorImpl {
         return errorAccumulator;
     }
 
-    private final Dataset<Row> getDataSet(AbstractPreparator preparator) {
-        return preparator.getPreparation().getPipeline().getDataset();
-    }
-
     public final ExecutionContext execute(AbstractPreparator preparator, Dataset<Row> dataset) throws Exception {
         // getDataset
         return executePreparator(preparator, dataset);
@@ -57,5 +53,4 @@ abstract public class AbstractPreparatorImpl {
         T realPreparator = (T) preparator;
         return realPreparator;
     }
-
 }

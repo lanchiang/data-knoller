@@ -215,7 +215,7 @@ public class ChangeFilesEncodingTest extends PreparatorTest {
 
         @Override
         public ExecutionContext execute(Dataset<Row> dataset) throws Exception {
-            this.getPreparation().getPipeline().getMetadataRepository().updateMetadata(fakeMetadata);
+            this.getPreparation().getPipeline().getMetadataRepository().update(fakeMetadata);
             return super.execute(dataset);
         }
     }

@@ -27,7 +27,6 @@ abstract public class AbstractPreparator implements Executable {
     private AbstractPreparation preparation;
 
     protected List<Metadata> invalid;
-    protected Dataset<Row> updatedTable;
 
     protected AbstractPreparatorImpl impl;
 

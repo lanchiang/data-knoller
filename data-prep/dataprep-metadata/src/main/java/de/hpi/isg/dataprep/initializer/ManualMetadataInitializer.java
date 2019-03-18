@@ -4,10 +4,8 @@ import de.hpi.isg.dataprep.metadata.*;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.metadata.MetadataInitializer;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
-import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
@@ -67,6 +65,6 @@ public class ManualMetadataInitializer extends MetadataInitializer {
         Schemata schemata = new Schemata("table", attributes);
         initMetadata.add(schemata);
 
-        metadataRepository.updateMetadata(initMetadata);
+        metadataRepository.update(initMetadata);
     }
 }

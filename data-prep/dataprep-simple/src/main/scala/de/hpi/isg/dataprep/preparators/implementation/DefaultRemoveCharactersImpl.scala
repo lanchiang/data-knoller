@@ -31,16 +31,6 @@ class DefaultRemoveCharactersImpl extends AbstractPreparatorImpl {
       val index = row.fieldIndex(propertyName)
       val operatedValue = row.getAs[String](index)
 
-//      val seq = row.toSeq
-//      val forepart = seq.take(index)
-//      val backpart = seq.takeRight(row.length - index - 1)
-//
-//      val tryConvert = Try {
-//        val newSeq = (forepart :+ ConversionHelper.removeCharacters(operatedValue, removeCharactersMode, userSpecifiedCharacters)) ++ backpart
-//        val newRow = Row.fromSeq(newSeq)
-//        newRow
-//      }
-
       val tryConvert = SchemaUtils.createRow(row, index, ConversionHelper.removeCharacters(operatedValue, removeCharactersMode, userSpecifiedCharacters))
 
       val trial = tryConvert match {

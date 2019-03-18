@@ -25,8 +25,6 @@ class ChangeFilesEncoding(val propertyName: String,
     this(propertyName, null, userSpecifiedTargetEncoding)
   }
 
-  //    override def newImpl = new DefaultChangeEncodingImpl
-
   override def buildMetadataSetup(): Unit = {
     if (propertyName == null) throw new ParameterNotSpecifiedException("ColumnCombination name not specified.")
     if (userSpecifiedTargetEncoding == null) throw new ParameterNotSpecifiedException("You have to specify at least a target encoding.")

@@ -33,7 +33,7 @@ class DefaultChangeDelimiterImpl extends AbstractPreparatorImpl {
   //        // for the preparators that changes table-level metadata, simply update the metadata repository.
   //        val delimiter = new Delimiter(targetDelimiter, new TableMetadata(tableName))
   //
-  //        preparator.getPreparation.getPipeline.getMetadataRepository.updateMetadata(delimiter)
+  //        preparator.getPreparation.getPipeline.getMetadataRepository.update(delimiter)
   //
   //        new ExecutionContext(dataFrame, errorAccumulator)
   //    }
@@ -46,7 +46,7 @@ class DefaultChangeDelimiterImpl extends AbstractPreparatorImpl {
     // for the preparators that changes table-level metadata, simply update the metadata repository.
     val delimiter = new Delimiter(targetDelimiter, new TableMetadata(tableName))
 
-    preparator.getPreparation.getPipeline.getMetadataRepository.updateMetadata(delimiter)
+    preparator.getPreparation.getPipeline.getMetadataRepository.update(delimiter)
 
     new ExecutionContext(dataFrame, errorAccumulator)
   }

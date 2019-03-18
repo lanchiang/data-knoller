@@ -40,8 +40,7 @@ public class DecisionEngine implements Engine {
     private Set<AbstractPreparator> preparators;
     private Map<AbstractPreparator, Float> scores;
 
-    private DecisionEngine() {
-    }
+    private DecisionEngine() {}
 
     // get the instance of the class only by this method
     public static DecisionEngine getInstance() {

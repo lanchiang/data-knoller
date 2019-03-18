@@ -43,17 +43,7 @@ class DefaultPaddingImpl extends AbstractPreparatorImpl {
       }
       val operatedValue = row.getAs[String](index)
 
-//      val seq = row.toSeq
-//      val forepart = seq.take(index)
-//      val backpart = seq.takeRight(row.length - index - 1)
-
       val tryConvert = SchemaUtils.createRow(row, index, ConversionHelper.padding(operatedValue, expectedLength, padder))
-
-//      val tryConvert = Try {
-//        val newSeq = (forepart :+ ConversionHelper.padding(operatedValue, expectedLength, padder)) ++ backpart
-//        val newRow = Row.fromSeq(newSeq)
-//        newRow
-//      }
       val convertOption = tryConvert match {
         case Failure(content) => {
           errorAccumulator.add(new RecordError(operatedValue, content))

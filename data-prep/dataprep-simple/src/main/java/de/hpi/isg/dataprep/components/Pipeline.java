@@ -1,13 +1,13 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.ExecutionContext;
+import de.hpi.isg.dataprep.MetadataEngine;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.initializer.ManualMetadataInitializer;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;
-import de.hpi.isg.dataprep.model.metadata.MetadataInitializer;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -26,6 +26,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * A preparation pipeline that incorporates several {@link Preparation} steps. The pipeline includes a {@link MetadataEngine} that operates the changes on metadata and
+ * a {@link DecisionEngine} that select preparation suggestion for the following step. The pipeline includes a {@link MetadataRepository} that contains all the metadata
+ * being used, and a {@link ErrorRepository} that records all the errors occurred while executing the pipeline.
+ *
  * @author Lan Jiang
  * @since 2018/9/10
  */
@@ -33,18 +37,13 @@ public class Pipeline implements AbstractPipeline {
 
     private String name = "default-pipeline";
 
-    /**
-     * Specifies the maximum cardinality of a column combination that is passed as the parameter to preparators. Could be moved to the controller.
-     * Allows use all columns if the value is Integer.MIN_VALUE.
-     */
-    private final static int MAX_CARDINALITY = Integer.MIN_VALUE;
-
-    private MetadataRepository metadataRepository = new MetadataRepository();
+    private MetadataRepository metadataRepository;
     private ErrorRepository errorRepository = new ErrorRepository();
 
     private List<AbstractPreparation> preparations = new LinkedList<>();
 
     private DecisionEngine decisionEngine = DecisionEngine.getInstance();
+    private MetadataEngine metadataEngine;
 
     private int index = 0;
 
@@ -74,6 +73,8 @@ public class Pipeline implements AbstractPipeline {
         this.dialect = dataContext.getDialect();
         this.schemaMapping = dataContext.getSchemaMapping();
         this.targetMetadata = dataContext.getTargetMetadata();
+
+        this.metadataEngine = new MetadataEngine();
 
         // initialize and configure the pipeline.
         initPipeline();
@@ -114,9 +115,6 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void executePipeline() throws Exception {
-        // first time initialize metadata repository to check pipeline syntax errors.
-        initMetadataRepository();
-
         buildMetadataSetup();
 
         try {
@@ -182,14 +180,16 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void initMetadataRepository() {
         // Delegate this job to a MetadataInitializer.
-        MetadataInitializer metadataInitializer = new ManualMetadataInitializer(getDialect(), getDataset());
-        metadataInitializer.initializeMetadataRepository();
-        metadataRepository = metadataInitializer.getMetadataRepository();
+//        MetadataInitializer metadataInitializer = new ManualMetadataInitializer(getDialect(), getDataset());
+//        metadataInitializer.initializeMetadataRepository();
+//        metadataRepository = metadataInitializer.getMetadataRepository();
+
+        // Todo: now for test, using ManualMetadataInitializer. This is not a good way to specify the initializer.
+        metadataRepository = metadataEngine.initMetadataRepository(new ManualMetadataInitializer(this.dialect, this.dataset));
     }
 
     @Override
     public void buildMetadataSetup() {
-        // build preparation, i.e., call the buildpreparator method of preparator instance to set metadata prerequiste and post-change
         this.preparations.stream().forEachOrdered(preparation -> preparation.getAbstractPreparator().buildMetadataSetup());
     }
 
@@ -291,7 +291,8 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void updateMetadataRepository(Collection<Metadata> coming) {
-        metadataRepository.updateMetadata(coming);
+        metadataEngine.updateMetadata(coming, metadataRepository);
+//        metadataRepository.update(coming);
     }
 
     @Override
