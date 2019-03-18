@@ -28,18 +28,15 @@ public class TrimTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-
-//        ErrorLog pipelineError = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//
-//        trueErrorlogs.add(pipelineError);
         ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
-
-//        pipeline.getDataset().show();
-
         Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testTrimNonexistColumn() throws Exception {
+        AbstractPreparator preparator = new Trim("nonexist");
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
     }
 }

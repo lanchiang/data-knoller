@@ -61,4 +61,12 @@ public class RemoveCharactersTest extends PreparatorTest {
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
+
+    @Test(expected = RuntimeException.class)
+    public void testRemoveFromNotExistField() throws Exception {
+        AbstractPreparator preparator = new RemoveCharacters("notexist", RemoveCharactersMode.NONALPHANUMERIC);
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+    }
 }

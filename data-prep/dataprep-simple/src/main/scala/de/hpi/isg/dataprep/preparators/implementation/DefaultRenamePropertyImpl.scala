@@ -16,33 +16,6 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class DefaultRenamePropertyImpl extends AbstractPreparatorImpl {
 
-  //    @throws(classOf[Exception])
-  //    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: DataFrame): ExecutionContext = {
-  //        val preparator_ = this.getPreparatorInstance(preparator, classOf[RenameProperty])
-  //        val errorAccumulator = this.createErrorAccumulator(dataFrame)
-  //        executeLogic(preparator_, dataFrame, errorAccumulator)
-  //    }
-
-  //    private def executeLogic(preparator: RenameProperty, dataFrame: DataFrame, errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-  //        val targetPropertyName = preparator.newPropertyName
-  //        val currentPropertyName = preparator.propertyName
-  //        val columns = dataFrame.columns
-  //
-  //        var resultDataFrame = dataFrame
-  //
-  //        // needs to check whether the new name string is valid.
-  //        if (!columns.contains(currentPropertyName)) {
-  //            errorAccumulator.add(new PropertyError(currentPropertyName, new PreparationHasErrorException("ColumnMetadata name does not exist.")));
-  //        } else {
-  //            if (columns.contains(targetPropertyName)) {
-  //                errorAccumulator.add(new PropertyError(targetPropertyName, new PreparationHasErrorException("New name already exists.")));
-  //            } else {
-  //                resultDataFrame = dataFrame.withColumnRenamed(currentPropertyName, targetPropertyName)
-  //            }
-  //        }
-  //
-  //        new ExecutionContext(resultDataFrame, errorAccumulator)
-  //    }
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[RenameProperty]
     val targetPropertyName = preparator.newPropertyName

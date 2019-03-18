@@ -83,7 +83,4 @@ object SchemaUtils {
     tryConvert
   }
 
-//  def getRowIndexSafe(row: Row, propertyName: String): String = {
-//
-//  }
 }

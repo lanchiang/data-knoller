@@ -3,8 +3,8 @@ package de.hpi.isg.dataprep.preparators.implementation
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.ReplaceSubstring
+import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
@@ -30,27 +30,18 @@ class DefaultReplaceSubstringImpl extends AbstractPreparatorImpl {
     val rowEncoder = RowEncoder(dataFrame.schema)
 
     val createdDataset = dataFrame.flatMap(row => {
-      val indexTry = Try {
-        row.fieldIndex(propertyName)
-      }
-      val index = indexTry match {
-        case Failure(content) => {
-          throw content
-        }
-        case Success(content) => {
-          content
-        }
-      }
+      val index = row.fieldIndex(propertyName)
       val operatedValue = row.getAs[String](index)
 
-      val seq = row.toSeq
-      val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length - index - 1)
-
-      val tryConvert = Try {
-        val newSeq = (forepart :+ ConversionHelper.replaceSubstring(operatedValue, source, replacement, times)) ++ backpart
-        Row.fromSeq(newSeq)
-      }
+//      val seq = row.toSeq
+//      val forepart = seq.take(index)
+//      val backpart = seq.takeRight(row.length - index - 1)
+//
+//      val tryConvert = Try {
+//        val newSeq = (forepart :+ ConversionHelper.replaceSubstring(operatedValue, source, replacement, times)) ++ backpart
+//        Row.fromSeq(newSeq)
+//      }
+      val tryConvert = SchemaUtils.createRow(row, index, ConversionHelper.replaceSubstring(operatedValue, source, replacement, times))
       val convertOption = tryConvert match {
         case Failure(content) => {
           errorAccumulator.add(new RecordError(operatedValue, content))

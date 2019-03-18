@@ -28,12 +28,6 @@ public class ReplaceSubstringTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
-//        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        errorLogs.add(pipelineErrorLog);
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
@@ -48,12 +42,6 @@ public class ReplaceSubstringTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
-//        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        errorLogs.add(pipelineErrorLog);
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
@@ -68,18 +56,20 @@ public class ReplaceSubstringTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
-//        ErrorLog pipelineErrorLog = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "identifier" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        errorLogs.add(pipelineErrorLog);
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
         Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
     }
 
-//    @Test
+    @Test(expected = RuntimeException.class)
+    public void testReplaceInNonexistField() throws Exception {
+        AbstractPreparator preparator = new ReplaceSubstring("nonexist", "(\\s+)([a-z]+)(\\s+)", "REP");
+        AbstractPreparation preparation = new Preparation(preparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+    }
+
+    //    @Test
 //    public void testFirstSomeParameterIllegal() throws Exception {
 //        AbstractPreparator preparator = new ReplaceSubstring(new DefaultReplaceSubstringImpl());
 //        ((ReplaceSubstring) preparator).setPropertyName("identifier");
