@@ -36,7 +36,6 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
 
-//        dataContext.getDataFrame().show();
         return;
     }
 
@@ -63,8 +62,6 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
-//        pipeline.getDataset().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -95,8 +92,6 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
 
-//        pipeline.getDataset().show();
-
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 
@@ -118,8 +113,6 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
-//        pipeline.getDataset().show();
 
         List<ErrorLog> errorLogs = new ArrayList<>();
         ErrorRepository errorRepository = new ErrorRepository(errorLogs);
@@ -148,8 +141,6 @@ public class ChangePhoneFormatTest extends PreparatorTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-
-//        pipeline.getDataset().show();
 
         Assert.assertTrue(pipeline.getErrorRepository().getErrorLogs().isEmpty());
     }

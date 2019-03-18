@@ -6,7 +6,7 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 
 /**
- * Each comment starts with commentcharacter
+ * Each comment starts with comment character
  *
  * @author Lasse Kohlmeyer
  * @since 2018/11/28

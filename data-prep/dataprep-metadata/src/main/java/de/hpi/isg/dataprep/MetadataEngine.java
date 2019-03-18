@@ -15,8 +15,6 @@ import java.util.Collection;
  */
 public class MetadataEngine implements Engine {
 
-    public MetadataEngine() {}
-
     /**
      * Initialize a metadata repository with the metadata defined in the initializer.
      * @return the created metadata repository

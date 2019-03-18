@@ -56,9 +56,6 @@ public class UsedEncoding extends Metadata {
             return this.usedEncoding.equals(((UsedEncoding)metadata).getUsedEncoding());
         }
         return false;
-
-//        UsedEncoding o = (UsedEncoding) metadata;
-//        return o.getUsedEncoding().equals(getUsedEncoding());
     }
 
     @Override

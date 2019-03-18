@@ -58,7 +58,8 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     }
 
     /**
-     * Equals if this metadata has the same scope as that.
+     * Equals if this metadata has the same name and scope as that.
+     *
      * @param o the compared metadata object.
      * @return
      */

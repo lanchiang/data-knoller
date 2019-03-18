@@ -137,9 +137,7 @@ public class Pipeline implements AbstractPipeline {
         }
     }
 
-    private void recordProvenance() {
-
-    }
+    private void recordProvenance() {}
 
     /**
      * Call this method whenever an error occurs during the preparator execution in order to
@@ -179,11 +177,6 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void initMetadataRepository() {
-        // Delegate this job to a MetadataInitializer.
-//        MetadataInitializer metadataInitializer = new ManualMetadataInitializer(getDialect(), getDataset());
-//        metadataInitializer.initializeMetadataRepository();
-//        metadataRepository = metadataInitializer.getMetadataRepository();
-
         // Todo: now for test, using ManualMetadataInitializer. This is not a good way to specify the initializer.
         metadataRepository = metadataEngine.initMetadataRepository(new ManualMetadataInitializer(this.dialect, this.dataset));
     }
@@ -292,7 +285,6 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void updateMetadataRepository(Collection<Metadata> coming) {
         metadataEngine.updateMetadata(coming, metadataRepository);
-//        metadataRepository.update(coming);
     }
 
     @Override

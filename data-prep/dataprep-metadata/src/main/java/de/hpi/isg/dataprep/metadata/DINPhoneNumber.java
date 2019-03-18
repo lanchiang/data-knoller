@@ -33,6 +33,14 @@ public class DINPhoneNumber extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
+        if (metadata instanceof DINPhoneNumber) {
+            DINPhoneNumber converted = (DINPhoneNumber)metadata;
+            return countryCode.equals(converted.getCountryCode())
+                    && areaCode.equals(converted.getAreaCode())
+                    && specialNumber.equals(converted.getSpecialNumber())
+                    && extensionNumber.equals(converted.getExtensionNumber())
+                    && regex.equals(converted.getRegex());
+        }
         return this.equals(metadata);
     }
 

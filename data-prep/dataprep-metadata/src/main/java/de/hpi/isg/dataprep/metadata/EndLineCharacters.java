@@ -31,7 +31,10 @@ public class EndLineCharacters extends Metadata {
 
     @Override
     public boolean equalsByValue(Metadata metadata) {
-        return this.equals(metadata);
+        if (metadata instanceof EndLineCharacters) {
+            return endLineCharacters.equals(((EndLineCharacters)metadata).endLineCharacters);
+        }
+        return false;
     }
 
     @Override
