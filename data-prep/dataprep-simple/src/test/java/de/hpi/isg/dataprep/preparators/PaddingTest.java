@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -29,12 +30,6 @@ public class PaddingTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "id" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        trueErrorlogs.add(pipelineError1);
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
@@ -49,12 +44,26 @@ public class PaddingTest extends PreparatorTest {
         pipeline.executePipeline();
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
-//        ErrorLog pipelineError1 = new PipelineErrorLog(pipeline,
-//                new MetadataNotFoundException(String.format("The metadata %s not found in the repository.", "PropertyDataType{" +
-//                        "propertyName='" + "id" + '\'' +
-//                        ", propertyDataType=" + DataType.PropertyType.STRING.toString() +
-//                        '}')));
-//        trueErrorlogs.add(pipelineError1);
+
+        ErrorLog errorlog1 = new PreparationErrorLog(preparation, "three",
+                new IllegalArgumentException(String.format("Value length is already larger than padded length.")));
+        trueErrorlogs.add(errorlog1);
+
+        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+
+        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+        Assert.assertEquals(pipeline.getDataset().count(), 9L);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testPaddingNotExistProperty() throws Exception {
+        AbstractPreparator abstractPreparator = new Padding("notExist", 4, "x");
+
+        AbstractPreparation preparation = new Preparation(abstractPreparator);
+        pipeline.addPreparation(preparation);
+        pipeline.executePipeline();
+
+        List<ErrorLog> trueErrorlogs = new ArrayList<>();
 
         ErrorLog errorlog1 = new PreparationErrorLog(preparation, "three",
                 new IllegalArgumentException(String.format("Value length is already larger than padded length.")));

@@ -235,7 +235,6 @@ public class Pipeline implements AbstractPipeline {
 
         recordErrorLog(executionContext, preparation);
         setDataset(executionContext.newDataFrame());
-//        UpdateUtils.updateMetadata(this, preparation.getAbstractPreparator());
         this.updateMetadataRepository(preparation.getAbstractPreparator().getUpdateMetadata());
         recordProvenance();
     }

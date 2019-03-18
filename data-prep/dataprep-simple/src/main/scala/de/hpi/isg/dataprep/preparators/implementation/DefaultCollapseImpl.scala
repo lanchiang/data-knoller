@@ -1,11 +1,10 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.Collapse
+import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
@@ -27,16 +26,20 @@ class DefaultCollapseImpl extends AbstractPreparatorImpl {
     val rowEncoder = RowEncoder(dataFrame.schema)
 
     val resultDF = dataFrame.flatMap(row => {
+      val newVal = ConversionHelper.collapse(row.getAs[String](propertyName))
       val index = row.fieldIndex(propertyName)
-      val seq = row.toSeq
-      val forepart = seq.take(index)
-      val backpart = seq.takeRight(row.length - index - 1)
+//      val seq = row.toSeq
+//      val forepart = seq.take(index)
+//      val backpart = seq.takeRight(row.length - index - 1)
+//
+//      val tryConvert = Try {
+//        val newSeq = (forepart :+ ConversionHelper.collapse(row.getAs[String](propertyName))) ++ backpart
+//        val newRow = Row.fromSeq(newSeq)
+//        newRow
+//      }
 
-      val tryConvert = Try {
-        val newSeq = (forepart :+ ConversionHelper.collapse(row.getAs[String](propertyName))) ++ backpart
-        val newRow = Row.fromSeq(newSeq)
-        newRow
-      }
+      val tryConvert = SchemaUtils.createRow(row, index, newVal)
+
       val trial = tryConvert match {
         case Failure(content) => {
           errorAccumulator.add(new RecordError(row.getAs[String](propertyName), content))

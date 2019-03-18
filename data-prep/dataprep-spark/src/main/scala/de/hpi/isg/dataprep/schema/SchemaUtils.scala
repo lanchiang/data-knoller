@@ -1,8 +1,11 @@
 package de.hpi.isg.dataprep.schema
 
-import org.apache.spark.sql.DataFrame
+import de.hpi.isg.dataprep.ConversionHelper
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
+
+import scala.util.Try
 
 /**
   * This class provides the utility functions that manipulate the schema of a spark [[org.apache.spark.sql.DataFrame]]
@@ -58,4 +61,29 @@ object SchemaUtils {
   def positionIsInTheRange(dataFrame: DataFrame, position: Int): Boolean = {
     position >=0 && position < dataFrame.schema.length
   }
+
+  /**
+    * Create a [[Row]] that change the value at the specified position of the current [[Row]] to the new value while keep the rest part unchanged.
+    *
+    * @param row is the current [[Row]]
+    * @param index is the specified position
+    * @param newVal is the new value
+    * @return the [[Try]] of the [[Row]]
+    */
+  def createRow(row: Row, index: Int, newVal: String): Try[Row] = {
+    val seq = row.toSeq
+    val forepart = seq.take(index)
+    val backpart = seq.takeRight(row.length - index - 1)
+
+    val tryConvert = Try {
+      val newSeq = (forepart :+ newVal) ++ backpart
+      val newRow = Row.fromSeq(newSeq)
+      newRow
+    }
+    tryConvert
+  }
+
+//  def getRowIndexSafe(row: Row, propertyName: String): String = {
+//
+//  }
 }
