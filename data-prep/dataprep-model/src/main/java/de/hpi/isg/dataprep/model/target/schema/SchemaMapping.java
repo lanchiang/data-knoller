@@ -34,6 +34,18 @@ abstract public class SchemaMapping {
      */
     abstract public Set<Attribute> getTargetBySourceAttributeName(String attributeName);
 
+    /**
+     * Get the set of attributes in the target schema that are derived from the given {@link Attribute}, which is specified
+     * by its attribute name. This method excludes the source attribute itself if it exists in the target attribute set.
+     * This method can be used in calApplicability to get the attributes in targetSchema that the given
+     * column combination still need to be mapped.
+     *
+     * @param attributeName the name of the attribute in the current schema.
+     * @return the set of attributes in the target schema that are derived from the given attribute. If the given attribute
+     * does not exist in the source schema, return null.
+     */
+    abstract public Set<Attribute> getTargetBySourceAttributeNameExcludeSelf(String attributeName);
+
     abstract protected void finalizeUpdate();
 
     /**

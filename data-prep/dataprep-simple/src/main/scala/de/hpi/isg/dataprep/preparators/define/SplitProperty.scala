@@ -44,14 +44,13 @@ class SplitProperty(var propertyName: Option[String], var separator: Option[Sepa
         if (n <= 1) throw new IllegalArgumentException("numCols must be greater than 1 in order to split a column.")
       case _ =>
     }
-
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataFrame: DataFrame, targetMetadata: util.Collection[Metadata]): Float = {
     if (dataFrame.columns.length != 1) return 0
     val propertyName = dataFrame.columns(0)
-    val numCols = schemaMapping.getTargetBySourceAttributeName(propertyName).size()
+    val numCols = schemaMapping.getTargetBySourceAttributeNameExcludeSelf(propertyName).size()
     if (numCols <= 1) return 0
 
     val column = dataFrame.select(propertyName).as(Encoders.STRING)

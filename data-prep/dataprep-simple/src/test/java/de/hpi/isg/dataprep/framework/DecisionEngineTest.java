@@ -43,7 +43,7 @@ public class DecisionEngineTest extends DecisionEngineDataLoadingConfig {
                 "DeleteProperty", "SplitProperty"
         });
         AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
-        AbstractPreparator expectedPreparator = null;
+        AbstractPreparator expectedPreparator = new SplitProperty("date_split", new DefaultSplitPropertyImpl.SingleValueStringSeparator("-"), 3, true);
 
         Assert.assertEquals(expectedPreparator, actualPreparator);
     }

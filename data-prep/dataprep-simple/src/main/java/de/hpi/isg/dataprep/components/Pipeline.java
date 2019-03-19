@@ -115,6 +115,8 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void executePipeline() throws Exception {
+        initMetadataRepository();
+
         buildMetadataSetup();
 
         try {

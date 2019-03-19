@@ -3,7 +3,6 @@ package de.hpi.isg.dataprep.schema;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
-import de.hpi.isg.dataprep.model.target.schema.Transform;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,6 +24,8 @@ public class SimpleSchemaMapping extends SchemaMapping {
      * Maps from the currentSchema to the targetSchema.
      */
     private SchemaMappingNode root;
+
+    private int maxLayer = Integer.MIN_VALUE; // default value
 
     public SimpleSchemaMapping(Schema sourceSchema, Schema targetSchema,
                                SchemaMappingNode root) {
@@ -69,6 +70,27 @@ public class SimpleSchemaMapping extends SchemaMapping {
 
     @Override
     public Set<Attribute> getTargetBySourceAttributeName(String attributeName) {
+        List<SchemaMappingNode> resultNodes = getLastLayerNode(attributeName);
+        if (resultNodes == null) {
+            return new HashSet<>();
+        }
+        // if the current schema contains the attributes to be returned, do not return them (because they have been processed).
+//        resultNodes = resultNodes.stream().filter(node -> !currentSchema.getAttributes().contains(node.attribute)).collect(Collectors.toList());
+
+        return resultNodes.stream().map(node -> node.getAttribute()).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Attribute> getTargetBySourceAttributeNameExcludeSelf(String attributeName) {
+        List<SchemaMappingNode> resultNodes = getLastLayerNode(attributeName);
+        if (resultNodes == null) {
+            return new HashSet<>();
+        }
+        resultNodes = resultNodes.stream().filter(node -> !node.attribute.getName().equals(attributeName)).collect(Collectors.toList());
+        return resultNodes.stream().map(node -> node.getAttribute()).collect(Collectors.toSet());
+    }
+
+    private List<SchemaMappingNode> getLastLayerNode(String attributeName) {
         if (attributeName == null) {
             throw new IllegalArgumentException("Attribute name is not set.");
         }
@@ -85,14 +107,8 @@ public class SimpleSchemaMapping extends SchemaMapping {
         if (attributeNode == null) {
             throw new RuntimeException("The attribute node does not exist.");
         }
-        List<SchemaMappingNode> resultNodes = excludeNodeInPreviousLayer(findLastNodesOfChain(attributeNode));
-        if (resultNodes == null) {
-            return new HashSet<>();
-        }
-        // if the current schema contains the attributes to be returned, do not return them (because they have been processed).
-//        resultNodes = resultNodes.stream().filter(node -> !currentSchema.getAttributes().contains(node.attribute)).collect(Collectors.toList());
-
-        return resultNodes.stream().map(node -> node.getAttribute()).collect(Collectors.toSet());
+        List<SchemaMappingNode> resultNodes = excludeNodeInNonLastLayer(findLastNodesOfChain(attributeNode));
+        return resultNodes;
     }
 
     @Override
@@ -115,8 +131,6 @@ public class SimpleSchemaMapping extends SchemaMapping {
     @Override
     public void updateMapping(Attribute sourceAttribute, Attribute targetAttribute) {
         if (sourceAttribute == null) {
-//            throw new RuntimeException("Source attribute can not be found in the current schema.");
-
             // source attribute is null means this is a add attribute transform.
             if (targetAttribute == null) {
                 throw new RuntimeException("Unexpected argument setting.");
@@ -181,6 +195,14 @@ public class SimpleSchemaMapping extends SchemaMapping {
         return schemaMappingNodes;
     }
 
+    private List<SchemaMappingNode> excludeNodeInNonLastLayer(List<SchemaMappingNode> schemaMappingNodes) {
+        if (schemaMappingNodes.size() == 0) {
+            return null;
+        }
+        int maxLayer = getMaxLayer();
+        return schemaMappingNodes.stream().filter(node -> node.getLayer() == maxLayer).collect(Collectors.toList());
+    }
+
     private int currentMaxLayer(List<SchemaMappingNode> schemaMappingNodes) {
         if (schemaMappingNodes.size()==0) {
             return 0;
@@ -233,6 +255,15 @@ public class SimpleSchemaMapping extends SchemaMapping {
             }
         }
         return lastNodes;
+    }
+
+    private int getMaxLayer() {
+        if (maxLayer != Integer.MIN_VALUE) {
+            return maxLayer;
+        }
+        List<SchemaMappingNode> lastNodes = findLastNodesOfChain(root);
+        maxLayer = currentMaxLayer(lastNodes);
+        return maxLayer;
     }
 
     public class SchemaMappingNode {
