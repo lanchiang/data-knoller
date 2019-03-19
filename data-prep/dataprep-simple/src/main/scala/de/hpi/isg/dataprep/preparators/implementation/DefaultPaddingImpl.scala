@@ -28,33 +28,22 @@ class DefaultPaddingImpl extends AbstractPreparatorImpl {
     val rowEncoder = RowEncoder(dataFrame.schema)
 
     val createdDataset = dataFrame.flatMap(row => {
-      val indexTry = Try {
-        row.fieldIndex(propertyName)
-      }
-
-      // The property must exist, as otherwise the program would already fail in the checkMetadataPrerequisite.
-      val index = indexTry match {
-        case Failure(content) => {
-          throw content
-        }
-        case Success(content) => {
-          content
-        }
-      }
+      val index = row.fieldIndex(propertyName)
       val operatedValue = row.getAs[String](index)
 
-      val tryConvert = SchemaUtils.createRow(row, index, ConversionHelper.padding(operatedValue, expectedLength, padder))
-      val convertOption = tryConvert match {
+      val tryCreateRow = Try{SchemaUtils.createOneRow(row, index, ConversionHelper.padding(operatedValue, expectedLength, padder))}
+
+      val createRowOption = tryCreateRow match {
         case Failure(content) => {
           errorAccumulator.add(new RecordError(operatedValue, content))
-          tryConvert
+          tryCreateRow
         }
-        case Success(content) => tryConvert
+        case Success(_) => tryCreateRow
       }
-      convertOption.toOption
+      createRowOption.toOption
     })(rowEncoder)
 
-    createdDataset.count()
+    createdDataset.foreach(row => row)
 
     new ExecutionContext(createdDataset, errorAccumulator)
   }

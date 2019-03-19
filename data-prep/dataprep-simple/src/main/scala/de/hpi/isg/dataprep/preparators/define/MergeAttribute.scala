@@ -11,14 +11,11 @@ import spire.std.float
 
 import scala.collection.JavaConverters._
 
-class MergeAttribute(var attributes: List[String]
-					 , var connector: String
-					 , val handleMergeConflict: (String, String) => String = null)
+class MergeAttribute(var attributes: List[String], var connector: String, val handleMergeConflict: (String, String) => String = null)
 		extends AbstractPreparator {
 
 	/** *  THRESHOLDS FOR calApplicability  ***/
 	val threshold = 0.95
-
 
 	/** * CTORS ***/
 	def this() {
@@ -28,9 +25,6 @@ class MergeAttribute(var attributes: List[String]
 	def this(attributes: java.util.List[String], connector: String) {
 		this((attributes.asScala.toList), connector, null)
 	}
-
-
-	//def mapMerge(row: Row) = MergeUtil.isGoodToMerge(row.getString(0),row.getString(1))
 
 	/** * DATE HANDLING ***/
 
@@ -169,7 +163,6 @@ class MergeAttribute(var attributes: List[String]
 	  * @return 0 if list of rows is not (day, month, year) or more or less than 3 columns are given. returns 1 if date if found
 	  */
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-		import dataset.sparkSession.implicits._
 		val columns = dataset.columns.toSeq
 		if (columns.length != 3)
 			return 0
@@ -208,9 +201,9 @@ class MergeAttribute(var attributes: List[String]
 			return 0
 
 		val applicability = dataset
-				.map(x => {
-					val a = if (x.isNullAt(0)) null else x.get(0).toString
-					val b = if (x.isNullAt(1)) null else x.get(1).toString
+				.map(row => {
+					val a = if (row.isNullAt(0)) null else row.get(0).toString
+					val b = if (row.isNullAt(1)) null else row.get(1).toString
 					MergeUtil.isGoodToMerge(a, b) //calculate mergeGoodness for each row
 				})
 				.reduce(_ + _) / dataset.count().toFloat

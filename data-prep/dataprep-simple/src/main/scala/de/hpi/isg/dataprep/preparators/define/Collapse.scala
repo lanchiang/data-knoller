@@ -27,8 +27,6 @@ class Collapse extends AbstractPreparator {
     propertyName = _propertyName
   }
 
-  //    override def newImpl = new DefaultCollapseImpl
-
   /**
     * This method validates the input parameters of a [[AbstractPreparator]]. If succeeds, setup the values of metadata into both
     * prerequisite and toChange set.
@@ -41,7 +39,6 @@ class Collapse extends AbstractPreparator {
 
     if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified", propertyName))
     // Collapse can only be applied on String data type
-    //        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
     this.prerequisites.addAll(prerequisites)
@@ -49,8 +46,6 @@ class Collapse extends AbstractPreparator {
   }
 
     override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-//      val score = Random.nextFloat()
-//      score
       0
     }
 }

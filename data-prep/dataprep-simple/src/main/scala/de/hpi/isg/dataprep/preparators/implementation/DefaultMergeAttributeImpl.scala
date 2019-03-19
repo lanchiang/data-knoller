@@ -6,8 +6,8 @@ import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.{MergeAttribute, MergeUtil}
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.functions.{col, max, udf}
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.functions.{col, udf}
+import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
@@ -38,10 +38,6 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 
 		//only remove merged columns (we only looked at the first 2 in the list)
 		//make a list of columns that should be deleted
-//		val deleteColumns = preparator.attributes.splitAt(2)._1 filterNot List(newColumnName).contains
-//		val columns = (df.columns diff deleteColumns).map(col(_))
-
-//		val result = df.select(columns: _*)
 		val result = df
 
 		//merge recursively if more than 2 columns are given
@@ -58,11 +54,8 @@ class DefaultMergeAttributeImpl extends  AbstractPreparatorImpl{
 	  * If it encounters null values it only returns the other value.
 	  * If both values are null it returns null.
 	  * @param connector string to connect two values
-	  * @return concatenation of given columns with connector
-	  *
-	  *         col1 + connector + col2
+	  * @return concatenation of given columns with connector col1 + connector + col2
 	  */
-
 	def merge(connector: String): UserDefinedFunction =
 		udf((col1: String,col2: String) => {
 			MergeUtil.merge(col1,col2,connector)

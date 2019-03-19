@@ -51,7 +51,6 @@ class DeleteProperty extends AbstractPreparator {
     val score : Float = schema.size match {
       case value if value > 1 => 0
       case value if value == 0 => {
-//        throw new RuntimeException("Illegal schema size.")
         val e : Exception = new RuntimeException(new IllegalArgumentException("Illegal schema size."))
         e.printStackTrace()
         0

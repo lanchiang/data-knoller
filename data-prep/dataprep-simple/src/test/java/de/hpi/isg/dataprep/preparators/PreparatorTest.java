@@ -33,24 +33,8 @@ public class PreparatorTest {
                 .url("./src/test/resources/pokemon.csv")
                 .buildDialect();
 
-//        FileLoadDialect dialect = new DialectBuilder()
-//                .hasHeader(true)
-//                .inferSchema(true)
-//                .url("./src/test/resources/restaurants.tsv")
-//                .delimiter("\t")
-//                .buildDialect();
-
-//        FileLoadDialect dialect = new DialectBuilder()
-//                .hasHeader(true)
-//                .delimiter("\t")
-//                .inferSchema(true)
-//                .url("./src/test/resources/restaurants.tsv")
-//                .buildDialect();
-
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
-
-//        dataContext.getDataFrame().show();
         return;
     }
 

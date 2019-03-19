@@ -5,16 +5,17 @@ import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.load.SparkDataLoader;
-import de.hpi.isg.dataprep.metadata.*;
+import de.hpi.isg.dataprep.metadata.PreambleExistence;
+import de.hpi.isg.dataprep.metadata.PropertyDataType;
+import de.hpi.isg.dataprep.metadata.PropertyExistence;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
-import de.hpi.isg.dataprep.model.target.objects.ColumnMetadata;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.schema.transforms.TransDeleteAttribute;
+import de.hpi.isg.dataprep.schema.transforms.TransSplitAttribute;
 import de.hpi.isg.dataprep.util.DataType;
-import de.hpi.isg.dataprep.util.DatePattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.types.DataTypes;
@@ -25,10 +26,10 @@ import org.junit.BeforeClass;
 import java.util.*;
 
 /**
- * @author lan.jiang
- * @since 1/27/19
+ * @author Lan Jiang
+ * @since 2019-03-19
  */
-public class DataLoadingConfig {
+public class DecisionEngineDataLoadingConfig {
 
     protected static AbstractPipeline pipeline;
     protected static DataContext dataContext;
@@ -50,7 +51,7 @@ public class DataLoadingConfig {
         dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/pokemon.csv")
+                .url("./src/test/resources/decisionEngine.csv")
                 .buildDialect();
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, transforms);
@@ -97,6 +98,14 @@ public class DataLoadingConfig {
         Attribute sourceAttribute = new Attribute(new StructField("date", DataTypes.StringType, true, emptyMetadata));
         Transform deleteAttr = new TransDeleteAttribute(sourceAttribute);
         transforms.add(deleteAttr);
+
+        sourceAttribute = new Attribute(new StructField("date_split", DataTypes.StringType, true, emptyMetadata));
+        Attribute[] targetAttrs = new Attribute[3];
+        targetAttrs[0] = new Attribute(new StructField("date_split_1", DataTypes.StringType, true, emptyMetadata));
+        targetAttrs[1] = new Attribute(new StructField("date_split_2", DataTypes.StringType, true, emptyMetadata));
+        targetAttrs[2] = new Attribute(new StructField("date_split_3", DataTypes.StringType, true, emptyMetadata));
+        Transform splitAttr = new TransSplitAttribute(sourceAttribute, targetAttrs);
+        transforms.add(splitAttr);
 
         return transforms;
     }

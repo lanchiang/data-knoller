@@ -83,4 +83,21 @@ object SchemaUtils {
     tryConvert
   }
 
+  /**
+    * Create a [[Row]] that change the value at the specified position of the current [[Row]] to the new value while keep the rest part unchanged.
+    *
+    * @param row is the current [[Row]]
+    * @param index is the specified position
+    * @param newVal is the new value
+    * @return the [[Try]] of the [[Row]]
+    */
+  def createOneRow(row: Row, index: Int, newVal: String): Row = {
+    val seq = row.toSeq
+    val forepart = seq.take(index)
+    val backpart = seq.takeRight(row.length - index - 1)
+
+    val newSeq = (forepart :+ newVal) ++ backpart
+    val newRow = Row.fromSeq(newSeq)
+    newRow
+  }
 }

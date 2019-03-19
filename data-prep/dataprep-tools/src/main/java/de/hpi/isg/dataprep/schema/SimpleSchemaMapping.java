@@ -90,7 +90,7 @@ public class SimpleSchemaMapping extends SchemaMapping {
             return new HashSet<>();
         }
         // if the current schema contains the attributes to be returned, do not return them (because they have been processed).
-        resultNodes = resultNodes.stream().filter(node -> currentSchema.getAttributes().contains(node.attribute)).collect(Collectors.toList());
+//        resultNodes = resultNodes.stream().filter(node -> !currentSchema.getAttributes().contains(node.attribute)).collect(Collectors.toList());
 
         return resultNodes.stream().map(node -> node.getAttribute()).collect(Collectors.toSet());
     }

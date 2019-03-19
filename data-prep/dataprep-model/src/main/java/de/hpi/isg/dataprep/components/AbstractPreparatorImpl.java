@@ -30,9 +30,7 @@ abstract public class AbstractPreparatorImpl {
      * @return an instance of {@link ExecutionContext} that includes the new dataset, and produced errors.
      * @throws Exception
      */
-    abstract protected ExecutionContext executeLogic(AbstractPreparator abstractPreparator,
-                                                     Dataset<Row> dataFrame,
-                                                     CollectionAccumulator<PreparationError> errorAccumulator) throws Exception;
+    abstract protected ExecutionContext executeLogic(AbstractPreparator abstractPreparator, Dataset<Row> dataFrame, CollectionAccumulator<PreparationError> errorAccumulator) throws Exception;
 
     protected final CollectionAccumulator<PreparationError> createErrorAccumulator(Dataset<Row> dataFrame) {
         CollectionAccumulator<PreparationError> errorAccumulator = new CollectionAccumulator();

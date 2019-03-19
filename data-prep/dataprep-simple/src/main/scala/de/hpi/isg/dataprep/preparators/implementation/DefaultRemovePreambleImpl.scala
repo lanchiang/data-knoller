@@ -9,7 +9,6 @@ import de.hpi.isg.dataprep.preparators.define.RemovePreambleHelper
 import org.apache.spark.ml.clustering.KMeans
 import org.apache.spark.ml.linalg.{DenseVector, Vectors}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql
 import org.apache.spark.sql._
 import org.apache.spark.util.CollectionAccumulator
 
@@ -24,10 +23,8 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
   //ideas: average distance of characters in line
 
   override protected def executeLogic(abstractPreparator: AbstractPreparator,
-                                      dataFrame_orig: Dataset[sql.Row],
+                                      dataFrame_orig: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-
-
     var cleanedDataFrame = dataFrame_orig
 
     val firstCharMetric = RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataFrame_orig)
@@ -40,7 +37,6 @@ class DefaultRemovePreambleImpl extends AbstractPreparatorImpl {
       cleanedDataFrame = analyseLeadingCharacter(cleanedDataFrame)
       leadingCharAlgWasApplied = true
     }
-
 
     val separatorChar = fetchSeparatorChar(cleanedDataFrame)
 

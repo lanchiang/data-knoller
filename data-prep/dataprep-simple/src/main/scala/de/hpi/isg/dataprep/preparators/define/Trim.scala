@@ -19,8 +19,6 @@ import org.apache.spark.sql.{Dataset, Row}
   */
 class Trim(val propertyName: String) extends AbstractPreparator {
 
-  //    override def newImpl = new DefaultTrimImpl
-
   /**
     * This method validates the input parameters of a [[AbstractPreparator]]. If succeeds, setup the values of metadata into both
     * prerequisite and toChange set.

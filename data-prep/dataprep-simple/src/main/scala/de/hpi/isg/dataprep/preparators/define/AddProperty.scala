@@ -48,8 +48,6 @@ class AddProperty extends AbstractPreparator {
   override def buildMetadataSetup(): Unit = {}
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-//    val score = Random.nextFloat()
-//    score
     0
   }
 }

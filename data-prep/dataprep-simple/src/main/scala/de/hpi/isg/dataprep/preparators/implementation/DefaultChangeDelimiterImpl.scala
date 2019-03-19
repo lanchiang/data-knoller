@@ -19,25 +19,6 @@ import org.apache.spark.util.CollectionAccumulator
   */
 class DefaultChangeDelimiterImpl extends AbstractPreparatorImpl {
 
-  //    override protected def executePreparator(preparator: AbstractPreparator, dataFrame: Dataset[Row]): ExecutionContext = {
-  //        val preparator_ = getPreparatorInstance(preparator, classOf[ChangeDelimiter])
-  //        val errorAccumulator = this.createErrorAccumulator(dataFrame)
-  //        executeLogic(preparator_, dataFrame, errorAccumulator)
-  //    }
-  //
-  //    protected def executeLogic(preparator: ChangeDelimiter, dataFrame: DataFrame,
-  //                               errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-  //        val tableName = preparator.tableName
-  //        val targetDelimiter = preparator.targetDelimiter
-  //
-  //        // for the preparators that changes table-level metadata, simply update the metadata repository.
-  //        val delimiter = new Delimiter(targetDelimiter, new TableMetadata(tableName))
-  //
-  //        preparator.getPreparation.getPipeline.getMetadataRepository.update(delimiter)
-  //
-  //        new ExecutionContext(dataFrame, errorAccumulator)
-  //    }
-
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     val preparator = abstractPreparator.asInstanceOf[ChangeDelimiter]
     val tableName = preparator.tableName

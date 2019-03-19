@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators
 
-import de.hpi.isg.dataprep.components.Preparation
+import de.hpi.isg.dataprep.components.{DecisionEngine, Preparation}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
@@ -49,7 +49,6 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     val column  = pipeline.getDataset.select("date").as(Encoders.STRING)
     val score = impl.evaluateSplit(column, separator, 3)
     score shouldEqual 0.9f
-
   }
 
   "IllegalArgumentException" should "be thrown if numCols is 1" in {
@@ -65,7 +64,7 @@ class SplitPropertyTest extends PreparatorScalaTest with Serializable {
     pipeline.addPreparation(new Preparation(preparator))
     an[IllegalArgumentException] should be thrownBy pipeline.executePipeline()
   }
-
+  
   val newSchema = new StructType(
     Array[StructField](
       StructField("id", DataTypes.StringType, nullable = true, Metadata.empty),

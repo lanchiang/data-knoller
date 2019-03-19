@@ -23,8 +23,9 @@ import scala.util.{Failure, Success, Try}
 class AdaptiveChangeDateFormat(val propertyName : String,
                                val sourceDatePattern : Option[DatePatternEnum] = None,
                                val targetDatePattern: DatePatternEnum) extends AbstractPreparator {
-
-    this.impl = new DefaultAdaptiveChangeDateFormatImpl
+  def this() {
+    this(null, null, null)
+  }
 
     /**
       * This method validates the input parameters of a [[AbstractPreparator]]. If it succeeds, setup the values of metadata into both
@@ -104,10 +105,31 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       1.0f - failedNumberOfValues / totalNumberOfValues
     }
 
-    def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {
-      metadata.asScala.filter(m => m match {
-        case _: PropertyDatePattern => return true
-      })
-      false
+//    def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {
+//      metadata.asScala.filter(m => m match {
+//        case _: PropertyDatePattern => return true
+//      })
+//      false
+//    }
+
+  /**
+    * Return true if the required metadata is already in the target metadata set.
+    *
+    * @param targetMetadataSet is the target mentadata set
+    * @return true if the required metadata is already in the target metadata set
+    */
+  def alreadyApplied(targetMetadataSet: util.Collection[Metadata]): Boolean = {
+    updates.asScala.filter(metadata => containByValue(metadata, targetMetadataSet)).size match {
+      case count if count > 0 => true
+      case _ => false
     }
+  }
+
+  def containByValue(metadata: Metadata, collection: util.Collection[Metadata]): Boolean = {
+    val contain = collection.asScala.filter(target => target.equalsByValue(metadata)).size match {
+      case count if count > 0 => true
+      case _ => false
+    }
+    contain
+  }
 }
