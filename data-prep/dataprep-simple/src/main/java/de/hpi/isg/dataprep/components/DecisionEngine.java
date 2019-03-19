@@ -34,8 +34,10 @@ public class DecisionEngine implements Engine {
     private static DecisionEngine instance;
 
     // the preparator candidates that the decision engine may call. Could be moved to the controller.
-    private static String[] preparatorCandidates = {"AdaptiveChangeDateFormat", "ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
-        "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
+    private static String[] preparatorCandidates = {"ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
+            "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
+//    private static String[] preparatorCandidates = {"AdaptiveChangeDateFormat", "ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
+//        "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
 
     // the preparators instantiated by reflection, later the parameters are filled by the calApplicability function
     private Set<AbstractPreparator> preparators;

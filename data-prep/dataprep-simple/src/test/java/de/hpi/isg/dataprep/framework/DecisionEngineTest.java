@@ -3,11 +3,16 @@ package de.hpi.isg.dataprep.framework;
 import de.hpi.isg.dataprep.components.DecisionEngine;
 import de.hpi.isg.dataprep.config.DecisionEngineDataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
+import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat;
 import de.hpi.isg.dataprep.preparators.define.DeleteProperty;
 import de.hpi.isg.dataprep.preparators.define.SplitProperty;
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl;
+import de.hpi.isg.dataprep.util.DatePattern;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
+import scala.None;
+import scala.Option;
 
 /**
  * @author lan.jiang
@@ -47,4 +52,15 @@ public class DecisionEngineTest extends DecisionEngineDataLoadingConfig {
 
         Assert.assertEquals(expectedPreparator, actualPreparator);
     }
+
+    @Test
+    public void selectChangeDateFormatTest() {
+        decisionEngine.setPreparatorCandidates(new String[]{"ChangeDateFormat"});
+        AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
+        AbstractPreparator expectedPreparator = new ChangeDateFormat("date_format", Option.apply(null), Option.apply(DatePattern.DatePatternEnum.DayMonthYear));
+
+        Assert.assertEquals(expectedPreparator, actualPreparator);
+    }
+
+    
 }

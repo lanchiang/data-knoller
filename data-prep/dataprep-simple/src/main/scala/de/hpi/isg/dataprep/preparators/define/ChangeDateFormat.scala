@@ -17,9 +17,9 @@ import org.apache.spark.sql.{Dataset, Row}
 import scala.collection.mutable.ListBuffer
 import collection.JavaConverters._
 
-class ChangeDateFormat(val propertyName: String,
-                       val sourceDatePattern: Option[DatePatternEnum] = None,
-                       val targetDatePattern: Option[DatePatternEnum] = None) extends AbstractPreparator {
+class ChangeDateFormat(var propertyName: String,
+                       var sourceDatePattern: Option[DatePatternEnum] = None,
+                       var targetDatePattern: Option[DatePatternEnum] = None) extends AbstractPreparator {
 
   /**
     * Empty parameter constructor for the decision engine.
@@ -102,6 +102,7 @@ class ChangeDateFormat(val propertyName: String,
     val dates = dataset.rdd.map(row => row.getString(row.fieldIndex(column.name)))
     // get the strict regex by taking the one with the most matches
     // for the fuzzy regexes we try every regex since they only validate the predicted score
+    // Todo: this does not work for columns without date
     val strictRegex = impl.getMostMatchedRegex(dates, fuzzy = false)
 
     // since the model is small we can load it once and broadcast it
@@ -111,7 +112,13 @@ class ChangeDateFormat(val propertyName: String,
     val scores = dates
       .map(impl.scoreDate(_, scorer, strictRegex))
       .sum()
-    scores.toFloat / maxCount.toFloat
+    val score = scores.toFloat / maxCount.toFloat
+
+    // fill the parameters
+    this.propertyName = column.name
+    this.targetDatePattern = Some(DatePatternEnum.DayMonthYear)
+
+    score
   }
 }
 

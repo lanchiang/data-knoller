@@ -181,11 +181,15 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
   def getMostMatchedRegex(dates: RDD[String], fuzzy: Boolean): DateRegex = {
     val regexValidCount = dates
       .flatMap { date =>
-        DateRegex.allRegexes(fuzzy).map { regex =>
-          val isValid = regex.validMatch(date)
-          val count = if (isValid) 1 else 0
+        DateRegex.allRegexes(fuzzy).map({ regex =>
+          val isValid = Try{regex.validMatch(date)}
+          val count = isValid match {
+            case Success(content) => if (content) 1 else 0
+            case Failure(content) => 0
+          }
+//          val count = if (isValid) 1 else 0
           (regex, count)
-        }
+        })
       }.reduceByKey(_ + _)
       .collect
       .toList
@@ -207,6 +211,9 @@ class DefaultChangeDateFormatImpl extends AbstractPreparatorImpl with Serializab
     * @return the resulting score of the date (either 1.0 if it is a date or 0.0 if it isn't)
     */
   def scoreDate(date: String, scorer: DateScorer, strictRegex: DateRegex): Float = {
+    if (date == null) {
+      return 0.0f
+    }
     val targetPattern = DatePatternEnum.DayMonthYear
     val threshold = 0.5f
     val fuzzyRegexes = DateRegex.allRegexes(fuzzy = true)
