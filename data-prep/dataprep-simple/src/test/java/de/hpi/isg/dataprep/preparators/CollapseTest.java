@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -7,6 +8,7 @@ import de.hpi.isg.dataprep.preparators.define.Collapse;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -16,7 +18,13 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/28
  */
-public class CollapseTest extends PreparatorTest {
+public class CollapseTest extends DataLoadingConfig {
+
+    @BeforeClass
+    public static void setUp() {
+        resourcePath = "./src/test/resources/pokemon.csv";
+        DataLoadingConfig.setUp();
+    }
 
     @Test
     public void testCollapse() throws Exception {

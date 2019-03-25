@@ -79,7 +79,7 @@ trait DataLoadingConfigScala extends FlatSpecLike with Matchers with BeforeAndAf
     transforms
   }
 
-  private def createTransformsManually: List[Transform] = { // generate schema mapping
+  protected def createTransformsManually: List[Transform] = { // generate schema mapping
     val transforms = new ListBuffer[Transform]
 
     val sourceAttribute = new Attribute(StructField("date", DataTypes.StringType, nullable = true, emptyMetadata))

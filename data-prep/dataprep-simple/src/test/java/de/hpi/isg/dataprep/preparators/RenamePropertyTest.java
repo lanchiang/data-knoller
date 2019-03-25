@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -22,7 +23,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/19
  */
-public class RenamePropertyTest extends PreparatorTest {
+public class RenamePropertyTest extends DataLoadingConfig {
 
     @Test
     public void testRenameExistingProperty() throws Exception {

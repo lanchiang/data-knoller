@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.metadata.LanguageMetadata;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
@@ -17,7 +18,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-public class DetectLanguageTest extends PreparatorTest {
+public class DetectLanguageTest extends DataLoadingConfig {
 
     @Test
     public void testLanguageDetection() throws Exception {

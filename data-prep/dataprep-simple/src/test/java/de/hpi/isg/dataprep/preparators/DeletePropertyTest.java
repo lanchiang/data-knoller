@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/20
  */
-public class DeletePropertyTest extends PreparatorTest {
+public class DeletePropertyTest extends DataLoadingConfig {
 
     @Test
     public void testDeleteExistingProperty() throws Exception {

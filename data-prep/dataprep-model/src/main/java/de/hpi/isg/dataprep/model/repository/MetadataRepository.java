@@ -50,9 +50,7 @@ public class MetadataRepository implements Serializable {
      * @param metadata is the metadata to be added.
      */
     public void add(Metadata metadata) {
-        if (!metadataPool.contains(metadata)) {
-            metadataPool.add(metadata);
-        }
+        metadataPool.add(metadata);
     }
 
     /**
@@ -61,9 +59,7 @@ public class MetadataRepository implements Serializable {
      * @param metadata is the metadata to be removed.
      */
     public void remove(Metadata metadata) {
-        if (metadataPool.contains(metadata)) {
-            metadataPool.remove(metadata);
-        }
+        metadataPool.remove(metadata);
     }
 
     // Todo: this should be removed when all the usage are replaced by the cognominal function in the metadata engine.

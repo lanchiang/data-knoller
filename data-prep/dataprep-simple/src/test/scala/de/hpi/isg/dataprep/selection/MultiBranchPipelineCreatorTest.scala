@@ -59,7 +59,7 @@ class MultiBranchPipelineCreatorTest extends DataLoadingConfigScala {
     }
 
   }
-  override protected var resourcePath: String = _
+  override protected var resourcePath: String = "/pokemon.csv"
 }
 
 class TestMultiBranchCreator(dataContext: DataContext) extends MultiBranchPipelineCreator(dataContext) {

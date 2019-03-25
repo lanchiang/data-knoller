@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.components.Preparation;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.preparators.define.ReplaceSubstring;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/30
  */
-public class ReplaceSubstringTest extends PreparatorTest {
+public class ReplaceSubstringTest extends DataLoadingConfig {
 
     @Test
     public void testReplaceAllNormalString() throws Exception {

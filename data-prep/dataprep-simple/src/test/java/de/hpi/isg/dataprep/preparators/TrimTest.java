@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/29
  */
-public class TrimTest extends PreparatorTest {
+public class TrimTest extends DataLoadingConfig {
 
     @Test
     public void testTrim() throws Exception {

@@ -21,6 +21,7 @@ import org.apache.spark.sql.types.StructField;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -33,10 +34,10 @@ public class DataLoadingConfig {
     protected static DataContext dataContext;
     protected static FileLoadDialect dialect;
 
-    private static List<Transform> transforms;
-    private static Set<Metadata> targetMetadata;
+    protected static List<Transform> transforms;
+    protected static Set<Metadata> targetMetadata;
 
-    protected static String resourcePath;
+    protected static String resourcePath = "./src/test/resources/pokemon.csv";
 
     protected static org.apache.spark.sql.types.Metadata emptyMetadata = org.apache.spark.sql.types.Metadata.empty();
 
@@ -45,7 +46,7 @@ public class DataLoadingConfig {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        transforms = createTransformsManually();
+//        transforms = createTransformsManually();
 //
 //        // generate target metadata
         targetMetadata = createTargetMetadataManually();
@@ -93,20 +94,12 @@ public class DataLoadingConfig {
         return transforms;
     }
 
-    private static List<Transform> createTransformsManually() {
+    protected static List<Transform> createTransformsManually() {
         // generate schema mapping
         List<Transform> transforms = new ArrayList<>();
         Attribute sourceAttribute = new Attribute(new StructField("date", DataTypes.StringType, true, emptyMetadata));
         Transform deleteAttr = new TransDeleteAttribute(sourceAttribute);
         transforms.add(deleteAttr);
-
-        sourceAttribute = new Attribute(new StructField("date_split", DataTypes.StringType, true, emptyMetadata));
-        Attribute[] targetAttrs = new Attribute[3];
-        targetAttrs[0] = new Attribute(new StructField("date_split_1", DataTypes.StringType, true, emptyMetadata));
-        targetAttrs[1] = new Attribute(new StructField("date_split_2", DataTypes.StringType, true, emptyMetadata));
-        targetAttrs[2] = new Attribute(new StructField("date_split_3", DataTypes.StringType, true, emptyMetadata));
-        Transform splitAttr = new TransSplitAttribute(sourceAttribute, targetAttrs);
-        transforms.add(splitAttr);
 
         return transforms;
     }

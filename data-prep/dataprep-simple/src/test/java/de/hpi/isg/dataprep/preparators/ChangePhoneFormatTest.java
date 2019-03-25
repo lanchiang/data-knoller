@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -11,6 +12,8 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangePhoneFormat;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,21 +25,24 @@ import scala.util.matching.Regex;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChangePhoneFormatTest extends PreparatorTest {
+public class ChangePhoneFormatTest extends DataLoadingConfig {
 
     @BeforeClass
     public static void setUp() {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        resourcePath = "./src/test/resources/restaurants.tsv";
+
         dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/restaurants.tsv")
+                .url(resourcePath)
                 .delimiter("\t")
                 .buildDialect();
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
-
-        return;
     }
 
     @Test

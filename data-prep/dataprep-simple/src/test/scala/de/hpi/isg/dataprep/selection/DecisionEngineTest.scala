@@ -7,7 +7,7 @@ import de.hpi.isg.dataprep.preparators.define.DeleteProperty
 
 class DecisionEngineTest extends DataLoadingConfigScala {
 
-  override protected var resourcePath: String = _
+  override protected var resourcePath: String = "/pokemon.csv"
 
   "The decision engine" should "find the correct prepartor" in {
     val decisionEngine = new DecisionEngine()

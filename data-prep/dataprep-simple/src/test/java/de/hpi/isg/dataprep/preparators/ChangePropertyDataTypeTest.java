@@ -1,5 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -11,6 +12,7 @@ import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.DataType;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -20,7 +22,13 @@ import java.util.List;
  * @author Lan Jiang
  * @since 2018/8/9
  */
-public class ChangePropertyDataTypeTest extends PreparatorTest {
+public class ChangePropertyDataTypeTest extends DataLoadingConfig {
+
+    @BeforeClass
+    public static void setUp() {
+        transforms = DataLoadingConfig.createTransformsManually();
+        DataLoadingConfig.setUp();
+    }
 
     @Test
     public void testChangeToStringErrorLog() throws Exception {
@@ -32,7 +40,6 @@ public class ChangePropertyDataTypeTest extends PreparatorTest {
 
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
         ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-//        pipeline.getDataset().show();
 
         Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
     }

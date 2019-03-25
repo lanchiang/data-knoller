@@ -22,7 +22,7 @@ public class LanguageLemmatizeDecisionEngineTest extends DataLoadingConfig {
 
     @BeforeClass
     public static void setUp() {
-        resourcePath = "./src/test/resources/pokemon.csv";
+        transforms = DataLoadingConfig.createTransformsManually();
         DataLoadingConfig.setUp();
     }
 

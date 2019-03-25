@@ -55,8 +55,6 @@ class DefaultHashImpl extends AbstractPreparatorImpl {
 
     createdDataset.foreach(row => row)
 
-    createdDataset.show()
-
     new ExecutionContext(createdDataset, errorAccumulator)
   }
 }

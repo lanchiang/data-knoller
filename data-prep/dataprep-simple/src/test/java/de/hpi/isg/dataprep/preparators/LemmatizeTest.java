@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.ExecutionContext;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.metadata.LanguageMetadata;
 import de.hpi.isg.dataprep.metadata.LemmatizedMetadata;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -22,7 +23,7 @@ import java.util.*;
 /**
  * Created by danthe on 26.11.18.
  */
-public class LemmatizeTest extends PreparatorTest {
+public class LemmatizeTest extends DataLoadingConfig {
 
     @Ignore
     @Test

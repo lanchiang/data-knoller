@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators;
 
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Preparation;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
@@ -14,6 +15,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -23,38 +25,24 @@ import java.util.List;
  * @author Lasse Kohlmeyer
  * @since 2018/11/29
  */
-public class RemovePreambleTest extends PreparatorTest {
+public class RemovePreambleTest extends DataLoadingConfig {
 
-    @BeforeClass
-    public static void setUp() {
-        Logger.getLogger("org").setLevel(Level.OFF);
-        Logger.getLogger("akka").setLevel(Level.OFF);
+//    @BeforeClass
+//    public static void setUp() {
+//        Logger.getLogger("org").setLevel(Level.OFF);
+//        Logger.getLogger("akka").setLevel(Level.OFF);
+//
+//        dialect = new DialectBuilder()
+//                .hasHeader(false)
+//                .inferSchema(true)
+//                .url("./src/test/resources/pokemon.csv")//->X
+//                .buildDialect();
+//
+//        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+//        dataContext = dataLoader.load();
+//    }
 
-        dialect = new DialectBuilder()
-                .hasHeader(false)
-                .inferSchema(true)
-                //.delimiter("\t")
-                //x: works
-                .url("./src/test/resources/pokemon.csv")//->X
-                //.url("./src/test/resources/restaurants.tsv")//->x
-                //.url("./src/test/resources/test.csv")//->x
-                //.url("./src/test/resources/test2.csv")//->x
-                //.url("./src/test/resources/test21.csv")//->x
-                //.url("./src/test/resources/test3.csv")//->x
-                //.url("./src/test/resources/test4.csv")//->x
-                //.url("./src/test/resources/test5.csv")//->x
-                //.url("./src/test/resources/test6.csv")//->x
-                //.url("./src/test/resources/test7.csv")//->x
-                //.url("./src/test/resources/test8.csv")//-> x,
-                //.url("./src/test/resources/test9.csv")//->x
-                //.url("./src/test/resources/test10.csv")//->x
-                //.url("./src/test/resources/test11.csv")//->x
-                .buildDialect();
-
-        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
-        dataContext = dataLoader.load();
-    }
-
+    @Ignore
     @Test
     public void preparatorWorksInPipeline() throws Exception {
 

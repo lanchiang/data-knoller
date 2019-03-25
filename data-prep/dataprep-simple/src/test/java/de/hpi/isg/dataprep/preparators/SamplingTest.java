@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.preparators;
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.components.Preparation;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.io.context.DataContext;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
@@ -25,42 +26,31 @@ import org.junit.Test;
  * @author Lan Jiang
  * @since 2018/8/29
  */
-public class SamplingTest {
-
-    protected static Dataset<Row> dataset;
-    protected static AbstractPipeline pipeline;
-    protected static DataContext dataContext;
+public class SamplingTest extends DataLoadingConfig {
 
     @BeforeClass
     public static void setUp() {
+        resourcePath = "./src/test/resources/uniformDist.csv";
+
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        FileLoadDialect dialect = new DialectBuilder()
+        dialect = new DialectBuilder()
                 .hasHeader(true)
                 .inferSchema(true)
-                .url("./src/test/resources/uniformDist.csv")
+                .url(resourcePath)
                 .buildDialect();
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
-
-        return;
-    }
-
-    @Before
-    public void cleanUpPipeline() {
-        pipeline = new Pipeline(dataContext);
     }
 
     @Test
     public void testSampling() throws Exception {
-
         AbstractPreparator abstractPreparator = new Sampling(.01, false);
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        pipeline.getDataset().show();
     }
 
     @Test
@@ -71,9 +61,6 @@ public class SamplingTest {
         AbstractPreparation preparation = new Preparation(abstractPreparator);
         pipeline.addPreparation(preparation);
         pipeline.executePipeline();
-//        pipeline.getDataset().show();
         Assert.assertEquals(pipeline.getDataset().count(), sampleSize);
     }
-
-
 }
