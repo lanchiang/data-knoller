@@ -5,7 +5,9 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.DeleteProperty
 
 
-class DecisionEngineTest extends DataLoadingConfig {
+class DecisionEngineTest extends DataLoadingConfigScala {
+
+  override protected var resourcePath: String = _
 
   "The decision engine" should "find the correct prepartor" in {
     val decisionEngine = new DecisionEngine()
@@ -16,5 +18,4 @@ class DecisionEngineTest extends DataLoadingConfig {
     pipeline.addPreparation(new Preparation(preparator))
     preparator shouldEqual expectedPreparator
   }
-
 }

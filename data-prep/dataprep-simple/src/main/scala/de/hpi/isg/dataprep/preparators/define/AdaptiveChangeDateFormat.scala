@@ -105,13 +105,6 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       1.0f - failedNumberOfValues / totalNumberOfValues
     }
 
-//    def alreadyApplied(metadata: util.Collection[Metadata]): Boolean = {
-//      metadata.asScala.filter(m => m match {
-//        case _: PropertyDatePattern => return true
-//      })
-//      false
-//    }
-
   /**
     * Return true if the required metadata is already in the target metadata set.
     *

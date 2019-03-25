@@ -10,9 +10,7 @@ import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import de.hpi.isg.dataprep.utils.UpdateUtils;
 import org.apache.spark.sql.Encoders;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,9 +20,14 @@ import java.util.List;
  */
 public class LanguageLemmatizeDecisionEngineTest extends DataLoadingConfig {
 
+    @BeforeClass
+    public static void setUp() {
+        resourcePath = "./src/test/resources/pokemon.csv";
+        DataLoadingConfig.setUp();
+    }
+
     @Test
     public void testDetectLanguageSelected() {
-        DataLoadingConfig.setUp();
 
         DecisionEngine decisionEngine = DecisionEngine.getInstance();
 
@@ -39,7 +42,6 @@ public class LanguageLemmatizeDecisionEngineTest extends DataLoadingConfig {
 
     @Test
     public void testLemmatizerSelected() throws Exception {
-        DataLoadingConfig.setUp();
 
         AbstractPreparator abstractPreparator = new DetectLanguagePreparator("stemlemma", 5);
         AbstractPreparation preparation = new Preparation(abstractPreparator);
@@ -60,7 +62,6 @@ public class LanguageLemmatizeDecisionEngineTest extends DataLoadingConfig {
     @Ignore
     @Test
     public void testBoth() throws Exception {
-        DataLoadingConfig.setUp();
 
 //        DecisionEngine.preparatorCandidates = new String[]{
 //                "LemmatizePreparator", "DetectLanguagePreparator"

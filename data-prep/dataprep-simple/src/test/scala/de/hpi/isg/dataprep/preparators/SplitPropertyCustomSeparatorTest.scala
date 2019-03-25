@@ -4,9 +4,10 @@ import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.{MultiValueCharacterClassSeparator, MultiValueStringSeparator, SingleValueCharacterClassSeparator}
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils
+import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import org.apache.spark.sql.Encoders
 
-class SplitPropertyCustomSeparatorTest extends PreparatorScalaTest with Serializable {
+class SplitPropertyCustomSeparatorTest extends DataLoadingConfigScala with Serializable {
 
   override var resourcePath = "/split.csv"
 

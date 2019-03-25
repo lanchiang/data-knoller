@@ -5,10 +5,11 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.SplitProperty
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl.SingleValueStringSeparator
+import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.types.{DataTypes, Metadata, StructField, StructType}
 
-class SplitPropertyTest extends PreparatorScalaTest with Serializable {
+class SplitPropertyTest extends DataLoadingConfigScala with Serializable {
 
   override var resourcePath: String = "/pokemon.csv"
 

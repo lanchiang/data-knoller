@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.preparators
 
 import de.hpi.isg.dataprep.preparators.define.RemovePreambleHelper
 import de.hpi.isg.dataprep.preparators.implementation.DefaultRemovePreambleImpl
+import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import org.apache.spark.sql.SparkSession
 
-class RemovePreamble extends PreparatorScalaTest {
+class RemovePreambleScalaTest extends DataLoadingConfigScala {
   var sparkContext:SparkSession = _
 
   override var resourcePath: String = "/pokemon.csv"
@@ -22,7 +23,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val fileData = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/test_space_preamble.csv")
+            .csv(getClass.getClassLoader.getResource("test_space_preamble.csv").toURI.getPath)
 
     fileData.columns.length shouldEqual 1
   }
@@ -43,11 +44,11 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val customDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char.csv").toURI.getPath)
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_initial_char_expected.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_initial_char_expected.csv").toURI.getPath)
 
     val prep = new DefaultRemovePreambleImpl
     val result = prep.analyseLeadingCharacter(customDataset)
@@ -98,7 +99,8 @@ class RemovePreamble extends PreparatorScalaTest {
     val prep = new DefaultRemovePreambleImpl
     val customDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_separator_comma.csv")
+//      .csv("./src/test/resources/preamble_separator_comma.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_separator_comma.csv").toURI.getPath)
 
     prep.fetchSeparatorChar(customDataset) shouldEqual ","
 
@@ -107,7 +109,7 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_separator_comma_expected.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_separator_comma_expected.csv").toURI.getPath)
 
     val result = prep.analyseSeparatorCount(customDataset, separator = ",")
     result.collect shouldEqual expectedDataset.collect
@@ -118,11 +120,11 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val customDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_separator_slash.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_separator_slash.csv").toURI.getPath)
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_separator_slash_expected.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_separator_slash_expected.csv").toURI.getPath)
 
     val prep = new DefaultRemovePreambleImpl
 
@@ -138,11 +140,11 @@ class RemovePreamble extends PreparatorScalaTest {
 
     val customDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_separator_fail.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_separator_fail.csv").toURI.getPath)
 
     val expectedDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/preamble_separator_fail_expected.csv")
+            .csv(getClass.getClassLoader.getResource("preamble_separator_fail_expected.csv").toURI.getPath)
 
     val prep = new DefaultRemovePreambleImpl
 
@@ -155,7 +157,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val customDataset = localContext.read
       .option("sep", " ")
-      .csv("./src/test/resources/test_space_preamble.csv")
+            .csv(getClass.getClassLoader.getResource("test_space_preamble.csv").toURI.getPath)
 
     val prep = new DefaultRemovePreambleImpl
 
@@ -171,7 +173,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val localContext = sparkContext
     val customDataset = localContext.read
       .option("sep", "\t")
-      .csv("./src/test/resources/test_space_preamble.csv")
+            .csv(getClass.getClassLoader.getResource("test_space_preamble.csv").toURI.getPath)
 
     val testPreparator = new DefaultRemovePreambleImpl
 
@@ -201,7 +203,7 @@ class RemovePreamble extends PreparatorScalaTest {
     val prep = new DefaultRemovePreambleImpl
     val customDataset = localContext.read
       .option("sep", " ")
-      .csv("./src/test/resources/test_space_preamble.csv")
+            .csv(getClass.getClassLoader.getResource("test_space_preamble.csv").toURI.getPath)
 
     RemovePreambleHelper.calculateCharacterTypeSkew(customDataset) shouldEqual 0.25
   }

@@ -1,20 +1,13 @@
 package de.hpi.isg.dataprep.preparators
 
-import java.text.ParseException
 import java.util
-import java.util.Locale
 
-import de.hpi.isg.dataprep.DialectBuilder
-import de.hpi.isg.dataprep.components.{Pipeline, Preparation}
+import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern
-import de.hpi.isg.dataprep.model.repository.ErrorRepository
-import de.hpi.isg.dataprep.model.target.errorlog.{ErrorLog, PreparationErrorLog}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
-import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
+import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import de.hpi.isg.dataprep.util.DatePattern
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.functions.col
 
 /**
@@ -22,7 +15,7 @@ import org.apache.spark.sql.functions.col
   * @author Hendrik Rätz, Nils Strelow
   * @since 2018/12/03
   */
-class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
+class AdaptiveChangeDateFormatTest extends DataLoadingConfigScala {
 
   override var resourcePath: String = "/dates_applicability.csv"
 
@@ -58,6 +51,8 @@ class AdaptiveChangeDateFormatTest extends PreparatorScalaTest {
     metadata.add(dateMetadata)
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
+    preparator.buildMetadataSetup()
+
     preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 }

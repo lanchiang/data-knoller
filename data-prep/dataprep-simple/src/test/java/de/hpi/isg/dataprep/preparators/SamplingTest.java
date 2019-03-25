@@ -42,17 +42,9 @@ public class SamplingTest {
                 .url("./src/test/resources/uniformDist.csv")
                 .buildDialect();
 
-//        FileLoadDialect dialect = new DialectBuilder()
-//                .hasHeader(true)
-//                .delimiter("\t")
-//                .inferSchema(true)
-//                .url("./src/test/resources/restaurants.tsv")
-//                .buildDialect();
-
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
         dataContext = dataLoader.load();
 
-//        dataContext.getDataFrame().show();
         return;
     }
 

@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.framework;
 
 import de.hpi.isg.dataprep.components.DecisionEngine;
-import de.hpi.isg.dataprep.config.DecisionEngineDataLoadingConfig;
+import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat;
 import de.hpi.isg.dataprep.preparators.define.DeleteProperty;
@@ -9,18 +9,23 @@ import de.hpi.isg.dataprep.preparators.define.SplitProperty;
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl;
 import de.hpi.isg.dataprep.util.DatePattern;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import scala.None;
 import scala.Option;
 
 /**
  * @author lan.jiang
  * @since 1/20/19
  */
-public class DecisionEngineTest extends DecisionEngineDataLoadingConfig {
+public class DecisionEngineTest extends DataLoadingConfig {
 
     private final DecisionEngine decisionEngine = DecisionEngine.getInstance();
+
+    @BeforeClass
+    public static void setUp() {
+        resourcePath = "./src/test/resources/decisionEngine.csv";
+        DataLoadingConfig.setUp();
+    }
 
     @Test
     public void selectBestPreparatorTest() {

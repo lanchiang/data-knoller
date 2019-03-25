@@ -20,33 +20,42 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.reflect.io.File
 
-trait DataLoadingConfig extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
+trait DataLoadingConfigScala extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
 
   protected var pipeline: AbstractPipeline = _
   protected var dataContext: DataContext = _
   protected var dialect: FileLoadDialect = _
   private var transforms: List[Transform] = _
 
+  protected var resourcePath: String
+
   protected var emptyMetadata: types.Metadata = org.apache.spark.sql.types.Metadata.empty
 
-
-  override protected def beforeEach(): Unit = {
-    pipeline = new Pipeline(dataContext)
-  }
-
   override protected def beforeAll(): Unit = {
+
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
+
     transforms = createTransformsManually
+
     // generate target metadata
     val targetMetadata = createTargetMetadataManually
-    val path = File("src") / "test" / "resources" / "pokemon.csv" toString()
-    dialect = new DialectBuilder().hasHeader(true).inferSchema(true).url(path).buildDialect
-    //        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, schemaMapping);
+
+    val filePath = getClass.getResource(resourcePath).toURI.getPath
+//    val path = File("src") / "test" / "resources" / "pokemon.csv" toString()
+    dialect = new DialectBuilder()
+            .hasHeader(true)
+            .inferSchema(true)
+            .url(filePath)
+            .buildDialect
+
     val dataLoader: SparkDataLoader = new FlatFileDataLoader(dialect, targetMetadata.asJava, transforms.asJava)
     dataContext = dataLoader.load
   }
 
+  override protected def beforeEach(): Unit = {
+    pipeline = new Pipeline(dataContext)
+  }
 
   private def createTargetMetadataManually: Set[Metadata] = {
     val targetMetadata = new ListBuffer[Metadata]

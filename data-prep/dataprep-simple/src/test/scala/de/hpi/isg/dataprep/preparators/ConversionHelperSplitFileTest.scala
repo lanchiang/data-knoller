@@ -2,10 +2,11 @@ package de.hpi.isg.dataprep.preparators
 
 import de.hpi.isg.dataprep.ConversionHelper
 import de.hpi.isg.dataprep.ConversionHelper.countSubstring
+import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import org.apache.spark.sql.{Row, SparkSession}
 
 
-class ConversionHelperSplitFileTest extends PreparatorScalaTest {
+class ConversionHelperSplitFileTest extends DataLoadingConfigScala {
   var sparkContext:SparkSession = _
 
   override var resourcePath = "/pokemon.csv"

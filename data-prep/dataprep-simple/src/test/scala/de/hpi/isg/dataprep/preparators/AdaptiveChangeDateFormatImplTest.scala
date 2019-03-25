@@ -13,6 +13,7 @@ import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.preparators.implementation.DefaultAdaptiveChangeDateFormatImpl
+import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import de.hpi.isg.dataprep.util.DatePattern
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.functions.col
@@ -22,7 +23,7 @@ import org.apache.spark.sql.functions.col
   * @author Hendrik Rätz, Nils Strelow
   * @since 2018/12/03
   */
-class AdaptiveChangeDateFormatImplTest extends PreparatorScalaTest {
+class AdaptiveChangeDateFormatImplTest extends DataLoadingConfigScala {
 
   override var resourcePath: String = "/dates.csv"
 

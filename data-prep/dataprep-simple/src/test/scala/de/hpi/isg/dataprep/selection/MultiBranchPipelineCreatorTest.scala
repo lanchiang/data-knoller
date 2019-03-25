@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.preparators.define.{ChangeDataType, DeleteProperty}
 
 import scala.collection.JavaConversions._
 
-class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
+class MultiBranchPipelineCreatorTest extends DataLoadingConfigScala {
 
   val columns = "id,identifier,species_id,height,weight,base_experience,order,is_default,date,stemlemma,stemlemma2,stemlemma_wrong".split(",").toList
 
@@ -59,6 +59,7 @@ class MultiBranchPipelineCreatorTest extends DataLoadingConfig {
     }
 
   }
+  override protected var resourcePath: String = _
 }
 
 class TestMultiBranchCreator(dataContext: DataContext) extends MultiBranchPipelineCreator(dataContext) {
