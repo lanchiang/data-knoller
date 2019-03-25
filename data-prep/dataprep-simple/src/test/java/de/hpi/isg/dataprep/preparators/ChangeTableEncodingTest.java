@@ -1,5 +1,8 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.io.context.DataContext;
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
+import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

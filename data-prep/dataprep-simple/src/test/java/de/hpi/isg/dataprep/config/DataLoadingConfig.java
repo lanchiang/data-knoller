@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.config;
 
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Pipeline;
+import de.hpi.isg.dataprep.io.context.DataContext;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.metadata.*;

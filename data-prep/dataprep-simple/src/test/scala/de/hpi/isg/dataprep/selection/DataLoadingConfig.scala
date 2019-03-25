@@ -2,8 +2,8 @@ package de.hpi.isg.dataprep.selection
 
 import de.hpi.isg.dataprep.DialectBuilder
 import de.hpi.isg.dataprep.components.Pipeline
-import de.hpi.isg.dataprep.context.DataContext
-import de.hpi.isg.dataprep.load.{FlatFileDataLoader, SparkDataLoader}
+import de.hpi.isg.dataprep.io.context.DataContext
+import de.hpi.isg.dataprep.io.load.{FlatFileDataLoader, SparkDataLoader}
 import de.hpi.isg.dataprep.metadata.{PreambleExistence, PropertyDataType, PropertyExistence}
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect
 import de.hpi.isg.dataprep.model.target.objects.Metadata
