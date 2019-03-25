@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.selection
 
 import de.hpi.isg.dataprep.components.Pipeline
-import de.hpi.isg.dataprep.context.DataContext
+import de.hpi.isg.dataprep.io.context.DataContext
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 
 /**

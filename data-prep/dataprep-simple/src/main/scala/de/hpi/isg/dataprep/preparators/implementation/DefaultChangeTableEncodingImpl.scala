@@ -8,7 +8,7 @@ import java.nio.file.{Files, Paths}
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.EncodingNotDetectedException
-import de.hpi.isg.dataprep.load.FlatFileDataLoader
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}

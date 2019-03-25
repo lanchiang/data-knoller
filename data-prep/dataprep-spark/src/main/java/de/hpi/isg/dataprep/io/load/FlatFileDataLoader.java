@@ -1,6 +1,6 @@
-package de.hpi.isg.dataprep.load;
+package de.hpi.isg.dataprep.io.load;
 
-import de.hpi.isg.dataprep.context.DataContext;
+import de.hpi.isg.dataprep.io.context.DataContext;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Schema;

@@ -2,9 +2,9 @@ package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.MetadataEngine;
-import de.hpi.isg.dataprep.context.DataContext;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.initializer.ManualMetadataInitializer;
+import de.hpi.isg.dataprep.io.context.DataContext;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.error.PropertyError;
 import de.hpi.isg.dataprep.model.error.RecordError;

@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.selection
 
 import de.hpi.isg.dataprep.components.{Pipeline, Preparation}
-import de.hpi.isg.dataprep.context.DataContext
+import de.hpi.isg.dataprep.io.context.DataContext
 
 /**
   * The greedy pipeline creator builds a pipeline with the greedy approach of the decision engine

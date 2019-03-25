@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.context;
+package de.hpi.isg.dataprep.io.context;
 
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;

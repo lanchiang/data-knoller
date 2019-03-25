@@ -2,9 +2,9 @@ package de.hpi.isg.dataprep.config;
 
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Pipeline;
-import de.hpi.isg.dataprep.context.DataContext;
-import de.hpi.isg.dataprep.load.FlatFileDataLoader;
-import de.hpi.isg.dataprep.load.SparkDataLoader;
+import de.hpi.isg.dataprep.io.context.DataContext;
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
+import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.metadata.PreambleExistence;
 import de.hpi.isg.dataprep.metadata.PropertyDataType;
 import de.hpi.isg.dataprep.metadata.PropertyExistence;
@@ -56,7 +56,6 @@ public class DecisionEngineDataLoadingConfig {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, transforms);
         dataContext = dataLoader.load();
-
     }
 
     @Before

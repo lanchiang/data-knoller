@@ -3,6 +3,7 @@ package de.hpi.isg.dataprep.preparators
 import de.hpi.isg.dataprep.DialectBuilder
 import de.hpi.isg.dataprep.components.Pipeline
 import de.hpi.isg.dataprep.context.DataContext
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.load.FlatFileDataLoader
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline
 import org.apache.log4j.{Level, Logger}
