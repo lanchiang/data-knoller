@@ -1,12 +1,17 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.config.DataLoadingConfig;
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
+import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.preparators.define.Hash;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.HashAlgorithm;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -19,7 +24,18 @@ public class HashTest extends DataLoadingConfig {
     @BeforeClass
     public static void setUp() {
         resourcePath = "./src/test/resources/pokemon.csv";
-        DataLoadingConfig.setUp();
+
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url(resourcePath)
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
     }
 
     @Test

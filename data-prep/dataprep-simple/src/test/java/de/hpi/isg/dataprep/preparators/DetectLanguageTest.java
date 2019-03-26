@@ -14,11 +14,18 @@ import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator;
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
 import org.apache.spark.sql.Encoders;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.*;
 
 public class DetectLanguageTest extends DataLoadingConfig {
+
+    @BeforeClass
+    public static void setUp() {
+        transforms = DataLoadingConfig.createTransformsManually();
+        DataLoadingConfig.setUp();
+    }
 
     @Test
     public void testLanguageDetection() throws Exception {

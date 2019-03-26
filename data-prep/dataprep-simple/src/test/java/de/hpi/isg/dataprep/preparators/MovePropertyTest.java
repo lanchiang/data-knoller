@@ -1,13 +1,18 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.config.DataLoadingConfig;
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
+import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.preparators.define.MoveProperty;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataTypes;
@@ -15,6 +20,7 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -26,6 +32,23 @@ import java.util.List;
  * @since 2018/8/21
  */
 public class MovePropertyTest extends DataLoadingConfig {
+
+    @BeforeClass
+    public static void setUp() {
+        resourcePath = "./src/test/resources/pokemon.csv";
+
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url(resourcePath)
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+    }
 
     @Test
     public void testMovePropertyToTheFront() throws Exception {

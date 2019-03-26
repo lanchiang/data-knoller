@@ -20,6 +20,7 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -31,38 +32,11 @@ import java.util.List;
  */
 public class PipelineTest extends DataLoadingConfig {
 
-//    @Test
-//    public void testPipelineOnRestaurants() throws Exception {
-//        pipeline.getDataset().show();
-//
-//        AbstractPreparator prep1 = new ReplaceSubstring("phone", "/", "-");
-//        AbstractPreparation preparation1 = new Preparation(prep1);
-//        pipeline.addPreparation(preparation1);
-//
-//        AbstractPreparator prep2 = new ReplaceSubstring("type", "[(\\s[0-9]+/[0-9]+-[0-9]+\\s)]", "");
-//        AbstractPreparation preparation2 = new Preparation(prep2);
-//        pipeline.addPreparation(preparation2);
-//
-//        AbstractPreparator prep3 = new MoveProperty("id", 0);
-//        AbstractPreparation preparation3 = new Preparation(prep3);
-//        pipeline.addPreparation(preparation3);
-//
-//        AbstractPreparator prep4 = new MoveProperty("type", 1);
-//        AbstractPreparation preparation4 = new Preparation(prep4);
-//        pipeline.addPreparation(preparation4);
-//
-//        AbstractPreparator prep5 = new DeleteProperty("merged_values");
-//        AbstractPreparation preparation5 = new Preparation(prep5);
-//        pipeline.addPreparation(preparation5);
-//
-//        AbstractPreparator prep6 = new ChangeDelimiter(pipeline.getDatasetName(), ";");
-//        AbstractPreparation preparation6 = new Preparation(prep6);
-//        pipeline.addPreparation(preparation6);
-//
-//        pipeline.executePipeline();
-//
-//        pipeline.getDataset().show();
-//    }
+    @BeforeClass
+    public static void setUp() {
+        transforms = DataLoadingConfig.createTransformsManually();
+        DataLoadingConfig.setUp();
+    }
 
     @Test
     public void testPipelineOnPokemon() throws Exception {

@@ -14,6 +14,8 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangeFilesEncoding;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.functions;
@@ -27,8 +29,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ChangeFilesEncodingTest extends DataLoadingConfig {
 
@@ -43,7 +43,18 @@ public class ChangeFilesEncodingTest extends DataLoadingConfig {
     @BeforeClass
     public static void setUp() {
         resourcePath = "./src/test/resources/digimon.csv";
-        DataLoadingConfig.setUp();
+
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url(resourcePath)
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
 
         // populate oldPaths
         try {

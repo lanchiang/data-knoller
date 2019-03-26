@@ -1,6 +1,9 @@
 package de.hpi.isg.dataprep.preparators;
 
+import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.config.DataLoadingConfig;
+import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
+import de.hpi.isg.dataprep.io.load.SparkDataLoader;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
@@ -9,7 +12,10 @@ import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.util.RemoveCharactersMode;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -20,6 +26,23 @@ import java.util.List;
  * @since 2018/9/4
  */
 public class RemoveCharactersTest extends DataLoadingConfig {
+
+    @BeforeClass
+    public static void setUp() {
+        resourcePath = "./src/test/resources/pokemon.csv";
+
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url(resourcePath)
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect);
+        dataContext = dataLoader.load();
+    }
 
     @Test
     public void testRemoveNumeric() throws Exception {
