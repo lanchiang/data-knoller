@@ -46,8 +46,6 @@ public class DataLoadingConfig {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-//        transforms = createTransformsManually();
-//
 //        // generate target metadata
         targetMetadata = createTargetMetadataManually();
 

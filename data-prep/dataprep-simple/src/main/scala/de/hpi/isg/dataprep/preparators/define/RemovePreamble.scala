@@ -34,13 +34,14 @@ class RemovePreamble extends AbstractPreparator {
     var finalScore = 1.0
 
     // does the dataframe have more than one column?
+    // Todo: this will not be valid if the content is indeed read into a single column
     finalScore *= RemovePreambleHelper.checkNumberOfColuns(dataset)
 
     // Consecutive lines starting with the same character
     finalScore *= RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
 
-    // number of consecutive lines a character doenst occur in but in all other lines does - even with same occurence count
+    // number of consecutive lines a character does not occur in but in all other lines does - even with same occurence count
     finalScore *= RemovePreambleHelper.charsInEachLine(dataset)
 
     //high separator occurrence skew
