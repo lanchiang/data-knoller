@@ -37,6 +37,7 @@
             <artifactId>dataprep-tools</artifactId>
             <version>0.01-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>org.languagetool</groupId>
             <artifactId>language-all</artifactId>
@@ -47,6 +48,14 @@
             <artifactId>reflections</artifactId>
             <version>0.9.10</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.vegas-viz</groupId>
+            <artifactId>vegas_2.11</artifactId>
+            <version>0.3.6</version>
+        </dependency>
+
+
     </dependencies>
 
 

@@ -30,14 +30,14 @@ class RemovePreamble extends AbstractPreparator {
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
 
-    //represents the chance the dataset doesnt have a preamble
+    //represents the chance the dataset does not have a preamble
     var finalScore = 1.0
 
     // does the dataframe have more than one column?
     // Todo: this will not be valid if the content is indeed read into a single column
     finalScore *= RemovePreambleHelper.checkNumberOfColuns(dataset)
 
-    // Consecutive lines starting with the same character
+    // consecutive lines starting with the same character
     finalScore *= RemovePreambleHelper.checkFirstCharacterInConsecutiveRows(dataset)
     // integrating split attribute?
 
@@ -47,7 +47,7 @@ class RemovePreamble extends AbstractPreparator {
     //high separator occurrence skew
     finalScore *= RemovePreambleHelper.calculateSeparatorSkew(dataset)
 
-    //vastly different char types
+    // vastly different char types
     finalScore *= RemovePreambleHelper.calculateCharacterTypeSkew(dataset)
 
     1 - finalScore.toFloat
@@ -117,6 +117,13 @@ object RemovePreambleHelper {
     1.0
   }
 
+  /**
+    * Returns the score that indicates how much affect the preamble streak poses on removing preamble applicability.
+    * The score is calculated by dividing one by the longest preamble streak.
+    *
+    * @param dataFrame contains only one column that includes concatenated values of the row.
+    * @return 1 if there is no preamble line, otherwise 1/(longestUnusalSteakLength).
+    */
   def calculateSeparatorSkew(dataFrame: DataFrame): Double = {
     import dataFrame.sparkSession.implicits._
     val separator = (new DefaultRemovePreambleImpl).fetchSeparatorChar(dataFrame)
@@ -124,15 +131,17 @@ object RemovePreambleHelper {
     val sepCountFrame = dataFrame
         .rdd
         .zipWithIndex
-      .map(r => (separator.r.findAllIn(r._1.mkString("")).length, r._2))
+        .map(r => (separator.r.findAllIn(r._1.mkString("")).length, r._2))
         .toDF("val", "index")
 
     val median = sepCountFrame.stat.approxQuantile("val", Array(0.5), 0.1).head
 
+    // an unusual row contains abnormal amount of separator character. A normal amount is that for a data line.
     val unusualRows = sepCountFrame
       .filter(_.getAs[Int](0) != median)
       .collect
 
+    // if there is no preamble lines
     if(unusualRows.length == 0){
       return 1.0
     }

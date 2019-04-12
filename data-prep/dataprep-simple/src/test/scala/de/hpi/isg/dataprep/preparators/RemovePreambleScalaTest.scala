@@ -98,8 +98,7 @@ class RemovePreambleScalaTest extends DataLoadingConfigScala {
     val localContext = sparkContext
     val prep = new DefaultRemovePreambleImpl
     val customDataset = localContext.read
-      .option("sep", "\t")
-//      .csv("./src/test/resources/preamble_separator_comma.csv")
+            .option("sep", "\t")
             .csv(getClass.getClassLoader.getResource("preamble_separator_comma.csv").toURI.getPath)
 
     prep.fetchSeparatorChar(customDataset) shouldEqual ","
