@@ -26,6 +26,9 @@ abstract public class AbstractPreparator implements Executable {
 
     private AbstractPreparation preparation;
 
+    // Todo: currently set column-based by default.
+    protected PreparatorTarget preparator_target = PreparatorTarget.COLUMN_BASED;
+
     protected List<Metadata> invalid;
 
     protected AbstractPreparatorImpl impl;
@@ -37,7 +40,8 @@ abstract public class AbstractPreparator implements Executable {
 
         String simpleClassName = this.getClass().getSimpleName();
 
-        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
+        String preparatorImplClass = "de.hpi.isg.dataprep.experiment.implementation." + "Default" + simpleClassName + "Impl";
+//        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
         this.impl = Class.forName(preparatorImplClass).asSubclass(AbstractPreparatorImpl.class).newInstance();
     }
 
@@ -157,5 +161,15 @@ abstract public class AbstractPreparator implements Executable {
     @Override
     public int hashCode() {
         return Objects.hash(this.getClass().getSimpleName());
+    }
+
+    /**
+     * Indicates which part of data this preparator operates.
+     */
+    public enum PreparatorTarget {
+        TABLE_BASED,
+        COLUMN_BASED,
+        ROW_BASED,
+        FILE_BASED
     }
 }

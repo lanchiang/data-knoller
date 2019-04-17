@@ -11,7 +11,7 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
   * @author Lan Jiang
   * @since 2019-04-09
   */
-object PlotHistogramDifference {
+object PlotHistogramDifferenceTest {
 
   def main(args: Array[String]): Unit = {
 
@@ -40,9 +40,13 @@ object PlotHistogramDifference {
       val histograms = dataset.map(row => RemovePreambleSuggest.valueLengthHistogram(row)).collect().toList
 
       // calculate the histogram difference of the neighbouring pairs of histograms
-      val histogramDiff = histograms.sliding(2)
+      val histogramDifference = histograms.sliding(2)
               .map(pair => RemovePreambleSuggest.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
               .toSeq
+      val (min, max) = (histogramDifference.min, histogramDifference.max)
+
+      val histogramDiff = histogramDifference
+              .map(diff => (diff-min)/(max-min))
               .zipWithIndex
               .map(pair => {
                 val x = (pair._2+1).toString.concat("||").concat((pair._2+2).toString)

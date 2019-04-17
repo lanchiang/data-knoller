@@ -2,34 +2,34 @@ package de.hpi.isg.dataprep.config;
 
 import de.hpi.isg.dataprep.DialectBuilder;
 import de.hpi.isg.dataprep.components.Pipeline;
+import de.hpi.isg.dataprep.framework.DecisionEngineTest;
 import de.hpi.isg.dataprep.io.context.DataContext;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
-import de.hpi.isg.dataprep.metadata.*;
+import de.hpi.isg.dataprep.metadata.PreambleExistence;
+import de.hpi.isg.dataprep.metadata.PropertyDataType;
+import de.hpi.isg.dataprep.metadata.PropertyExistence;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.schema.transforms.TransDeleteAttribute;
-import de.hpi.isg.dataprep.schema.transforms.TransSplitAttribute;
 import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * @author lan.jiang
- * @since 1/27/19
+ * @author Lan Jiang
+ * @since 2019-04-12
  */
-public class DataLoadingConfig {
+public class DatasetsLoadingConfig {
 
     protected AbstractPipeline pipeline;
     protected static DataContext dataContext;
@@ -42,13 +42,15 @@ public class DataLoadingConfig {
 
     protected static org.apache.spark.sql.types.Metadata emptyMetadata = org.apache.spark.sql.types.Metadata.empty();
 
-    @BeforeClass
-    public static void setUp() {
+    @Before
+    public void setUp() {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
 //        // generate target metadata
         targetMetadata = createTargetMetadataManually();
+
+        transforms = createEmptyTransformManually();
 
         dialect = new DialectBuilder()
                 .hasHeader(true)
@@ -58,10 +60,7 @@ public class DataLoadingConfig {
 
         SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, transforms);
         dataContext = dataLoader.load();
-    }
 
-    @Before
-    public void cleanUpPipeline() {
         pipeline = new Pipeline(dataContext);
     }
 
@@ -100,6 +99,12 @@ public class DataLoadingConfig {
         Transform deleteAttr = new TransDeleteAttribute(sourceAttribute);
         transforms.add(deleteAttr);
 
+        return transforms;
+    }
+
+    protected static List<Transform> createEmptyTransformManually() {
+        // generate schema mapping
+        List<Transform> transforms = new ArrayList<>();
         return transforms;
     }
 }

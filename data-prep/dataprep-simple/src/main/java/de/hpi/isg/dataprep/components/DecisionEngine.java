@@ -29,15 +29,15 @@ public class DecisionEngine implements Engine {
     private int iteration_count = 0;
     private final static int MAX_COLUMN_COMBINATION_SIZE = 2;
 
-    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.preparators.define";
+//    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.preparators.define";
+    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.experiment.define";
 
     private static DecisionEngine instance;
 
     // the preparator candidates that the decision engine may call. Could be moved to the controller.
-    private static String[] preparatorCandidates = {"ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
-            "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
-//    private static String[] preparatorCandidates = {"AdaptiveChangeDateFormat", "ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
-//        "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
+//    private static String[] preparatorCandidates = {"ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
+//            "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
+    private static String[] preparatorCandidates = {"RemovePreambleSuggest"};
 
     // the preparators instantiated by reflection, later the parameters are filled by the calApplicability function
     private Set<AbstractPreparator> preparators;
@@ -117,9 +117,13 @@ public class DecisionEngine implements Engine {
         initDecisionEngine();
 
         Dataset<Row> dataset = pipeline.getDataset();
+
+
+
         // first the column combinations need to be generated.
         StructField[] fields = dataset.schema().fields();
-        List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
+        List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
+//        List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
         if (fields.length == 0) {
             // all the fields are deleted.
@@ -137,6 +141,7 @@ public class DecisionEngine implements Engine {
             }
 
             // create a new DataFrame including the columns specified by the column combination
+            // Todo: for file-level and table-level preparators, e.g., remove preamble, there is no need to calculate the score for each column combination
             List<Column> columns = colNameCombination.stream().map(colName -> new Column(colName)).collect(Collectors.toList());
             Column[] columnArr = new Column[columns.size()];
             columnArr = columns.toArray(columnArr);

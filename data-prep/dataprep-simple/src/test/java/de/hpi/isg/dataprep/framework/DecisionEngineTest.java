@@ -94,4 +94,10 @@ public class DecisionEngineTest extends DataLoadingConfig {
 //
         return transforms;
     }
+
+    protected static List<Transform> createEmptyTransformManually() {
+        // generate schema mapping
+        List<Transform> transforms = new ArrayList<>();
+        return transforms;
+    }
 }

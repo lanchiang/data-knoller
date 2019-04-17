@@ -7,7 +7,8 @@ import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest.HISTOGRAM_ALG
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import org.apache.spark.sql.{Dataset, Row, SparkSession}
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
+import org.apache.spark.sql.{Dataset, Row}
 
 import scala.util.{Failure, Success, Try}
 
@@ -16,6 +17,8 @@ import scala.util.{Failure, Success, Try}
   * @since 2019-04-08
   */
 class RemovePreambleSuggest extends AbstractPreparator {
+
+  preparator_target = PreparatorTarget.TABLE_BASED
 
   override def buildMetadataSetup(): Unit = ???
 
@@ -28,9 +31,13 @@ class RemovePreambleSuggest extends AbstractPreparator {
             .collect()
 
     // calculate the histogram difference of the neighbouring pairs of histograms, zipping them with index
-    val histogramDiff = histograms.sliding(2)
+    val histogramDifference = histograms.sliding(2)
             .map(pair => RemovePreambleSuggest.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
             .toSeq
+    val (min, max) = (histogramDifference.min, histogramDifference.max)
+
+    val histogramDiff = histogramDifference
+            .map(diff => (diff-min)/(max-min))
             .zipWithIndex
             .map(pair => {
               val x = (pair._2+1).toString.concat("||").concat((pair._2+2).toString)
@@ -38,10 +45,11 @@ class RemovePreambleSuggest extends AbstractPreparator {
               (x,y)
             })
 
-    val aboveThreshold = histogramDiff.unzip._2.count(hasPreambleScore => hasPreambleScore >=RemovePreambleSuggest.hasPreamble_threshold)
+    val numAboveThreshold = histogramDiff.unzip._2.count(hasPreambleScore => hasPreambleScore >=RemovePreambleSuggest.hasPreamble_threshold)
 
     // if a preamble is detected, return 1, as otherwise return 0
-    aboveThreshold match {
+    // Todo: slack the score by considering how different the peak is from others
+    numAboveThreshold match {
       case count if count > 0 => 1f // preamble detected
       case _ => 0f // no preamble detected
     }
@@ -50,7 +58,7 @@ class RemovePreambleSuggest extends AbstractPreparator {
 
 object RemovePreambleSuggest {
 
-  val hasPreamble_threshold = 0.5
+  val hasPreamble_threshold = 0.7 // the threshold to decide whether there is any preamble in the file
 
   /**
     * return a histogram of value length of each field in the row.
@@ -66,7 +74,6 @@ object RemovePreambleSuggest {
             })
             .toSeq
     val sum = oriArr.sum
-//    oriArr.toStream.map(integer => integer.toDouble / sum.toDouble)
     oriArr
   }
 
