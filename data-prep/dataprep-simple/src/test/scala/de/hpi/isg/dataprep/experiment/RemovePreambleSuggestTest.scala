@@ -16,7 +16,7 @@ class RemovePreambleSuggestTest extends FlatSpecLike with Matchers with BeforeAn
   override def beforeAll: Unit = {
     val sparkBuilder = SparkSession
             .builder()
-            .appName("SparkTutorial")
+            .appName("RemovePreambleSuggestTest")
             .master("local[4]")
     sparkContext = sparkBuilder.getOrCreate()
     super.beforeAll()

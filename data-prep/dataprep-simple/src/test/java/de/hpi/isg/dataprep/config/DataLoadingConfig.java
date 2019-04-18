@@ -12,17 +12,14 @@ import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.schema.transforms.TransDeleteAttribute;
-import de.hpi.isg.dataprep.schema.transforms.TransSplitAttribute;
 import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -47,7 +44,7 @@ public class DataLoadingConfig {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-//        // generate target metadata
+        // generate target metadata
         targetMetadata = createTargetMetadataManually();
 
         dialect = new DialectBuilder()

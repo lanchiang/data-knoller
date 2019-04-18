@@ -24,25 +24,48 @@ import java.util.stream.Collectors;
  */
 public class DecisionEngine implements Engine {
 
+    /**
+     * The maximum number of iteration times before the forced termination of the suggestion process
+     */
     private final static int MAX_ITERATION = 10;
-    // maybe the decision engine should not include this count, because this is pipeline-specific, should be moved to the pipeline.
+
+    /**
+     * maybe the decision engine should not include this count, because this is pipeline-specific, should be moved to the pipeline.
+     */
     private int iteration_count = 0;
+
+    /**
+     * The maximum cardinality of the column combinations
+     */
     private final static int MAX_COLUMN_COMBINATION_SIZE = 2;
 
 //    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.preparators.define";
     private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.experiment.define";
 
+    /**
+     * The singular instance of {@link DecisionEngine}
+     */
     private static DecisionEngine instance;
 
-    // the preparator candidates that the decision engine may call. Could be moved to the controller.
-//    private static String[] preparatorCandidates = {"ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
-//            "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
-    private static String[] preparatorCandidates = {"RemovePreambleSuggest"};
+    /**
+     * The preparator candidates that may be suggested by the decision engine.
+     * This may be moved to the controller.
+     */
+    private static String[] preparatorCandidates = {"ChangeDateFormat", "ChangeFilesEncoding","DeleteProperty",
+            "DetectLanguagePreparator", "LemmatizePreparator", "MergeAttribute", "RemovePreamble", "SplitProperty"};
 
-    // the preparators instantiated by reflection, later the parameters are filled by the calApplicability function
+    /**
+     * The preparator instances whose calApplicability functions are called while searching for the best preparator.
+     * Note that only the preparators specified in the {@link #preparatorCandidates} variable can be instantiated.
+     * The instantiation is performed by java reflection that calls the default parameter-free constructors of them.
+     * The parameters of each preparator instance will be filled later by the calApplicability functions.
+     */
     private Set<AbstractPreparator> preparators;
 
-    // applicability score vector. Each preparator have a best parameter configuration as well as its score
+    /**
+     * This vector is used to record the applicability score of all the preparator candidates.
+     * The key is a parameterized preparator instance, whereas the value is the applicability score this preparator gets.
+     */
     private Map<AbstractPreparator, Float> scores;
 
     private DecisionEngine() {}
@@ -62,11 +85,11 @@ public class DecisionEngine implements Engine {
         ClassUtility.checkClassesExistence(preparatorCandidates, PREPARATOR_PACKAGE_PATH);
         instantiatePreparator();
 
-        scores = new HashMap<>();
+        this.scores = new HashMap<>();
     }
 
     /**
-     * Instantiate the preparator classes by their default constructor.
+     * Instantiate the preparator classes with their default constructor by using java reflection.
      */
     private void instantiatePreparator() {
         preparators = new HashSet<>();
@@ -88,6 +111,11 @@ public class DecisionEngine implements Engine {
         }
     }
 
+    /**
+     * Check whether pipeline has been properly pre-configured.
+     *
+     * @param pipeline is the pipeline instance to be checked.
+     */
     private void checkPipelineConfiguration(AbstractPipeline pipeline) {
         SchemaMapping schemaMapping = pipeline.getSchemaMapping();
         Set<Metadata> targetMetadata = pipeline.getTargetMetadata();
@@ -117,16 +145,12 @@ public class DecisionEngine implements Engine {
         initDecisionEngine();
 
         Dataset<Row> dataset = pipeline.getDataset();
-
-
-
         // first the column combinations need to be generated.
         StructField[] fields = dataset.schema().fields();
         List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
-//        List<String> fieldName = Arrays.stream(fields).map(field -> field.name()).collect(Collectors.toList());
 
         if (fields.length == 0) {
-            // all the fields are deleted.
+            // return null if the dataset is empty.
             return null;
         }
 
@@ -149,6 +173,82 @@ public class DecisionEngine implements Engine {
 
             for (AbstractPreparator preparator : preparators) {
                 float score = preparator.calApplicability(schemaMapping, dataSlice, targetMetadata);
+                // the same preparator: only with the same class name
+                float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
+                if (currentScore==Float.MIN_VALUE) {
+                    scores.put(preparator, score);
+                }
+                else {
+                    if (score > currentScore) {
+                        // replace the preparator instance in the key with the new preparator instance, though their names are the same.
+                        scores.remove(preparator);
+                        scores.put(preparator, score);
+                    }
+                }
+            }
+
+            // create new empty preparator instances that will be filled by parameters.
+            instantiatePreparator();
+        }
+
+        // Find the preparator with the highest score.
+        float highest = Float.NEGATIVE_INFINITY;
+        AbstractPreparator bestPreparator = null;
+        Iterator<Map.Entry<AbstractPreparator, Float>> entryIterator = scores.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            Map.Entry<AbstractPreparator, Float> next = entryIterator.next();
+            if (next.getValue() > highest) {
+                bestPreparator = next.getKey();
+                highest = next.getValue();
+            }
+        }
+
+        iteration_count++;
+        return bestPreparator;
+    }
+
+    /**
+     * Returns the most suitable parameterized preparators as the suggestions for the current data preparation step
+     * in the pipeline according to the applicability scores of all the candidate preparators.
+     *
+     * @param pipeline the pipeline on which the decision engine process
+     *
+     * @return the most suitable parameterized preparator. Returning null indicates the termination of the process
+     */
+    public AbstractPreparator selectBestPreparators(AbstractPipeline pipeline) {
+        // Todo: take locality into consideration
+        // every time this method is called, instantiate all the preparator candidates again.
+        initDecisionEngine();
+
+        Dataset<Row> dataset = pipeline.getDataset();
+        // first the column combinations need to be generated.
+        StructField[] fields = dataset.schema().fields();
+        List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
+
+        if (fields.length == 0) {
+            // return null if the dataset is empty.
+            return null;
+        }
+
+        // using this permutation iterator cannot specify the maximal number of columns.
+        SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, MAX_COLUMN_COMBINATION_SIZE);
+        while (iterator.hasNext()) {
+            List<String> colNameCombination = iterator.next();
+
+            // do not consider the column combination with no columns.
+            if (colNameCombination.size()==0) {
+                continue;
+            }
+
+            // create a new DataFrame including the columns specified by the column combination
+            // Todo: for file-level and table-level preparators, e.g., remove preamble, there is no need to calculate the score for each column combination
+            List<Column> columns = colNameCombination.stream().map(colName -> new Column(colName)).collect(Collectors.toList());
+            Column[] columnArr = new Column[columns.size()];
+            columnArr = columns.toArray(columnArr);
+            Dataset<Row> dataSlice = dataset.select(columnArr);
+
+            for (AbstractPreparator preparator : preparators) {
+                float score = preparator.calApplicability(null, dataSlice, null);
                 // the same preparator: only with the same class name
                 float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
                 if (currentScore==Float.MIN_VALUE) {
@@ -223,6 +323,4 @@ public class DecisionEngine implements Engine {
     public void setPreparatorCandidates(String[] preparatorCandidates) {
         DecisionEngine.preparatorCandidates = preparatorCandidates;
     }
-
-    // Todo: the decision engine needs to notify the pipeline that the dataset needs to be updated, after executing a recommended preparator.
 }

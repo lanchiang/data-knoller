@@ -34,8 +34,6 @@ object PlotHistogramDifferenceTest {
               .option("sep", ",")
               .csv(file.getAbsolutePath)
 
-      dataset.show()
-
       // aggregate value length histogram of each row as an array
       val histograms = dataset.map(row => RemovePreambleSuggest.valueLengthHistogram(row)).collect().toList
 
