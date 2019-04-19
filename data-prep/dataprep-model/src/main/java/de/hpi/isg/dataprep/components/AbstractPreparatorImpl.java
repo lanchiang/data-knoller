@@ -44,6 +44,13 @@ abstract public class AbstractPreparatorImpl {
         return executePreparator(preparator, dataset);
     }
 
+    /**
+     * This abstract function refers to the implementation of finding the missing parameters. Each inheritance class must implement
+     * this function to specify how their own parameters are discovered when missing.
+     */
+    abstract public void findMissingParametersImpl(AbstractPreparator preparator);
+
+    @Deprecated
     public final <T> T getPreparatorInstance(AbstractPreparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {
         if (!(preparator.getClass().isAssignableFrom(concretePreparatorClass))) {
             throw new ClassCastException("Class is not required type.");

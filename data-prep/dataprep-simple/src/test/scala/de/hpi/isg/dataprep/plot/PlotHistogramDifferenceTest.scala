@@ -2,8 +2,8 @@ package de.hpi.isg.dataprep.plot
 
 import java.io.File
 
-import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest
-import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest.HISTOGRAM_ALGORITHM
+import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble
+import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
@@ -35,11 +35,11 @@ object PlotHistogramDifferenceTest {
               .csv(file.getAbsolutePath)
 
       // aggregate value length histogram of each row as an array
-      val histograms = dataset.map(row => RemovePreambleSuggest.valueLengthHistogram(row)).collect().toList
+      val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect().toList
 
       // calculate the histogram difference of the neighbouring pairs of histograms
       val histogramDifference = histograms.sliding(2)
-              .map(pair => RemovePreambleSuggest.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
+              .map(pair => SuggestRemovePreamble.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
               .toSeq
       val (min, max) = (histogramDifference.min, histogramDifference.max)
 

@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.experiment
 
-import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest
-import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest.HISTOGRAM_ALGORITHM
+import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble
+import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpecLike, Matchers}
 
@@ -9,14 +9,14 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpecLike, Match
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class RemovePreambleSuggestTest extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
+class SuggestRemovePreambleTest extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
 
   var sparkContext:SparkSession = _
 
   override def beforeAll: Unit = {
     val sparkBuilder = SparkSession
             .builder()
-            .appName("RemovePreambleSuggestTest")
+            .appName("SuggestRemovePreambleTest")
             .master("local[4]")
     sparkContext = sparkBuilder.getOrCreate()
     super.beforeAll()
@@ -26,9 +26,9 @@ class RemovePreambleSuggestTest extends FlatSpecLike with Matchers with BeforeAn
     val localContext = sparkContext
     import localContext.implicits._
     val df = Seq(("what a sunny day today", 1, 2, "3")).toDF()
-    val historgram = RemovePreambleSuggest.valueLengthHistogram(df.first())
+    val historgram = SuggestRemovePreamble.valueLengthHistogram(df.first())
 
-    historgram shouldEqual Seq(0.88, 0.04, 0.04, 0.04)
+    historgram shouldEqual Seq(22.0, 1.0, 1.0, 1.0)
   }
 
   "Encoder" should "be set correctly" in {
@@ -36,10 +36,10 @@ class RemovePreambleSuggestTest extends FlatSpecLike with Matchers with BeforeAn
     import localContext.implicits._
     val df = Seq(("what a sunny day today", 1, 2, "3"), ("what a gloomy day", 33, 281, "123")).toDF()
 
-    val histogram = df.map(row => RemovePreambleSuggest.valueLengthHistogram(row))
+    val histogram = df.map(row => SuggestRemovePreamble.valueLengthHistogram(row))
                     .collect()
 
-    histogram shouldEqual Array(List(0.88, 0.04, 0.04, 0.04), List(0.68, 0.08, 0.12, 0.12))
+    histogram shouldEqual Array(List(22.0, 1.0, 1.0, 1.0), List(17.0, 2.0, 3.0, 3.0))
   }
 
   "Histogram" should "be plotted correctly" in {
@@ -50,11 +50,11 @@ class RemovePreambleSuggestTest extends FlatSpecLike with Matchers with BeforeAn
     val dataset = Seq(("what a sunny day today", 1, 2, "3"), ("what a gloomy day", 33, 281, "123"), ("de.hpi.isg", 12, 333, "123")).toDF()
 
     // aggregate value length histogram of each row as an array
-    val histograms = dataset.map(row => RemovePreambleSuggest.valueLengthHistogram(row)).collect().toList
+    val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect().toList
 
     // calculate the histogram difference of the neighbouring pairs of histograms
     val histogramDiff = histograms.sliding(2)
-            .map(pair => RemovePreambleSuggest.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Chi_square))
+            .map(pair => SuggestRemovePreamble.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Chi_square))
             .toSeq
   }
 }

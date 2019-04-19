@@ -1,11 +1,10 @@
-package de.hpi.isg.dataprep.experiment.define
+package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.MergeUtil
 import org.apache.spark.sql.{Dataset, Row}
 
 /**
@@ -14,8 +13,7 @@ import org.apache.spark.sql.{Dataset, Row}
   * @author Lan Jiang
   * @since 2019-04-17
   */
-class MergePropertySuggest(var attributes: List[String],
-                           var connector: String = null) extends AbstractPreparator {
+class SuggestMergeProperty(var attributes: List[String], var connector: String = null) extends AbstractPreparator {
 
   def this() {
     this(null)
@@ -84,7 +82,6 @@ class MergePropertySuggest(var attributes: List[String],
     * @return a score between zero and one inclusively, indicating the how possible these two columns are interleaving each other.
     */
   private def calApplicabilityInterleave(dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    import dataset.sparkSession.implicits._
 
     // calculate the interleaving degree score
     dataset.columns.size match {
@@ -260,7 +257,7 @@ class MergePropertySuggest(var attributes: List[String],
     dataset.select(columnName)
             .filter(x => {
               val str = if (x.isNullAt(0)) null else x.get(0).toString
-              !MergeUtil.isNull(str)
+              !MergePropertiesUtil.isNull(str)
             })
             .map(x => x.getString(0).toInt)
   }

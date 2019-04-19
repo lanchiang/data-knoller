@@ -40,8 +40,7 @@ abstract public class AbstractPreparator implements Executable {
 
         String simpleClassName = this.getClass().getSimpleName();
 
-        String preparatorImplClass = "de.hpi.isg.dataprep.experiment.implementation." + "Default" + simpleClassName + "Impl";
-//        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
+        String preparatorImplClass = "de.hpi.isg.dataprep.preparators.implementation." + "Default" + simpleClassName + "Impl";
         this.impl = Class.forName(preparatorImplClass).asSubclass(AbstractPreparatorImpl.class).newInstance();
     }
 
@@ -51,7 +50,6 @@ abstract public class AbstractPreparator implements Executable {
      *
      * @throws ParameterNotSpecifiedException
      */
-    // TODO: Maybe set it protectected? Check Pipeline implementation @Gerardo
     abstract public void buildMetadataSetup() throws ParameterNotSpecifiedException;
 
     @Override
@@ -122,6 +120,14 @@ abstract public class AbstractPreparator implements Executable {
                         invalid.add(metadata);
                     }
                 });
+    }
+
+    /**
+     * This function is called by the concrete preparator subclass with incomplete parameters and search for the values thereof.
+     * It delegates the work to the corresponding impl class.
+     */
+    protected void findMissingParameterSettings() {
+        impl.findMissingParametersImpl(this);
     }
 
     public List<Metadata> getPrerequisiteMetadata() {

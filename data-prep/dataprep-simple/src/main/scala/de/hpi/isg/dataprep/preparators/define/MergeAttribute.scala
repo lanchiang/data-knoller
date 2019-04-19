@@ -142,7 +142,7 @@ class MergeAttribute(var attributes: List[String], var connector: String, val ha
 				.select(columnName)
 				.filter(x => {
 					val str = if (x.isNullAt(0)) null else x.get(0).toString
-					!MergeUtil.isNull(str)
+					!MergePropertiesUtil.isNull(str)
 				})
 				.map(x => x.getString(0).toInt)
 	}
@@ -204,7 +204,7 @@ class MergeAttribute(var attributes: List[String], var connector: String, val ha
 				.map(row => {
 					val a = if (row.isNullAt(0)) null else row.get(0).toString
 					val b = if (row.isNullAt(1)) null else row.get(1).toString
-					MergeUtil.isGoodToMerge(a, b) //calculate mergeGoodness for each row
+					MergePropertiesUtil.isGoodToMerge(a, b) //calculate mergeGoodness for each row
 				})
 				.reduce(_ + _) / dataset.count().toFloat
 		//apply threshold
@@ -220,7 +220,7 @@ class MergeAttribute(var attributes: List[String], var connector: String, val ha
 /** *
   * This object implements some helper methods used for merging.
   */
-object MergeUtil extends Serializable {
+object MergePropertiesUtil extends Serializable {
 
 	/** *
 	  * Checks for null values in string. eg. null (nullptr), "null"
@@ -274,9 +274,9 @@ object MergeUtil extends Serializable {
 	  * @return merged string
 	  */
 	def merge(col1: String, col2: String, handleConflicts: (String, String) => String): String = {
-		if (MergeUtil.isNull(col1))
+		if (MergePropertiesUtil.isNull(col1))
 			col2
-		else if (MergeUtil.isNull(col2))
+		else if (MergePropertiesUtil.isNull(col2))
 			col1
 		else if (col1.equals(col2))
 			col1
@@ -292,11 +292,11 @@ object MergeUtil extends Serializable {
 	  * @return	null if both strings are null, or one string only if the other is null, else col1 + connector + col2
 	  */
 	def merge(col1: String, col2: String, connector: String): String = {
-		if (MergeUtil.isNull(col1) && MergeUtil.isNull(col2))
+		if (MergePropertiesUtil.isNull(col1) && MergePropertiesUtil.isNull(col2))
 			null
-		else if (MergeUtil.isNull(col1))
+		else if (MergePropertiesUtil.isNull(col1))
 			col2
-		else if (MergeUtil.isNull(col2))
+		else if (MergePropertiesUtil.isNull(col2))
 			col1
 		else
 			col1 + connector + col2

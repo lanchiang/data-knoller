@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.experiment.implementation
+package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
@@ -11,9 +11,8 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class DefaultAddPropertySuggestImpl extends AbstractPreparatorImpl {
+class DefaultSuggestRemovePreambleImpl extends AbstractPreparatorImpl {
 
-  override protected def executeLogic(abstractPreparator: AbstractPreparator,
-                                      dataFrame: Dataset[Row],
+  override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = ???
 }

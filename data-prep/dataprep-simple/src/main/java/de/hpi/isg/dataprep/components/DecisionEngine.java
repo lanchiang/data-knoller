@@ -30,17 +30,24 @@ public class DecisionEngine implements Engine {
     private final static int MAX_ITERATION = 10;
 
     /**
+     * The maximum cardinality of the column combinations
+     */
+    private final static int MAX_COLUMN_COMBINATION_SIZE = 2;
+
+    /**
+     * The package path of the preparator classes
+     */
+    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.preparators.define";
+
+    /**
      * maybe the decision engine should not include this count, because this is pipeline-specific, should be moved to the pipeline.
      */
     private int iteration_count = 0;
 
     /**
-     * The maximum cardinality of the column combinations
+     * The size of the suggested preparator list.
      */
-    private final static int MAX_COLUMN_COMBINATION_SIZE = 2;
-
-//    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.preparators.define";
-    private final static String PREPARATOR_PACKAGE_PATH = "de.hpi.isg.dataprep.experiment.define";
+    private int suggested_list_size = 1;
 
     /**
      * The singular instance of {@link DecisionEngine}
@@ -221,17 +228,17 @@ public class DecisionEngine implements Engine {
         initDecisionEngine();
 
         Dataset<Row> dataset = pipeline.getDataset();
-        // first the column combinations need to be generated.
-        StructField[] fields = dataset.schema().fields();
-        List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
 
-        if (fields.length == 0) {
+        if (!hasColumn(dataset)) {
             // return null if the dataset is empty.
             return null;
         }
 
+        // first the column combinations need to be generated.
+        List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
         // using this permutation iterator cannot specify the maximal number of columns.
         SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, MAX_COLUMN_COMBINATION_SIZE);
+
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
 
@@ -283,6 +290,10 @@ public class DecisionEngine implements Engine {
         return bestPreparator;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Termination condition                                                                          //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public boolean stopProcess(AbstractPipeline pipeline) {
         if (pipeline.getSchemaMapping().hasMapped() && targetMetadataMapped(pipeline)) { // also the metadata are met
             return true;
@@ -297,6 +308,16 @@ public class DecisionEngine implements Engine {
      */
     private boolean forceStop() {
         return iteration_count == MAX_ITERATION;
+    }
+
+    /**
+     * Check whether the given dataset has any columns.
+     *
+     * @param dataset is the dataset to be checked
+     * @return {@code false} if the dataset has no column.
+     */
+    private boolean hasColumn(Dataset<Row> dataset) {
+        return dataset.columns().length > 0;
     }
 
     /**

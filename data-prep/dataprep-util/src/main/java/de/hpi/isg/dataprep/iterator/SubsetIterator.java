@@ -37,9 +37,7 @@ public class SubsetIterator<T> implements Iterator<List<T>> {
 
     @Override
     public boolean hasNext() {
-        return count != maxCount;//        if (Integer.bitCount(count)>elements.size()) {
-//            return false;
-//        }
+        return count != maxCount;
     }
 
     @Override

@@ -18,7 +18,7 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.preparators.define.MergeAttribute;
-import de.hpi.isg.dataprep.preparators.define.MergeUtil;
+import de.hpi.isg.dataprep.preparators.define.MergePropertiesUtil;
 import de.hpi.isg.dataprep.schema.transforms.TransMergeAttribute;
 import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
@@ -222,7 +222,7 @@ public class MergeAttributeTest {
 		String b = "Welt";
 		String connector = "-";
 		String expectedResult = a + connector + b;
-		String result = MergeUtil.merge(a,b,connector);
+		String result = MergePropertiesUtil.merge(a,b,connector);
 
 		Assert.assertEquals(expectedResult,result);
 	}

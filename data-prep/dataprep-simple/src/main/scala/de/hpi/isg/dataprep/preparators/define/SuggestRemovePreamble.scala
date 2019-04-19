@@ -1,13 +1,13 @@
-package de.hpi.isg.dataprep.experiment.define
+package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest.HISTOGRAM_ALGORITHM
-import de.hpi.isg.dataprep.experiment.define.RemovePreambleSuggest.HISTOGRAM_ALGORITHM.HISTOGRAM_ALGORITHM
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
+import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM
+import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM.HISTOGRAM_ALGORITHM
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.util.{Failure, Success, Try}
@@ -16,7 +16,7 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class RemovePreambleSuggest extends AbstractPreparator {
+class SuggestRemovePreamble extends AbstractPreparator {
 
   preparator_target = PreparatorTarget.TABLE_BASED
 
@@ -27,12 +27,12 @@ class RemovePreambleSuggest extends AbstractPreparator {
     import localContext.implicits._
 
     // aggregate value length histogram of each row as an array
-    val histograms = dataset.map(row => RemovePreambleSuggest.valueLengthHistogram(row))
+    val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row))
             .collect()
 
     // calculate the histogram difference of the neighbouring pairs of histograms, zipping them with index
     val histogramDifference = histograms.sliding(2)
-            .map(pair => RemovePreambleSuggest.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
+            .map(pair => SuggestRemovePreamble.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
             .toSeq
     val (min, max) = (histogramDifference.min, histogramDifference.max)
 
@@ -45,7 +45,7 @@ class RemovePreambleSuggest extends AbstractPreparator {
               (x,y)
             })
 
-    val numAboveThreshold = histogramDiff.unzip._2.count(hasPreambleScore => hasPreambleScore >=RemovePreambleSuggest.hasPreamble_threshold)
+    val numAboveThreshold = histogramDiff.unzip._2.count(hasPreambleScore => hasPreambleScore >=SuggestRemovePreamble.hasPreamble_threshold)
 
     // if a preamble is detected, return 1, as otherwise return 0
     // Todo: slack the score by considering how different the peak is from others
@@ -56,7 +56,7 @@ class RemovePreambleSuggest extends AbstractPreparator {
   }
 }
 
-object RemovePreambleSuggest {
+object SuggestRemovePreamble {
 
   val hasPreamble_threshold = 0.7 // the threshold to decide whether there is any preamble in the file
 

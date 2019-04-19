@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * A utility builder class to build pipeline instance for unit test.
+ *
  * @author Lan Jiang
  * @since 2019-04-18
  */
@@ -23,11 +25,15 @@ public class SimplePipelineBuilder {
     protected static FileLoadDialect dialect;
 
     public static AbstractPipeline fromParameterBuilder(String resourcePath) {
+        return fromParameterBuilder(resourcePath, true);
+    }
+
+    public static AbstractPipeline fromParameterBuilder(String resourcePath, boolean hasHeader) {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
         dialect = new DialectBuilder()
-                .hasHeader(false)
+                .hasHeader(hasHeader)
                 .inferSchema(true)
                 .url(resourcePath)
                 .buildDialect();

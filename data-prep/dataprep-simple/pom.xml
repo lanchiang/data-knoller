@@ -54,8 +54,6 @@
             <artifactId>vegas_2.11</artifactId>
             <version>0.3.6</version>
         </dependency>
-
-
     </dependencies>
 
 

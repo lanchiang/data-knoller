@@ -1,11 +1,10 @@
-package de.hpi.isg.dataprep.experiment.define
+package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.AddProperty
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -15,7 +14,7 @@ import org.apache.spark.sql.{Dataset, Row}
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class AddPropertySuggest extends AbstractPreparator {
+class SuggestAddProperty extends AbstractPreparator {
 
   var targetPropertyName: String = _
   var targetType: PropertyType = _
@@ -34,7 +33,7 @@ class AddPropertySuggest extends AbstractPreparator {
   }
 
   def this(targetPropertyName: String, targetType: PropertyType) {
-    this(targetPropertyName, targetType, AddPropertySuggest.DEFAULT_POSITION, AddProperty.DEFAULT_VALUE(targetType))
+    this(targetPropertyName, targetType, SuggestAddProperty.DEFAULT_POSITION, AddProperty.DEFAULT_VALUE(targetType))
 
   }
 
@@ -51,7 +50,7 @@ class AddPropertySuggest extends AbstractPreparator {
   }
 }
 
-object AddPropertySuggest {
+object SuggestAddProperty {
 
   private val DEFAULT_POSITION = 0
 
