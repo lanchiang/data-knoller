@@ -35,8 +35,6 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
     * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
     **/
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-//    import dataset.sparkSession.implicits._
-
     val columns = dataset.columns.toSeq
     // Todo: column combination size can be more than 2
 
@@ -52,20 +50,8 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
       case _ => 0 // currently interleaving does not support more than three columns.
     }
 
-//    val applicability = dataset
-//            .map(row => {
-//              val a = if (row.isNullAt(0)) null else row.get(0).toString
-//              val b = if (row.isNullAt(1)) null else row.get(1).toString
-//              MergeUtil.isGoodToMerge(a, b) //calculate mergeGoodness for each row
-//            })
-//            .reduce(_ + _) / dataset.count().toFloat
-//    //apply threshold
-//    val result = if (applicability < threshold ) 0 else applicability
     //remember columns for later merge operation
     this.attributes = columns.toList
-    //		chi2Test(dataset)
-    //return weighted mergeGoodness
-//    result
     score
   }
 

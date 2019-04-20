@@ -94,7 +94,7 @@ class DefaultMergeAttributeImpl extends AbstractPreparatorImpl {
 		if (lcs.length > 1) lcs else a
 	}
 
-	override def findMissingParametersImpl(preparator: AbstractPreparator): Unit = {
+	override def findMissingParametersImpl(preparator: AbstractPreparator, dataset: Dataset): Unit = {
 		// Todo: 1) getMissingMandatoryParameters
 		// Todo: 2) call the discovery functions for each of the missing parameters
 		// Todo: 3) set the discovered values to these parameters.

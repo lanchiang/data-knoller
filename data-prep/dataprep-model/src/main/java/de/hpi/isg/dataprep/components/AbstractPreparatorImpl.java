@@ -48,7 +48,8 @@ abstract public class AbstractPreparatorImpl {
      * This abstract function refers to the implementation of finding the missing parameters. Each inheritance class must implement
      * this function to specify how their own parameters are discovered when missing.
      */
-    abstract public void findMissingParametersImpl(AbstractPreparator preparator);
+    public void findMissingParametersImpl(AbstractPreparator preparator, Dataset<Row> dataset) {}
+//    abstract public void findMissingParametersImpl(AbstractPreparator preparator, Dataset<Row> dataset);
 
     @Deprecated
     public final <T> T getPreparatorInstance(AbstractPreparator preparator, Class<T> concretePreparatorClass) throws ClassCastException {

@@ -126,8 +126,8 @@ abstract public class AbstractPreparator implements Executable {
      * This function is called by the concrete preparator subclass with incomplete parameters and search for the values thereof.
      * It delegates the work to the corresponding impl class.
      */
-    protected void findMissingParameterSettings() {
-        impl.findMissingParametersImpl(this);
+    protected void findMissingParameterSettings(Dataset<Row> dataset) {
+        impl.findMissingParametersImpl(this, dataset);
     }
 
     public List<Metadata> getPrerequisiteMetadata() {
