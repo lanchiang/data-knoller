@@ -27,7 +27,7 @@ class DefaultAddPropertyImpl extends AbstractPreparatorImpl {
     val targetPropertyName = preparator.targetPropertyName
     val targetType = preparator.targetType
     val positionInSchema = preparator.position
-    val filling = Option {preparator.filling}
+    val filling = Option{preparator.filling}
 
     val schema = dataFrame.columns
 

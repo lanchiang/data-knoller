@@ -14,6 +14,7 @@ import org.apache.spark.sql.{Dataset, Row}
 import scala.util.Random
 
 /**
+  * A [[Collapse]] transformation preserves only one white space between every two neighbouring words in a string type column.
   *
   * @author Lan Jiang
   * @since 2018/8/31

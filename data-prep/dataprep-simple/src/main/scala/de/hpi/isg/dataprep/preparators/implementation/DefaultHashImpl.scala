@@ -1,15 +1,17 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
+import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.{ConversionHelper, DatasetUtil, ExecutionContext}
 import de.hpi.isg.dataprep.preparators.define.Hash
 import de.hpi.isg.dataprep.schema.SchemaUtils
+import de.hpi.isg.dataprep.util.HashAlgorithm
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.util.CollectionAccumulator
 
@@ -56,5 +58,27 @@ class DefaultHashImpl extends AbstractPreparatorImpl {
     createdDataset.foreach(row => row)
 
     new ExecutionContext(createdDataset, errorAccumulator)
+  }
+
+  override def findMissingParametersImpl(preparator: AbstractPreparator, dataset: Dataset[Row]): Unit = {
+    val cast = preparator match {
+      case _ : Hash => preparator.asInstanceOf[Hash]
+      case _ => throw new RuntimeException(new ClassCastException("Preparator class cannot be cast."))
+    }
+
+    Option{cast.propertyName} match {
+      case None => throw new RuntimeException(new ParameterNotSpecifiedException("Target property name is not specified."))
+      case Some(_) => {
+        cast.hashAlgorithm = Option{cast.hashAlgorithm} match {
+          case None => findHashAlgorithm(dataset, cast.propertyName) //Todo: if the hash algorithm is not specified, find it.
+          case Some(algorithm) => algorithm
+        }
+      }
+    }
+  }
+
+  private def findHashAlgorithm(dataset: Dataset[Row], propertyName: String): HashAlgorithm = {
+    // by default return MD5
+    Hash.DEFAULT_ALGORITHM
   }
 }
