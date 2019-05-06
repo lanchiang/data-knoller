@@ -50,7 +50,7 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
       case _ => 0 // currently interleaving does not support more than three columns.
     }
 
-    //remember columns for later merge operation
+    // fill the parameters
     this.attributes = columns.toList
     score
   }

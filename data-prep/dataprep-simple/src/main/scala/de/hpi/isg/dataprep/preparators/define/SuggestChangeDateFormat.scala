@@ -72,37 +72,43 @@ class SuggestChangeDateFormat(var propertyName: String,
     */
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     alreadyApplied(targetMetadata) match {
-      case true => 0
+      case true => 0f
       case false => {
-        val largestClusters: Array[(Int, (PatternCriteria, Iterable[String]))] = dataset.rdd
-                        .map(_(0).toString) // here it implies the input data only contains one column?
-                        .groupBy(ChangeDateFormatUtils.getSimilarityCriteria)
-                        .map(group => (group._2.size, group))
-                        .takeOrdered(3)(ClusterSizeOrdering.reverse)
-        val totalNumberOfValues: Float = largestClusters.map(_._1).sum
-        val dateClusters = largestClusters.map(_._2._2)
+        dataset.columns.length match {
+          case 1 => {
+            propertyName = dataset.columns.toSeq(0)
+            val largestClusters: Array[(Int, (PatternCriteria, Iterable[String]))] = dataset.rdd
+                    .map(_(0).toString) // here it implies the input data only contains one column
+                    .groupBy(ChangeDateFormatUtils.getSimilarityCriteria)
+                    .map(group => (group._2.size, group))
+                    .takeOrdered(3)(ClusterSizeOrdering.reverse)
+            val totalNumberOfValues: Float = largestClusters.map(_._1).sum
+            val dateClusters = largestClusters.map(_._2._2)
 
-        val datePatternClusters: Array[(Option[LocalePattern], List[String])] = dateClusters
-                .map(clusteredDates => (ChangeDateFormatUtils.extractClusterDatePattern(clusteredDates.toList),
-                        clusteredDates.toList))
+            val datePatternClusters: Array[(Option[LocalePattern], List[String])] = dateClusters
+                    .map(clusteredDates => (ChangeDateFormatUtils.extractClusterDatePattern(clusteredDates.toList),
+                            clusteredDates.toList))
 
-        var failedNumberOfValues = 0
-        val targetPattern = DatePatternEnum.DayMonthYear // Currently Day,Month,Year is the only target.
+            var failedNumberOfValues = 0
+            val targetPattern = DatePatternEnum.DayMonthYear // Currently Day,Month,Year is the only target.
+            targetDatePattern = Option(targetPattern) // set the parameter
 
-        for (entry <- datePatternClusters) {
-          val optionLocalePattern = entry._1
-          for (date <- entry._2) {
-            Try{
-              ChangeDateFormatUtils.formatToTargetPattern(date, targetPattern, optionLocalePattern)
-            } match {
-              case Failure(_) => failedNumberOfValues = failedNumberOfValues + 1
-              case Success(_) =>
+            for (entry <- datePatternClusters) {
+              val optionLocalePattern = entry._1
+              for (date <- entry._2) {
+                Try{
+                  ChangeDateFormatUtils.formatToTargetPattern(date, targetPattern, optionLocalePattern)
+                } match {
+                  case Failure(_) => failedNumberOfValues = failedNumberOfValues + 1
+                  case Success(_) =>
+                }
+              }
             }
+            // score
+            1.0f - failedNumberOfValues / totalNumberOfValues
           }
+          case _ => 0f // if the input dataset contains more or less than one column, do not suggest this preparator.
         }
-
-        // score
-        1.0f - failedNumberOfValues / totalNumberOfValues
       }
     }
   }

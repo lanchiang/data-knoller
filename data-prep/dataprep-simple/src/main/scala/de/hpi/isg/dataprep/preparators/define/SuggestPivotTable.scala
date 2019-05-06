@@ -19,7 +19,7 @@ import org.apache.spark.sql.{Dataset, Row}
 class SuggestPivotTable(var rowProperty: String,
                         var columnProperty: String,
                         var valueProperty: String,
-                        var aggregationFunction: AggregationFunction) extends AbstractPreparator {
+                        var aggregationFunction: AggregationFunction = AggregationFunction.Sum) extends AbstractPreparator {
 
   def this() {
     this(null, null, null, null)
@@ -46,6 +46,10 @@ class SuggestPivotTable(var rowProperty: String,
         val distinctRatio2 = dataset.select(dataset.columns(1)).distinct().count().toFloat / rowCount
 
         // Todo: fill the parameters
+        rowProperty = dataset.columns(0)
+        columnProperty = dataset.columns(1)
+        valueProperty = dataset.columns(2)
+
         val score = (1 - distinctRatio1) * (1 - distinctRatio2) * valueColDataType
         score
       }
