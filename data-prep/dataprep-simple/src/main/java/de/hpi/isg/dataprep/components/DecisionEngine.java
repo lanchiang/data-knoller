@@ -32,7 +32,7 @@ public class DecisionEngine implements Engine {
     /**
      * The maximum cardinality of the column combinations
      */
-    private final static int MAX_COLUMN_COMBINATION_SIZE = 2;
+    private final static int MAX_COLUMN_COMBINATION_SIZE = 3;
 
     /**
      * The package path of the preparator classes
