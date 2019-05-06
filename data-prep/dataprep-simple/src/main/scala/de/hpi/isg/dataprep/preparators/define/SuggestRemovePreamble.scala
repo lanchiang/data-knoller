@@ -27,8 +27,7 @@ class SuggestRemovePreamble extends AbstractPreparator {
     import localContext.implicits._
 
     // aggregate value length histogram of each row as an array
-    val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row))
-            .collect()
+    val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect()
 
     // calculate the histogram difference of the neighbouring pairs of histograms, zipping them with index
     val histogramDifference = histograms.sliding(2)
@@ -37,6 +36,7 @@ class SuggestRemovePreamble extends AbstractPreparator {
     val (min, max) = (histogramDifference.min, histogramDifference.max)
 
     val histogramDiff = histogramDifference
+                    .sortBy(histDiff => histDiff)
             .map(diff => (diff-min)/(max-min))
             .zipWithIndex
             .map(pair => {

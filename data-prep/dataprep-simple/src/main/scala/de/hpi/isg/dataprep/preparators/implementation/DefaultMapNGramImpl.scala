@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 
-import de.hpi.isg.dataprep.{DatasetUtil, ExecutionContext}
+import de.hpi.isg.dataprep.{DatasetUtils, ExecutionContext}
 import de.hpi.isg.dataprep.preparators.define.MapNGram
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{Dataset, Row}
@@ -33,8 +33,8 @@ class DefaultMapNGramImpl extends AbstractPreparatorImpl {
     val rowEncoder = RowEncoder(intermediate.schema)
 
     val createdDataset = intermediate.flatMap(row => {
-      val index = DatasetUtil.getFieldIndexByPropertyNameSafe(row, propertyName)
-      val operatedValue = DatasetUtil.getValueByFieldIndex(row, index, dataType)
+      val index = DatasetUtils.getFieldIndexByPropertyNameSafe(row, propertyName)
+      val operatedValue = DatasetUtils.getValueByFieldIndex(row, index, dataType)
 
       val seq = row.toSeq
       val forepart = seq.take(row.length - 1)

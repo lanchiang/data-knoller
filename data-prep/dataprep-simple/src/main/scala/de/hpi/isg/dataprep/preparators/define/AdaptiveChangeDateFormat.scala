@@ -7,7 +7,7 @@ import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.implementation.{AdaptiveDateUtils, DefaultAdaptiveChangeDateFormatImpl, LocalePattern, PatternCriteria}
+import de.hpi.isg.dataprep.preparators.implementation.{ChangeDateFormatUtils, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.{Dataset, Row}
@@ -37,7 +37,7 @@ class AdaptiveChangeDateFormat(val propertyName : String,
         val prerequisites = new util.ArrayList[Metadata]
         val toChange = new util.ArrayList[Metadata]
 
-        if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Propertry name not specified."))
+        if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Property name not specified."))
 
         prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
@@ -73,18 +73,18 @@ class AdaptiveChangeDateFormat(val propertyName : String,
         }
       }
 
-      val largestClusters: Array[(Int, (PatternCriteria, Iterable[String]))] = dataset.rdd
-        .map(_(0).toString)
-        .groupBy(AdaptiveDateUtils.getSimilarityCriteria)
-        .map(group => (group._2.size, group))
-        .takeOrdered(3)(ClusterSizeOrdering.reverse)
+      val largestClusters = dataset.rdd
+              .map(_(0).toString)
+              .groupBy(ChangeDateFormatUtils.getSimilarityCriteria)
+              .map(group => (group._2.size, group))
+              .takeOrdered(3)(ClusterSizeOrdering.reverse)
 
       val totalNumberOfValues: Float = largestClusters.map(_._1).sum
 
       val dateClusters = largestClusters.map(_._2._2)
 
       val datePatternClusters: Array[(Option[LocalePattern], List[String])] = dateClusters
-        .map(clusteredDates => (AdaptiveDateUtils.extractClusterDatePattern(clusteredDates.toList),
+        .map(clusteredDates => (ChangeDateFormatUtils.extractClusterDatePattern(clusteredDates.toList),
           clusteredDates.toList))
 
       var failedNumberOfValues = 0
@@ -94,10 +94,10 @@ class AdaptiveChangeDateFormat(val propertyName : String,
         val optionLocalePattern = entry._1
         for (date <- entry._2) {
           Try{
-            AdaptiveDateUtils.formatToTargetPattern(date, targetPattern, optionLocalePattern)
+            ChangeDateFormatUtils.formatToTargetPattern(date, targetPattern, optionLocalePattern)
           } match {
             case Failure(_) => failedNumberOfValues = failedNumberOfValues + 1
-            case Success(_) =>
+            case Success(_) => Unit
           }
         }
       }
@@ -108,7 +108,7 @@ class AdaptiveChangeDateFormat(val propertyName : String,
   /**
     * Return true if the required metadata is already in the target metadata set.
     *
-    * @param targetMetadataSet is the target mentadata set
+    * @param targetMetadataSet is the target metadata set
     * @return true if the required metadata is already in the target metadata set
     */
   def alreadyApplied(targetMetadataSet: util.Collection[Metadata]): Boolean = {

@@ -4,7 +4,7 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.{ConversionHelper, DatasetUtil, ExecutionContext}
+import de.hpi.isg.dataprep.{ConversionHelper, DatasetUtils, ExecutionContext}
 import de.hpi.isg.dataprep.preparators.define.Hash
 import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.HashAlgorithm
@@ -36,8 +36,8 @@ class DefaultHashImpl extends AbstractPreparatorImpl {
     val rowEncoder = RowEncoder(intermediate.schema)
 
     val createdDataset = intermediate.flatMap(row => {
-      val index = DatasetUtil.getFieldIndexByPropertyNameSafe(row, propertyName)
-      val operatedValue = DatasetUtil.getValueByFieldIndex(row, index, dataType)
+      val index = DatasetUtils.getFieldIndexByPropertyNameSafe(row, propertyName)
+      val operatedValue = DatasetUtils.getValueByFieldIndex(row, index, dataType)
       val newVal = ConversionHelper.hash(operatedValue.toString, hashAlgorithm)
 
       val tryConvert = SchemaUtils.createRow(row, row.length, newVal)

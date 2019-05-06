@@ -38,7 +38,7 @@ class AdaptiveChangeDateFormatTest extends DataLoadingConfigScala {
     preparator.calApplicability(null, dataContext.getDataFrame.select(col(columnName)), metadata) should equal(0)
   }
 
-  "calApplicability" should "return a score of 0 for a column with metadata of a previous date formatting" in {
+  "calApplicability" should "return 0 for a column with metadata of a previous date formatting" in {
 
     val columnName = "date"
 

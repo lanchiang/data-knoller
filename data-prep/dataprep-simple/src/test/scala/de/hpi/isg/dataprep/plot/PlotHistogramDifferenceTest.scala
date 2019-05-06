@@ -5,7 +5,7 @@ import java.io.File
 import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble
 import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 
 /**
   * @author Lan Jiang
@@ -34,8 +34,12 @@ object PlotHistogramDifferenceTest {
               .option("sep", ",")
               .csv(file.getAbsolutePath)
 
+      val nonEmptyLineDf = dataset.na.drop("all")
+
       // aggregate value length histogram of each row as an array
-      val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect().toList
+      val histograms = nonEmptyLineDf.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect().toList
+
+      val noEmptyCellCount = nonEmptyLineDf.map(row => nullCount(row))
 
       // calculate the histogram difference of the neighbouring pairs of histograms
       val histogramDifference = histograms.sliding(2)
@@ -51,11 +55,26 @@ object PlotHistogramDifferenceTest {
                 val y = pair._1
                 (x,y)
               })
+              .sortBy(indexedHistDiff => indexedHistDiff._2)(Ordering[Double].reverse)
 
-      histogramDiff.foreach(println)
+//      histogramDiff.foreach(println)
 
+      val histDiffCliff = histogramDiff
+              .sliding(2)
+              .map(pair => (pair(0)._1 , pair(0)._2 - pair(1)._2))
+              .maxBy(drop => drop._2)
+
+      println(file.getName + histDiffCliff)
+
+      // Todo: find the border by considering the target
+
+      // write the score list to a csv file
       val histDF = histogramDiff.toDF()
       histDF.coalesce(1).write.mode(SaveMode.Overwrite).csv(outputPath + "/" + file.getName)
     }
+  }
+
+  def nullCount(row: Row): Int = {
+    row.toSeq.filter(cell => cell != null).size
   }
 }

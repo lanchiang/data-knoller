@@ -2,17 +2,20 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import java.util.Locale
 
+import de.hpi.isg.dataprep.StringUtils
+
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks.{break, breakable}
 import scala.util.matching.Regex
 
 case class LocalePattern(locale: Locale, pattern: String)
 
-class SimpleDate(var originalDate: String, var yearOption: Option[String] = None, var monthOption: Option[String] = None,
-                 var dayOption: Option[String] = None, var dayOfTheWeekOption: Option[String] = None, var separators: List[String] = List()) extends Serializable {
+class SimpleDate(var originalDate: String,
+                 var yearOption: Option[String] = None, var monthOption: Option[String] = None, var dayOption: Option[String] = None,
+                 var dayOfTheWeekOption: Option[String] = None, var separators: List[String] = List()) extends Serializable {
 
   //-------------------Constructor--------------------------
-  val splitDate: List[String] = originalDate.split(AdaptiveDateUtils.nonAlphaNumericPattern).toList
+  val splitDate: List[String] = originalDate.split(ChangeDateFormatUtils.nonAlphaNumericPattern).toList
   //--------------------------------------------------------
 
   def toPattern(alreadyFoundPatterns: List[Option[LocalePattern]]): Option[LocalePattern] = {
@@ -25,7 +28,7 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
         } else if (maybeLocalePattern.get.pattern == "EEE") {
           dayOfTheWeekOption = Some(datePart)
         }
-      } else if (AdaptiveDateUtils.isNumber(datePart)) {
+      } else if (StringUtils.isNumber(datePart)) {
         undeterminedBlocks.append(datePart)
       }
     }
@@ -138,17 +141,16 @@ class SimpleDate(var originalDate: String, var yearOption: Option[String] = None
     dayOfTheWeekOption.isDefined
   }
 
-//  def allPartsDefined(alreadyFoundPatterns: List[Option[LocalePattern]]): Boolean = {
   def allPartsDefined: Boolean = {
     dayOption.isDefined && monthOption.isDefined && yearOption.isDefined
   }
 
   def startsWithSeparator: Boolean = {
-    originalDate.matches(AdaptiveDateUtils.startsWithSeparatorPattern)
+    originalDate.matches(ChangeDateFormatUtils.startsWithSeparatorPattern)
   }
 
   def getSeparators: List[String] = {
-    val separatorPattern: Regex = AdaptiveDateUtils.nonAlphaNumericPattern.r
+    val separatorPattern: Regex = ChangeDateFormatUtils.nonAlphaNumericPattern.r
     separatorPattern.findAllMatchIn(originalDate).map(_.toString).toList
   }
 

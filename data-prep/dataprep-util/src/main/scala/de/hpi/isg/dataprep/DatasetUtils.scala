@@ -15,7 +15,7 @@ import scala.util.{Failure, Success, Try}
   * @since 2018/6/4
   */
 // Todo: this class can be moved to dataprep-spark module.
-object DatasetUtil {
+object DatasetUtils {
 
   def createDataset(config: DatasetConfig): DataFrame = {
     val spark = SparkSession.builder()

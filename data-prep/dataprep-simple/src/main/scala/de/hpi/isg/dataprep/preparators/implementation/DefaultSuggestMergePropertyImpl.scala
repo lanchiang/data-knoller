@@ -1,6 +1,6 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.{ExecutionContext, StringUtils}
+import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.model.error.PreparationError
@@ -103,11 +103,17 @@ class DefaultSuggestMergePropertyImpl extends AbstractPreparatorImpl {
     * @return the discovered connector.
     */
   def findConnector(dataset: DataFrame): String = {
-    ???
+    val connector = DefaultSuggestMergePropertyImpl.DEFAULT_CONNECTOR
+
+    // Todo: here find the connector.
+
+    connector
   }
 }
 
 object DefaultSuggestMergePropertyImpl {
 
   private val DEFAULT_NEW_COLUMN_NAME = "newCol"
+
+  private val DEFAULT_CONNECTOR = "|"
 }

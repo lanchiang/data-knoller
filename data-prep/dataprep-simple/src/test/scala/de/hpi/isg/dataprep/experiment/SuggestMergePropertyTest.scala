@@ -13,7 +13,7 @@ import org.scalatest.{BeforeAndAfterEach, FlatSpecLike, Matchers}
 class SuggestMergePropertyTest extends FlatSpecLike with Matchers with BeforeAndAfterEach {
 
   "The decision engine" should "suggest a merge property preparator for two interleaving columns" in {
-    val resourcePath = getClass.getResource("/merge-property/interleaving_string.csv").toURI.getPath
+    val resourcePath = getClass.getResource("/merge_property/interleaving_string.csv").toURI.getPath
     val pipeline = SimplePipelineBuilder.fromParameterBuilder(resourcePath, false)
 
     val decisionEngine = DecisionEngine.getInstance()

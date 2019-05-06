@@ -8,7 +8,7 @@ import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import org.apache.spark.sql.{Dataset, Row}
 
 /**
-  * Suggestable merge property implementation.
+  * Suggestable merge property preparator.
   *
   * @author Lan Jiang
   * @since 2019-04-17
