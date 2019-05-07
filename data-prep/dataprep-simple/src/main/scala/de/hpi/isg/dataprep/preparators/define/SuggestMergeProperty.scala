@@ -7,6 +7,8 @@ import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.util.{Failure, Success, Try}
+
 /**
   * Suggestable merge property preparator.
   *
@@ -163,20 +165,15 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
     */
   def isYear(dataset: Dataset[Row], columnName: String): Boolean = {
     import dataset.sparkSession.implicits._
-
-    val columnWithoutNull = getColumnsWithoutNull(dataset, columnName)
-
-    try {
-
+    Try {
+      val columnWithoutNull = getColumnsWithoutNull(dataset, columnName)
       val sumYear = columnWithoutNull
               .map(x => if (x <= 2100 && x > 0) 1 else 0)
               .reduce(_ + _)
-      if (sumYear / columnWithoutNull.count() >= threshold)
-        true
-      else
-        false
-    } catch {
-      case _: Throwable => return false
+      sumYear / columnWithoutNull.count() >= threshold
+    } match {
+      case Success(value) => value
+      case Failure(_) => return false
     }
 
   }
@@ -190,19 +187,15 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
     */
   def isMonth(dataset: Dataset[Row], columnName: String): Boolean = {
     import dataset.sparkSession.implicits._
-
-    val columnWithoutNull = getColumnsWithoutNull(dataset, columnName)
-
-    try {
+    Try{
+      val columnWithoutNull = getColumnsWithoutNull(dataset, columnName)
       val sumMonth = columnWithoutNull
               .map(x => if (x <= 12 && x > 0) 1 else 0)
               .reduce(_ + _)
-      if (sumMonth / columnWithoutNull.count() >= threshold)
-        true
-      else
-        false
-    } catch {
-      case _: Throwable => return false
+      sumMonth / columnWithoutNull.count() >= threshold
+    } match {
+      case Success(value) => value
+      case Failure(_) => false
     }
 
   }
@@ -216,18 +209,15 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
     */
   def isDay(dataset: Dataset[Row], columnName: String): Boolean = {
     import dataset.sparkSession.implicits._
-
-    val columnWithoutNull = getColumnsWithoutNull(dataset, columnName)
-    try {
+    Try{
+      val columnWithoutNull = getColumnsWithoutNull(dataset, columnName)
       val sumDay = columnWithoutNull
               .map(x => if (x <= 31 && x > 0) 1 else 0)
               .reduce(_ + _)
-      if (sumDay / columnWithoutNull.count() >= threshold)
-        true
-      else
-        false
-    } catch {
-      case _: Throwable => return false
+      sumDay / columnWithoutNull.count() >= threshold
+    } match {
+      case Success(value) => value
+      case Failure(_) => false
     }
 
   }
@@ -236,7 +226,7 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
     * Return a dataset with only the given column, all null rows removed and converted to int.
     * @param dataset input dataset
     * @param columnName name of the column to keep
-    * @return	dataset[Int] none null rows in the given collumn
+    * @return	dataset[Int] none null rows in the given column
     */
   def getColumnsWithoutNull(dataset: Dataset[Row], columnName: String): Dataset[Int] = {
     import dataset.sparkSession.implicits._
@@ -245,6 +235,11 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
               val str = if (x.isNullAt(0)) null else x.get(0).toString
               !MergePropertiesUtil.isNull(str)
             })
-            .map(x => x.getString(0).toInt)
+            .map(x => {
+              Try{x.getString(0).toInt} match {
+                case Success(value) => value
+                case Failure(exception) => throw exception
+              }
+            })
   }
 }

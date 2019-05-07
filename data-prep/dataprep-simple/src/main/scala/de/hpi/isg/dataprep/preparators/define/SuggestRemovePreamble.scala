@@ -16,7 +16,9 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class SuggestRemovePreamble extends AbstractPreparator {
+class SuggestRemovePreamble(var boundary: String) extends AbstractPreparator {
+
+  def this() { this(null) }
 
   preparator_target = PreparatorTarget.TABLE_BASED
 
@@ -30,35 +32,47 @@ class SuggestRemovePreamble extends AbstractPreparator {
     val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect()
 
     // calculate the histogram difference of the neighbouring pairs of histograms, zipping them with index
-    val histogramDifference = histograms.sliding(2)
+    val histogramDifference = histograms
+            .sliding(2)
             .map(pair => SuggestRemovePreamble.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
             .toSeq
     val (min, max) = (histogramDifference.min, histogramDifference.max)
-
     val histogramDiff = histogramDifference
-                    .sortBy(histDiff => histDiff)
             .map(diff => (diff-min)/(max-min))
             .zipWithIndex
             .map(pair => {
               val x = (pair._2+1).toString.concat("||").concat((pair._2+2).toString)
               val y = pair._1
               (x,y)
-            })
+            }).sortBy(indexedHistDiff => indexedHistDiff._2)(Ordering[Double].reverse)
 
-    val numAboveThreshold = histogramDiff.unzip._2.count(hasPreambleScore => hasPreambleScore >=SuggestRemovePreamble.hasPreamble_threshold)
-
-    // if a preamble is detected, return 1, as otherwise return 0
-    // Todo: slack the score by considering how different the peak is from others
-    numAboveThreshold match {
-      case count if count > 0 => 1f // preamble detected
-      case _ => 0f // no preamble detected
+    // Gets score 1 if the cliff is larger than the threshold.
+    val histDiffCliff = histogramDiff
+            .sliding(2)
+            .map(pair => (pair(0)._1 , pair(0)._2 - pair(1)._2))
+            .maxBy(drop => drop._2)
+    histDiffCliff._2 >= SuggestRemovePreamble.hasPreamble_threshold match {
+      case true => {
+        boundary = histDiffCliff._1
+        1f
+      }
+      case false => 0f
     }
+
+//    val numAboveThreshold = histogramDiff.unzip._2.count(hasPreambleScore => hasPreambleScore >= SuggestRemovePreamble.hasPreamble_threshold)
+//    // if a preamble is detected, return 1, as otherwise return 0
+//    // Todo: slack the score by considering how different the peak is from others
+//    numAboveThreshold match {
+//      case count if count > 0 => 1f // preamble detected
+//      case _ => 0f // no preamble detected
+//    }
   }
 }
 
 object SuggestRemovePreamble {
 
-  val hasPreamble_threshold = 0.7 // the threshold to decide whether there is any preamble in the file
+//  val hasPreamble_threshold = 0.7 // the threshold to decide whether there is any preamble in the file
+  val hasPreamble_threshold = 0.4 // the threshold to decide whether there is any preamble in the file. We deem it yes if the cliff is larger than the threshold
 
   /**
     * return a histogram of value length of each field in the row.

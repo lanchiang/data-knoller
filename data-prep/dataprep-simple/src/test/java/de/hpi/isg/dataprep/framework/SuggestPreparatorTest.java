@@ -34,7 +34,7 @@ public class SuggestPreparatorTest extends DatasetsLoadingConfig {
             });
 
             AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
-            AbstractPreparator expectedPreparator = new SuggestRemovePreamble();
+            AbstractPreparator expectedPreparator = new SuggestRemovePreamble(null);
 
             Assert.assertEquals(expectedPreparator, actualPreparator);
         }

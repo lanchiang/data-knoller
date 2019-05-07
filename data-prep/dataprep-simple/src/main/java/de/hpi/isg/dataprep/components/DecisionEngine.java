@@ -178,6 +178,8 @@ public class DecisionEngine implements Engine {
             columnArr = columns.toArray(columnArr);
             Dataset<Row> dataSlice = dataset.select(columnArr);
 
+            System.out.println(colNameCombination);
+
             for (AbstractPreparator preparator : preparators) {
                 float score = preparator.calApplicability(schemaMapping, dataSlice, targetMetadata);
                 // the same preparator: only with the same class name

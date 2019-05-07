@@ -78,6 +78,7 @@ class SuggestChangeDateFormat(var propertyName: String,
           case 1 => {
             propertyName = dataset.columns.toSeq(0)
             val largestClusters: Array[(Int, (PatternCriteria, Iterable[String]))] = dataset.rdd
+                    .filter(_(0) != null) // skip null
                     .map(_(0).toString) // here it implies the input data only contains one column
                     .groupBy(ChangeDateFormatUtils.getSimilarityCriteria)
                     .map(group => (group._2.size, group))
@@ -119,14 +120,14 @@ class SuggestChangeDateFormat(var propertyName: String,
     * @param targetMetadataSet is the target metadata set
     * @return true if the required metadata is already in the target metadata set
     */
-  def alreadyApplied(targetMetadataSet: util.Collection[Metadata]): Boolean = {
+  private def alreadyApplied(targetMetadataSet: util.Collection[Metadata]): Boolean = {
     updates.asScala.filter(metadata => containByValue(metadata, targetMetadataSet)).size match {
       case count if count > 0 => true
       case _ => false
     }
   }
 
-  def containByValue(metadata: Metadata, collection: util.Collection[Metadata]): Boolean = {
+  private def containByValue(metadata: Metadata, collection: util.Collection[Metadata]): Boolean = {
     val contain = collection.asScala.filter(target => target.equalsByValue(metadata)).size match {
       case count if count > 0 => true
       case _ => false
@@ -134,7 +135,7 @@ class SuggestChangeDateFormat(var propertyName: String,
     contain
   }
 
-  object ClusterSizeOrdering extends Ordering[(Int, (PatternCriteria, Iterable[String]))] {
+  private object ClusterSizeOrdering extends Ordering[(Int, (PatternCriteria, Iterable[String]))] {
     override def compare(x: (Int, (PatternCriteria, Iterable[String])), y: (Int, (PatternCriteria, Iterable[String]))): Int = {
       x._1.compare(y._1)
     }

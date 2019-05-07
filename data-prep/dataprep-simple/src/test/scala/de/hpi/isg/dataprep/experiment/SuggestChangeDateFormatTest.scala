@@ -14,7 +14,7 @@ class SuggestChangeDateFormatTest extends FlatSpecLike with Matchers with Before
 
   "The decision engine" should "suggest a change date format preparator" in {
     val resourcePath = getClass.getResource("/reformat_date/overall.csv").toURI.getPath
-    val pipeline = SimplePipelineBuilder.fromParameterBuilder(resourcePath);
+    val pipeline = SimplePipelineBuilder.fromParameterBuilder(resourcePath)
 
 //    val preparator = new SuggestChangeDateFormat("Zahlung", None, Option(DatePatternEnum.DayMonthYear))
     val preparator = new SuggestChangeDateFormat("Eingang Anmeldung", None, Option(DatePatternEnum.DayMonthYear))

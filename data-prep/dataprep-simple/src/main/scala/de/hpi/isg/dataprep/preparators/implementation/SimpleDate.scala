@@ -5,6 +5,7 @@ import java.util.Locale
 import de.hpi.isg.dataprep.StringUtils
 
 import scala.collection.mutable.ListBuffer
+import scala.util.{Failure, Success, Try}
 import scala.util.control.Breaks.{break, breakable}
 import scala.util.matching.Regex
 
@@ -32,18 +33,36 @@ class SimpleDate(var originalDate: String,
         undeterminedBlocks.append(datePart)
       }
     }
-    applyNumberRules(undeterminedBlocks.toList)
 
-    if (allPartsDefined) {
-      val resultingPattern = generatePattern()
-      // Take first locale. Assumption: There should only be one locale per date. Default to US, if none is found
-      val maybeLocale = alreadyFoundPatterns.flatten.headOption
-      val locale: Locale = if (maybeLocale.isDefined) maybeLocale.get.locale else Locale.US
+    Try {
+      applyNumberRules(undeterminedBlocks.toList)
+    } match {
+      case exception: NumberFormatException => None
+      case _ => {
+        if (allPartsDefined) {
+          val resultingPattern = generatePattern()
+          // Take first locale. Assumption: There should only be one locale per date. Default to US, if none is found
+          val maybeLocale = alreadyFoundPatterns.flatten.headOption
+          val locale: Locale = if (maybeLocale.isDefined) maybeLocale.get.locale else Locale.US
 
-      println(s"Result: $resultingPattern\n")
-      return Some(LocalePattern(locale, resultingPattern))
+          println(s"Result: $resultingPattern\n")
+          return Some(LocalePattern(locale, resultingPattern))
+        } else {
+          None
+        }
+      }
     }
-    None
+
+//    if (allPartsDefined) {
+//      val resultingPattern = generatePattern()
+//      // Take first locale. Assumption: There should only be one locale per date. Default to US, if none is found
+//      val maybeLocale = alreadyFoundPatterns.flatten.headOption
+//      val locale: Locale = if (maybeLocale.isDefined) maybeLocale.get.locale else Locale.US
+//
+//      println(s"Result: $resultingPattern\n")
+//      return Some(LocalePattern(locale, resultingPattern))
+//    }
+//    None
   }
 
   def applyNumberRules(undeterminedBlocks: List[String]): Unit = {
@@ -51,8 +70,9 @@ class SimpleDate(var originalDate: String,
 
     for (block <- undeterminedBlocks) { // if there are no undetermined parts left, function will return
       breakable {
-        if (block.toInt <= 0) {
-          break
+        Try{block.toInt} match { // Todo: if the number sequence is too long, it may exceed the upper bound length of a integer.
+          case Failure(exception) => throw exception
+          case Success(_) =>
         }
         if (!isYearDefined && (block.length == 4 || block.toInt > 31 || (isDayDefined && block.toInt > 12))) {
           yearOption = Some(block)
