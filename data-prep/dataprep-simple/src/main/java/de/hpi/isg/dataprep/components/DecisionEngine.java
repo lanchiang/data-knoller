@@ -3,6 +3,8 @@ package de.hpi.isg.dataprep.components;
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.results.SuggestedPreparator;
+import de.hpi.isg.dataprep.model.target.results.SuggestionResults;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
@@ -47,7 +49,7 @@ public class DecisionEngine implements Engine {
     /**
      * The size of the suggested preparator list.
      */
-    private int suggested_list_size = 1;
+    private int suggestedListSize = 10;
 
     /**
      * The singular instance of {@link DecisionEngine}
@@ -224,7 +226,7 @@ public class DecisionEngine implements Engine {
      *
      * @return the most suitable parameterized preparator. Returning null indicates the termination of the process
      */
-    public AbstractPreparator selectBestPreparators(AbstractPipeline pipeline) {
+    public SuggestionResults selectBestPreparators(AbstractPipeline pipeline) {
         // Todo: take locality into consideration
         // every time this method is called, instantiate all the preparator candidates again.
         initDecisionEngine();
@@ -238,6 +240,8 @@ public class DecisionEngine implements Engine {
 
         // first the column combinations need to be generated.
         List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
+
+        List<SuggestedPreparator> suggestion = new LinkedList<>();
         // using this permutation iterator cannot specify the maximal number of columns.
         SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, MAX_COLUMN_COMBINATION_SIZE);
 
@@ -256,6 +260,8 @@ public class DecisionEngine implements Engine {
             columnArr = columns.toArray(columnArr);
             Dataset<Row> dataSlice = dataset.select(columnArr);
 
+            System.out.println(colNameCombination);
+
             for (AbstractPreparator preparator : preparators) {
                 float score = preparator.calApplicability(null, dataSlice, null);
                 // the same preparator: only with the same class name
@@ -270,6 +276,9 @@ public class DecisionEngine implements Engine {
                         scores.put(preparator, score);
                     }
                 }
+
+                // add the suggested preparator to the result list.
+                suggestion.add(new SuggestedPreparator(preparator, score));
             }
 
             // create new empty preparator instances that will be filled by parameters.
@@ -288,8 +297,11 @@ public class DecisionEngine implements Engine {
             }
         }
 
+        SuggestionResults suggestionResults = new SuggestionResults(this.suggestedListSize);
+        suggestionResults.addSuggestion(suggestion);
+
         iteration_count++;
-        return bestPreparator;
+        return suggestionResults;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,5 +357,9 @@ public class DecisionEngine implements Engine {
 
     public void setPreparatorCandidates(String[] preparatorCandidates) {
         DecisionEngine.preparatorCandidates = preparatorCandidates;
+    }
+
+    public int getSuggestedListSize() {
+        return suggestedListSize;
     }
 }

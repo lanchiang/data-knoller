@@ -19,7 +19,7 @@ class SuggestMergePropertyTest extends FlatSpecLike with Matchers with BeforeAnd
     val decisionEngine = DecisionEngine.getInstance()
     decisionEngine.setPreparatorCandidates(Array("SuggestMergeProperty"))
 
-    val actualPreparator = decisionEngine.selectBestPreparators(pipeline)
+    val actualPreparator = decisionEngine.selectBestPreparators(pipeline).getSuggestedPreparators.toSeq(0).getPreparator
     val expectedPreparator = new SuggestMergeProperty(Array("_c0", "_c1").toList, null)
 
     actualPreparator shouldBe a [SuggestMergeProperty]

@@ -69,6 +69,14 @@ public interface AbstractPipeline extends Nameable, Printable {
      */
     boolean addRecommendedPreparation();
 
+    /**
+     * Return the previous preparators in this pipeline that have already been executed. The preparator execution history
+     * may provide clues for suggesting preparators, e.g., when using the execution locality feature.
+     *
+     * @return the list of parameterized preparators that have been executed previously in this pipeline.
+     */
+    List<AbstractPreparator> getPipelineExecutionHistory();
+
     List<AbstractPreparation> getPreparations();
 
     ErrorRepository getErrorRepository();

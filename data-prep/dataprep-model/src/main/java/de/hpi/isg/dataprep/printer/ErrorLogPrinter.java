@@ -1,4 +1,4 @@
-package de.hpi.isg.dataprep.Printer;
+package de.hpi.isg.dataprep.printer;
 
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;

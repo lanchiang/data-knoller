@@ -14,6 +14,7 @@ import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.results.SuggestionResults;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
@@ -46,6 +47,11 @@ public class Pipeline implements AbstractPipeline {
     private MetadataEngine metadataEngine;
 
     private int index = 0;
+
+    /**
+     * Acts like a cache to store the suggested preparator list for a particular step.
+     */
+    private SuggestionResults suggestionResults = new SuggestionResults(decisionEngine.getSuggestedListSize());
 
     // Note: just for the grand task test. Ideally, the schema mapping instance should not be held by something else, such as a higher level sand box.
     private SchemaMapping schemaMapping;
@@ -197,6 +203,7 @@ public class Pipeline implements AbstractPipeline {
         // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
         // now the process terminates when the selectBestPreparator method return null.
         AbstractPreparator recommendedPreparator = decisionEngine.selectBestPreparator(this);
+        this.suggestionResults.addSuggestion(null);
 
         // return a null means the decision engine determines to stop the process
         if (recommendedPreparator == null) {
@@ -213,6 +220,11 @@ public class Pipeline implements AbstractPipeline {
         preparations.add(preparation);
         executePreparation(preparation);
         return true;
+    }
+
+    @Override
+    public List<AbstractPreparator> getPipelineExecutionHistory() {
+        return preparations.stream().map(preparation -> preparation.getAbstractPreparator()).collect(Collectors.toList());
     }
 
     /**
