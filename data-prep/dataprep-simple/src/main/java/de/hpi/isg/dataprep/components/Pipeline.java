@@ -14,15 +14,20 @@ import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.results.SuggestedPreparator;
 import de.hpi.isg.dataprep.model.target.results.SuggestionResults;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +49,7 @@ public class Pipeline implements AbstractPipeline {
     private List<AbstractPreparation> preparations = new LinkedList<>();
 
     private DecisionEngine decisionEngine = DecisionEngine.getInstance();
+
     private MetadataEngine metadataEngine;
 
     private int index = 0;
@@ -203,7 +209,7 @@ public class Pipeline implements AbstractPipeline {
         // call the decision engine to collect scores from all preparator candidates, and select the one with the highest score.
         // now the process terminates when the selectBestPreparator method return null.
         AbstractPreparator recommendedPreparator = decisionEngine.selectBestPreparator(this);
-        this.suggestionResults.addSuggestion(null);
+        this.suggestionResults = decisionEngine.selectBestPreparators(this);
 
         // return a null means the decision engine determines to stop the process
         if (recommendedPreparator == null) {

@@ -2,9 +2,8 @@ package de.hpi.isg.dataprep.framework;
 
 import de.hpi.isg.dataprep.components.DecisionEngine;
 import de.hpi.isg.dataprep.config.DatasetsLoadingConfig;
-import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble;
+import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class SuggestPreparatorTest extends DatasetsLoadingConfig {
             });
 
             AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
-            AbstractPreparator expectedPreparator = new SuggestRemovePreamble(null);
+            AbstractPreparator expectedPreparator = new SuggestableRemovePreamble(null);
 
             Assert.assertEquals(expectedPreparator, actualPreparator);
         }

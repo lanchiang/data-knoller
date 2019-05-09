@@ -11,7 +11,7 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class DefaultSuggestRemovePreambleImpl extends AbstractPreparatorImpl {
+class DefaultSuggestableRemovePreambleImpl extends AbstractPreparatorImpl {
 
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = ???

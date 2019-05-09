@@ -11,7 +11,7 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class DefaultSuggestAddPropertyImpl extends AbstractPreparatorImpl {
+class DefaultSuggestableAddPropertyImpl extends AbstractPreparatorImpl {
 
   override protected def executeLogic(abstractPreparator: AbstractPreparator,
                                       dataFrame: Dataset[Row],

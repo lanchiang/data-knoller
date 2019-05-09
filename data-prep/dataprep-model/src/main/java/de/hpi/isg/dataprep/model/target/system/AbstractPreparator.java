@@ -26,8 +26,7 @@ abstract public class AbstractPreparator implements Executable {
 
     private AbstractPreparation preparation;
 
-    // Todo: currently set column-based by default.
-    protected PreparatorTarget preparator_target = PreparatorTarget.COLUMN_BASED;
+    protected PreparatorTarget preparatorTarget;
 
     protected List<Metadata> invalid;
 
@@ -148,6 +147,10 @@ abstract public class AbstractPreparator implements Executable {
 
     public void setPreparation(AbstractPreparation preparation) {
         this.preparation = preparation;
+    }
+
+    public PreparatorTarget getPreparatorTarget() {
+        return preparatorTarget;
     }
 
     /**

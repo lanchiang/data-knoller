@@ -16,7 +16,7 @@ import org.apache.spark.sql.{Dataset, Row}
   * @author Lan Jiang
   * @since 2019-05-06
   */
-class SuggestPivotTable(var rowProperty: String,
+class SuggestablePivotTable(var rowProperty: String,
                         var columnProperty: String,
                         var valueProperty: String,
                         var aggregationFunction: AggregationFunction = AggregationFunction.Sum) extends AbstractPreparator {
@@ -25,10 +25,9 @@ class SuggestPivotTable(var rowProperty: String,
     this(null, null, null, null)
   }
 
-  preparator_target = PreparatorTarget.TABLE_BASED
+  preparatorTarget = PreparatorTarget.COLUMN_BASED
 
   override def buildMetadataSetup(): Unit = ???
-
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
     // Executing a pivot table preparator requires three columns in the parameters: two for the two dimensions and the rest one for
@@ -56,6 +55,8 @@ class SuggestPivotTable(var rowProperty: String,
       case _ => 0f
     }
   }
+
+  override def toString = s"SuggestablePivotTable($rowProperty, $columnProperty, $valueProperty, $aggregationFunction)"
 }
 
 object AggregationFunction extends Enumeration {

@@ -5,7 +5,7 @@ import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.model.error.PreparationError
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.{MergePropertiesUtil, SuggestMergeProperty}
+import de.hpi.isg.dataprep.preparators.define.{MergePropertiesUtil, SuggestableMergeProperty}
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
@@ -15,13 +15,13 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2019-04-17
   */
-class DefaultSuggestMergePropertyImpl extends AbstractPreparatorImpl {
+class DefaultSuggestableMergePropertyImpl extends AbstractPreparatorImpl {
 
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
     // check whether necessary parameters are already set. Derive the missing ones by analyzing the dataset
     findMissingParametersImpl(abstractPreparator, dataFrame)
-    val preparator = abstractPreparator.asInstanceOf[SuggestMergeProperty]
+    val preparator = abstractPreparator.asInstanceOf[SuggestableMergeProperty]
 
     //select the right merge function
     val mergeFunc = merge(preparator.connector)
@@ -79,7 +79,7 @@ class DefaultSuggestMergePropertyImpl extends AbstractPreparatorImpl {
 
   override def findMissingParametersImpl(preparator: AbstractPreparator, dataFrame: Dataset[Row]): Unit = {
     val cast = preparator match {
-      case _ : SuggestMergeProperty => preparator.asInstanceOf[SuggestMergeProperty]
+      case _ : SuggestableMergeProperty => preparator.asInstanceOf[SuggestableMergeProperty]
       case _ => throw new RuntimeException(new ClassCastException("Preparator class cannot be cast."))
     }
 
@@ -103,7 +103,7 @@ class DefaultSuggestMergePropertyImpl extends AbstractPreparatorImpl {
     * @return the discovered connector.
     */
   def findConnector(dataset: DataFrame): String = {
-    val connector = DefaultSuggestMergePropertyImpl.DEFAULT_CONNECTOR
+    val connector = DefaultSuggestableMergePropertyImpl.DEFAULT_CONNECTOR
 
     // Todo: here find the connector.
 
@@ -111,7 +111,7 @@ class DefaultSuggestMergePropertyImpl extends AbstractPreparatorImpl {
   }
 }
 
-object DefaultSuggestMergePropertyImpl {
+object DefaultSuggestableMergePropertyImpl {
 
   private val DEFAULT_NEW_COLUMN_NAME = "newCol"
 

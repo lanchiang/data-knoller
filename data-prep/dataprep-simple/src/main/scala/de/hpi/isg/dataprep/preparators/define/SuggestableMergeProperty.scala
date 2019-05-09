@@ -5,6 +5,7 @@ import java.util
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.util.{Failure, Success, Try}
@@ -15,11 +16,13 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2019-04-17
   */
-class SuggestMergeProperty(var attributes: List[String], var connector: String = null) extends AbstractPreparator {
+class SuggestableMergeProperty(var attributes: List[String], var connector: String = null) extends AbstractPreparator {
 
   def this() {
     this(null)
   }
+
+  preparatorTarget = PreparatorTarget.COLUMN_BASED
 
   /** *  THRESHOLDS FOR calApplicability  ***/
   val threshold = 0.95
@@ -242,4 +245,6 @@ class SuggestMergeProperty(var attributes: List[String], var connector: String =
               }
             })
   }
+
+  override def toString = s"SuggestableMergeProperty($attributes, $connector)"
 }

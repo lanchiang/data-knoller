@@ -7,6 +7,7 @@ import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import de.hpi.isg.dataprep.preparators.implementation.{ChangeDateFormatUtils, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
@@ -21,9 +22,9 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2019-04-23
   */
-class SuggestChangeDateFormat(var propertyName: String,
-                              var sourceDatePattern: Option[DatePatternEnum] = None,
-                              var targetDatePattern: Option[DatePatternEnum] = None) extends AbstractPreparator {
+class SuggestableChangeDateFormat(var propertyName: String,
+                                  var sourceDatePattern: Option[DatePatternEnum] = None,
+                                  var targetDatePattern: Option[DatePatternEnum] = None) extends AbstractPreparator {
 
   /**
     * Empty parameter constructor for the decision engine.
@@ -31,6 +32,8 @@ class SuggestChangeDateFormat(var propertyName: String,
   def this() {
     this(null)
   }
+
+  preparatorTarget = PreparatorTarget.COLUMN_BASED
 
   /**
     * This method validates the input parameters of a {@link AbstractPreparator}. If succeeds, setup the values of
@@ -140,4 +143,6 @@ class SuggestChangeDateFormat(var propertyName: String,
       x._1.compare(y._1)
     }
   }
+
+  override def toString = s"SuggestableChangeDateFormat($propertyName, $sourceDatePattern, $targetDatePattern)"
 }

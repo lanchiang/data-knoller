@@ -4,7 +4,7 @@ import de.hpi.isg.dataprep.{ConversionHelper, DatasetUtils, ExecutionContext}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-import de.hpi.isg.dataprep.preparators.define.{AdaptiveChangeDateFormat, SuggestChangeDateFormat}
+import de.hpi.isg.dataprep.preparators.define.{AdaptiveChangeDateFormat, SuggestableChangeDateFormat}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{Dataset, Row}
@@ -16,12 +16,12 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2019-04-23
   */
-class DefaultSuggestChangeDateFormatImpl extends AbstractPreparatorImpl {
+class DefaultSuggestableChangeDateFormatImpl extends AbstractPreparatorImpl {
 
   // Todo: use transform-by-example to derive the correct date format
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
                                       errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[SuggestChangeDateFormat]
+    val preparator = abstractPreparator.asInstanceOf[SuggestableChangeDateFormat]
     val propertyName = preparator.propertyName
     val sourceDatePattern = preparator.sourceDatePattern
     val targetDatePattern = preparator.targetDatePattern

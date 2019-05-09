@@ -49,7 +49,7 @@ public class DecisionEngine implements Engine {
     /**
      * The size of the suggested preparator list.
      */
-    private int suggestedListSize = 10;
+    private int suggestedListSize = 50;
 
     /**
      * The singular instance of {@link DecisionEngine}
@@ -233,6 +233,21 @@ public class DecisionEngine implements Engine {
 
         Dataset<Row> dataset = pipeline.getDataset();
 
+        List<SuggestedPreparator> suggestion = new LinkedList<>();
+
+        Set<AbstractPreparator> tableBasedPreparators = preparators.stream()
+                .filter(preparator -> preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.TABLE_BASED))
+                .collect(Collectors.toSet());
+        for (AbstractPreparator tableBasedPreparator : tableBasedPreparators) {
+            float score = tableBasedPreparator.calApplicability(null, dataset, null);
+            scores.put(tableBasedPreparator, score);
+
+            // add the suggested preparator to the result list.
+            if (score > 0) {
+                suggestion.add(new SuggestedPreparator(tableBasedPreparator, score));
+            }
+        }
+
         if (!hasColumn(dataset)) {
             // return null if the dataset is empty.
             return null;
@@ -241,9 +256,13 @@ public class DecisionEngine implements Engine {
         // first the column combinations need to be generated.
         List<String> fieldName = Arrays.asList(dataset.schema().fieldNames());
 
-        List<SuggestedPreparator> suggestion = new LinkedList<>();
         // using this permutation iterator cannot specify the maximal number of columns.
         SubsetIterator<String> iterator = new SubsetIterator<>(fieldName, MAX_COLUMN_COMBINATION_SIZE);
+
+        // consider only column based preparators for column subset iteration.
+        Set<AbstractPreparator> columnBasedPreparators = preparators.stream()
+                .filter(preparator -> preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.COLUMN_BASED))
+                .collect(Collectors.toSet());
 
         while (iterator.hasNext()) {
             List<String> colNameCombination = iterator.next();
@@ -262,7 +281,7 @@ public class DecisionEngine implements Engine {
 
             System.out.println(colNameCombination);
 
-            for (AbstractPreparator preparator : preparators) {
+            for (AbstractPreparator preparator : columnBasedPreparators) {
                 float score = preparator.calApplicability(null, dataSlice, null);
                 // the same preparator: only with the same class name
                 float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
@@ -278,11 +297,17 @@ public class DecisionEngine implements Engine {
                 }
 
                 // add the suggested preparator to the result list.
-                suggestion.add(new SuggestedPreparator(preparator, score));
+                if (score > 0) {
+                    suggestion.add(new SuggestedPreparator(preparator, score));
+                }
             }
 
             // create new empty preparator instances that will be filled by parameters.
             instantiatePreparator();
+            // consider only column based preparators for column subset iteration.
+            columnBasedPreparators = preparators.stream()
+                    .filter(preparator -> preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.COLUMN_BASED))
+                    .collect(Collectors.toSet());
         }
 
         // Find the preparator with the highest score.

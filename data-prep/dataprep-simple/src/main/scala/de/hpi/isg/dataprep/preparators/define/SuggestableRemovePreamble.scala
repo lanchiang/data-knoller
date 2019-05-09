@@ -6,8 +6,8 @@ import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
-import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM
-import de.hpi.isg.dataprep.preparators.define.SuggestRemovePreamble.HISTOGRAM_ALGORITHM.HISTOGRAM_ALGORITHM
+import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble.HISTOGRAM_ALGORITHM
+import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble.HISTOGRAM_ALGORITHM.HISTOGRAM_ALGORITHM
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.util.{Failure, Success, Try}
@@ -16,11 +16,11 @@ import scala.util.{Failure, Success, Try}
   * @author Lan Jiang
   * @since 2019-04-08
   */
-class SuggestRemovePreamble(var boundary: String) extends AbstractPreparator {
+class SuggestableRemovePreamble(var boundary: String) extends AbstractPreparator {
 
   def this() { this(null) }
 
-  preparator_target = PreparatorTarget.TABLE_BASED
+  preparatorTarget = PreparatorTarget.TABLE_BASED
 
   override def buildMetadataSetup(): Unit = ???
 
@@ -28,17 +28,30 @@ class SuggestRemovePreamble(var boundary: String) extends AbstractPreparator {
     val localContext = dataset.sqlContext.sparkSession
     import localContext.implicits._
 
+    // remove empty rows
+    val withoutEmptyLineDF = dataset.na.drop("all")
+
     // aggregate value length histogram of each row as an array
-    val histograms = dataset.map(row => SuggestRemovePreamble.valueLengthHistogram(row)).collect()
+//    val histograms = withoutEmptyLineDF.map(row => SuggestableRemovePreamble.valueLengthHistogram(row)).collect()
+    val histograms = dataset.map(row => SuggestableRemovePreamble.valueLengthHistogram(row)).collect()
+
+    var lastNonempty = Seq.empty[Double]
+    var nonEmptyHistograms = Array.empty[Seq[Double]]
+    for (histogram <- histograms) {
+      if (histogram.exists(_ != 0)) {
+        lastNonempty = histogram
+      }
+      nonEmptyHistograms = nonEmptyHistograms :+ lastNonempty
+    }
 
     // calculate the histogram difference of the neighbouring pairs of histograms, zipping them with index
-    val histogramDifference = histograms
+    val histogramDifference = nonEmptyHistograms
             .sliding(2)
-            .map(pair => SuggestRemovePreamble.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
+            .map(pair => SuggestableRemovePreamble.histogramDifference(pair(0), pair(1), HISTOGRAM_ALGORITHM.Bhattacharyya))
             .toSeq
     val (min, max) = (histogramDifference.min, histogramDifference.max)
     val histogramDiff = histogramDifference
-            .map(diff => (diff-min)/(max-min))
+//            .map(diff => (diff-min)/(max-min))
             .zipWithIndex
             .map(pair => {
               val x = (pair._2+1).toString.concat("||").concat((pair._2+2).toString)
@@ -51,7 +64,7 @@ class SuggestRemovePreamble(var boundary: String) extends AbstractPreparator {
             .sliding(2)
             .map(pair => (pair(0)._1 , pair(0)._2 - pair(1)._2))
             .maxBy(drop => drop._2)
-    histDiffCliff._2 >= SuggestRemovePreamble.hasPreamble_threshold match {
+    histDiffCliff._2 >= SuggestableRemovePreamble.hasPreamble_threshold match {
       case true => {
         boundary = histDiffCliff._1
         1f
@@ -67,9 +80,11 @@ class SuggestRemovePreamble(var boundary: String) extends AbstractPreparator {
 //      case _ => 0f // no preamble detected
 //    }
   }
+
+  override def toString = s"SuggestableRemovePreamble($boundary)"
 }
 
-object SuggestRemovePreamble {
+object SuggestableRemovePreamble {
 
 //  val hasPreamble_threshold = 0.7 // the threshold to decide whether there is any preamble in the file
   val hasPreamble_threshold = 0.4 // the threshold to decide whether there is any preamble in the file. We deem it yes if the cliff is larger than the threshold

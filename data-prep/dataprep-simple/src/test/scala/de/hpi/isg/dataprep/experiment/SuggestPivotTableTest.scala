@@ -16,7 +16,7 @@ class SuggestPivotTableTest extends FlatSpecLike with Matchers with BeforeAndAft
     val pipeline = SimplePipelineBuilder.fromParameterBuilder(resourcePath, false)
 
     val decisionEngine = DecisionEngine.getInstance()
-    decisionEngine.setPreparatorCandidates(Array("SuggestPivotTable"))
+    decisionEngine.setPreparatorCandidates(Array("SuggestablePivotTable"))
 
     val actualPreparator = decisionEngine.selectBestPreparator(pipeline)
   }
