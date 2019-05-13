@@ -3,8 +3,9 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util.Optional
 import java.{lang, util}
 
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.metadata.PropertyDataType
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.{Attribute, SchemaMapping}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
@@ -47,7 +48,7 @@ class AddProperty extends AbstractPreparator {
 
   override def buildMetadataSetup(): Unit = {}
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     0
   }
 }

@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.preparators.define;
 
 import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
+import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
@@ -68,7 +69,7 @@ public class Sampling extends AbstractPreparator implements Serializable {
     }
 
     @Override
-    public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata) {
+    public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata, AbstractPipeline pipeline) {
         return 0;
     }
 }

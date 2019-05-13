@@ -72,10 +72,13 @@ abstract public class AbstractPreparator implements Executable {
      * @param schemaMapping  is the schema of the input data towards the schema of the output data.
      * @param dataset        is the input dataset slice. A slice can be a subset of the columns of the data,
      *                       or a subset of the rows of the data.
-     * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
+     * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data.
+     * @param pipeline the pipeline that asks for suggesting the next preparation step.
+     *
      * @return the score that is calculated by the signature of this preparator instance.
      */
-    abstract public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset, Collection<Metadata> targetMetadata);
+    abstract public float calApplicability(SchemaMapping schemaMapping, Dataset<Row> dataset,
+                                           Collection<Metadata> targetMetadata, AbstractPipeline pipeline);
 
     /**
      * Return a new parameter-free preparator instance.
@@ -122,6 +125,15 @@ abstract public class AbstractPreparator implements Executable {
     }
 
     /**
+     * Get the list of properties operated by this preparator.
+     *
+     * @return the operated properties.
+     */
+    public List<String> getAffectedProperties() {
+        return null;
+    }
+
+    /**
      * This function is called by the concrete preparator subclass with incomplete parameters and search for the values thereof.
      * It delegates the work to the corresponding impl class.
      */
@@ -151,6 +163,18 @@ abstract public class AbstractPreparator implements Executable {
 
     public PreparatorTarget getPreparatorTarget() {
         return preparatorTarget;
+    }
+
+    /**
+     * Convert the accepted property names into a list.
+     *
+     * @param propertyNames
+     * @return
+     */
+    protected List<String> convertToPropertyList(String... propertyNames) {
+        List<String> properties = new ArrayList<>();
+        properties.addAll(Arrays.asList(propertyNames));
+        return properties;
     }
 
     /**

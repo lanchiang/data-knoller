@@ -6,9 +6,10 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
 import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -47,7 +48,7 @@ class ChangeFilesEncoding(val propertyName: String,
     if (target && !Charset.forName(encoding).canEncode) throw new IllegalCharsetNameException(encoding)
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]):
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline):
   Float = {
     if (dataset.columns.length != 1) return 0
     val propertyName = dataset.columns(0)

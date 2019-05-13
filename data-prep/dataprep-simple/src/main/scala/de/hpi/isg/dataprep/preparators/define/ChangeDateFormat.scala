@@ -3,9 +3,10 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util
 
 import de.hpi.isg.dataprep.DateScorer
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
@@ -65,7 +66,7 @@ class ChangeDateFormat(var propertyName: String,
     *                or a subset of the rows of the data.
     * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
     *     */
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     val impl = this.impl.asInstanceOf[DefaultChangeDateFormatImpl]
     val schema = dataset.schema
 

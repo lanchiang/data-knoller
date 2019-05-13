@@ -100,7 +100,7 @@ class ChangeDateFormatTest extends DataLoadingConfigScala {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
     val pokemonData = pipeline.getDataset.select("date")
     val total = pokemonData.count()
-    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
+    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection, null)
     val expectedScore = (pokemonDates.size + pokemonDatesDifferentFormat.size).toFloat / total.toFloat
     score shouldEqual expectedScore
   }
@@ -108,7 +108,7 @@ class ChangeDateFormatTest extends DataLoadingConfigScala {
   "Applicability score calculation" should "return 0.0 for multiple columns" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
     val pokemonData = pipeline.getDataset
-    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
+    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection, null)
     score shouldEqual 0.0f
   }
 
@@ -116,14 +116,14 @@ class ChangeDateFormatTest extends DataLoadingConfigScala {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
     val pokemonData = pipeline.getDataset.select("date")
     val metadata: Set[Metadata] = Set(new PropertyDatePattern(DatePatternEnum.DayMonthYear, new ColumnMetadata("date")))
-    val score = preparator.calApplicability(null, pokemonData, metadata.asJavaCollection)
+    val score = preparator.calApplicability(null, pokemonData, metadata.asJavaCollection, null)
     score shouldEqual 0.0f
   }
 
   it should "return 0.0 if the input is not a string column" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
     val pokemonData = pipeline.getDataset.select("height")
-    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection)
+    val score = preparator.calApplicability(null, pokemonData, Set().asJavaCollection, null)
     score shouldEqual 0.0f
   }
 }

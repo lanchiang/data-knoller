@@ -2,15 +2,18 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble.HISTOGRAM_ALGORITHM
 import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble.HISTOGRAM_ALGORITHM.HISTOGRAM_ALGORITHM
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.util.{Failure, Success, Try}
+
+import collection.JavaConverters._
 
 /**
   * @author Lan Jiang
@@ -24,7 +27,7 @@ class SuggestableRemovePreamble(var boundary: String) extends AbstractPreparator
 
   override def buildMetadataSetup(): Unit = ???
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     val localContext = dataset.sqlContext.sparkSession
     import localContext.implicits._
 
@@ -79,6 +82,10 @@ class SuggestableRemovePreamble(var boundary: String) extends AbstractPreparator
 //      case count if count > 0 => 1f // preamble detected
 //      case _ => 0f // no preamble detected
 //    }
+  }
+
+  override def getAffectedProperties: util.List[String] = {
+    List.empty[String].asJava
   }
 
   override def toString = s"SuggestableRemovePreamble($boundary)"

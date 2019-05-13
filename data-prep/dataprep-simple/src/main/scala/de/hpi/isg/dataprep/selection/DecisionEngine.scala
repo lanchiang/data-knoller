@@ -62,7 +62,7 @@ class DecisionEngine extends Engine {
   private def createScoresForCombinations(prepClass: Class[_ <: AbstractPreparator], dataSets: Seq[Dataset[Row]], schemaMapping: SchemaMapping, metadata: java.util.Set[Metadata]): Seq[(AbstractPreparator, Float)] = {
     dataSets.map(data => {
       val prep = prepClass.newInstance()
-      (prep, prep.calApplicability(schemaMapping, data, metadata))
+      (prep, prep.calApplicability(schemaMapping, data, metadata, null))
     })
   }
 }

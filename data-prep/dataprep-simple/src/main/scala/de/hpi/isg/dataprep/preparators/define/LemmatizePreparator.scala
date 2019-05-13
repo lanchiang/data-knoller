@@ -3,10 +3,11 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util
 
 import de.hpi.isg.dataprep
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
 import de.hpi.isg.dataprep.metadata.{LanguageMetadata, PropertyDataType}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.util.DataType
@@ -36,7 +37,7 @@ class LemmatizePreparator extends AbstractPreparator with Serializable {
     this.prerequisites.add(new LanguageMetadata(propertyName, null)) // any language
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     val schema = dataset.schema
     val score : Float = schema.size match {
       case value if value > 1 => 0

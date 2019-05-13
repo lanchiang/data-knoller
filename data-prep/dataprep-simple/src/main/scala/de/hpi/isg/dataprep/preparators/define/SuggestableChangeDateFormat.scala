@@ -4,9 +4,10 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import de.hpi.isg.dataprep.preparators.implementation.{ChangeDateFormatUtils, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
@@ -73,7 +74,7 @@ class SuggestableChangeDateFormat(var propertyName: String,
     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
     *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
     */
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     alreadyApplied(targetMetadata) match {
       case true => 0f
       case false => {
@@ -144,5 +145,10 @@ class SuggestableChangeDateFormat(var propertyName: String,
     }
   }
 
+  override def getAffectedProperties: util.List[String] = {
+    convertToPropertyList(propertyName)
+  }
+
   override def toString = s"SuggestableChangeDateFormat($propertyName, $sourceDatePattern, $targetDatePattern)"
+
 }

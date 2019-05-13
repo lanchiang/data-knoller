@@ -2,12 +2,15 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{Dataset, Row}
+
+import collection.JavaConverters._
 
 /**
   * Add property for preparator suggestion experiment
@@ -48,8 +51,12 @@ class SuggestableAddProperty extends AbstractPreparator {
 
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     ???
+  }
+
+  override def getAffectedProperties: util.List[String] = {
+    List.empty[String].asJava
   }
 }
 

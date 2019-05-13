@@ -46,7 +46,7 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     }
 
     // if we still have errors despite using the correct encoding, the file probably contains multiple encodings
-    if (hasCorrectLoadEncoding || preparator.calApplicability(null, data, null) > 0) {
+    if (hasCorrectLoadEncoding || preparator.calApplicability(null, data, null, null) > 0) {
       val unmixedDialect = new EncodingUnmixer(csvPath).unmixEncoding(dialect)
       data = reloadWith(unmixedDialect, pipeline)
     }

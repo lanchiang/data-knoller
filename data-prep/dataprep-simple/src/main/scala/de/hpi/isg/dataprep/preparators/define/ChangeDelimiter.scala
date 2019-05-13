@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.{lang, util}
 
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDelimiterImpl
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -31,5 +32,5 @@ class ChangeDelimiter(val tableName: String,
   override def buildMetadataSetup(): Unit = {
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = 0
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = 0
 }

@@ -204,7 +204,7 @@ class MultiBranchPipelineCreator(dataContext: DataContext) extends PipelineCreat
       classPrep <- preparators
       colComb <- generateColumnCombinations(branchHead.dataFrame, affectedCols.getOrElse(classPrep, Set.empty))
       prep = classPrep.newInstance()
-      score = prep.calApplicability(dataContext.getSchemaMapping, colComb, dataContext.getTargetMetadata)
+      score = prep.calApplicability(dataContext.getSchemaMapping, colComb, dataContext.getTargetMetadata, null)
     } yield Candidate(branchHead, prep, colComb.columns.toSet, branchScore + score, score)
   }
 

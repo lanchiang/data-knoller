@@ -46,7 +46,7 @@ class SuggestPreparatorTest extends FlatSpecLike with Matchers with BeforeAndAft
     val pipeline = SimplePipelineBuilder.fromParameterBuilder(resourcePath, false)
 
     decisionEngine.setPreparatorCandidates(
-      Array("SuggestableMergeProperty", "SuggestableChangeDateFormat", "SuggestablePivotTable", "SuggestableRemovePreamble")
+      Array("SuggestableMergeProperty", "SuggestableChangeDateFormat", "SuggestableRemovePreamble")
     )
 
     val suggestedList = decisionEngine.selectBestPreparators(pipeline)

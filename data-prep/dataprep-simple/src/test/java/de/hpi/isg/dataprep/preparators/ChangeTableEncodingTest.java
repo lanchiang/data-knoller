@@ -121,7 +121,7 @@ public class ChangeTableEncodingTest {
         pipeline.executePipeline();
 
         Assert.assertEquals("WINDOWS-1252", pipeline.getDialect().getEncoding());
-        Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getDataset(), null), 0);
+        Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getDataset(), null, null), 0);
     }
 
     /*
@@ -141,7 +141,7 @@ public class ChangeTableEncodingTest {
 
         try {
             Assert.assertEquals("UTF-8", unmixedDialect.getEncoding());
-            Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getDataset(), null), 0);
+            Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getDataset(), null, null), 0);
             Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
             Assert.assertEquals(previousRecordCount, pipeline.getDataset().count());
         } finally {
@@ -161,7 +161,7 @@ public class ChangeTableEncodingTest {
         pipeline.addPreparation(new Preparation(preparator));
 
         try {
-            Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getDataset(), null), 0);
+            Assert.assertEquals(0, preparator.calApplicability(null, pipeline.getDataset(), null, null), 0);
             Assert.assertEquals(0, preparator.countReplacementChars(unmixedDialect.getUrl()), 0);
         } finally {
             Files.delete(Paths.get(unmixedDialect.getUrl()));
@@ -177,7 +177,7 @@ public class ChangeTableEncodingTest {
 
         AbstractPreparator preparator = new ChangeTableEncoding();
         pipeline.addPreparation(new Preparation(preparator));
-        return preparator.calApplicability(null, pipeline.getDataset(), null);
+        return preparator.calApplicability(null, pipeline.getDataset(), null, null);
     }
 
     private String getCSVPath(DataContext context) {

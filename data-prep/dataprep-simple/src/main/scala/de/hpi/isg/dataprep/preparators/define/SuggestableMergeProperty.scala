@@ -4,14 +4,15 @@ import java.util
 
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import org.apache.spark.sql.{Dataset, Row}
 
+import collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
 /**
-  * Suggestable merge property preparator.
+  * Suggestable merge property preparator to merge more than two columns into one.
   *
   * @author Lan Jiang
   * @since 2019-04-17
@@ -39,24 +40,24 @@ class SuggestableMergeProperty(var attributes: List[String], var connector: Stri
     *                       or a subset of the rows of the data.
     * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
     **/
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
-    val columns = dataset.columns.toSeq
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
+    val columnNames = dataset.columns.toSeq
     // Todo: column combination size can be more than 2
 
     val score = dataset.columns.length match {
-      case 0 => 0 // the dataset is empty Todo: maybe an exception should be thrown.
-      case 1 => 0 // interleaving does not work for only one column
+      case 0 => 0f // the dataset is empty Todo: maybe an exception should be thrown.
+      case 1 => 0f // cannot merge only one column
       case 2 => {
         calApplicabilityInterleave(dataset, targetMetadata) // calculate the interleaving score
       }
       case 3 => {
         callApplicabilityDate(schemaMapping, dataset, targetMetadata) // calculate the merging date score
       }
-      case _ => 0 // currently interleaving does not support more than three columns.
+      case _ => 0f // currently interleaving does not support more than three columns.
     }
 
     // fill the parameters
-    this.attributes = columns.toList
+    this.attributes = columnNames.toList
     score
   }
 
@@ -73,31 +74,24 @@ class SuggestableMergeProperty(var attributes: List[String], var connector: Stri
     * @return a score between zero and one inclusively, indicating the how possible these two columns are interleaving each other.
     */
   private def calApplicabilityInterleave(dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+    // for each row, one and only one cell is null
+    val onlyOneNoneScore = dataset.filter(row => {
+      // now use spark's built-in null checker
+      !row.isNullAt(0).equals(row.isNullAt(1))
+    }).count / dataset.count().toFloat
 
-    // calculate the interleaving degree score
-    dataset.columns.size match {
-      case 2 => {
-        // for each row, one and only one cell is null
-        val OnlyOneNoneScore = dataset.filter(row => {
-          // now use spark's built-in null checker
-          !row.isNullAt(0).equals(row.isNullAt(1))
-        }).count / dataset.count.toFloat
-
-        // values of the two columns should be semantically similar
-        val dataTypeArray = dataset.dtypes.unzip._2
-        // check whether two columns have the same data type
-        val sameDataTypeScore = dataTypeArray(0).equals(dataTypeArray(1)) match {
-          case true => 1
-          case false => 0 // different data types indicate column heterogeneity, and therefore these two columns are not interleaving each other.
-        }
-
-        // Todo: inspect the content semantics. Now only data type is considered.
-        // Todo: Idea: measure the distribution of values after merging these two columns.
-
-        OnlyOneNoneScore * sameDataTypeScore.toFloat
-      }
-      case _ => throw new RuntimeException("The input dataset does not contain 2 columns.")
+    // values of the two columns should be semantically similar
+    val dataTypeArray = dataset.dtypes.map(_._2)
+    // check whether two columns have the same data type
+    val sameDataTypeScore = dataTypeArray(0).equals(dataTypeArray(1)) match {
+      case true => 1
+      case false => 0 // different data types indicate column heterogeneity, and therefore these two columns are not interleaving each other.
     }
+
+    // Todo: inspect the content semantics. Now only data type is considered.
+    // Todo: Idea: measure the distribution of values after merging these two columns.
+
+    onlyOneNoneScore * sameDataTypeScore.toFloat
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,6 +238,10 @@ class SuggestableMergeProperty(var attributes: List[String], var connector: Stri
                 case Failure(exception) => throw exception
               }
             })
+  }
+
+  override def getAffectedProperties: util.List[String] = {
+    attributes.asJava
   }
 
   override def toString = s"SuggestableMergeProperty($attributes, $connector)"

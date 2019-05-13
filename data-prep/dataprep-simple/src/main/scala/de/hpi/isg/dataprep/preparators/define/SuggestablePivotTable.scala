@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import de.hpi.isg.dataprep.preparators.define.AggregationFunction.AggregationFunction
 import org.apache.spark.sql.types.NumericType
@@ -29,7 +30,7 @@ class SuggestablePivotTable(var rowProperty: String,
 
   override def buildMetadataSetup(): Unit = ???
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     // Executing a pivot table preparator requires three columns in the parameters: two for the two dimensions and the rest one for
     // the values in the pivoted table.
     // In this implementation, we stipulate that the parameter dataset must have three columns to allow a applicability calculation.
@@ -56,7 +57,12 @@ class SuggestablePivotTable(var rowProperty: String,
     }
   }
 
+  override def getAffectedProperties: util.List[String] = {
+    convertToPropertyList(rowProperty, columnProperty, valueProperty)
+  }
+
   override def toString = s"SuggestablePivotTable($rowProperty, $columnProperty, $valueProperty, $aggregationFunction)"
+
 }
 
 object AggregationFunction extends Enumeration {

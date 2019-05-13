@@ -4,13 +4,14 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.PropertyDataType
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
 import de.hpi.isg.dataprep.preparators.implementation.SplitPropertyUtils.Separator
 import de.hpi.isg.dataprep.util.DataType
-import org.apache.spark.sql.{DataFrame, Encoders}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoders, Row}
 
 class SplitProperty(var propertyName: Option[String], var separator: Option[Separator], var numCols: Option[Int], var fromLeft: Boolean) extends AbstractPreparator {
   def this(propertyName: String, separator: Separator, numCols: Int, fromLeft: Boolean = true) {
@@ -47,7 +48,7 @@ class SplitProperty(var propertyName: Option[String], var separator: Option[Sepa
     prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataFrame: DataFrame, targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataFrame: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     if (dataFrame.columns.length != 1) return 0
     val propertyName = dataFrame.columns(0)
     val numCols = schemaMapping.getTargetBySourceAttributeNameExcludeSelf(propertyName).size()

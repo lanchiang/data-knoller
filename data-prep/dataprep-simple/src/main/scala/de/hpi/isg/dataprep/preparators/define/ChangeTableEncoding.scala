@@ -6,9 +6,10 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException
 import de.hpi.isg.dataprep.metadata.{CSVSourcePath, UsedEncoding}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -74,7 +75,7 @@ class ChangeTableEncoding() extends AbstractPreparator {
     Option(metadata.getUsedEncoding)
   }
 
-  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+  override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     val csvPath = this.getCsvPath.getOrElse(return 0)
     val csvFile = new File(csvPath)
 

@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import org.apache.spark.sql.{Dataset, Row, functions}
 import org.apache.spark.sql.functions.udf
 import spire.std.float
@@ -192,7 +193,7 @@ class MergeAttribute(var attributes: List[String], var connector: String, val ha
 	  *                       or a subset of the rows of the data.
 	  * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
 	  **/
-	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
+	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
 		import dataset.sparkSession.implicits._
 		val columns = dataset.columns.toSeq
 		if (columns.length == 3)

@@ -11,9 +11,7 @@ import org.apache.spark.util.CollectionAccumulator
   * @author Lan Jiang
   * @since 2019-05-09
   */
-class DefaultSuggestableTransposeImpl extends AbstractPreparatorImpl {
+class DefaultSuggestableDeletePropertyImpl extends AbstractPreparatorImpl {
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row],
-                                      errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    ???
-  }
+                                      errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = ???
 }

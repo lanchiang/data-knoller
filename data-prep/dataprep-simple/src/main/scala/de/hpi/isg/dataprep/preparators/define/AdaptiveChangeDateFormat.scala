@@ -4,9 +4,10 @@ import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
+import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.{ChangeDateFormatUtils, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
@@ -61,8 +62,7 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       * @return the applicability matrix succinctly represented by a hash map. Each key stands for
       *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
       */
-    override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row],
-                                  targetMetadata: util.Collection[Metadata]): Float = {
+    override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
       if (alreadyApplied(targetMetadata)) {
         return 0
       }

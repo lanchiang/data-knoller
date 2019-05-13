@@ -34,7 +34,7 @@ public class DecisionEngine implements Engine {
     /**
      * The maximum cardinality of the column combinations
      */
-    private final static int MAX_COLUMN_COMBINATION_SIZE = 3;
+    private final static int MAX_COLUMN_COMBINATION_SIZE = 2;
 
     /**
      * The package path of the preparator classes
@@ -183,7 +183,7 @@ public class DecisionEngine implements Engine {
             System.out.println(colNameCombination);
 
             for (AbstractPreparator preparator : preparators) {
-                float score = preparator.calApplicability(schemaMapping, dataSlice, targetMetadata);
+                float score = preparator.calApplicability(schemaMapping, dataSlice, targetMetadata, pipeline);
                 // the same preparator: only with the same class name
                 float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
                 if (currentScore==Float.MIN_VALUE) {
@@ -239,7 +239,7 @@ public class DecisionEngine implements Engine {
                 .filter(preparator -> preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.TABLE_BASED))
                 .collect(Collectors.toSet());
         for (AbstractPreparator tableBasedPreparator : tableBasedPreparators) {
-            float score = tableBasedPreparator.calApplicability(null, dataset, null);
+            float score = tableBasedPreparator.calApplicability(null, dataset, null, pipeline);
             scores.put(tableBasedPreparator, score);
 
             // add the suggested preparator to the result list.
@@ -282,7 +282,7 @@ public class DecisionEngine implements Engine {
             System.out.println(colNameCombination);
 
             for (AbstractPreparator preparator : columnBasedPreparators) {
-                float score = preparator.calApplicability(null, dataSlice, null);
+                float score = preparator.calApplicability(null, dataSlice, null, pipeline);
                 // the same preparator: only with the same class name
                 float currentScore = scores.getOrDefault(preparator, Float.MIN_VALUE);
                 if (currentScore==Float.MIN_VALUE) {
