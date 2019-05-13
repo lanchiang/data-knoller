@@ -261,7 +261,8 @@ public class DecisionEngine implements Engine {
 
         // consider only column based preparators for column subset iteration.
         Set<AbstractPreparator> columnBasedPreparators = preparators.stream()
-                .filter(preparator -> preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.COLUMN_BASED))
+                .filter(preparator -> preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.COLUMN_BASED)
+                || preparator.getPreparatorTarget().equals(AbstractPreparator.PreparatorTarget.ROW_BASED))
                 .collect(Collectors.toSet());
 
         while (iterator.hasNext()) {
