@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.framework;
 
 import de.hpi.isg.dataprep.config.DataLoadingConfig;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -16,6 +17,7 @@ public class AddRecommendedPreparatorTest extends DataLoadingConfig {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Ignore
     @Test
     public void addRecommendedPreparationTest() {
 //        expectedException.expect(RuntimeException.class);

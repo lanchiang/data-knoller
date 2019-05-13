@@ -2,6 +2,7 @@ package de.hpi.isg.dataprep.experiment
 
 import de.hpi.isg.dataprep.components.DecisionEngine
 import de.hpi.isg.dataprep.utils.SimplePipelineBuilder
+import org.junit.Assert
 import org.scalatest.{BeforeAndAfterEach, FlatSpecLike, Matchers}
 
 /**
@@ -17,9 +18,9 @@ class SuggestableFilterTest extends FlatSpecLike with Matchers with BeforeAndAft
     val decisionEngine = DecisionEngine.getInstance()
     decisionEngine.setPreparatorCandidates(Array("SuggestableFilter"))
 
-    val actualPreparator = decisionEngine.selectBestPreparators(pipeline).getSuggestedPreparators.toSeq(0).getPreparator
+    val actualPreparators = decisionEngine.selectBestPreparators(pipeline).getSuggestedPreparators.toSeq
 
-    None
+    Assert.assertEquals(actualPreparators.length, 0)
   }
 
   "The calApplicability" should "returns correct score of filter preparator for filter_test2.csv" in {
