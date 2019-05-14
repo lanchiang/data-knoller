@@ -51,20 +51,20 @@ class SuggestPreparatorTest extends FlatSpecLike with Matchers with BeforeAndAft
 
     val suggestedList = decisionEngine.selectBestPreparators(pipeline)
 
-    // Todo: this is just for showing experiments, remove it after shown.
-    try {
-      val bufferedWriter = new BufferedWriter(
-        new FileWriter("/Users/Fuga/Documents/HPI/data-preparation/Suggestion/results/first_preparator_suggestlist"
-                .concat("/14_16_Feb_DD_agile.txt")))
-      for (suggestedPreparator <- suggestedList.getSuggestedPreparators) {
-        bufferedWriter.write(suggestedPreparator.toString)
-        bufferedWriter.newLine()
-      }
-      bufferedWriter.close()
-    } catch {
-      case e: IOException =>
-        e.printStackTrace()
-    }
+//    // Todo: this is just for showing experiments, remove it after shown.
+//    try {
+//      val bufferedWriter = new BufferedWriter(
+//        new FileWriter("/Users/Fuga/Documents/HPI/data-preparation/Suggestion/results/first_preparator_suggestlist"
+//                .concat("/14_16_Feb_DD_agile.txt")))
+//      for (suggestedPreparator <- suggestedList.getSuggestedPreparators) {
+//        bufferedWriter.write(suggestedPreparator.toString)
+//        bufferedWriter.newLine()
+//      }
+//      bufferedWriter.close()
+//    } catch {
+//      case e: IOException =>
+//        e.printStackTrace()
+//    }
   }
 
   "The decision engine" should "suggest a list of preparators for the first preparation step for NCHS_-_Death_rates_and_life_expectancy_at_birth.csv dataset" in {
@@ -77,19 +77,19 @@ class SuggestPreparatorTest extends FlatSpecLike with Matchers with BeforeAndAft
 
     val suggestedList = decisionEngine.selectBestPreparators(pipeline)
 
-    // Todo: this is just for showing experiments, remove it after shown.
-    try {
-      val bufferedWriter = new BufferedWriter(
-        new FileWriter("/Users/Fuga/Documents/HPI/data-preparation/Suggestion/results/first_preparator_suggestlist"
-                .concat("/NCHS_-_Death_rates_and_life_expectancy_at_birth.txt")))
-      for (suggestedPreparator <- suggestedList.getSuggestedPreparators) {
-        bufferedWriter.write(suggestedPreparator.toString)
-        bufferedWriter.newLine()
-      }
-      bufferedWriter.close()
-    } catch {
-      case e: IOException =>
-        e.printStackTrace()
-    }
+//    // Todo: this is just for showing experiments, remove it after shown.
+//    try {
+//      val bufferedWriter = new BufferedWriter(
+//        new FileWriter("/Users/Fuga/Documents/HPI/data-preparation/Suggestion/results/first_preparator_suggestlist"
+//                .concat("/NCHS_-_Death_rates_and_life_expectancy_at_birth.txt")))
+//      for (suggestedPreparator <- suggestedList.getSuggestedPreparators) {
+//        bufferedWriter.write(suggestedPreparator.toString)
+//        bufferedWriter.newLine()
+//      }
+//      bufferedWriter.close()
+//    } catch {
+//      case e: IOException =>
+//        e.printStackTrace()
+//    }
   }
 }
