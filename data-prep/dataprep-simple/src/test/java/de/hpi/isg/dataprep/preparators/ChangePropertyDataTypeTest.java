@@ -4,7 +4,6 @@ import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
         ;
 import de.hpi.isg.dataprep.components.Preparation;
-import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.preparators.define.ChangeDataType;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
@@ -26,8 +25,8 @@ public class ChangePropertyDataTypeTest extends DataLoadingConfig {
 
     @BeforeClass
     public static void setUp() {
-        transforms = DataLoadingConfig.createTransformsManually();
-        DataLoadingConfig.setUp();
+//        transforms = DataLoadingConfig.createTransformsManually();
+        DataLoadingConfig.basicSetup();
     }
 
     @Test

@@ -22,8 +22,8 @@ public class CollapseTest extends DataLoadingConfig {
 
     @BeforeClass
     public static void setUp() {
-        transforms = DataLoadingConfig.createTransformsManually();
-        DataLoadingConfig.setUp();
+//        transforms = DataLoadingConfig.createTransformsManually();
+        DataLoadingConfig.basicSetup();
     }
 
     @Test

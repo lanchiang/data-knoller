@@ -57,6 +57,23 @@ public class DataLoadingConfig {
         dataContext = dataLoader.load();
     }
 
+    public static void basicSetup() {
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
+
+        // generate target metadata
+        targetMetadata = createTargetMetadataManually();
+
+        dialect = new DialectBuilder()
+                .hasHeader(true)
+                .inferSchema(true)
+                .url(resourcePath)
+                .buildDialect();
+
+        SparkDataLoader dataLoader = new FlatFileDataLoader(dialect, targetMetadata, new ArrayList<>());
+        dataContext = dataLoader.load();
+    }
+
     @Before
     public void cleanUpPipeline() {
         pipeline = new Pipeline(dataContext);
