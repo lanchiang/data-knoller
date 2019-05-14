@@ -1,21 +1,16 @@
 package de.hpi.isg.dataprep.metadata;
 
-import de.hpi.isg.dataprep.exceptions.DuplicateMetadataException;
-import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException;
-import de.hpi.isg.dataprep.exceptions.MetadataNotMatchException;
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author Lukas Behrendt, Oliver Clasen, Lisa Ihde
  * @since 2019/01/19
  */
-public class UsedEncoding extends Metadata {
+public class UsedEncoding extends MetadataOld {
     private String usedEncoding;
 
     private UsedEncoding() {
@@ -33,25 +28,25 @@ public class UsedEncoding extends Metadata {
 
     @Override
     public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
-        List<UsedEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
-                .filter(metadata -> metadata instanceof UsedEncoding)
-                .map(metadata -> (UsedEncoding) metadata)
-                .collect(Collectors.toList());
-
-        if (matchedInRepo.size() == 0) {
-            throw new MetadataNotFoundException(String.format("Metadata %s not found in the repository.", getClass().getSimpleName()));
-        } else if (matchedInRepo.size() > 1) {
-            throw new DuplicateMetadataException(String.format("Multiple pieces of metadata %s found in the repository.", getClass().getSimpleName()));
-        } else {
-            UsedEncoding metadataInRepo = matchedInRepo.get(0);
-            if (!getUsedEncoding().equals(metadataInRepo.getUsedEncoding())) {
-                throw new MetadataNotMatchException("Metadata value does not match that in the repository.");
-            }
-        }
+//        List<UsedEncoding> matchedInRepo = metadataRepository.getMetadataPool().stream()
+//                .filter(metadata -> metadata instanceof UsedEncoding)
+//                .map(metadata -> (UsedEncoding) metadata)
+//                .collect(Collectors.toList());
+//
+//        if (matchedInRepo.size() == 0) {
+//            throw new MetadataNotFoundException(String.format("MetadataOld %s not found in the repository.", getClass().getSimpleName()));
+//        } else if (matchedInRepo.size() > 1) {
+//            throw new DuplicateMetadataException(String.format("Multiple pieces of metadata %s found in the repository.", getClass().getSimpleName()));
+//        } else {
+//            UsedEncoding metadataInRepo = matchedInRepo.get(0);
+//            if (!getUsedEncoding().equals(metadataInRepo.getUsedEncoding())) {
+//                throw new MetadataNotMatchException("MetadataOld value does not match that in the repository.");
+//            }
+//        }
     }
 
     @Override
-    public boolean equalsByValue(Metadata metadata) {
+    public boolean equalsByValue(MetadataOld metadata) {
         if (metadata instanceof UsedEncoding) {
             return this.usedEncoding.equals(((UsedEncoding)metadata).getUsedEncoding());
         }

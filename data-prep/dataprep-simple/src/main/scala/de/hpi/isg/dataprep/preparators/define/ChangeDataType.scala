@@ -1,21 +1,16 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.{lang, util}
+import java.util
 
+import de.hpi.isg.dataprep.Metadata
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
-import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
-import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDataTypeImpl
-import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import collection.JavaConversions._
 
 /**
   *
@@ -64,47 +59,47 @@ class ChangeDataType extends AbstractPreparator {
   override def buildMetadataSetup(): Unit = {
     val prerequisites = new ListBuffer[Metadata]
     val toChange = new ListBuffer[Metadata]
-
-    if (propertyName == null) {
-      throw new ParameterNotSpecifiedException("Property name not specified!")
-    }
-    if (targetType == null) {
-      throw new ParameterNotSpecifiedException("Target data type not specified!")
-    } else {
-      toChange.add(new PropertyDataType(propertyName, targetType))
-    }
-
-    if (sourceType != null) {
-      prerequisites += new PropertyDataType(propertyName, sourceType)
-    }
-    else {
-      // use the value in the metadata repository.
-      val metadataRepository = this.getPreparation.getPipeline.getMetadataRepository
-      val sourceTypeMetadata = new PropertyDataType(propertyName, sourceType)
-      if (metadataRepository.getMetadataPool.contains(sourceTypeMetadata)) {
-        prerequisites += metadataRepository.getMetadata(sourceTypeMetadata);
-      }
-    }
-
-    if (targetType == DataType.PropertyType.DATE) {
-      if (sourceDatePattern != null) {
-        prerequisites += new PropertyDatePattern(sourceDatePattern, new ColumnMetadata(propertyName))
-      }
-      else {
-        // use the value in the metadata repository.
-        val metadataRepository = this.getPreparation.getPipeline.getMetadataRepository
-        val sourceDatePatternMetadata = new PropertyDatePattern(sourceDatePattern, new ColumnMetadata(propertyName))
-        if (metadataRepository.getMetadataPool.contains(sourceDatePatternMetadata)) {
-          prerequisites += sourceDatePatternMetadata
-        }
-      }
-      if (targetDatePattern == null) {
-        throw new ParameterNotSpecifiedException("Change to DATE type but target date pattern not specified!")
-      }
-      else {
-        toChange.add(new PropertyDatePattern(targetDatePattern, new ColumnMetadata(propertyName)))
-      }
-    }
+//
+//    if (propertyName == null) {
+//      throw new ParameterNotSpecifiedException("Property name not specified!")
+//    }
+//    if (targetType == null) {
+//      throw new ParameterNotSpecifiedException("Target data type not specified!")
+//    } else {
+//      toChange.add(new PropertyDataType(propertyName, targetType))
+//    }
+//
+//    if (sourceType != null) {
+//      prerequisites += new PropertyDataType(propertyName, sourceType)
+//    }
+//    else {
+//      // use the value in the metadata repository.
+//      val metadataRepository = this.getPreparation.getPipeline.getMetadataRepository
+//      val sourceTypeMetadata = new PropertyDataType(propertyName, sourceType)
+//      if (metadataRepository.getMetadataPool.contains(sourceTypeMetadata)) {
+//        prerequisites += metadataRepository.getMetadata(sourceTypeMetadata);
+//      }
+//    }
+//
+//    if (targetType == DataType.PropertyType.DATE) {
+//      if (sourceDatePattern != null) {
+//        prerequisites += new PropertyDatePattern(sourceDatePattern, new ColumnMetadata(propertyName))
+//      }
+//      else {
+//        // use the value in the metadata repository.
+//        val metadataRepository = this.getPreparation.getPipeline.getMetadataRepository
+//        val sourceDatePatternMetadata = new PropertyDatePattern(sourceDatePattern, new ColumnMetadata(propertyName))
+//        if (metadataRepository.getMetadataPool.contains(sourceDatePatternMetadata)) {
+//          prerequisites += sourceDatePatternMetadata
+//        }
+//      }
+//      if (targetDatePattern == null) {
+//        throw new ParameterNotSpecifiedException("Change to DATE type but target date pattern not specified!")
+//      }
+//      else {
+//        toChange.add(new PropertyDatePattern(targetDatePattern, new ColumnMetadata(propertyName)))
+//      }
+//    }
 
     this.prerequisites.addAll(prerequisites.toList)
     this.updates.addAll(toChange.toList)

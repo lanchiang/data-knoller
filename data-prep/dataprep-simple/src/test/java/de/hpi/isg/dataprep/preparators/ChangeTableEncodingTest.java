@@ -101,7 +101,7 @@ public class ChangeTableEncodingTest {
     public void testFileNotFoundHandling() throws Exception {
         DataContext context = load(ERRORS_URL);
         Pipeline pipeline = new Pipeline(context);
-        pipeline.getMetadataRepository().reset();
+        pipeline.getMetadataRepository().clear();
 
         FileLoadDialect newDialect = dialectBuilder.url(NON_EXISTENT_URL).buildDialect();
         pipeline.setDialect(newDialect);

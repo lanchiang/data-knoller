@@ -1,10 +1,6 @@
 package de.hpi.isg.dataprep;
 
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
-
-import java.util.Set;
 
 /**
  * The builder of a {@link FileLoadDialect}

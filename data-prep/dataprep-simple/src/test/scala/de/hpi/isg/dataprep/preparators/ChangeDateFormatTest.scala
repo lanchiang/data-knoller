@@ -2,12 +2,11 @@ package de.hpi.isg.dataprep.preparators
 
 import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDatePattern
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.preparators.define.ChangeDateFormat
 import de.hpi.isg.dataprep.preparators.implementation.{DateRegex, DefaultChangeDateFormatImpl}
 import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import de.hpi.isg.dataprep.{DateFormat, Metadata, Property}
 
 import scala.collection.JavaConverters._
 
@@ -115,7 +114,7 @@ class ChangeDateFormatTest extends DataLoadingConfigScala {
   it should "return 0.0 if the preparator was already executed" in {
     val preparator = ChangeDateFormat("date", DatePatternEnum.DayMonthYear)
     val pokemonData = pipeline.getDataset.select("date")
-    val metadata: Set[Metadata] = Set(new PropertyDatePattern(DatePatternEnum.DayMonthYear, new ColumnMetadata("date")))
+    val metadata: Set[Metadata] = Set(new DateFormat(Property("date"), DatePatternEnum.DayMonthYear.getPattern))
     val score = preparator.calApplicability(null, pokemonData, metadata.asJavaCollection, null)
     score shouldEqual 0.0f
   }

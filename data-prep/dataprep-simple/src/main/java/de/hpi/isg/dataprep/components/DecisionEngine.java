@@ -1,8 +1,8 @@
 package de.hpi.isg.dataprep.components;
 
+import de.hpi.isg.dataprep.Metadata;
 import de.hpi.isg.dataprep.iterator.SubsetIterator;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.results.SuggestedPreparator;
 import de.hpi.isg.dataprep.model.target.results.SuggestionResults;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
@@ -280,7 +280,7 @@ public class DecisionEngine implements Engine {
             columnArr = columns.toArray(columnArr);
             Dataset<Row> dataSlice = dataset.select(columnArr);
 
-//            System.out.println(colNameCombination);
+            System.out.println(colNameCombination);
 
             for (AbstractPreparator preparator : columnBasedPreparators) {
                 float score = preparator.calApplicability(null, dataSlice, null, pipeline);
@@ -373,7 +373,7 @@ public class DecisionEngine implements Engine {
         int fulfilledCount = (int) targetMetadata.stream().filter(metadata -> {
             Metadata stored = metadataRepository.getMetadata(metadata);
             if (stored != null) {
-                return stored.equalsByValue(metadata);
+                return stored.equals(metadata);
             } else {
                 return false;
             }

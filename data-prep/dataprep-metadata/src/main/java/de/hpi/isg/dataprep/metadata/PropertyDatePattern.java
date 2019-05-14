@@ -2,17 +2,15 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
 import de.hpi.isg.dataprep.util.DatePattern;
-
-import java.util.Objects;
 
 /**
  * @author Lan Jiang
  * @since 2018/8/26
  */
-public class PropertyDatePattern extends Metadata {
+public class PropertyDatePattern extends MetadataOld {
 
     private DatePattern.DatePatternEnum datePattern;
 
@@ -32,7 +30,7 @@ public class PropertyDatePattern extends Metadata {
     }
 
     @Override
-    public boolean equalsByValue(Metadata metadata) {
+    public boolean equalsByValue(MetadataOld metadata) {
         PropertyDatePattern that = (PropertyDatePattern) metadata;
         return this.datePattern.equals(that.datePattern);
     }

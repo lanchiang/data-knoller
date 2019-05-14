@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 import de.hpi.isg.dataprep.model.target.objects.TableMetadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * @author lan.jiang
  * @since 1/28/19
  */
-public class Schemata extends Metadata {
+public class Schemata extends MetadataOld {
 
     private List<Attribute> attributes;
 
@@ -30,7 +30,7 @@ public class Schemata extends Metadata {
     }
 
     @Override
-    public boolean equalsByValue(Metadata metadata) {
+    public boolean equalsByValue(MetadataOld metadata) {
         if(metadata instanceof Schemata) {
             long validCount = ((Schemata)metadata).attributes.stream().filter(attribute -> this.attributes.contains(attribute)).count();
             return validCount == attributes.size();

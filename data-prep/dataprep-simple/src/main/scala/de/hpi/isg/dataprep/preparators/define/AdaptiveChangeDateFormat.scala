@@ -2,14 +2,11 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.{Metadata, PropertyDataType}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.{ChangeDateFormatUtils, LocalePattern, PatternCriteria}
-import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
 import org.apache.spark.sql.{Dataset, Row}
 
@@ -40,14 +37,14 @@ class AdaptiveChangeDateFormat(val propertyName : String,
 
         if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("Property name not specified."))
 
-        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
-        sourceDatePattern match {
-            case Some(pattern) => prerequisites.add(new PropertyDatePattern(pattern, new ColumnMetadata(propertyName)))
-            case None =>
-        }
-
-        toChange.add(new PropertyDatePattern(targetDatePattern, new ColumnMetadata(propertyName)))
+//        sourceDatePattern match {
+//            case Some(pattern) => prerequisites.add(new PropertyDatePattern(pattern, new ColumnMetadata(propertyName)))
+//            case None =>
+//        }
+//
+//        toChange.add(new PropertyDatePattern(targetDatePattern, new ColumnMetadata(propertyName)))
 
         this.prerequisites.addAll(prerequisites)
         this.updates.addAll(toChange)
@@ -58,7 +55,7 @@ class AdaptiveChangeDateFormat(val propertyName : String,
       *
       * @param schemaMapping  is the schema of the input data
       * @param dataset        is the input dataset
-      * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
+      * @param targetMetadata is the set of { @link MetadataOld} that shall be fulfilled for the output data
       * @return the applicability matrix succinctly represented by a hash map. Each key stands for
       *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
       */
@@ -112,17 +109,18 @@ class AdaptiveChangeDateFormat(val propertyName : String,
     * @return true if the required metadata is already in the target metadata set
     */
   def alreadyApplied(targetMetadataSet: util.Collection[Metadata]): Boolean = {
-    updates.asScala.filter(metadata => containByValue(metadata, targetMetadataSet)).size match {
-      case count if count > 0 => true
-      case _ => false
-    }
+//    updates.asScala.filter(metadata => containByValue(metadata, targetMetadataSet)).size match {
+//      case count if count > 0 => true
+//      case _ => false
+//    }
+    false
   }
 
-  def containByValue(metadata: Metadata, collection: util.Collection[Metadata]): Boolean = {
-    val contain = collection.asScala.filter(target => target.equalsByValue(metadata)).size match {
-      case count if count > 0 => true
-      case _ => false
-    }
-    contain
-  }
+//  def containByValue(metadata: MetadataOld, collection: util.Collection[MetadataOld]): Boolean = {
+//    val contain = collection.asScala.filter(target => target.equalsByValue(metadata)).size match {
+//      case count if count > 0 => true
+//      case _ => false
+//    }
+//    contain
+//  }
 }

@@ -8,5 +8,4 @@ public class UnsupportedLanguageException extends Exception {
     UnsupportedLanguageException(String message){
         super(message);
     }
-
 }

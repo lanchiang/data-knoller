@@ -2,11 +2,11 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.{lang, util}
 
+import de.hpi.isg.dataprep.{Metadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import org.apache.spark.sql.{Dataset, Row}
@@ -19,7 +19,7 @@ class SplitFile(val fileSeparator: String = "") extends AbstractPreparator {
     val prerequisites = ListBuffer[Metadata]()
     val toChange = ListBuffer[Metadata]()
 
-    prerequisites += new PropertyDataType(fileSeparator, PropertyType.STRING)
+//    prerequisites += new PropertyDataType(fileSeparator, PropertyType.STRING)
 
     if (fileSeparator == null) {
       throw new ParameterNotSpecifiedException("If you dont wont to use the separator please just leave out the field.")

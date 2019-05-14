@@ -1,15 +1,11 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import de.hpi.isg.dataprep.ExecutionContext
+import de.hpi.isg.dataprep.{DataFile, Delimiter, ExecutionContext, Property, Table}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-
-import de.hpi.isg.dataprep.metadata.Delimiter
 import de.hpi.isg.dataprep.model.error.PreparationError
-import de.hpi.isg.dataprep.model.target.objects.TableMetadata
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.ChangeDelimiter
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
 
 
@@ -25,7 +21,7 @@ class DefaultChangeDelimiterImpl extends AbstractPreparatorImpl {
     val targetDelimiter = preparator.targetDelimiter
 
     // for the preparators that changes table-level metadata, simply update the metadata repository.
-    val delimiter = new Delimiter(targetDelimiter, new TableMetadata(tableName))
+    val delimiter = new Delimiter(new DataFile("fake_filename", new Table(tableName, Array.empty[Property])), targetDelimiter)
 
     preparator.getPreparation.getPipeline.getMetadataRepository.update(delimiter)
 

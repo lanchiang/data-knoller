@@ -2,13 +2,10 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
-import org.apache.spark.sql.{Dataset, Row, functions}
-import org.apache.spark.sql.functions.udf
-import spire.std.float
+import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
 
@@ -160,7 +157,7 @@ class MergeAttribute(var attributes: List[String], var connector: String, val ha
 	  * @param schemaMapping  is the schema of the input data towards the schema of the output data.
 	  * @param dataset        is the input dataset slice. A slice can be a subset of the columns of the data,
 	  *                       or a subset of the rows of the data.
-	  * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
+	  * @param targetMetadata is the set of { @link MetadataOld} that shall be fulfilled for the output data
 	  * @return 0 if list of rows is not (day, month, year) or more or less than 3 columns are given. returns 1 if date if found
 	  */
 	def callApplicabilityDate(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata]): Float = {
@@ -191,7 +188,7 @@ class MergeAttribute(var attributes: List[String], var connector: String, val ha
 	  * @param schemaMapping  is the schema of the input data towards the schema of the output data.
 	  * @param dataset        is the input dataset slice. A slice can be a subset of the columns of the data,
 	  *                       or a subset of the rows of the data.
-	  * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
+	  * @param targetMetadata is the set of { @link MetadataOld} that shall be fulfilled for the output data
 	  **/
 	override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
 		import dataset.sparkSession.implicits._

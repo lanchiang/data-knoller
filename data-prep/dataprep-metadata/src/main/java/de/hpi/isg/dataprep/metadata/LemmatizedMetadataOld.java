@@ -5,29 +5,22 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.objects.ColumnMetadata;
 import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 
-/**
- * @author lan.jiang
- * @since 1/28/19
- */
-public class PropertyExistence extends MetadataOld {
+public class LemmatizedMetadataOld extends MetadataOld {
 
-    private boolean propertyExist;
-
-    public PropertyExistence(String propertyName, boolean propertyExist) {
-        super(PropertyExistence.class.getSimpleName());
-        this.propertyExist = propertyExist;
-        this.scope = new ColumnMetadata(propertyName);
+    public LemmatizedMetadataOld() {
+        super(LemmatizedMetadataOld.class.getSimpleName());
     }
 
-    public boolean isPropertyExist() {
-        return propertyExist;
+    public LemmatizedMetadataOld(String propertyName) {
+        this();
+        this.scope = new ColumnMetadata(propertyName);
     }
 
     @Override
     public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException {
-//        List<PropertyExistence> matchedInRepo = metadataRepository.getMetadataPool().stream()
-//                .filter(metadata -> metadata instanceof PropertyExistence)
-//                .map(metadata -> (PropertyExistence) metadata)
+//        List<LemmatizedMetadataOld> matchedInRepo = metadataRepository.getMetadataPool().stream()
+//                .filter(metadata -> metadata instanceof LemmatizedMetadataOld)
+//                .map(metadata -> (LemmatizedMetadataOld) metadata)
 //                .filter(metadata -> metadata.equals(this))
 //                .collect(Collectors.toList());
 //
@@ -37,7 +30,7 @@ public class PropertyExistence extends MetadataOld {
 //            throw new DuplicateMetadataException(String.format("MetadataOld %s has multiple data type for property: %s",
 //                    this.getClass().getSimpleName(), this.scope.getName()));
 //        } else {
-//            PropertyExistence metadataInRepo = matchedInRepo.get(0);
+//            LemmatizedMetadataOld metadataInRepo = matchedInRepo.get(0);
 //            if (!this.equalsByValue(metadataInRepo)) {
 //                // value of this metadata does not match that in the repository.
 //                throw new MetadataNotMatchException(String.format("MetadataOld value does not match that in the repository."));
@@ -47,6 +40,6 @@ public class PropertyExistence extends MetadataOld {
 
     @Override
     public boolean equalsByValue(MetadataOld metadata) {
-        return ((PropertyExistence)metadata).isPropertyExist() == this.propertyExist;
+        return metadata instanceof LemmatizedMetadataOld;
     }
 }

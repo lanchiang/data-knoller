@@ -1,23 +1,6 @@
 package de.hpi.isg.dataprep.preparators;
 
-import de.hpi.isg.dataprep.components.Preparation;
 import de.hpi.isg.dataprep.config.DataLoadingConfig;
-import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
-import de.hpi.isg.dataprep.metadata.LanguageMetadata;
-import de.hpi.isg.dataprep.model.repository.ErrorRepository;
-import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
-import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
-import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
-import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator;
-import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator;
-import org.apache.spark.sql.Encoders;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.util.*;
 
 public class DetectLanguageTest extends DataLoadingConfig {
 
@@ -40,10 +23,10 @@ public class DetectLanguageTest extends DataLoadingConfig {
 //        ErrorRepository errorRepository = new ErrorRepository(errorLogs);
 //        Assert.assertEquals(errorRepository, pipeline.getErrorRepository());
 //
-//        Map<Integer, LanguageMetadata.LanguageEnum> langMapping = new HashMap<>();
-//        langMapping.put(0, LanguageMetadata.LanguageEnum.SPANISH);
-//        langMapping.put(1, LanguageMetadata.LanguageEnum.ENGLISH);
-//        Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LanguageMetadata("stemlemma", langMapping)));
+//        Map<Integer, LanguageMetadataOld.LanguageEnum> langMapping = new HashMap<>();
+//        langMapping.put(0, LanguageMetadataOld.LanguageEnum.SPANISH);
+//        langMapping.put(1, LanguageMetadataOld.LanguageEnum.ENGLISH);
+//        Assert.assertTrue(pipeline.getMetadataRepository().containByValue(new LanguageMetadataOld("stemlemma", langMapping)));
 //    }
 //
 //    @Test
@@ -61,13 +44,13 @@ public class DetectLanguageTest extends DataLoadingConfig {
 //
 //        PreparationErrorLog italianError = (PreparationErrorLog) realErrorLogs.get(0);
 //        Assert.assertEquals("DetectLanguagePreparator", italianError.getPreparation().getName());
-//        Assert.assertEquals("LanguageMetadata class org.languagetool.language.Italian not supported",
+//        Assert.assertEquals("LanguageMetadataOld class org.languagetool.language.Italian not supported",
 //                            italianError.getErrorMessage());
 //        Assert.assertEquals("stemlemma", italianError.getValue());
 //
 //        PreparationErrorLog bretonError = (PreparationErrorLog) realErrorLogs.get(1);
 //        Assert.assertEquals("DetectLanguagePreparator", bretonError.getPreparation().getName());
-//        Assert.assertEquals("LanguageMetadata class org.languagetool.language.Breton not supported",
+//        Assert.assertEquals("LanguageMetadataOld class org.languagetool.language.Breton not supported",
 //                bretonError.getErrorMessage());
 //        Assert.assertEquals("stemlemma", bretonError.getValue());
 //    }

@@ -4,10 +4,11 @@ import java.io.{File, FileNotFoundException}
 import java.nio.file.{Files, Paths}
 import java.util
 
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.exceptions.MetadataNotFoundException
 import de.hpi.isg.dataprep.metadata.{CSVSourcePath, UsedEncoding}
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import org.apache.spark.SparkContext
@@ -64,15 +65,17 @@ class ChangeTableEncoding() extends AbstractPreparator {
   }
 
   def getCsvPath: Option[String] = {
-    val dummyMetadata = new CSVSourcePath("")
-    val metadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[CSVSourcePath]
-    Option(metadata.getPath)
+//    val dummyMetadata = new CSVSourcePath("")
+//    val metadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[CSVSourcePath]
+//    Option(metadata.getPath)
+    ???
   }
 
   def getCurrentEncoding: Option[String] = {
-    val dummyMetadata = new UsedEncoding("")
-    val metadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[UsedEncoding]
-    Option(metadata.getUsedEncoding)
+//    val dummyMetadata = new UsedEncoding("")
+//    val metadata = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(dummyMetadata).asInstanceOf[UsedEncoding]
+//    Option(metadata.getUsedEncoding)
+    ???
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {

@@ -1,7 +1,7 @@
 package de.hpi.isg.dataprep.io.context;
 
+import de.hpi.isg.dataprep.Metadata;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;

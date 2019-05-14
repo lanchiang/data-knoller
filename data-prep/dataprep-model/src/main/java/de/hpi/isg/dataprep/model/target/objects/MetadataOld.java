@@ -6,26 +6,22 @@ import de.hpi.isg.dataprep.model.target.Target;
 import de.hpi.isg.dataprep.util.Nameable;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * The super class of all {@link Metadata}.
+ * The super class of all {@link MetadataOld}.
  *
  * @author Lan Jiang
  * @since 2018/8/25
  */
-abstract public class Metadata extends Target implements Serializable, Nameable {
+abstract public class MetadataOld extends Target implements Serializable, Nameable {
 
     private static final long serialVersionUID = 1863322602595412693L;
 
     protected MetadataScope scope;
     protected final String name;
 
-    protected Metadata(String name) {
+    protected MetadataOld(String name) {
         this.name = name;
     }
 
@@ -42,7 +38,7 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
      */
     abstract public void checkMetadata(MetadataRepository metadataRepository) throws RuntimeMetadataException;
 
-    abstract public boolean equalsByValue(Metadata metadata);
+    abstract public boolean equalsByValue(MetadataOld metadata);
 
     public void setBelongs(MetadataRepository belongs) {
         this.belongs = belongs;
@@ -67,7 +63,7 @@ abstract public class Metadata extends Target implements Serializable, Nameable 
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Metadata metadata = (Metadata) o;
+        MetadataOld metadata = (MetadataOld) o;
         return Objects.equals(scope, metadata.scope) &&
                 Objects.equals(name, metadata.name);
     }

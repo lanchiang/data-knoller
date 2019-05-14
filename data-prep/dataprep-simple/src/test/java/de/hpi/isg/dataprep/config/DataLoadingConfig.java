@@ -1,18 +1,16 @@
 package de.hpi.isg.dataprep.config;
 
 import de.hpi.isg.dataprep.DialectBuilder;
+import de.hpi.isg.dataprep.Metadata;
 import de.hpi.isg.dataprep.components.Pipeline;
 import de.hpi.isg.dataprep.io.context.DataContext;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
-import de.hpi.isg.dataprep.metadata.*;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Attribute;
 import de.hpi.isg.dataprep.model.target.schema.Transform;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.schema.transforms.TransDeleteAttribute;
-import de.hpi.isg.dataprep.util.DataType;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.types.DataTypes;
@@ -82,13 +80,13 @@ public class DataLoadingConfig {
     private static Set<Metadata> createTargetMetadataManually() {
         Set<Metadata> targetMetadata = new HashSet<>();
 
-        targetMetadata.add(new PreambleExistence(false));
-        targetMetadata.add(new PropertyExistence("month", true));
-        targetMetadata.add(new PropertyExistence("day", true));
-        targetMetadata.add(new PropertyExistence("year", true));
-        targetMetadata.add(new PropertyDataType("month", DataType.PropertyType.STRING));
-        targetMetadata.add(new PropertyDataType("day", DataType.PropertyType.STRING));
-        targetMetadata.add(new PropertyDataType("year", DataType.PropertyType.STRING));
+//        targetMetadata.add(new PreambleExistence(false));
+//        targetMetadata.add(new PropertyExistence("month", true));
+//        targetMetadata.add(new PropertyExistence("day", true));
+//        targetMetadata.add(new PropertyExistence("year", true));
+//        targetMetadata.add(new PropertyDataType("month", DataType.PropertyType.STRING));
+//        targetMetadata.add(new PropertyDataType("day", DataType.PropertyType.STRING));
+//        targetMetadata.add(new PropertyDataType("year", DataType.PropertyType.STRING));
 
         return targetMetadata;
     }

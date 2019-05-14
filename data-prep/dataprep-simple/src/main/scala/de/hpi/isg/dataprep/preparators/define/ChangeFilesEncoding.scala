@@ -4,13 +4,11 @@ import java.nio.charset.{Charset, IllegalCharsetNameException}
 import java.nio.file.{Files, Paths}
 import java.util
 
+import de.hpi.isg.dataprep.{Metadata, PropertyDataType}
 import de.hpi.isg.dataprep.exceptions.{EncodingNotSupportedException, ParameterNotSpecifiedException}
-import de.hpi.isg.dataprep.metadata.{FileEncoding, PropertyDataType}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.metadata.FileEncoding
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
-import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
 
 /**
@@ -39,8 +37,8 @@ class ChangeFilesEncoding(val propertyName: String,
       verifyEncoding(userSpecifiedSourceEncoding, target = false)
     }
 
-    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-    this.updates.add(new FileEncoding(propertyName, userSpecifiedTargetEncoding))
+//    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//    this.updates.add(new FileEncoding(propertyName, userSpecifiedTargetEncoding))
   }
 
   private def verifyEncoding(encoding: String, target: Boolean): Unit = {
@@ -60,8 +58,8 @@ class ChangeFilesEncoding(val propertyName: String,
 
     val targetEncoding = targetEncodings.find(e => e.getPropertyName.equals(propertyName)).getOrElse(return 0)
 
-    val sourceEncoding = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(targetEncoding).asInstanceOf[FileEncoding]
-    if (sourceEncoding != null && targetEncoding.getFileEncoding.equals(sourceEncoding.getFileEncoding)) return 0
+//    val sourceEncoding = this.getPreparation.getPipeline.getMetadataRepository.getMetadata(targetEncoding).asInstanceOf[FileEncoding]
+//    if (sourceEncoding != null && targetEncoding.getFileEncoding.equals(sourceEncoding.getFileEncoding)) return 0
 
     var errorCounter = 0
     dataset.foreach(row => {

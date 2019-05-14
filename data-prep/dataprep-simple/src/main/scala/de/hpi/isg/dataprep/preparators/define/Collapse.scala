@@ -2,11 +2,11 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.{lang, util}
 
+import de.hpi.isg.dataprep.{Metadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
+import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, MetadataOld}
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultCollapseImpl
 import de.hpi.isg.dataprep.util.DataType
@@ -41,7 +41,7 @@ class Collapse extends AbstractPreparator {
 
     if (propertyName == null) throw new ParameterNotSpecifiedException(String.format("%s not specified", propertyName))
     // Collapse can only be applied on String data type
-    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
     this.prerequisites.addAll(prerequisites)
     this.updates.addAll(tochanges)

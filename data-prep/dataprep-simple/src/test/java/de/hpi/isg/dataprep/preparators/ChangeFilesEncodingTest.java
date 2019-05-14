@@ -8,8 +8,7 @@ import de.hpi.isg.dataprep.config.DataLoadingConfig;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.io.load.FlatFileDataLoader;
 import de.hpi.isg.dataprep.io.load.SparkDataLoader;
-import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.preparators.define.ChangeFilesEncoding;
@@ -105,7 +104,7 @@ public class ChangeFilesEncodingTest extends DataLoadingConfig {
     // (if he hadn't set it, the preparator would detect the correct encoding and succeed)
 //    @Test
 //    public void testSourceEncodingFromMetadata() throws Exception {
-//        Metadata fakeMetadata = new FileEncoding(PROPERTY_NAME, "ASCII");
+//        MetadataOld fakeMetadata = new FileEncoding(PROPERTY_NAME, "ASCII");
 //        ChangeEncoding preparator = new MockChangeEncoding(PROPERTY_NAME, NEW_ENCODING, fakeMetadata);
 //        executePreparator(preparator);
 //        assertErrorCount((int) pipeline.getDataset().count());
@@ -218,16 +217,16 @@ public class ChangeFilesEncodingTest extends DataLoadingConfig {
 
     // This class adds fake metadata before executing the preparator
     private static class MockChangeFilesEncoding extends ChangeFilesEncoding {
-        private Metadata fakeMetadata;
+        private MetadataOld fakeMetadata;
 
-        private MockChangeFilesEncoding(String propertyName, String targetEncoding, Metadata fakeMetadata) {
+        private MockChangeFilesEncoding(String propertyName, String targetEncoding, MetadataOld fakeMetadata) {
             super(propertyName, targetEncoding);
             this.fakeMetadata = fakeMetadata;
         }
 
         @Override
         public ExecutionContext execute(Dataset<Row> dataset) throws Exception {
-            this.getPreparation().getPipeline().getMetadataRepository().update(fakeMetadata);
+//            this.getPreparation().getPipeline().getMetadataRepository().update(fakeMetadata);
             return super.execute(dataset);
         }
     }

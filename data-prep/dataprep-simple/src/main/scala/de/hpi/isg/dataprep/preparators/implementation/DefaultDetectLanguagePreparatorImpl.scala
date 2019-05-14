@@ -2,10 +2,10 @@ package de.hpi.isg.dataprep.preparators.implementation
 
 import java.util
 
-import de.hpi.isg.dataprep.ExecutionContext
+import de.hpi.isg.dataprep.{ExecutionContext, Language, Property}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
-import de.hpi.isg.dataprep.metadata.{LanguageMetadata, UnsupportedLanguageException}
+import de.hpi.isg.dataprep.metadata.LanguageMetadataOld.LanguageEnum
+import de.hpi.isg.dataprep.metadata.{LanguageMetadataOld, UnsupportedLanguageException}
 import de.hpi.isg.dataprep.model.error.{PreparationError, PropertyError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.DetectLanguagePreparator
@@ -52,7 +52,8 @@ class DefaultDetectLanguagePreparatorImpl extends AbstractPreparatorImpl with Se
     val javaMap = new util.HashMap[Integer, LanguageEnum]()
     langPerChunk.foreach(entry => javaMap.put(entry._1, entry._2))
 
-    val langMetadata = new LanguageMetadata(propertyName, javaMap, preparator.chunkSize)
+//    val langMetadata = new LanguageMetadataOld(propertyName, javaMap, preparator.chunkSize)
+    val langMetadata = Language(Property(propertyName), null);
     abstractPreparator.addUpdateMetadata(langMetadata)
 
     new ExecutionContext(dataFrame, errorAccumulator)

@@ -2,8 +2,7 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.{lang, util}
 
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.util.HashAlgorithm

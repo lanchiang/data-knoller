@@ -61,7 +61,7 @@ class DefaultChangeTableEncodingImpl extends AbstractPreparatorImpl {
     */
   private def reloadWith(dialect: FileLoadDialect, pipeline: AbstractPipeline): DataFrame = {
     val createdDataset = new FlatFileDataLoader(dialect).load().getDataFrame
-    pipeline.getMetadataRepository.reset()
+    pipeline.getMetadataRepository.clear()
     pipeline.initMetadataRepository()
     createdDataset
   }

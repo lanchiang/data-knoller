@@ -4,14 +4,13 @@ import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 
-import de.hpi.isg.dataprep.ExecutionContext
+import de.hpi.isg.dataprep.{Encoding, ExecutionContext}
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
 import de.hpi.isg.dataprep.exceptions.{EncodingNotDetectedException, ImproperTargetEncodingException}
 import de.hpi.isg.dataprep.metadata.FileEncoding
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.ChangeFilesEncoding
 import org.apache.spark.sql.execution.streaming.FileStreamSource.Timestamp
 import org.apache.spark.sql.expressions.UserDefinedFunction
@@ -52,7 +51,8 @@ class DefaultChangeFilesEncodingImpl extends AbstractPreparatorImpl {
 
   private def getEncodingFromMetadata(preparator: ChangeFilesEncoding): String = {
     val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
-    val mockMetadata = new FileEncoding(preparator.propertyName, null)
+//    val mockMetadata = new FileEncoding(preparator.propertyName, null)
+    val mockMetadata = Encoding(null, null)
     val metadataOrNull = metadataRepository.getMetadata(mockMetadata)
     metadataOrNull match {
       case metadataEncoding: FileEncoding => metadataEncoding.getFileEncoding

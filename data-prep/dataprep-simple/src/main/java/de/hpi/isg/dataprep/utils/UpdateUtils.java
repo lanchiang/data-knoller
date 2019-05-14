@@ -2,14 +2,11 @@ package de.hpi.isg.dataprep.utils;
 
 import de.hpi.isg.dataprep.ExecutionContext;
 import de.hpi.isg.dataprep.components.Pipeline;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.Schema;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-
-import java.util.List;
 
 /**
  * This is the class to provide update related utility functions.

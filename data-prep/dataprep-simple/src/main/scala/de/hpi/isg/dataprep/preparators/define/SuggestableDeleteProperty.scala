@@ -2,7 +2,7 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}

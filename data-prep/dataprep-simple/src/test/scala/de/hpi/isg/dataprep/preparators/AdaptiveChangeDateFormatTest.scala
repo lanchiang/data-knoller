@@ -2,9 +2,10 @@ package de.hpi.isg.dataprep.preparators
 
 import java.util
 
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.components.Preparation
 import de.hpi.isg.dataprep.metadata.PropertyDatePattern
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
+import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata}
 import de.hpi.isg.dataprep.preparators.define.AdaptiveChangeDateFormat
 import de.hpi.isg.dataprep.selection.DataLoadingConfigScala
 import de.hpi.isg.dataprep.util.DatePattern
@@ -47,7 +48,7 @@ class AdaptiveChangeDateFormatTest extends DataLoadingConfigScala {
     )
 
     val metadata = new util.ArrayList[Metadata]()
-    metadata.add(dateMetadata)
+//    metadata.add(dateMetadata)
 
     val preparator = new AdaptiveChangeDateFormat(columnName, None, DatePattern.DatePatternEnum.DayMonthYear)
     preparator.buildMetadataSetup()

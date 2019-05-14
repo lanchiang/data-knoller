@@ -2,18 +2,16 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble.HISTOGRAM_ALGORITHM
 import de.hpi.isg.dataprep.preparators.define.SuggestableRemovePreamble.HISTOGRAM_ALGORITHM.HISTOGRAM_ALGORITHM
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
-
-import collection.JavaConverters._
 
 /**
   * @author Lan Jiang

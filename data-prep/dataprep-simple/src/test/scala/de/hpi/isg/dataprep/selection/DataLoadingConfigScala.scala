@@ -1,16 +1,13 @@
 package de.hpi.isg.dataprep.selection
 
-import de.hpi.isg.dataprep.DialectBuilder
 import de.hpi.isg.dataprep.components.Pipeline
 import de.hpi.isg.dataprep.io.context.DataContext
 import de.hpi.isg.dataprep.io.load.{FlatFileDataLoader, SparkDataLoader}
-import de.hpi.isg.dataprep.metadata.{PreambleExistence, PropertyDataType, PropertyExistence}
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect
-import de.hpi.isg.dataprep.model.target.objects.Metadata
 import de.hpi.isg.dataprep.model.target.schema.{Attribute, Transform}
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline
 import de.hpi.isg.dataprep.schema.transforms.TransDeleteAttribute
-import de.hpi.isg.dataprep.util.DataType
+import de.hpi.isg.dataprep.{DialectBuilder, Metadata}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.types
 import org.apache.spark.sql.types.{DataTypes, StructField}
@@ -18,7 +15,6 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpecLike, Match
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.reflect.io.File
 
 trait DataLoadingConfigScala extends FlatSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
 
@@ -59,13 +55,13 @@ trait DataLoadingConfigScala extends FlatSpecLike with Matchers with BeforeAndAf
 
   private def createTargetMetadataManually: Set[Metadata] = {
     val targetMetadata = new ListBuffer[Metadata]
-    targetMetadata += new PreambleExistence(false)
-    targetMetadata += new PropertyExistence("month", true)
-    targetMetadata += new PropertyExistence("day", true)
-    targetMetadata += new PropertyExistence("year", true)
-    targetMetadata += new PropertyDataType("month", DataType.PropertyType.STRING)
-    targetMetadata += new PropertyDataType("day", DataType.PropertyType.STRING)
-    targetMetadata += new PropertyDataType("year", DataType.PropertyType.STRING)
+//    targetMetadata += new PreambleExistence(false)
+//    targetMetadata += new PropertyExistence("month", true)
+//    targetMetadata += new PropertyExistence("day", true)
+//    targetMetadata += new PropertyExistence("year", true)
+//    targetMetadata += new PropertyDataType("month", DataType.PropertyType.STRING)
+//    targetMetadata += new PropertyDataType("day", DataType.PropertyType.STRING)
+//    targetMetadata += new PropertyDataType("year", DataType.PropertyType.STRING)
     targetMetadata.toSet
   }
 

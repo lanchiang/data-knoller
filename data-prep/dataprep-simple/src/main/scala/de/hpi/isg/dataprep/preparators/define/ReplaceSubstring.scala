@@ -3,11 +3,11 @@ package de.hpi.isg.dataprep.preparators.define
 import java.{lang, util}
 import java.util.{ArrayList, List}
 
+import de.hpi.isg.dataprep.{Metadata, PropertyDataType}
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
+import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, MetadataOld}
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultReplaceSubstringImpl
 import de.hpi.isg.dataprep.util.DataType
@@ -45,7 +45,7 @@ class ReplaceSubstring(val propertyName: String,
     if (times < 0) throw new IllegalArgumentException(String.format("Cannot replace the first minus sub-strings."))
 
     //        prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
-    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
     this.prerequisites.addAll(prerequisites)
     this.updates.addAll(tochange)

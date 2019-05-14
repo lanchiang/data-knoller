@@ -1,17 +1,11 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.{lang, util}
-import java.util.{ArrayList, List}
+import java.util
 
-import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDataType
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
-import de.hpi.isg.dataprep.preparators.implementation.DefaultPaddingImpl
-import de.hpi.isg.dataprep.util.DataType
-import de.hpi.isg.dataprep.util.DataType.PropertyType
+import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import org.apache.spark.sql.{Dataset, Row}
 
 /**
@@ -42,7 +36,7 @@ class Padding(val propertyName: String,
     // illegal padding length was input.
     if (expectedLength <= 0) throw new IllegalArgumentException(String.format("Padding length is illegal!"))
 
-    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
     // when basic statistics is implemented, one shall be capable of retrieving value length from the metadata repository
     // therefore, this method shall compare the value length as well.

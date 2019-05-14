@@ -1,20 +1,16 @@
 package de.hpi.isg.dataprep.preparators.implementation
 
-import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
-import java.util.Properties
-
 import de.hpi.isg.dataprep.ExecutionContext
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-import de.hpi.isg.dataprep.metadata.{LanguageMetadata, LemmatizedMetadata}
-import de.hpi.isg.dataprep.metadata.LanguageMetadata.LanguageEnum
+import de.hpi.isg.dataprep.metadata.{LanguageMetadataOld, LemmatizedMetadataOld}
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
 import de.hpi.isg.dataprep.preparators.define.LemmatizePreparator
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
-import org.apache.spark.sql.{DataFrame, Dataset, Row, functions}
-import org.apache.spark.util.CollectionAccumulator
 import org.apache.spark.sql.functions.lit
-import org.languagetool.{AnalyzedToken, AnalyzedTokenReadings, JLanguageTool, Language}
+import org.apache.spark.sql.{Dataset, Row, functions}
+import org.apache.spark.util.CollectionAccumulator
+import org.languagetool.{AnalyzedTokenReadings, JLanguageTool, Language}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
@@ -56,67 +52,69 @@ class DefaultLemmatizePreparatorImpl extends AbstractPreparatorImpl with Seriali
     * @throws Exception
     */
   override protected def executeLogic(abstractPreparator: AbstractPreparator, dataFrame: Dataset[Row], errorAccumulator: CollectionAccumulator[PreparationError]): ExecutionContext = {
-    val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
-    val propertyName = preparator.propertyName
+//    val preparator = abstractPreparator.asInstanceOf[LemmatizePreparator]
+//    val propertyName = preparator.propertyName
+//
+//    val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
+//      new LanguageMetadataOld(propertyName, null)).asInstanceOf[LanguageMetadataOld]
+//
+//    val realErrors = ListBuffer[PreparationError]()
+//    var df = dataFrame
+//    df = df.withColumn(propertyName + "_lemmatized", lit(""))
+//
+//    val rowEncoder = RowEncoder(df.schema)
+//    val createdDataset = df.withColumn("iter_index", functions.monotonically_increasing_id()).flatMap(row => {
+//      val index = row.getAs[Long]("iter_index").asInstanceOf[Int]
+//
+//      val language = langMeta.getLanguage(index)
+//
+//      val valIndexTry = Try {
+//        row.fieldIndex(propertyName)
+//      }
+//      val valIndex = valIndexTry match {
+//        case Failure(content) => throw content
+//        case Success(content) => content
+//      }
+//      val operatedValue = row.getAs[String](valIndex)
+//
+//      val newIndexTry = Try {
+//        row.fieldIndex(propertyName + "_lemmatized")
+//      }
+//      val newIndex = newIndexTry match {
+//        case Failure(content) => throw content
+//        case Success(content) => content
+//      }
+//
+//      val seq = row.toSeq
+//      val tryConvert = Try {
+//        val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
+//          if (newIndex == index && language != null)
+//            lemmatizeString(operatedValue, language.getType)
+//          else if (newIndex == index)
+//            operatedValue
+//          else
+//            value
+//        }
+//        val newRow = Row.fromSeq(newSeq)
+//        newRow
+//      }
+//
+//      val trial = tryConvert match {
+//        case Failure(content) =>
+//          errorAccumulator.add(new RecordError(operatedValue.toString, content))
+//          tryConvert
+//        case Success(content) => tryConvert
+//      }
+//      trial.toOption
+//    })(rowEncoder).drop("iter_index")
+//
+//
+//    createdDataset.count()
+//    abstractPreparator.addUpdateMetadata(new LemmatizedMetadataOld(propertyName))
+//
+//    new ExecutionContext(createdDataset, errorAccumulator)
 
-    val langMeta = preparator.getPreparation.getPipeline.getMetadataRepository.getMetadata(
-      new LanguageMetadata(propertyName, null)).asInstanceOf[LanguageMetadata]
-
-    val realErrors = ListBuffer[PreparationError]()
-    var df = dataFrame
-    df = df.withColumn(propertyName + "_lemmatized", lit(""))
-
-    val rowEncoder = RowEncoder(df.schema)
-    val createdDataset = df.withColumn("iter_index", functions.monotonically_increasing_id()).flatMap(row => {
-      val index = row.getAs[Long]("iter_index").asInstanceOf[Int]
-
-      val language = langMeta.getLanguage(index)
-
-      val valIndexTry = Try {
-        row.fieldIndex(propertyName)
-      }
-      val valIndex = valIndexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
-      val operatedValue = row.getAs[String](valIndex)
-
-      val newIndexTry = Try {
-        row.fieldIndex(propertyName + "_lemmatized")
-      }
-      val newIndex = newIndexTry match {
-        case Failure(content) => throw content
-        case Success(content) => content
-      }
-
-      val seq = row.toSeq
-      val tryConvert = Try {
-        val newSeq = seq.zipWithIndex.map { case (value: Any, index: Int) =>
-          if (newIndex == index && language != null)
-            lemmatizeString(operatedValue, language.getType)
-          else if (newIndex == index)
-            operatedValue
-          else
-            value
-        }
-        val newRow = Row.fromSeq(newSeq)
-        newRow
-      }
-
-      val trial = tryConvert match {
-        case Failure(content) =>
-          errorAccumulator.add(new RecordError(operatedValue.toString, content))
-          tryConvert
-        case Success(content) => tryConvert
-      }
-      trial.toOption
-    })(rowEncoder).drop("iter_index")
-
-
-    createdDataset.count()
-    abstractPreparator.addUpdateMetadata(new LemmatizedMetadata(propertyName))
-
-    new ExecutionContext(createdDataset, errorAccumulator)
+    ???
   }
 
 }

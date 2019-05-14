@@ -1,11 +1,11 @@
 package de.hpi.isg.dataprep.model.target.system;
 
 import de.hpi.isg.dataprep.ExecutionContext;
+import de.hpi.isg.dataprep.Metadata;
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl;
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException;
 import de.hpi.isg.dataprep.exceptions.PreparationHasErrorException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -115,11 +115,18 @@ abstract public class AbstractPreparator implements Executable {
         MetadataRepository metadataRepository = this.getPreparation().getPipeline().getMetadataRepository();
 
         // but if not match invalid.
+//        prerequisites.stream()
+////                .forEach(metadata -> {
+////                    MetadataOld that = metadataRepository.getMetadata(metadata);
+////                    if (that == null || !metadata.equalsByValue(that)) {
+////                        invalid.add(metadata);
+////                    }
+////                });
         prerequisites.stream()
-                .forEach(metadata -> {
-                    Metadata that = metadataRepository.getMetadata(metadata);
-                    if (that == null || !metadata.equalsByValue(that)) {
-                        invalid.add(metadata);
+                .forEach(metadataCases -> {
+                    Metadata that = metadataRepository.getMetadata(metadataCases);
+                    if (that == null || !metadataCases.equals(that)) {
+                        invalid.add(metadataCases);
                     }
                 });
     }

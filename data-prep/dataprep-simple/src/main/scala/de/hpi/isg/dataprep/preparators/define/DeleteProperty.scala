@@ -1,18 +1,12 @@
 package de.hpi.isg.dataprep.preparators.define
 
-import java.{lang, util}
+import java.util
 
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
-import de.hpi.isg.dataprep.model.target.schema.{Attribute, Schema, SchemaMapping}
+import de.hpi.isg.dataprep.model.target.schema.{Attribute, SchemaMapping}
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
-import de.hpi.isg.dataprep.preparators.implementation.DefaultDeletePropertyImpl
-import de.hpi.isg.dataprep.util.DataType
 import org.apache.spark.sql.{Dataset, Row}
-
-import scala.collection.mutable.ListBuffer
 
 /**
   * Delete a property in a dataset.

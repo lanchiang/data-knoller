@@ -2,10 +2,10 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 import scala.util.matching.Regex;
 
-public class DINPhoneNumber extends Metadata {
+public class DINPhoneNumber extends MetadataOld {
 
     private Boolean countryCode;
     private Boolean areaCode;
@@ -32,7 +32,7 @@ public class DINPhoneNumber extends Metadata {
     }
 
     @Override
-    public boolean equalsByValue(Metadata metadata) {
+    public boolean equalsByValue(MetadataOld metadata) {
         if (metadata instanceof DINPhoneNumber) {
             DINPhoneNumber converted = (DINPhoneNumber)metadata;
             return countryCode.equals(converted.getCountryCode())

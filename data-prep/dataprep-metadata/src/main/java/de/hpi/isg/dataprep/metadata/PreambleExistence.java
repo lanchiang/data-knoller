@@ -2,8 +2,7 @@ package de.hpi.isg.dataprep.metadata;
 
 import de.hpi.isg.dataprep.exceptions.RuntimeMetadataException;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 
 /**
  * This metadata specifies the existence of preambles in a DataFrame.
@@ -11,7 +10,7 @@ import de.hpi.isg.dataprep.model.target.objects.MetadataScope;
  * @author Lasse Kohlmeyer
  * @since 2018/11/28
  */
-public class PreambleExistence extends Metadata {
+public class PreambleExistence extends MetadataOld {
 
     private boolean preambleExistence;
 
@@ -31,7 +30,7 @@ public class PreambleExistence extends Metadata {
     }
 
     @Override
-    public boolean equalsByValue(Metadata metadata) {
+    public boolean equalsByValue(MetadataOld metadata) {
         return this.equals(metadata);
     }
 

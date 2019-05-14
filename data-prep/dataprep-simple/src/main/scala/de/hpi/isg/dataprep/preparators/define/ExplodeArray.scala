@@ -2,10 +2,11 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.{lang, util}
 
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld
 import de.hpi.isg.dataprep.model.target.schema.{Schema, SchemaMapping}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultExplodeArrayImpl
 import org.apache.spark.sql.{Dataset, Row}

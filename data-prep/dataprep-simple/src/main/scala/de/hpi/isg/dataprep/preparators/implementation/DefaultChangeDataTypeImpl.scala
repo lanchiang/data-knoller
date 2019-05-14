@@ -3,15 +3,13 @@ package de.hpi.isg.dataprep.preparators.implementation
 import java.util
 
 import de.hpi.isg.dataprep.components.AbstractPreparatorImpl
-import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.error.{PreparationError, RecordError}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator
-
 import de.hpi.isg.dataprep.preparators.define.ChangeDataType
 import de.hpi.isg.dataprep.schema.SchemaUtils
 import de.hpi.isg.dataprep.util.DataType
 import de.hpi.isg.dataprep.util.DataType.PropertyType
-import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext}
+import de.hpi.isg.dataprep.{ConversionHelper, ExecutionContext, Property, PropertyDataType}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.util.CollectionAccumulator
@@ -30,9 +28,9 @@ class DefaultChangeDataTypeImpl extends AbstractPreparatorImpl {
     val targetDataType = preparator.targetType
 
     val metadataRepository = preparator.getPreparation.getPipeline.getMetadataRepository
-    val metadata = new PropertyDataType(fieldName, null)
+    val metadata = new PropertyDataType(new Property(fieldName), null);
     val sourceDataType = Option(preparator.sourceType) match {
-      case None => metadataRepository.getMetadata(metadata).asInstanceOf[PropertyDataType].getPropertyDataType
+      case None => metadataRepository.getMetadata(metadata).asInstanceOf[PropertyDataType].dataType
       case Some(_) => preparator.sourceType
     }
 

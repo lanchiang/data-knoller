@@ -3,15 +3,13 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util
 
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
-import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator.PreparatorTarget
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.{ChangeDateFormatUtils, LocalePattern, PatternCriteria}
 import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import de.hpi.isg.dataprep.{DateFormat, Metadata, Property, PropertyDataType}
 import org.apache.spark.sql.{Dataset, Row}
 
 import scala.collection.JavaConverters._
@@ -27,9 +25,6 @@ class SuggestableChangeDateFormat(var propertyName: String,
                                   var sourceDatePattern: Option[DatePatternEnum] = None,
                                   var targetDatePattern: Option[DatePatternEnum] = None) extends AbstractPreparator {
 
-  /**
-    * Empty parameter constructor for the decision engine.
-    */
   def this() {
     this(null)
   }
@@ -45,21 +40,24 @@ class SuggestableChangeDateFormat(var propertyName: String,
   override def buildMetadataSetup(): Unit = {
     val prerequisites = new util.ArrayList[Metadata]
     val toChange = new util.ArrayList[Metadata]
-    prerequisites.add(new PropertyDataType(propertyName, PropertyType.STRING))
 
-    if (propertyName == null) {
-      throw new ParameterNotSpecifiedException("Property name not specified!")
-    }
-
-    sourceDatePattern match {
-      case Some(pattern) => prerequisites.add(new PropertyDatePattern(pattern, new ColumnMetadata(propertyName)))
-      case None =>
-    }
-
-    targetDatePattern match {
-      case Some(pattern) => toChange.add(new PropertyDatePattern(pattern, new ColumnMetadata(propertyName)))
-      case None => throw new ParameterNotSpecifiedException("Target pattern not specified!")
-    }
+//    val property = Property(propertyName)
+//
+//    prerequisites.add(PropertyDataType(property, PropertyType.STRING.name()))
+//
+//    if (propertyName == null) {
+//      throw new ParameterNotSpecifiedException("Property name not specified!")
+//    }
+//
+//    sourceDatePattern match {
+//      case Some(pattern) => prerequisites.add(DateFormat(property, pattern.getPattern))
+//      case None =>
+//    }
+//
+//    targetDatePattern match {
+//      case Some(pattern) => toChange.add(DateFormat(property, pattern.getPattern))
+//      case None => throw new ParameterNotSpecifiedException("Target pattern not specified!")
+//    }
 
     this.prerequisites.addAll(prerequisites)
     this.updates.addAll(toChange)
@@ -70,7 +68,7 @@ class SuggestableChangeDateFormat(var propertyName: String,
     *
     * @param schemaMapping  is the schema of the input data
     * @param dataset        is the input dataset
-    * @param targetMetadata is the set of { @link Metadata} that shall be fulfilled for the output data
+    * @param targetMetadata is the set of { @link MetadataOld} that shall be fulfilled for the output data
     * @return the applicability matrix succinctly represented by a hash map. Each key stands for
     *         a { @link ColumnCombination} in the dataset, and its value the applicability score of this preparator signature.
     */
@@ -132,7 +130,7 @@ class SuggestableChangeDateFormat(var propertyName: String,
   }
 
   private def containByValue(metadata: Metadata, collection: util.Collection[Metadata]): Boolean = {
-    val contain = collection.asScala.filter(target => target.equalsByValue(metadata)).size match {
+    val contain = collection.asScala.filter(target => target == metadata).size match {
       case count if count > 0 => true
       case _ => false
     }

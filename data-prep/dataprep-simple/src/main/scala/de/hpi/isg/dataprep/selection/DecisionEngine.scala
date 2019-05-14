@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.selection
 
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.Metadata
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPreparator, Engine}
 import org.apache.spark.sql.{Column, Dataset, Row}

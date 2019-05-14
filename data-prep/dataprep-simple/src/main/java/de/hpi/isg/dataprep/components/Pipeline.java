@@ -1,6 +1,7 @@
 package de.hpi.isg.dataprep.components;
 
 import de.hpi.isg.dataprep.ExecutionContext;
+import de.hpi.isg.dataprep.Metadata;
 import de.hpi.isg.dataprep.MetadataEngine;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.initializer.ManualMetadataInitializer;
@@ -13,21 +14,15 @@ import de.hpi.isg.dataprep.model.repository.MetadataRepository;
 import de.hpi.isg.dataprep.model.target.errorlog.ErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PipelineErrorLog;
 import de.hpi.isg.dataprep.model.target.errorlog.PreparationErrorLog;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
-import de.hpi.isg.dataprep.model.target.results.SuggestedPreparator;
 import de.hpi.isg.dataprep.model.target.results.SuggestionResults;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.model.target.system.AbstractPipeline;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparation;
 import de.hpi.isg.dataprep.model.target.system.AbstractPreparator;
 import de.hpi.isg.dataprep.write.FlatFileWriter;
-import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,15 +38,29 @@ public class Pipeline implements AbstractPipeline {
 
     private String name = "default-pipeline";
 
-    private MetadataRepository metadataRepository;
-    private ErrorRepository errorRepository = new ErrorRepository();
-
+    /**
+     * The list of preparations defined in this pipeline. Each of the preparation wraps a particular preparator.
+     */
     private List<AbstractPreparation> preparations = new LinkedList<>();
 
+    /**
+     * The repository to store metadata.
+     */
+    private MetadataRepository metadataRepository;
+
+    /**
+     * The repository to store likely errors.
+     */
+    private ErrorRepository errorRepository = new ErrorRepository();
+
+    /**
+     * The decision engine component produces suggested preparators to the pipeline.
+     */
     private DecisionEngine decisionEngine = DecisionEngine.getInstance();
 
-    private MetadataEngine metadataEngine;
-
+    /**
+     * The index indicates the number of preparators in this pipeline.
+     */
     private int index = 0;
 
     /**
@@ -85,8 +94,6 @@ public class Pipeline implements AbstractPipeline {
         this.dialect = dataContext.getDialect();
         this.schemaMapping = dataContext.getSchemaMapping();
         this.targetMetadata = dataContext.getTargetMetadata();
-
-        this.metadataEngine = new MetadataEngine();
 
         // initialize and configure the pipeline.
         initPipeline();
@@ -122,7 +129,7 @@ public class Pipeline implements AbstractPipeline {
         }
 
         // remove all the metadata assumed during the pipeline error check phase.
-        metadataRepository.getMetadataPool().clear();
+        metadataRepository.clear();
     }
 
     @Override
@@ -192,7 +199,7 @@ public class Pipeline implements AbstractPipeline {
     @Override
     public void initMetadataRepository() {
         // Todo: now for test, using ManualMetadataInitializer. This is not a good way to specify the initializer.
-        metadataRepository = metadataEngine.initMetadataRepository(new ManualMetadataInitializer(this.dialect, this.dataset));
+        metadataRepository = MetadataEngine.initMetadataRepository(new ManualMetadataInitializer(this.dialect, this.dataset));
     }
 
     @Override
@@ -304,7 +311,7 @@ public class Pipeline implements AbstractPipeline {
 
     @Override
     public void updateMetadataRepository(Collection<Metadata> coming) {
-        metadataEngine.updateMetadata(coming, metadataRepository);
+        metadataRepository.update(coming);
     }
 
     @Override

@@ -2,21 +2,18 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
-import de.hpi.isg.dataprep.DateScorer
-import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{PropertyDataType, PropertyDatePattern}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.{ColumnMetadata, Metadata}
+import de.hpi.isg.dataprep.metadata.PropertyDatePattern
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
+import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultChangeDateFormatImpl
-import de.hpi.isg.dataprep.util.DataType.PropertyType
 import de.hpi.isg.dataprep.util.DatePattern.DatePatternEnum
+import de.hpi.isg.dataprep.{DateScorer, Metadata}
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.{Dataset, Row}
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import collection.JavaConverters._
 
 class ChangeDateFormat(var propertyName: String,
                        var sourceDatePattern: Option[DatePatternEnum] = None,
@@ -36,21 +33,21 @@ class ChangeDateFormat(var propertyName: String,
   override def buildMetadataSetup(): Unit = {
     val prerequisites = ListBuffer[Metadata]()
     val toChange = ListBuffer[Metadata]()
-    prerequisites += new PropertyDataType(propertyName, PropertyType.STRING)
+//    prerequisites += new PropertyDataType(propertyName, PropertyType.STRING)
 
     if (propertyName == null) {
       throw new ParameterNotSpecifiedException("Property name not specified!")
     }
 
-    sourceDatePattern match {
-      case Some(pattern) => prerequisites += new PropertyDatePattern(pattern, new ColumnMetadata(propertyName))
-      case None =>
-    }
-
-    targetDatePattern match {
-      case Some(pattern) => toChange += new PropertyDatePattern(pattern, new ColumnMetadata(propertyName))
-      case None => throw new ParameterNotSpecifiedException("Target pattern not specified!")
-    }
+//    sourceDatePattern match {
+//      case Some(pattern) => prerequisites += new PropertyDatePattern(pattern, new ColumnMetadata(propertyName))
+//      case None =>
+//    }
+//
+//    targetDatePattern match {
+//      case Some(pattern) => toChange += new PropertyDatePattern(pattern, new ColumnMetadata(propertyName))
+//      case None => throw new ParameterNotSpecifiedException("Target pattern not specified!")
+//    }
 
     this.prerequisites.addAll(prerequisites.toList.asJava)
     this.updates.addAll(toChange.toList.asJava)
@@ -64,7 +61,7 @@ class ChangeDateFormat(var propertyName: String,
     * @param schemaMapping is the schema of the input data towards the schema of the output data.
     * @param dataset is the input dataset slice. A slice can be a subset of the columns of the data,
     *                or a subset of the rows of the data.
-    * @param targetMetadata is the set of {@link Metadata} that shall be fulfilled for the output data
+    * @param targetMetadata is the set of {@link MetadataOld} that shall be fulfilled for the output data
     *     */
   override def calApplicability(schemaMapping: SchemaMapping, dataset: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {
     val impl = this.impl.asInstanceOf[DefaultChangeDateFormatImpl]

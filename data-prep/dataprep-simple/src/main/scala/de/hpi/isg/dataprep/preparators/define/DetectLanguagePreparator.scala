@@ -3,10 +3,9 @@ package de.hpi.isg.dataprep.preparators.define
 import java.util
 
 import de.hpi.isg.dataprep
+import de.hpi.isg.dataprep.Metadata
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.{LanguageMetadata, PropertyDataType}
-import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.metadata.LanguageMetadataOld
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.util.DataType
@@ -37,7 +36,7 @@ class DetectLanguagePreparator() extends AbstractPreparator {
   override def buildMetadataSetup(): Unit = {
     if (propertyName == null)
       throw new ParameterNotSpecifiedException(String.format("ColumnMetadata name not specified."))
-    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//    this.prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
 
   }
 
@@ -56,9 +55,9 @@ class DetectLanguagePreparator() extends AbstractPreparator {
         val metadataRepository = schema.fields(0).metadata
 
         import scala.collection.JavaConverters._
-        val languageMetadata = new LanguageMetadata(propertyName, null) // any language
+        val languageMetadata = new LanguageMetadataOld(propertyName, null) // any language
         val checkLanguageMetadata = targetMetadata.asScala.find(md =>
-          md.isInstanceOf[LanguageMetadata] && md.asInstanceOf[LanguageMetadata].equalsByValue(languageMetadata))
+          md.isInstanceOf[LanguageMetadataOld] && md.asInstanceOf[LanguageMetadataOld].equalsByValue(languageMetadata))
 
         val hasStringMetadata = DataType.getSparkTypeFromInnerType(
           dataprep.util.DataType.PropertyType.STRING).equals(schema.fields(0).dataType)

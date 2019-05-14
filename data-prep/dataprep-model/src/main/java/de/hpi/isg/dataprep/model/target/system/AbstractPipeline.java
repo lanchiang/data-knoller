@@ -1,10 +1,11 @@
 package de.hpi.isg.dataprep.model.target.system;
 
+import de.hpi.isg.dataprep.Metadata;
 import de.hpi.isg.dataprep.exceptions.PipelineSyntaxErrorException;
 import de.hpi.isg.dataprep.model.dialects.FileLoadDialect;
 import de.hpi.isg.dataprep.model.repository.ErrorRepository;
 import de.hpi.isg.dataprep.model.repository.MetadataRepository;
-import de.hpi.isg.dataprep.model.target.objects.Metadata;
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld;
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping;
 import de.hpi.isg.dataprep.util.Nameable;
 import de.hpi.isg.dataprep.util.Printable;
@@ -57,7 +58,7 @@ public interface AbstractPipeline extends Nameable, Printable {
     void initMetadataRepository();
 
     /**
-     * Configure the {@link de.hpi.isg.dataprep.model.target.objects.Metadata} prerequisites used when checking metadata, as well as
+     * Configure the {@link MetadataOld} prerequisites used when checking metadata, as well as
      * the set of metadata that will be modified after executing a preparator successfully.
      */
     void buildMetadataSetup();

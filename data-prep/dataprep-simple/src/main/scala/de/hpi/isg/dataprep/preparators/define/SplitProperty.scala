@@ -2,10 +2,10 @@ package de.hpi.isg.dataprep.preparators.define
 
 import java.util
 
+import de.hpi.isg.dataprep.{Metadata, PropertyDataType}
 import de.hpi.isg.dataprep.exceptions.ParameterNotSpecifiedException
-import de.hpi.isg.dataprep.metadata.PropertyDataType
 import de.hpi.isg.dataprep.model.repository.MetadataRepository
-import de.hpi.isg.dataprep.model.target.objects.Metadata
+import de.hpi.isg.dataprep.model.target.objects.MetadataOld
 import de.hpi.isg.dataprep.model.target.schema.SchemaMapping
 import de.hpi.isg.dataprep.model.target.system.{AbstractPipeline, AbstractPreparator}
 import de.hpi.isg.dataprep.preparators.implementation.DefaultSplitPropertyImpl
@@ -45,7 +45,7 @@ class SplitProperty(var propertyName: Option[String], var separator: Option[Sepa
         if (n <= 1) throw new IllegalArgumentException("numCols must be greater than 1 in order to split a column.")
       case _ =>
     }
-    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
+//    prerequisites.add(new PropertyDataType(propertyName, DataType.PropertyType.STRING))
   }
 
   override def calApplicability(schemaMapping: SchemaMapping, dataFrame: Dataset[Row], targetMetadata: util.Collection[Metadata], pipeline: AbstractPipeline): Float = {

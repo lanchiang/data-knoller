@@ -81,18 +81,18 @@ public class PipelineTest extends DataLoadingConfig {
 //        StructType updatedSchema = updated.schema();
 //
 //        StructType trueSchema = new StructType(new StructField[]{
-//                new StructField("id", DataTypes.StringType, true, Metadata.empty()),
-//                new StructField("identifier", DataTypes.StringType, true, Metadata.empty()),
-//                new StructField("species_id", DataTypes.IntegerType, true, Metadata.empty()),
-//                new StructField("height", DataTypes.IntegerType, true, Metadata.empty()),
-//                new StructField("weight", DataTypes.IntegerType, true, Metadata.empty()),
-//                new StructField("base_experience", DataTypes.StringType, true, Metadata.empty()),
-//                new StructField("order", DataTypes.IntegerType, true, Metadata.empty()),
-//                new StructField("is_default", DataTypes.IntegerType, true, Metadata.empty()),
-//                new StructField("date", DataTypes.StringType, true, Metadata.empty()),
-//                new StructField("stemlemma", DataTypes.StringType, true, Metadata.empty()),
-//                new StructField("stemlemma2", DataTypes.StringType, true, Metadata.empty()),
-//                new StructField("stemlemma_wrong", DataTypes.StringType, true, Metadata.empty()),
+//                new StructField("id", DataTypes.StringType, true, MetadataOld.empty()),
+//                new StructField("identifier", DataTypes.StringType, true, MetadataOld.empty()),
+//                new StructField("species_id", DataTypes.IntegerType, true, MetadataOld.empty()),
+//                new StructField("height", DataTypes.IntegerType, true, MetadataOld.empty()),
+//                new StructField("weight", DataTypes.IntegerType, true, MetadataOld.empty()),
+//                new StructField("base_experience", DataTypes.StringType, true, MetadataOld.empty()),
+//                new StructField("order", DataTypes.IntegerType, true, MetadataOld.empty()),
+//                new StructField("is_default", DataTypes.IntegerType, true, MetadataOld.empty()),
+//                new StructField("date", DataTypes.StringType, true, MetadataOld.empty()),
+//                new StructField("stemlemma", DataTypes.StringType, true, MetadataOld.empty()),
+//                new StructField("stemlemma2", DataTypes.StringType, true, MetadataOld.empty()),
+//                new StructField("stemlemma_wrong", DataTypes.StringType, true, MetadataOld.empty()),
 //        });
 //
 //        // Second test whether the schema is correctly updated.
@@ -120,7 +120,7 @@ public class PipelineTest extends DataLoadingConfig {
         List<ErrorLog> trueErrorlogs = new ArrayList<>();
 
         ErrorLog pipelineError1 = new PipelineErrorLog(pipeline, preparation3,
-                new MetadataNotMatchException(String.format("Metadata value does not match that in the repository.")));
+                new MetadataNotMatchException(String.format("MetadataOld value does not match that in the repository.")));
 
         trueErrorlogs.add(pipelineError1);
 
