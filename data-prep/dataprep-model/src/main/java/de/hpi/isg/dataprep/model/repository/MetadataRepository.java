@@ -14,7 +14,7 @@ import java.util.Set;
  * @author Lan Jiang
  * @since 2018/6/4
  */
-public class MetadataRepository implements Serializable {
+public class MetadataRepository extends AbstractMetadataRepository implements Serializable {
 
     // the set of metadata this metadata repository is holding currently.
     private Set<Metadata> metadataPool;
