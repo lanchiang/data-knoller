@@ -171,6 +171,8 @@ public class MergeAttributeTest {
 //		pipeline.executePipeline();
 //		pipeline.getDataset().show();
 		DecisionEngine decisionEngine = DecisionEngine.getInstance();
+		decisionEngine.setPreparatorCandidates(new String[]{"MergeAttribute"});
+
 		AbstractPreparator actualPreparator = decisionEngine.selectBestPreparator(pipeline);
 		pipeline = new Pipeline(dataLoader.load());
 		pipeline.addPreparation(new Preparation(actualPreparator));
@@ -210,6 +212,7 @@ public class MergeAttributeTest {
 		AbstractPreparation preparation = new Preparation(abstractPreparator);
 		pipeline.addPreparation(preparation);
         DecisionEngine decisionEngine = DecisionEngine.getInstance();
+
         AbstractPreparator selectedPrep =  decisionEngine.selectBestPreparator(pipeline);
         pipeline = new Pipeline(benkeContext);
         pipeline.addPreparation(new Preparation(selectedPrep));
