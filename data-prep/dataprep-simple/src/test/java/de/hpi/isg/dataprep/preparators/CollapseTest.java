@@ -20,23 +20,23 @@ import java.util.List;
  */
 public class CollapseTest extends DataLoadingConfig {
 
-    @BeforeClass
-    public static void setUp() {
-//        transforms = DataLoadingConfig.createTransformsManually();
-        DataLoadingConfig.basicSetup();
-    }
-
-    @Test
-    public void testCollapse() throws Exception {
-        AbstractPreparator abstractPreparator = new Collapse("identifier");
-
-        Preparation preparation = new Preparation(abstractPreparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
-
-        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
-    }
+//    @BeforeClass
+//    public static void setUp() {
+////        transforms = DataLoadingConfig.createTransformsManually();
+//        DataLoadingConfig.basicSetup();
+//    }
+//
+//    @Test
+//    public void testCollapse() throws Exception {
+//        AbstractPreparator abstractPreparator = new Collapse("identifier");
+//
+//        Preparation preparation = new Preparation(abstractPreparator);
+//        pipeline.addPreparation(preparation);
+//        pipeline.executePipeline();
+//
+//        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+//        ErrorRepository trueErrorRepository = new ErrorRepository(trueErrorlogs);
+//
+//        Assert.assertEquals(trueErrorRepository, pipeline.getErrorRepository());
+//    }
 }

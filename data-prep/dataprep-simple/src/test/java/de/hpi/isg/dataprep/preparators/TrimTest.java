@@ -25,20 +25,20 @@ public class TrimTest extends DataLoadingConfig {
 //        transforms = DataLoadingConfig.createTransformsManually();
         DataLoadingConfig.basicSetup();
     }
-
-    @Test
-    public void testTrim() throws Exception {
-        AbstractPreparator abstractPreparator = new Trim("identifier");
-
-        AbstractPreparation preparation = new Preparation(abstractPreparator);
-        pipeline.addPreparation(preparation);
-        pipeline.executePipeline();
-
-        List<ErrorLog> trueErrorlogs = new ArrayList<>();
-        ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
-        Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
-    }
-
+//
+//    @Test
+//    public void testTrim() throws Exception {
+//        AbstractPreparator abstractPreparator = new Trim("identifier");
+//
+//        AbstractPreparation preparation = new Preparation(abstractPreparator);
+//        pipeline.addPreparation(preparation);
+//        pipeline.executePipeline();
+//
+//        List<ErrorLog> trueErrorlogs = new ArrayList<>();
+//        ErrorRepository trueRepository = new ErrorRepository(trueErrorlogs);
+//        Assert.assertEquals(trueRepository, pipeline.getErrorRepository());
+//    }
+//
     @Test(expected = RuntimeException.class)
     public void testTrimNonexistColumn() throws Exception {
         AbstractPreparator preparator = new Trim("nonexist");
